@@ -1,0 +1,43 @@
+/* #root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+} */
+
+nav {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  /* margin-bottom: 2rem; */
+  padding: 3rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  /* max-width: 400px; */
+  align-items: center;
+}
+
+input {
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  width: 324px;
+}
+
+.error {
+  color: red;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  width: 340px;
+}
+
