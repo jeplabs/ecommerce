@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 export default function RegisterForm() {
+    // Estado para almacenar los datos del formulario, errores y estado de carga
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -8,9 +9,11 @@ export default function RegisterForm() {
         confirmPassword: "",
     })
 
+    // Estado para almacenar los errores del formulario
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     
+    // Funcion para validar la contraseña
     const validatePassword = (password, confirmPassword) => {
         const hasMinLength = password.length >= 8;
         const hasUpperCase = /[A-Z]/.test(password);
@@ -19,11 +22,13 @@ export default function RegisterForm() {
         return hasMinLength && hasUpperCase && hasNumber;
     }
 
+    // Función para validar el correo electrónico
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
+    // Función para manejar los cambios en los campos del formulario
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...prev, [name]: value });
@@ -33,11 +38,13 @@ export default function RegisterForm() {
         }
     };
 
+    // Función para manejar el envío del formulario
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const newErrors = {};
 
+        // Validaciones de campos obligatorios
         if (!validateEmail(formData.email)) {
             newErrors.email = "Correo inválido";
         }
@@ -58,6 +65,7 @@ export default function RegisterForm() {
         setLoading(true);
 
         try {
+            // Enviar el formulario a API
             const response = await fetch("/api/register", {
                 method: "POST",
                 headers: {
@@ -76,6 +84,7 @@ export default function RegisterForm() {
                 throw new Error("Error en el registro");
             }
 
+            // Guardar el token en localStorage y redireccionar a login
             const data = await response.json();
             localStorage.setItem("token", data.token);
             onRegisterSuccess();
@@ -89,17 +98,20 @@ export default function RegisterForm() {
 
     return (
         <form onSubmit={handleSubmit}>
+            {/* Input correo electrónico */}
             <label for="email">Correo electrónico</label>
             <input 
                 type="email" 
                 name="email" 
-                id=""
+                id="email"
                 //value={formData.email}
                 onChange={handleChange} 
                 required
             />
+            {/* Mostrar errores si hay alguno */}
             {errors.email && <span className="error">{errors.email}</span>}
 
+            {/* Input contraseña */}
             <label for="password">Contraseña</label>
             <input 
                 type="password" 
@@ -108,8 +120,10 @@ export default function RegisterForm() {
                 onChange={handleChange} 
                 required
             />
+            {/* Mostrar errores si hay alguno */}
             {errors.password && <span className="error">{errors.password}</span>}
 
+            {/* Input confirmar contraseña */}
             <label for="confirmPassword">Confirmar contraseña</label>
             <input 
                 type="password" 
@@ -118,10 +132,13 @@ export default function RegisterForm() {
                 onChange={handleChange} 
                 required
             />
+            {/* Mostrar errores si hay alguno */}
             {errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}
 
             {errors.general && <span className="error">{errors.general}</span>}
             <br />
+
+            {/* Botón de enviar */}
             <button type="submit" disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
             </button>

@@ -7,6 +7,7 @@ import Register from './pages/Register'
 function App() {
 
   return (
+    // <BrowserRouter> Enrutamiento de rutas home, login y register
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />

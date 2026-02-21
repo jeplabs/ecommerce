@@ -5,6 +5,7 @@ import RegisterForm from "../components/RegisterForm"
 function Register() {
     const navigate = useNavigate();
 
+    // Redireccionar a la página de login después de un registro exitoso
     const onRegisterSuccess = () => {
         navigate("/login");
     }
