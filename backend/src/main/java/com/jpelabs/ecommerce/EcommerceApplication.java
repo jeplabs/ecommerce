@@ -1,4 +1,4 @@
-package com.jeplabs.ecommerce;
+package com.jpelabs.ecommerce;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
