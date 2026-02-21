@@ -66,7 +66,7 @@ export default function RegisterForm() {
 
         try {
             // Enviar el formulario a API
-            const response = await fetch("/api/register", {
+            const response = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -98,6 +98,19 @@ export default function RegisterForm() {
 
     return (
         <form onSubmit={handleSubmit}>
+            {/* Input nombre */}
+            <label for="name">Nombre</label>
+            <input 
+                type="text" 
+                name="name" 
+                id="name"
+                value={formData.name}
+                onChange={handleChange} 
+                required
+            />
+            {/* Mostrar errores si hay alguno */}
+            {errors.name && <span className="error">{errors.name}</span>}
+
             {/* Input correo electrónico */}
             <label for="email">Correo electrónico</label>
             <input 
