@@ -4,7 +4,7 @@ import com.jeplabs.ecommerce.domain.usuario.AutenticacionService;
 import com.jeplabs.ecommerce.domain.usuario.DatosActualizarRol;
 import com.jeplabs.ecommerce.domain.usuario.DatosRegistro;
 import com.jeplabs.ecommerce.domain.usuario.DatosRespuestaUsuario;
-import com.jpelabs.ecommerce.domain.usuario.*;
+import com.jeplabs.ecommerce.domain.usuario.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
