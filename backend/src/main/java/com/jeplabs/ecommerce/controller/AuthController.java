@@ -12,13 +12,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@RestController
-@RequestMapping("/api/auth")
+@RestController // Indica que esta clase maneja peticiones HTTP y retorna JSON automáticamente
+@RequestMapping("/api/auth") // Prefijo base para todos los endpoints de este controlador
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AutenticacionService service;
 
+    // POST /api/auth/register
+    // Recibe los datos del nuevo usuario y lo registra en la DB
     @PostMapping("/register")
     public ResponseEntity<DatosRespuestaUsuario> registrar(
             @RequestBody @Valid DatosRegistro datos,
