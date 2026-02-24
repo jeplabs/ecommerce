@@ -1,55 +1,42 @@
 package com.jeplabs.ecommerce.controller;
 
-import com.jeplabs.ecommerce.dto.AuthResponse;
-import com.jeplabs.ecommerce.dto.RegisterRequest;
-import com.jeplabs.ecommerce.entity.User;
-import com.jeplabs.ecommerce.service.UserService;
+import com.jeplabs.ecommerce.domain.usuario.AutenticacionService;
+import com.jeplabs.ecommerce.domain.usuario.DatosActualizarRol;
+import com.jeplabs.ecommerce.domain.usuario.DatosRegistro;
+import com.jeplabs.ecommerce.domain.usuario.DatosRespuestaUsuario;
+import com.jeplabs.ecommerce.domain.usuario.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController // Indica que esta clase maneja peticiones HTTP y retorna JSON automáticamente
 @RequestMapping("/api/auth") // Prefijo base para todos los endpoints de este controlador
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final AutenticacionService service;
 
     // POST /api/auth/register
     // Recibe los datos del nuevo usuario y lo registra en la DB
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(userService.register(request));
+    public ResponseEntity<DatosRespuestaUsuario> registrar(
+            @RequestBody @Valid DatosRegistro datos,
+            UriComponentsBuilder uriBuilder) {
+
+        DatosRespuestaUsuario respuesta = service.registrar(datos);
+        var uri = uriBuilder.path("/api/usuarios/{id}").buildAndExpand(respuesta.id()).toUri();
+        return ResponseEntity.created(uri).body(respuesta);
     }
 
-    // POST /api/auth/login
-    // Recibe email y contraseña, verifica las credenciales y retorna confirmación
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(userService.login(request));
-    }
-
-    // GET /api/auth/users
-    // Retorna la lista de todos los usuarios registrados en la DB
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    // GET /api/auth/users/{id}
-    // Busca y retorna un usuario específico por su ID
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
-
-    // DELETE /api/auth/users/{id}
-    // Elimina un usuario de la DB por su ID
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.ok("Usuario eliminado correctamente");
+    // Solo ADMIN puede cambiar roles
+    @PatchMapping("/usuarios/{id}/rol")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaUsuario> actualizarRol(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarRol datos) {
+        return ResponseEntity.ok(service.actualizarRol(id, datos));
     }
 }
