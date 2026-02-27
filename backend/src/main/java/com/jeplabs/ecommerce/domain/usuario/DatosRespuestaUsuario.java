@@ -1,5 +1,7 @@
 package com.jeplabs.ecommerce.domain.usuario;
 
+// DTO con datos que retornan al cliente tras un registro exitoso.
+// No expone el hash de la contraseña.
 public record DatosRespuestaUsuario(
         Long id,
         String nombre,

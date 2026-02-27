@@ -1,9 +1,14 @@
 package com.jeplabs.ecommerce.domain.usuario;
 
+import com.jeplabs.ecommerce.infra.validation.PasswordMatch;
+import com.jeplabs.ecommerce.infra.validation.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+// DTO que recibe los datos del cliente cuando se registra.
+// Las que comienzan con @ son anotaciones de validación.
+@PasswordMatch // personalizada, para confirmar password.
 public record DatosRegistro(
 
         @NotBlank(message = "El nombre es obligatorio")
@@ -15,5 +20,9 @@ public record DatosRegistro(
 
         @NotBlank(message = "La contraseña es obligatoria")
         @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
-        String password
+        @ValidPassword // personalizado
+        String password,
+
+        @NotBlank(message = "Debes confirmar la contraseña")
+        String confirmarPassword
 ) {}

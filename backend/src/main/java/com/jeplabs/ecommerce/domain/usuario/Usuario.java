@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+// Entidad Usuario, representa la tabla usuarios en la base de datos.
+// Implementa UserDetails para que Spring Security pueda usarlos directamente
+// en la autenticación.
 @Entity
 @Table(name = "usuarios")
 @Getter
