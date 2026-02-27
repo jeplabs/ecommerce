@@ -24,12 +24,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 // Declara Authentication Manager como la encargada de validar la credenciales.
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity   // ← habilita @PreAuthorize
+@EnableMethodSecurity   // habilita @PreAuthorize
 @RequiredArgsConstructor
 public class SecurityConfigurations {
 
     private final FiltroSeguridad filtroSeguridad; // Registra el filtro
-    private final JwtAuthenticationEntryPoint authenticationEntryPoint; // ← nuevo
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint; //
     private final JwtAccessDeniedHandler accessDeniedHandler;
 
     @Bean
