@@ -42,6 +42,8 @@ public class Usuario implements UserDetails {
 
     public Usuario(DatosRegistro datos, String passwordHash) {
         this.nombre = datos.nombre();
+        this.apellido = datos.apellido();
+        this.pais = datos.pais();
         this.email = datos.email();
         this.password = passwordHash;
         this.rol = Rol.ROLE_CUSTOMER; // siempre CUSTOMER por defecto
