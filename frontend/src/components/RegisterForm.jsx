@@ -14,12 +14,14 @@ export default function RegisterForm({ onRegisterSuccess }) {
     const [loading, setLoading] = useState(false);
     
     // Funcion para validar la contraseña
-    const validatePassword = (password, confirmPassword) => {
+    const validatePassword = (password) => {
         const hasMinLength = password.length >= 8;
         const hasUpperCase = /[A-Z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
-
-        return hasMinLength && hasUpperCase && hasNumber;
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        
+        return hasMinLength && hasUpperCase && hasNumber && hasSpecialChar;
+        //return hasMinLength && hasUpperCase && hasNumber;
     }
 
     // Función para validar el correo electrónico
@@ -44,24 +46,28 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
         const newErrors = {};
 
-        // Validaciones de campos obligatorios
+        // Validar que el correo sea válido
         if (!validateEmail(formData.email)) {
             newErrors.email = "Correo inválido";
         }
 
-        if (!validatePassword(formData.password, formData.confirmPassword)) {
-            newErrors.password = "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas y minúsculas, y incluir números";
+        // Validar que la contraseña sea de 8 caracteres, incluir mayúsculas y minúsculas, y incluir números
+        if (!validatePassword(formData.password)) {
+            newErrors.password = "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales";
         }
 
-        if (formData.password !== formData.confirmPassword) {
+        // Validar que las contraseñas coincidan
+        if (formData.password !== formData.confirmarPassword) {
             newErrors.confirmPassword = "Las contraseñas no coinciden";
         }
 
+        // Si hay algún error, mostrarlo
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
 
+        // Mostrar que se está registrando
         setLoading(true);
 
         try {
@@ -76,7 +82,8 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
             if (!response.ok) {
                 const data = await response.json();
-                if (data.errors == 'EMAIL_EXISTS') {
+                //if (data.errors == 'EMAIL_EXISTS') {
+                if (response.status === 400 && data.message?.includes("email")) {
                     setErrors({ email: 'El correo ya está registrado' });
                     setLoading(false);
                     return;
@@ -86,7 +93,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
             // Guardar el token en localStorage y redireccionar a login
             const data = await response.json();
-            localStorage.setItem("token", data.token);
+            //localStorage.setItem("token", data.token);
             onRegisterSuccess();
         } catch (error) {
             console.error('Error en el registro', error);
