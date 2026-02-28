@@ -1,12 +1,12 @@
 import { useState } from "react"
 
-export default function RegisterForm() {
+export default function RegisterForm({ onRegisterSuccess }) {
     // Estado para almacenar los datos del formulario, errores y estado de carga
     const [formData, setFormData] = useState({
-        name: "",
+        nombre: "",
         email: "",
         password: "",
-        confirmPassword: "",
+        confirmarPassword: "",
     })
 
     // Estado para almacenar los errores del formulario
@@ -31,10 +31,10 @@ export default function RegisterForm() {
     // Función para manejar los cambios en los campos del formulario
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...prev, [name]: value });
+        setFormData({ ...formData, [name]: value });
 
         if (errors[name]) {
-            setErrors({ ...prev, [name]: '' });
+            setErrors({ ...errors, [name]: '' });
         }
     };
 
@@ -66,7 +66,7 @@ export default function RegisterForm() {
 
         try {
             // Enviar el formulario a API
-            const response = await fetch("/api/register", {
+            const response = await fetch("http://localhost:8081/api/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -98,25 +98,79 @@ export default function RegisterForm() {
 
     return (
         <form onSubmit={handleSubmit}>
+            {/* Input nombre */}
+            <label htmlFor="nombre">Nombres</label>
+            <input 
+                type="text" 
+                name="nombre" 
+                id="nombre"
+                value={formData.nombre}
+                onChange={handleChange} 
+                required
+            />
+            {/* Mostrar errores si hay alguno */}
+            {errors.nombre && <span className="error">{errors.nombre}</span>}
+            
+            {/* Input apellido */}
+            {/* <label htmlFor="lastName">Apellidos</label>
+            <input 
+                type="text" 
+                name="lastName" 
+                id="lastName"
+                value={formData.lastName}
+                onChange={handleChange} 
+                required
+            /> */}
+            {/* Mostrar errores si hay alguno */}
+            {/* {errors.lastName && <span className="error">{errors.lastName}</span>} */}
+
             {/* Input correo electrónico */}
-            <label for="email">Correo electrónico</label>
+            <label htmlFor="email">Correo electrónico</label>
             <input 
                 type="email" 
                 name="email" 
                 id="email"
-                //value={formData.email}
+                value={formData.email}
                 onChange={handleChange} 
                 required
             />
             {/* Mostrar errores si hay alguno */}
             {errors.email && <span className="error">{errors.email}</span>}
 
+            {/* Input direccion */}
+            {/* <label htmlFor="address">Dirección</label>
+            <input 
+                type="text" 
+                name="address" 
+                id="address"
+                value={formData.address}
+                onChange={handleChange} 
+                required
+            /> */}
+            {/* Mostrar errores si hay alguno */}
+            {/* {errors.address && <span className="error">{errors.address}</span>} */}
+
+            {/* Input telefono */}
+            {/* <label htmlFor="phone">Teléfono</label>
+            <input 
+                type="text" 
+                name="phone" 
+                id="phone"
+                value={formData.phone}
+                onChange={handleChange} 
+                required
+            /> */}
+            {/* Mostrar errores si hay alguno */}
+            {/* {errors.phone && <span className="error">{errors.phone}</span>} */}
+
+        
             {/* Input contraseña */}
-            <label for="password">Contraseña</label>
+            <label htmlFor="password">Contraseña</label>
             <input 
                 type="password" 
                 id="password" 
                 name="password" 
+                value={formData.password}
                 onChange={handleChange} 
                 required
             />
@@ -124,11 +178,12 @@ export default function RegisterForm() {
             {errors.password && <span className="error">{errors.password}</span>}
 
             {/* Input confirmar contraseña */}
-            <label for="confirmPassword">Confirmar contraseña</label>
+            <label htmlFor="confirmarPassword">Confirmar contraseña</label>
             <input 
                 type="password" 
-                id="confirmPassword" 
-                name="confirmPassword" 
+                id="confirmarPassword" 
+                name="confirmarPassword" 
+                value={formData.confirmarPassword}
                 onChange={handleChange} 
                 required
             />
