@@ -36,7 +36,7 @@ export default function LoginForm() {
         localStorage.setItem('token', data.token); // Guarda el token
 
         // Redirige a la página principal o dashboard
-        navigate('/'); 
+        navigate('/profile'); 
         
     } catch (error) {
         // Muestra mensaje de error al usuario
