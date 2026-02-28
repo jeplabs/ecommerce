@@ -1,9 +1,12 @@
 import { useState } from "react"
+import { API_URL } from "../config/config";
 
 export default function RegisterForm({ onRegisterSuccess }) {
     // Estado para almacenar los datos del formulario, errores y estado de carga
     const [formData, setFormData] = useState({
         nombre: "",
+        apellido: "",
+        pais: "",
         email: "",
         password: "",
         confirmarPassword: "",
@@ -72,7 +75,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
         try {
             // Enviar el formulario a API
-            const response = await fetch("http://localhost:8081/api/auth/register", {
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -82,7 +85,6 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
             if (!response.ok) {
                 const data = await response.json();
-                //if (data.errors == 'EMAIL_EXISTS') {
                 if (response.status === 400 && data.message?.includes("email")) {
                     setErrors({ email: 'El correo ya está registrado' });
                     setLoading(false);
@@ -105,8 +107,9 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
     return (
         <form onSubmit={handleSubmit}>
+
             {/* Input nombre */}
-            <label htmlFor="nombre">Nombres</label>
+            <label htmlFor="nombre">Nombre</label>
             <input 
                 type="text" 
                 name="nombre" 
@@ -119,17 +122,30 @@ export default function RegisterForm({ onRegisterSuccess }) {
             {errors.nombre && <span className="error">{errors.nombre}</span>}
             
             {/* Input apellido */}
-            {/* <label htmlFor="lastName">Apellidos</label>
+            <label htmlFor="apellido">Apellido</label>
             <input 
                 type="text" 
-                name="lastName" 
-                id="lastName"
-                value={formData.lastName}
+                name="apellido"
+                id="apellido"
+                value={formData.apellido}
                 onChange={handleChange} 
                 required
-            /> */}
+            />
             {/* Mostrar errores si hay alguno */}
-            {/* {errors.lastName && <span className="error">{errors.lastName}</span>} */}
+            {errors.apellido && <span className="error">{errors.apellido}</span>}
+
+            {/* Input pais */}
+            <label htmlFor="pais">País</label>
+            <input 
+                type="text" 
+                name="pais" 
+                id="pais"
+                value={formData.pais}
+                onChange={handleChange} 
+                required
+            />
+            {/* Mostrar errores si hay alguno */}
+            {errors.pais && <span className="error">{errors.pais}</span>}
 
             {/* Input correo electrónico */}
             <label htmlFor="email">Correo electrónico</label>
@@ -144,33 +160,6 @@ export default function RegisterForm({ onRegisterSuccess }) {
             {/* Mostrar errores si hay alguno */}
             {errors.email && <span className="error">{errors.email}</span>}
 
-            {/* Input direccion */}
-            {/* <label htmlFor="address">Dirección</label>
-            <input 
-                type="text" 
-                name="address" 
-                id="address"
-                value={formData.address}
-                onChange={handleChange} 
-                required
-            /> */}
-            {/* Mostrar errores si hay alguno */}
-            {/* {errors.address && <span className="error">{errors.address}</span>} */}
-
-            {/* Input telefono */}
-            {/* <label htmlFor="phone">Teléfono</label>
-            <input 
-                type="text" 
-                name="phone" 
-                id="phone"
-                value={formData.phone}
-                onChange={handleChange} 
-                required
-            /> */}
-            {/* Mostrar errores si hay alguno */}
-            {/* {errors.phone && <span className="error">{errors.phone}</span>} */}
-
-        
             {/* Input contraseña */}
             <label htmlFor="password">Contraseña</label>
             <input 
@@ -195,7 +184,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
                 required
             />
             {/* Mostrar errores si hay alguno */}
-            {errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}
+            {errors.confirmarPassword && <span className="error">{errors.confirmarPassword}</span>}
 
             {errors.general && <span className="error">{errors.general}</span>}
             <br />

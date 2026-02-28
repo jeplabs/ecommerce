@@ -6,6 +6,8 @@ export default function Navbar() {
             <Link to="/">Home</Link>
             <Link to="/login">Iniciar sesión</Link>
             <Link to="/register">Registrarse</Link>
+            <Link to="/profile">Perfil</Link>
+            <Link to="/admin">Admin</Link>
         </nav>
     )
 }

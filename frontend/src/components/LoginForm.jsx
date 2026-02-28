@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from "../config/config";
 
 export default function LoginForm() {
 
@@ -20,7 +21,7 @@ export default function LoginForm() {
     const { email, password } = formData;
 
     try {
-        const response = await fetch('http://localhost:8081/api/auth/login', {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -32,8 +33,9 @@ export default function LoginForm() {
         throw new Error('Credenciales inválidas');
         }
 
+        // Guarda el token
         const data = await response.json();
-        localStorage.setItem('token', data.token); // Guarda el token
+        localStorage.setItem('token', data.token); 
 
         // Redirige a la página principal o dashboard
         navigate('/profile'); 
