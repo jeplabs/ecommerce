@@ -5,10 +5,18 @@ package com.jeplabs.ecommerce.domain.usuario;
 public record DatosRespuestaUsuario(
         Long id,
         String nombre,
+        String apellido,
         String email,
+        String pais,
         String rol
 ) {
     public DatosRespuestaUsuario(Usuario usuario) {
-        this(usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol().name());
+        this(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getEmail(),
+                usuario.getPais(),
+                usuario.getRol().name());
     }
 }

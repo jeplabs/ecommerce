@@ -12,12 +12,15 @@ import jakarta.validation.constraints.Size;
 public record DatosRegistro(
 
         @NotBlank(message = "El nombre es obligatorio")
+        @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
         String nombre,
 
         @NotBlank(message = "El apellido es obligatorio")
+        @Size(min = 2, max = 100, message = "El apellido debe tener entre 2 y 100 caracteres")
         String apellido,
 
         @NotBlank(message = "El pais es obligatorio")
+        @Size(min = 2, max = 100, message = "El país debe tener entre 2 y 100 caracteres")
         String pais,
 
         @NotBlank(message = "El email es obligatorio")

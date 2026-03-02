@@ -1,6 +1,7 @@
 package com.jeplabs.ecommerce.infra.exceptions;
 
 import org.springframework.http.*;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.validation.FieldError;
@@ -49,6 +50,7 @@ public class GestorDeErrores {
     }
 
     // Devuelve un JSON con los campos inválidos, como email duplicado
+    // Devuelve un JSON cuando no encuentra un usuario con un determinado ID
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> manejarIllegalArgument(
             IllegalArgumentException ex) {
@@ -61,5 +63,13 @@ public class GestorDeErrores {
             DisabledException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "Tu cuenta ha sido desactivada, contacta al administrador"));
+    }
+
+    // Manejo de errores al enviar un JSON con error en su formato esperado, en registro usuarios.
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> manejarJsonInvalido(
+            HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", "El JSON enviado tiene un error de formato, verifica que tenga comas, llaves y comillas correctas"));
     }
 }

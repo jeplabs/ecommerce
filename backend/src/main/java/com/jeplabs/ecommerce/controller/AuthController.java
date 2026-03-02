@@ -65,11 +65,19 @@ public class AuthController {
     }
 
     // POST /api/auth/usuarios
-    // Lista los usuarios registrados
+    // Lista los usuarios registrados, solo admin tiene acceso a este endpoint
     @GetMapping("/usuarios")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DatosRespuestaUsuario>> listarUsuarios() {
         return ResponseEntity.ok(service.listarUsuarios());
+    }
+
+    // GET /api/auth/usuarios/{id}
+    // Busqueda de un usuario por ID, solo admin tiene acceso a este endpoint
+    @GetMapping("/usuarios/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaUsuario> buscarUsuario(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
 }

@@ -40,4 +40,11 @@ public class AutenticacionService {
                 .map(DatosRespuestaUsuario::new)
                 .toList();
     }
+
+    // Metodo que busca al usuario por ID, si no existe lanza una excepcion.
+    public DatosRespuestaUsuario buscarPorId(Long id) {
+        Usuario usuario = repositorio.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id));
+        return new DatosRespuestaUsuario(usuario);
+    }
 }
