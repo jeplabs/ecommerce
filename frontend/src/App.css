@@ -34,6 +34,29 @@ input {
   color: red;
 }
 
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.usuarios-list {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.usuarios-list li {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
 button {
   background-color: #007bff;
   color: white;
