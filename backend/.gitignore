@@ -19,6 +19,13 @@ target/
 *.iml
 *.ipr
 
+# Perfiles con credenciales reales
+application-dev.propierties
+application-prod.propierties
+
+# Por si alguien crea un .env por error
+.env
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
