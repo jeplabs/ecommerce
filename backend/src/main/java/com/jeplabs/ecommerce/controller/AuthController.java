@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -45,13 +46,28 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<DatosRespuestaToken> login(
             @RequestBody @Valid DatosLogin datos) {
+        try {
+            // Verificar si el bloqueo temporal ya expiró antes de intentar autenticar
+            service.verificarBloqueoExpirado(datos.email());
 
-        var authToken = new UsernamePasswordAuthenticationToken(
-                datos.email(), datos.password()
-        );
-        var usuarioAutenticado = authManager.authenticate(authToken);
-        var token = tokenService.generarToken((Usuario) usuarioAutenticado.getPrincipal());
-        return ResponseEntity.ok(new DatosRespuestaToken(token));
+            var authToken = new UsernamePasswordAuthenticationToken(
+                    datos.email(), datos.password()
+            );
+            var usuarioAutenticado = authManager.authenticate(authToken);
+            Usuario usuario = (Usuario) usuarioAutenticado.getPrincipal();
+
+            // Login exitoso, por lo tanto resetear intentos
+            service.procesarLoginExitoso(datos.email());
+
+            var token = tokenService.generarToken(usuario);
+            // Devuelve token y datos del usuario para frontend.
+            return ResponseEntity.ok(new DatosRespuestaToken(token, usuario));
+
+        } catch (BadCredentialsException e) {
+            // Login fallido, por lo tanto sumar intento
+            service.procesarLoginFallido(datos.email());
+            throw e;
+        }
     }
 
     // POST /api/auth/usuarios/{id}/rol

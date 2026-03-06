@@ -1,9 +1,11 @@
 package com.jeplabs.ecommerce.infra.exceptions;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +59,7 @@ public class GestorDeErrores {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
     }
 
-    // Manejo para usuario desactivado
+    // Manejo para usuario desactivado, cuando active = false
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<Map<String, String>> manejarUsuarioDesactivado(
             DisabledException ex) {
@@ -71,5 +73,16 @@ public class GestorDeErrores {
             HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest()
                 .body(Map.of("error", "El JSON enviado tiene un error de formato, verifica que tenga comas, llaves y comillas correctas"));
+    }
+
+    // Manejo de errores al superar el numero de intentos de login
+    @Value("${api.security.lockout-minutes}")
+    private long lockoutMinutes; // lee el valor de application.properties
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<Map<String, String>> manejarCuentaBloqueada(
+            LockedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Tu cuenta está bloqueada por demasiados intentos fallidos, intenta de nuevo en " + lockoutMinutes + " minutos"));
     }
 }

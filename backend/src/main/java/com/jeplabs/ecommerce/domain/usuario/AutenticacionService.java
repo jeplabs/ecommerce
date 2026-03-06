@@ -13,6 +13,7 @@ public class AutenticacionService {
 
     private final UsuarioRepository repositorio;
     private final PasswordEncoder passwordEncoder;
+    private final LoginAttemptService loginAttemptService;
 
     // Verifica que el email no este duplicado, hashea la contraseña con BCrypt antes de guardarla.
     public DatosRespuestaUsuario registrar(DatosRegistro datos) {
@@ -46,5 +47,20 @@ public class AutenticacionService {
         Usuario usuario = repositorio.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id));
         return new DatosRespuestaUsuario(usuario);
+    }
+
+    // Método que es llamado si el login es exitoso
+    public void procesarLoginExitoso(String email) {
+        loginAttemptService.loginExitoso(email);
+    }
+
+    // Método que es llamado si el login es fallido
+    public void procesarLoginFallido(String email) {
+        loginAttemptService.loginFallido(email);
+    }
+
+    // Llamar la verificacion antes de login
+    public void verificarBloqueoExpirado(String email) {
+        loginAttemptService.verificarBloqueoExpirado(email);
     }
 }

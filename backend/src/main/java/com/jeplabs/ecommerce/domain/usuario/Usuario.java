@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,7 +39,13 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Rol rol;
 
-    private Boolean activo;
+    private boolean activo;
+
+    private Integer intentosFallidos;
+
+    private boolean bloqueado;
+
+    private LocalDateTime ultimoIntentoFallido;
 
     public Usuario(DatosRegistro datos, String passwordHash) {
         this.nombre = datos.nombre();
@@ -48,10 +55,33 @@ public class Usuario implements UserDetails {
         this.password = passwordHash;
         this.rol = Rol.ROLE_CUSTOMER; // siempre CUSTOMER por defecto
         this.activo = true;
+        this.intentosFallidos = 0;
+        this.bloqueado = false;
+        this.ultimoIntentoFallido = null;
     }
 
     public void actualizarRol(Rol nuevoRol) {
         this.rol = nuevoRol;
+    }
+
+    public void registrarIntentoFallido() {
+        this.ultimoIntentoFallido = LocalDateTime.now();
+        this.intentosFallidos++;
+        if (this.intentosFallidos >= 3) {
+            this.bloqueado = true;
+        }
+    }
+
+    public void resetearIntentos() {
+        this.intentosFallidos = 0;
+        this.bloqueado = false;
+        this.ultimoIntentoFallido = null;
+    }
+
+    // Verificar si el bloqueo temporal ya expiró (30 minutos)
+    public boolean bloqueoExpirado(long minutos) {
+        if (ultimoIntentoFallido == null) return false;
+        return LocalDateTime.now().isAfter(ultimoIntentoFallido.plusMinutes(minutos));
     }
 
     // UserDetails
@@ -66,8 +96,11 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isAccountNonExpired() { return true; }
 
+    // Devuelve el valor actual de bloqueado.
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return !bloqueado;
+    }
 
     @Override
     public boolean isCredentialsNonExpired() { return true; }
