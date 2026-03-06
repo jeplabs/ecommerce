@@ -3,6 +3,7 @@ package com.jeplabs.ecommerce.domain.usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class AutenticacionService {
     private final LoginAttemptService loginAttemptService;
 
     // Verifica que el email no este duplicado, hashea la contraseña con BCrypt antes de guardarla.
+    @Transactional // no es necesario, llama explicitamente a repositorio.save(usuario), pero es buena práctica
     public DatosRespuestaUsuario registrar(DatosRegistro datos) {
         if (repositorio.existsByEmail(datos.email())) {
             throw new IllegalArgumentException("El email ya está registrado");
@@ -27,6 +29,7 @@ public class AutenticacionService {
     }
 
     // Cambia roles
+    @Transactional // Necesario para persistencia de datos, porque no tiene un repositorio.save() explicitamente
     public DatosRespuestaUsuario actualizarRol(Long id, DatosActualizarRol datos) {
         Usuario usuario = repositorio.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -62,5 +65,21 @@ public class AutenticacionService {
     // Llamar la verificacion antes de login
     public void verificarBloqueoExpirado(String email) {
         loginAttemptService.verificarBloqueoExpirado(email);
+    }
+
+    // Metodo para ver perfil, el email se extrae del token por medio de Authentication
+    public DatosRespuestaUsuario verPerfil(String email) {
+        Usuario usuario = repositorio.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        return new DatosRespuestaUsuario(usuario);
+    }
+
+    // Metodo para actualizar perfil, el email se extrae del token por medio de Authentication
+    @Transactional  // Necesario para persistencia de datos, porque no tiene un repositorio.save() explicitamente
+    public DatosRespuestaUsuario actualizarPerfil(String email, DatosActualizarPerfil datos) {
+        Usuario usuario = repositorio.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        usuario.actualizarPerfil(datos);
+        return new DatosRespuestaUsuario(usuario);
     }
 }

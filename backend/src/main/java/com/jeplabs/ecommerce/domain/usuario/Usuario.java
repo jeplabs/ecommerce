@@ -84,6 +84,13 @@ public class Usuario implements UserDetails {
         return LocalDateTime.now().isAfter(ultimoIntentoFallido.plusMinutes(minutos));
     }
 
+    // Metodo para actualizar perfil
+    public void actualizarPerfil(DatosActualizarPerfil datos) {
+        this.nombre = datos.nombre();
+        this.apellido = datos.apellido();
+        this.pais = datos.pais();
+    }
+
     // UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

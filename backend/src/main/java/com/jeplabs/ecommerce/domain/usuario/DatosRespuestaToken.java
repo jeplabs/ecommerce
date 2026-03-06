@@ -1,6 +1,6 @@
 package com.jeplabs.ecommerce.domain.usuario;
 
-// DTO de respuesta al hacer login, devuel token y los otros datos necesarios para frontend.
+// DTO de respuesta al hacer login, devuelve token y los otros datos necesarios para frontend.
 public record DatosRespuestaToken(
         String token,
         String tipo,
