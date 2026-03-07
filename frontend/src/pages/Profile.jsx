@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import Navbar from "../components/Navbar"
 import { API_URL } from "../config/config";
+import ProfileForm from '../components/ProfileForm';
 
 export default function Profile() {
 
     const [usuario, setUsuario] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [msgExito, setMsgExito] = useState(null);
 
     const fetchUsuario = async () => {
 
@@ -20,15 +22,9 @@ export default function Profile() {
             if (!token) {
                 throw new Error('No estás autenticado');
             }
-
-            // Leer userId del localStorage (debes guardarlo en el login)
-            const userId = localStorage.getItem('id');
-            if (!userId) {
-                throw new Error('ID de usuario no encontrado');
-            }
             
             // Obtener usuario
-            const response = await fetch(`${API_URL}/api/auth/usuario/${usuario.id}`, {
+            const response = await fetch(`${API_URL}/api/usuarios/perfil`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,9 +49,37 @@ export default function Profile() {
         }
     };
 
+    // Función para guardar los cambios en el backend
+    const handleSaveProfile = async (datosActualizados) => {
+        const token = localStorage.getItem('token');
+        
+        const response = await fetch(`${API_URL}/api/usuarios/perfil`, {
+            method: 'PATCH', // Usamos PATCH para actualización parcial
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(datosActualizados),
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.message || 'Error al actualizar el perfil');
+        }
+
+        const usuarioActualizado = await response.json();
+        setUsuario(usuarioActualizado); // Actualizamos el estado local con los nuevos datos
+        setMsgExito('Perfil actualizado correctamente');
+        setTimeout(() => setMsgExito(null), 3000); // Limpiar mensaje después de 3 seg
+    };
+
     useEffect(() => {
         fetchUsuario();
     }, []);
+
+    if (loading) return <><Navbar /><p>Cargando...</p></>;
+    if (error) return <><Navbar /><p style={{color: 'red'}}>Error: {error}</p></>;
+    if (!usuario) return <><Navbar /><p>No se encontraron datos.</p></>;
 
     return (
         <>
@@ -63,17 +87,16 @@ export default function Profile() {
 
             <main className="profile-container">
 
-                <h1>Perfil</h1>
+                <h1>Mi Perfil</h1>
+                
+                {msgExito && <p style={{ color: 'green', fontWeight: 'bold' }}>{msgExito}</p>}
 
-                {loading && <p>Cargando...</p>}
-                {error && <p className="error">{error}</p>}
-
-                {!loading && usuario && 
-                    <div>
-                        <h2>Bienvenido, {usuario.nombre}!</h2>
-                        <p><strong>Email:</strong> {usuario.email}</p>
-                    </div>
-                }
+                {/* Pasamos los datos y la función de guardar al componente formulario */}
+                <ProfileForm 
+                    user={usuario} 
+                    onSave={handleSaveProfile}
+                    onCancel={() => fetchUsuario()} // Recargar datos si cancela
+                />
             </main>
         </>
     )
