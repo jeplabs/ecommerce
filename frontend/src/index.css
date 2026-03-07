@@ -11,6 +11,40 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --bg:        #0b0f1a;
+  --surface:   #111827;
+  --surface2:  #1a2235;
+  --border:    rgba(99,102,241,0.15);
+  --border2:   rgba(99,102,241,0.28);
+  --indigo:    #6366f1;
+  --violet:    #a855f7;
+  --text:      #f1f5f9;
+  --muted:     rgba(241,245,249,0.38);
+  --subtle:    rgba(241,245,249,0.12);
+  --accent:    #818cf8;
+}
+
+*, *::before, *::after { 
+  margin:0; 
+  padding:0; 
+  box-sizing:border-box; 
+
+}
+html, body { 
+  height:100%; 
+  font-family:'Instrument Sans', sans-serif; 
+  background:var(--bg); 
+  color:var(--text); 
+  overflow:hidden; 
+}
+
+body {
+  position:fixed; inset:0; z-index:0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 a {

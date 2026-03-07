@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRID — Neon Minimal Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void:    #000000;
+    --ink:     #080808;
+    --panel:   #0c0c0c;
+    --border:  #1a1a1a;
+    --mint:    #00FFB2;
+    --mint-dim:#00c88a;
+    --gold:    #F5C842;
+    --text:    #e8e8e8;
+    --muted:   rgba(232,232,232,0.35);
+    --faint:   rgba(232,232,232,0.08);
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; background:var(--void); color:var(--text); font-family:'Space Grotesk',sans-serif; overflow:hidden; }
+
+  /* ── SCANLINES ── */
+  .scanlines {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,255,178,0.012) 2px, rgba(0,255,178,0.012) 4px
+    );
+  }
+
+  /* ── CORNER GLOWS ── */
+  .glow-tl {
+    position:fixed; top:0; left:0; width:400px; height:400px; z-index:0;
+    background:radial-gradient(circle at 0% 0%, rgba(0,255,178,0.07) 0%, transparent 65%);
+    pointer-events:none;
+  }
+  .glow-br {
+    position:fixed; bottom:0; right:0; width:500px; height:500px; z-index:0;
+    background:radial-gradient(circle at 100% 100%, rgba(245,200,66,0.06) 0%, transparent 60%);
+    pointer-events:none;
+  }
+
+  /* ── LAYOUT ── */
+  .page { position:relative; z-index:2; height:100vh; display:grid; grid-template-columns:1fr 520px; }
+
+  /* ── LEFT ── */
+  .left {
+    padding:3rem; display:flex; flex-direction:column; justify-content:space-between;
+    border-right:1px solid var(--border);
+    animation:fadeIn 0.8s ease both;
+  }
+
+  .wordmark {
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.7rem; letter-spacing:0.35em; text-transform:uppercase;
+    color:var(--mint); display:flex; align-items:center; gap:0.6rem;
+  }
+  .wordmark::before {
+    content:'['; color:rgba(0,255,178,0.4);
+  }
+  .wordmark::after {
+    content:']'; color:rgba(0,255,178,0.4);
+  }
+
+  .main-copy { flex:1; display:flex; flex-direction:column; justify-content:center; }
+
+  .big-number {
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.65rem; letter-spacing:0.3em;
+    color:rgba(0,255,178,0.4); margin-bottom:1.5rem;
+  }
+
+  .big-title {
+    font-size:clamp(3rem,5.5vw,5.5rem);
+    font-weight:700; line-height:0.9;
+    letter-spacing:-0.04em; color:var(--text);
+    margin-bottom:2rem;
+  }
+  .big-title .accent { color:var(--mint); display:block; }
+
+  .tagline {
+    font-size:0.8rem; color:var(--muted); line-height:1.7;
+    max-width:340px; font-weight:300; border-left:2px solid var(--mint);
+    padding-left:1rem; margin-bottom:3rem;
+  }
+
+  /* FEATURE PILLS */
+  .features { display:flex; flex-wrap:wrap; gap:0.5rem; }
+  .pill {
+    display:flex; align-items:center; gap:0.4rem;
+    padding:0.35rem 0.8rem; border-radius:4px;
+    border:1px solid var(--border); background:var(--faint);
+    font-size:0.68rem; letter-spacing:0.06em;
+    color:var(--muted); font-family:'Share Tech Mono',monospace;
+    text-transform:uppercase;
+  }
+  .pill-dot { width:5px; height:5px; border-radius:50%; background:var(--mint); box-shadow:0 0 5px var(--mint); }
+
+  /* METRICS ROW */
+  .metrics {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--border); border:1px solid var(--border);
+    border-radius:8px; overflow:hidden;
+  }
+  .metric {
+    background:var(--ink); padding:1.2rem 1rem;
+  }
+  .metric-val {
+    font-family:'Share Tech Mono',monospace;
+    font-size:1.4rem; color:var(--mint); line-height:1;
+    text-shadow:0 0 20px rgba(0,255,178,0.4);
+  }
+  .metric-label {
+    font-size:0.6rem; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.15em; margin-top:0.3rem;
+  }
+
+  /* ── RIGHT ── */
+  .right {
+    background:var(--ink); border-left:1px solid var(--border);
+    display:flex; flex-direction:column; justify-content:center;
+    padding:3.5rem 3rem;
+    animation:slideLeft 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+    position:relative; overflow:hidden;
+  }
+
+  /* Corner marks */
+  .right::before, .right::after {
+    content:''; position:absolute; width:20px; height:20px;
+    border-color:var(--mint); border-style:solid; opacity:0.4;
+  }
+  .right::before { top:1.5rem; left:1.5rem; border-width:1px 0 0 1px; }
+  .right::after  { bottom:1.5rem; right:1.5rem; border-width:0 1px 1px 0; }
+
+  .form-id {
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase;
+    color:rgba(0,255,178,0.35); margin-bottom:2.5rem;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .form-id::after {
+    content:''; flex:1; height:1px;
+    background:linear-gradient(to right, var(--border), transparent);
+  }
+
+  .form-title {
+    font-size:1.8rem; font-weight:700; letter-spacing:-0.03em;
+    margin-bottom:0.3rem;
+  }
+  .form-sub {
+    font-size:0.75rem; color:var(--muted); margin-bottom:2.2rem;
+  }
+  .form-sub a { color:var(--mint); text-decoration:none; }
+  .form-sub a:hover { text-decoration:underline; }
+
+  /* FIELDS */
+  .field { margin-bottom:1rem; }
+  .field-label {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:0.4rem;
+  }
+  .field-label span {
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase;
+    color:rgba(0,255,178,0.5);
+  }
+  .field-label a {
+    font-size:0.65rem; color:var(--gold); text-decoration:none; opacity:0.7;
+    transition:opacity 0.2s;
+  }
+  .field-label a:hover { opacity:1; }
+
+  .input-wrap { position:relative; }
+  .input-wrap input {
+    width:100%; padding:0.8rem 2.8rem 0.8rem 0.9rem;
+    background:transparent; border:1px solid var(--border);
+    border-radius:6px; color:var(--text);
+    font-family:'Space Grotesk',sans-serif; font-size:0.88rem;
+    outline:none; transition:border-color 0.2s, box-shadow 0.2s;
+    letter-spacing:0.01em;
+  }
+  .input-wrap input::placeholder { color:rgba(232,232,232,0.18); }
+  .input-wrap input:focus {
+    border-color:var(--mint);
+    box-shadow:0 0 0 1px rgba(0,255,178,0.2), 0 0 20px rgba(0,255,178,0.06);
+  }
+
+  .input-icon {
+    position:absolute; right:0.75rem; top:50%; transform:translateY(-50%);
+    background:none; border:none; cursor:pointer;
+    color:rgba(232,232,232,0.2); transition:color 0.2s; padding:2px;
+    display:flex;
+  }
+  .input-icon:hover { color:var(--mint); }
+  .input-icon svg { width:14px; height:14px; stroke:currentColor; stroke-width:1.8; fill:none; }
+
+  /* ENTER BTN */
+  .btn-enter {
+    width:100%; padding:0.88rem; margin-top:1.4rem;
+    border:1px solid var(--mint); border-radius:6px;
+    background:transparent; color:var(--mint);
+    font-family:'Share Tech Mono',monospace; font-size:0.8rem;
+    letter-spacing:0.25em; text-transform:uppercase;
+    cursor:pointer; position:relative; overflow:hidden;
+    transition:color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+  .btn-enter::before {
+    content:''; position:absolute; inset:0;
+    background:var(--mint); transform:translateX(-100%);
+    transition:transform 0.3s ease;
+  }
+  .btn-enter .label { position:relative; z-index:1; }
+  .btn-enter:hover {
+    color:var(--void);
+    box-shadow:0 0 30px rgba(0,255,178,0.3);
+  }
+  .btn-enter:hover::before { transform:translateX(0); }
+
+  /* DIVIDER */
+  .sep {
+    display:flex; align-items:center; gap:0.6rem; margin:1.4rem 0;
+  }
+  .sep-line { flex:1; height:1px; background:var(--border); }
+  .sep-txt { font-family:'Share Tech Mono',monospace; font-size:0.6rem; color:rgba(232,232,232,0.2); letter-spacing:0.2em; }
+
+  /* OAUTH */
+  .oauth { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
+  .btn-oauth {
+    display:flex; align-items:center; justify-content:center; gap:0.45rem;
+    padding:0.65rem; border:1px solid var(--border); border-radius:6px;
+    background:transparent; color:var(--muted);
+    font-family:'Space Grotesk',sans-serif; font-size:0.72rem; font-weight:500;
+    cursor:pointer; transition:border-color 0.2s, color 0.2s;
+  }
+  .btn-oauth:hover { border-color:var(--mint); color:var(--mint); }
+  .btn-oauth svg { width:14px; height:14px; flex-shrink:0; }
+
+  /* BOTTOM TICKER */
+  .ticker {
+    position:fixed; bottom:0; left:0; right:0; z-index:10;
+    height:28px; background:var(--ink); border-top:1px solid var(--border);
+    overflow:hidden; display:flex; align-items:center;
+  }
+  .ticker-inner {
+    display:flex; gap:0; white-space:nowrap;
+    animation:scroll 28s linear infinite;
+  }
+  .ticker-item {
+    font-family:'Share Tech Mono',monospace; font-size:0.6rem;
+    letter-spacing:0.12em; padding:0 2rem;
+    color:rgba(0,255,178,0.35);
+  }
+  .ticker-item.hi { color:var(--mint); }
+  @keyframes scroll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+  @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideLeft { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+  @media(max-width:860px) {
+    .left { display:none; }
+    .page { grid-template-columns:1fr; }
+    .right { border-left:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<div class="glow-tl"></div>
+<div class="glow-br"></div>
+
+<div class="page">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="wordmark">GRID_OS v4.1.0</div>
+
+    <div class="main-copy">
+      <div class="big-number">// 001 — AUTH</div>
+      <h1 class="big-title">
+        Zero<br>noise.<br><span class="accent">Pure<br>signal.</span>
+      </h1>
+      <p class="tagline">Infraestructura de análisis para equipos que trabajan con datos críticos. Sin adornos. Sin distracciones.</p>
+
+      <div class="features">
+        <div class="pill"><span class="pill-dot"></span>Tiempo real</div>
+        <div class="pill"><span class="pill-dot"></span>API REST</div>
+        <div class="pill"><span class="pill-dot"></span>WebSocket</div>
+        <div class="pill"><span class="pill-dot"></span>99.98% SLA</div>
+        <div class="pill"><span class="pill-dot"></span>E2E cifrado</div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-val">1.2ms</div>
+        <div class="metric-label">Latencia P99</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">4.8M</div>
+        <div class="metric-label">Req / día</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">100%</div>
+        <div class="metric-label">Uptime Mar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="form-id">AUTH_MODULE // SECURE</div>
+
+    <div class="form-title">Identificación</div>
+    <div class="form-sub">Nuevo aquí? <a href="#">Solicitar credenciales →</a></div>
+
+    <div class="field">
+      <div class="field-label">
+        <span>ID_USUARIO</span>
+      </div>
+      <div class="input-wrap">
+        <input type="email" id="nm-email" placeholder="operador@grid.io">
+        <div class="input-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <span>CLAVE_ACCESO</span>
+        <a href="#">Regenerar →</a>
+      </div>
+      <div class="input-wrap">
+        <input type="password" id="nm-pass" placeholder="••••••••••••">
+        <button class="input-icon" onclick="nmToggle()" type="button" style="cursor:pointer;">
+          <svg id="nm-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-enter" id="nm-btn" onclick="nmLogin()">
+      <span class="label">→ Ejecutar acceso</span>
+    </button>
+
+    <div class="sep">
+      <div class="sep-line"></div>
+      <div class="sep-txt">// O</div>
+      <div class="sep-line"></div>
+    </div>
+
+    <div class="oauth">
+      <button class="btn-oauth">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M20.3 12.2c0-.6-.1-1.3-.2-1.9H12v3.6h4.7c-.2 1.1-.8 2-1.8 2.6v2.2h2.9c1.7-1.6 2.5-3.8 2.5-6.5z" fill="#4285F4"/><path d="M12 21c2.4 0 4.4-.8 5.8-2.1l-2.9-2.2c-.8.5-1.8.8-3 .8-2.3 0-4.2-1.5-4.9-3.6H4.1v2.3C5.5 19.3 8.5 21 12 21z" fill="#34A853"/><path d="M7.1 13.9c-.2-.5-.3-1-.3-1.6s.1-1.1.3-1.6V8.4H4.1C3.4 9.7 3 11.3 3 12.9s.4 3.2 1.1 4.5l3-2.5z" fill="#FBBC04"/><path d="M12 7.3c1.3 0 2.4.4 3.3 1.3l2.4-2.4C16.3 4.7 14.3 4 12 4 8.5 4 5.5 5.7 4.1 8.4l3 2.3C7.8 8.8 9.7 7.3 12 7.3z" fill="#EA4335"/></svg>
+        Google
+      </button>
+      <button class="btn-oauth">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="color:#6e7681"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2.23c-3.34.72-4.04-1.42-4.04-1.42-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.1-.77.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23A11.5 11.5 0 0 1 12 5.8c1.02 0 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.69.82.57C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item hi">● SISTEMA OPERATIVO</span>
+    <span class="ticker-item">LATENCIA: 1.2ms</span>
+    <span class="ticker-item">UPTIME: 99.98%</span>
+    <span class="ticker-item hi">● TLS 1.3 ACTIVO</span>
+    <span class="ticker-item">NODOS: 14/14 OK</span>
+    <span class="ticker-item">REGION: SAO-01</span>
+    <span class="ticker-item hi">● AES-256-GCM</span>
+    <span class="ticker-item">BUILD: v4.1.0-stable</span>
+    <span class="ticker-item">SESIONES ACTIVAS: 2,847</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item hi">● SISTEMA OPERATIVO</span>
+    <span class="ticker-item">LATENCIA: 1.2ms</span>
+    <span class="ticker-item">UPTIME: 99.98%</span>
+    <span class="ticker-item hi">● TLS 1.3 ACTIVO</span>
+    <span class="ticker-item">NODOS: 14/14 OK</span>
+    <span class="ticker-item">REGION: SAO-01</span>
+    <span class="ticker-item hi">● AES-256-GCM</span>
+    <span class="ticker-item">BUILD: v4.1.0-stable</span>
+    <span class="ticker-item">SESIONES ACTIVAS: 2,847</span>
+  </div>
+</div>
+
+<script>
+function nmToggle() {
+  const i = document.getElementById('nm-pass');
+  const e = document.getElementById('nm-eye');
+  if (i.type === 'password') {
+    i.type = 'text';
+    e.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+  } else {
+    i.type = 'password';
+    e.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+}
+
+function nmLogin() {
+  const btn = document.getElementById('nm-btn');
+  const label = btn.querySelector('.label');
+  const email = document.getElementById('nm-email').value;
+  const pass  = document.getElementById('nm-pass').value;
+  if (!email || !pass) {
+    btn.style.borderColor = '#ef4444';
+    btn.style.color = '#ef4444';
+    label.textContent = '✕ Error: campos vacíos';
+    setTimeout(() => {
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      label.textContent = '→ Ejecutar acceso';
+    }, 1800);
+    return;
+  }
+  label.textContent = '// Autenticando...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.style.borderColor = 'var(--mint)';
+    btn.style.background = 'rgba(0,255,178,0.08)';
+    label.textContent = '✓ Acceso autorizado';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.style.borderColor = '';
+      btn.style.background = '';
+      label.textContent = '→ Ejecutar acceso';
+    }, 2200);
+  }, 1400);
+}
+</script>
+</body>
+</html>

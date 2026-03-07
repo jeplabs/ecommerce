@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar"
 import { API_URL } from "../config/config";
 import ProfileForm from '../components/ProfileForm';
@@ -9,6 +10,8 @@ export default function Profile() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [msgExito, setMsgExito] = useState(null);
+
+    const navigate = useNavigate();
 
     const fetchUsuario = async () => {
 
@@ -81,6 +84,11 @@ export default function Profile() {
     if (error) return <><Navbar /><p style={{color: 'red'}}>Error: {error}</p></>;
     if (!usuario) return <><Navbar /><p>No se encontraron datos.</p></>;
 
+    const logout = () => {
+        localStorage.removeItem('token');
+        navigate('/');
+    };
+
     return (
         <>
             <Navbar />
@@ -97,6 +105,7 @@ export default function Profile() {
                     onSave={handleSaveProfile}
                     onCancel={() => fetchUsuario()} // Recargar datos si cancela
                 />
+                <button onClick={logout}>Cerrar sesión</button>
             </main>
         </>
     )

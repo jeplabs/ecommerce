@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar"
 import { API_URL } from "../config/config";
 
@@ -7,6 +8,8 @@ export default function Admin() {
         const [usuarios, setUsuarios] = useState([]);
         const [loading, setLoading] = useState(false);
         const [error, setError] = useState(null);
+
+        const navigate = useNavigate();
 
         const fetchUsuarios = async () => {
 
@@ -49,33 +52,45 @@ export default function Admin() {
         useEffect(() => {
             fetchUsuarios();
         }, []);
+        
+        if (loading) return <><Navbar /><p>Cargando...</p></>;
+        if (error) return <><Navbar /><p style={{color: 'red'}}>Error: {error}</p></>;
+        //if (!token) return <><Navbar /><p>No se encontraron datos.</p></>;
+
+        const logout = () => {
+            localStorage.removeItem('token');
+            navigate('/');
+        };
 
     return (
         <>
             <Navbar />
-            <h1>Admin</h1>
-            <div className="usuarios-list">
-                <h2>Lista de usuarios</h2>
-                
-                {loading && <p>Cargando...</p>}
-                {error && <p className="error">{error}</p>}
-                {!loading && usuarios.length === 0 && <p>No hay usuarios registrados</p>}
-                {!loading && usuarios.length > 0 && 
-                    <ul>
-                        {usuarios.map((usuario) => (
-                            <li key={usuario.id}>
-                                <strong>{usuario.nombre} {usuario.apellido}</strong>
-                                <br />
-                                <small>{usuario.email}</small>
-                                <br />
-                                <small>{usuario.pais}</small>
-                                <br />
-                                <small>{usuario.rol}</small>
-                            </li>
-                        ))}
-                    </ul>
-                }
-            </div>
+            <main className="admin-container">
+                <h1>Admin</h1>
+                <div className="usuarios-list">
+                    <h2>Lista de usuarios</h2>
+                    
+                    {loading && <p>Cargando...</p>}
+                    {error && <p className="error">{error}</p>}
+                    {!loading && usuarios.length === 0 && <p>No hay usuarios registrados</p>}
+                    {!loading && usuarios.length > 0 && 
+                        <ul>
+                            {usuarios.map((usuario) => (
+                                <li key={usuario.id}>
+                                    <strong>{usuario.nombre} {usuario.apellido}</strong>
+                                    <br />
+                                    <small>{usuario.email}</small>
+                                    <br />
+                                    <small>{usuario.pais}</small>
+                                    <br />
+                                    <small>{usuario.rol}</small>
+                                </li>
+                            ))}
+                        </ul>
+                    }
+                </div>
+                <button onClick={logout}>Cerrar sesión</button>
+            </main>
         </>
     );
 }

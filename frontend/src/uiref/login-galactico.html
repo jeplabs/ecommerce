@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Iniciar Sesión</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void:     #06020f;
+    --deep:     #0d0520;
+    --plum:     #1e0a3c;
+    --violet:   #4c1d95;
+    --purple:   #7c3aed;
+    --iris:     #a855f7;
+    --sky:      #0ea5e9;
+    --cyan:     #06b6d4;
+    --ice:      #e0f2fe;
+    --white:    #f8f4ff;
+    --muted:    rgba(224,242,254,0.35);
+    --border:   rgba(168,85,247,0.2);
+    --glow-v:   rgba(124,58,237,0.6);
+    --glow-c:   rgba(6,182,212,0.5);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Syne', sans-serif;
+    background: var(--void);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  /* ── CANVAS NEBULA ── */
+  canvas#nebula {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  /* ── LAYOUT ── */
+  .scene {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 480px 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-items: center;
+    padding: 2rem;
+  }
+
+  /* ── LEFT BRAND SIDE ── */
+  .brand-side {
+    grid-column: 1;
+    text-align: right;
+    padding-right: 3.5rem;
+    animation: slideInLeft 1s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+  }
+
+  .brand-logo {
+    font-size: 0.65rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--iris);
+    margin-bottom: 2rem;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  .brand-headline {
+    font-size: clamp(2.2rem, 3.5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--ice) 0%, var(--iris) 50%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.2rem;
+  }
+
+  .brand-sub {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 280px;
+    margin-left: auto;
+  }
+
+  .brand-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 2.5rem;
+  }
+
+  .brand-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--iris);
+    opacity: 0.4;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  .brand-dots span:nth-child(2) { background: var(--cyan); animation-delay: 0.3s; }
+  .brand-dots span:nth-child(3) { background: var(--sky);  animation-delay: 0.6s; }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.5); }
+  }
+
+  /* ── CARD ── */
+  .card {
+    grid-column: 2;
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(160deg,
+      rgba(30,10,60,0.85) 0%,
+      rgba(13,5,32,0.92) 100%);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.8rem 2.5rem 2.5rem;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow:
+      0 0 0 1px rgba(168,85,247,0.08),
+      0 30px 80px rgba(0,0,0,0.6),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    animation: cardIn 1s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* card inner shimmer */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: -30%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    right: -20%;
+    width: 60%;
+    height: 70%;
+    background: radial-gradient(ellipse, rgba(6,182,212,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(32px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+
+  /* ── CARD HEADER ── */
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--violet), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.6rem;
+    box-shadow: 0 8px 24px rgba(124,58,237,0.4), 0 0 0 1px rgba(168,85,247,0.3);
+  }
+
+  .card-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 1.8;
+    fill: none;
+  }
+
+  .card-title {
+    font-size: 1.55rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+  }
+
+  .card-caption {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 2.2rem;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── FORM ── */
+  .field {
+    margin-bottom: 1.2rem;
+    position: relative;
+  }
+
+  label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(224,242,254,0.5);
+    margin-bottom: 0.5rem;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    stroke: rgba(168,85,247,0.5);
+    stroke-width: 1.8;
+    fill: none;
+    transition: stroke 0.3s;
+    pointer-events: none;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 12px;
+    padding: 0.8rem 1rem 0.8rem 2.6rem;
+    font-size: 0.9rem;
+    font-family: 'Syne', sans-serif;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+    letter-spacing: 0.01em;
+  }
+
+  input::placeholder { color: rgba(224,242,254,0.2); }
+
+  input:focus {
+    border-color: var(--iris);
+    background: rgba(168,85,247,0.07);
+    box-shadow: 0 0 0 3px rgba(168,85,247,0.15), 0 0 20px rgba(168,85,247,0.1);
+  }
+
+  input:focus + svg,
+  .input-wrap:focus-within svg {
+    stroke: var(--iris);
+  }
+
+  /* password toggle */
+  .eye-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: rgba(168,85,247,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+  }
+  .eye-btn:hover { color: var(--iris); }
+  .eye-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+
+  /* ── FORGOT ── */
+  .forgot {
+    text-align: right;
+    margin-top: -0.5rem;
+    margin-bottom: 1.6rem;
+  }
+  .forgot a {
+    font-size: 0.72rem;
+    color: var(--iris);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .forgot a:hover { opacity: 1; }
+
+  /* ── BTN ── */
+  .btn-login {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--purple) 0%, var(--sky) 100%);
+    color: white;
+    box-shadow: 0 8px 32px rgba(124,58,237,0.4), 0 2px 8px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 0;
+  }
+
+  .btn-login::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+  }
+
+  .btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(124,58,237,0.55), 0 0 60px rgba(6,182,212,0.2);
+  }
+
+  .btn-login:hover::before { opacity: 1; }
+  .btn-login:active { transform: translateY(0); }
+
+  /* btn shimmer sweep */
+  .btn-login::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+    background-size: 200% 100%;
+    background-position: -200% 0;
+    transition: background-position 0.6s ease;
+  }
+
+  .btn-login:hover::after { background-position: 200% 0; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.6rem 0;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(168,85,247,0.25), transparent);
+  }
+  .divider-text {
+    font-size: 0.65rem;
+    color: rgba(224,242,254,0.3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  /* ── OAUTH BUTTONS ── */
+  .oauth-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .btn-oauth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(168,85,247,0.18);
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(224,242,254,0.7);
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s, color 0.25s;
+    letter-spacing: 0.03em;
+  }
+  .btn-oauth:hover {
+    background: rgba(168,85,247,0.1);
+    border-color: var(--iris);
+    color: var(--white);
+  }
+  .btn-oauth svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ── FOOTER LINK ── */
+  .card-footer {
+    text-align: center;
+    margin-top: 1.8rem;
+    font-size: 0.75rem;
+    color: rgba(224,242,254,0.35);
+  }
+  .card-footer a {
+    color: var(--iris);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .card-footer a:hover { color: var(--cyan); }
+
+  /* ── RIGHT SIDE DECORATIVE ── */
+  .deco-side {
+    grid-column: 3;
+    padding-left: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    animation: slideInRight 1s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+  }
+
+  .stat-chip {
+    background: rgba(30,10,60,0.6);
+    border: 1px solid rgba(168,85,247,0.15);
+    border-radius: 12px;
+    padding: 1rem 1.3rem;
+    backdrop-filter: blur(12px);
+    transition: border-color 0.3s;
+    max-width: 200px;
+  }
+  .stat-chip:hover { border-color: rgba(168,85,247,0.4); }
+
+  .stat-val {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(90deg, var(--iris), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(224,242,254,0.35);
+    margin-top: 0.25rem;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  @keyframes slideInLeft  {
+    from { opacity: 0; transform: translateX(-24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(30,10,60,0.7);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 30px;
+    padding: 0.4rem 1rem 0.4rem 0.7rem;
+    backdrop-filter: blur(12px);
+    animation: fadeDown 0.8s ease 0.5s both;
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px #4ade80;
+    animation: blink 2s infinite;
+  }
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
+
+  .status-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(224,242,254,0.55);
+    font-family: 'Syne Mono', monospace;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .scene { grid-template-columns: 1fr; grid-template-rows: auto; overflow-y: auto; align-items: start; padding-top: 5rem; }
+    .brand-side, .deco-side { display: none; }
+    .card { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="nebula"></canvas>
+<div class="grain"></div>
+
+<div class="status-bar">
+  <div class="status-dot"></div>
+  <div class="status-text">Sistemas Operativos · Latencia 12ms</div>
+</div>
+
+<div class="scene">
+
+  <!-- LEFT -->
+  <div class="brand-side">
+    <div class="brand-logo">◈ NEXUS PLATFORM</div>
+    <div class="brand-headline">Bienvenido<br>al Otro<br>Lado</div>
+    <div class="brand-sub">Accede a tu espacio de trabajo inteligente. Datos en tiempo real, colaboración sin fricción.</div>
+    <div class="brand-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+
+    <div class="card-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+
+    <div class="card-title">Iniciar Sesión</div>
+    <div class="card-caption">Ingresa tus credenciales para continuar</div>
+
+    <div class="field">
+      <label for="email">Correo Electrónico</label>
+      <div class="input-wrap">
+        <input type="email" id="email" placeholder="tu@nexus.io" autocomplete="email">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <div class="input-wrap" style="position:relative">
+        <input type="password" id="password" placeholder="••••••••••••" autocomplete="current-password">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <button class="eye-btn" onclick="togglePassword()" type="button" id="eyebtn" aria-label="Mostrar contraseña">
+          <svg id="eye-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="forgot"><a href="#">¿Olvidaste tu contraseña?</a></div>
+
+    <button class="btn-login" onclick="handleLogin()">Entrar al Sistema</button>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">o continúa con</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="oauth-row">
+      <button class="btn-oauth">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Google
+      </button>
+      <button class="btn-oauth">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        GitHub
+      </button>
+    </div>
+
+    <div class="card-footer">
+      ¿Sin cuenta? <a href="#">Crear acceso</a>
+    </div>
+  </div>
+
+  <!-- RIGHT DECORATIVE -->
+  <div class="deco-side">
+    <div class="stat-chip">
+      <div class="stat-val">98.9%</div>
+      <div class="stat-label">Uptime garantizado</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-val">256-bit</div>
+      <div class="stat-label">Encriptación AES</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-val">2.4M</div>
+      <div class="stat-label">Usuarios activos</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── NEBULA CANVAS ── */
+const canvas = document.getElementById('nebula');
+const ctx = canvas.getContext('2d');
+
+let W, H, stars, orbs;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  initScene();
+}
+
+function initScene() {
+  // Stars
+  stars = Array.from({ length: 220 }, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    r: Math.random() * 1.2 + 0.2,
+    a: Math.random(),
+    speed: Math.random() * 0.003 + 0.001,
+    phase: Math.random() * Math.PI * 2
+  }));
+
+  // Nebula orbs
+  orbs = [
+    { x: W * 0.15, y: H * 0.25, rx: W * 0.3, ry: H * 0.35, color: [76,29,149], a: 0.22, dx: 0.12, dy: 0.06 },
+    { x: W * 0.78, y: H * 0.65, rx: W * 0.28, ry: H * 0.3,  color: [6,182,212],  a: 0.14, dx:-0.08, dy: 0.10 },
+    { x: W * 0.5,  y: H * 0.5,  rx: W * 0.22, ry: H * 0.25, color: [124,58,237], a: 0.10, dx: 0.05, dy:-0.07 },
+    { x: W * 0.88, y: H * 0.15, rx: W * 0.18, ry: H * 0.2,  color: [14,165,233], a: 0.09, dx:-0.06, dy: 0.08 },
+  ];
+}
+
+let t = 0;
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Base deep gradient
+  const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.7);
+  bg.addColorStop(0, '#0d0520');
+  bg.addColorStop(1, '#06020f');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Nebula orbs
+  orbs.forEach(o => {
+    o.x += Math.sin(t * o.dx) * 0.4;
+    o.y += Math.cos(t * o.dy) * 0.3;
+    const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, Math.max(o.rx, o.ry));
+    g.addColorStop(0, `rgba(${o.color[0]},${o.color[1]},${o.color[2]},${o.a})`);
+    g.addColorStop(1, `rgba(${o.color[0]},${o.color[1]},${o.color[2]},0)`);
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    ctx.scale(o.rx / o.ry, 1);
+    ctx.beginPath();
+    ctx.arc(0, 0, o.ry, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // Stars
+  stars.forEach(s => {
+    s.a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * s.speed * 50 + s.phase));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(220,210,255,${s.a})`;
+    ctx.fill();
+  });
+
+  t += 0.01;
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', resize);
+resize();
+draw();
+
+/* ── MOUSE PARALLAX ── */
+document.addEventListener('mousemove', e => {
+  const xf = (e.clientX / window.innerWidth  - 0.5) * 18;
+  const yf = (e.clientY / window.innerHeight - 0.5) * 12;
+  document.querySelector('.card').style.transform =
+    `perspective(800px) rotateY(${xf * 0.04}deg) rotateX(${-yf * 0.04}deg) translateZ(0)`;
+});
+
+document.querySelector('.card').addEventListener('mouseleave', () => {
+  document.querySelector('.card').style.transform = '';
+});
+
+/* ── TOGGLE PASSWORD ── */
+function togglePassword() {
+  const inp = document.getElementById('password');
+  const eye = document.getElementById('eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eye.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+  } else {
+    inp.type = 'password';
+    eye.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+}
+
+/* ── LOGIN FEEDBACK ── */
+function handleLogin() {
+  const email = document.getElementById('email').value;
+  const pass  = document.getElementById('password').value;
+  const btn   = document.querySelector('.btn-login');
+
+  if (!email || !pass) {
+    btn.style.background = 'linear-gradient(135deg,#7f1d1d,#991b1b)';
+    btn.textContent = '⚠ Completa los campos';
+    setTimeout(() => {
+      btn.style.background = '';
+      btn.textContent = 'Entrar al Sistema';
+    }, 1800);
+    return;
+  }
+
+  btn.textContent = '◌ Verificando...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    btn.style.background = 'linear-gradient(135deg,#065f46,#047857)';
+    btn.textContent = '✓ Acceso Concedido';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.style.background = '';
+      btn.textContent = 'Entrar al Sistema';
+    }, 2200);
+  }, 1400);
+}
+</script>
+</body>
+</html>
