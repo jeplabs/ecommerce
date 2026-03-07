@@ -33,12 +33,18 @@ export default function LoginForm() {
         throw new Error('Credenciales inválidas');
         }
 
-        // Guarda el token
+        // Guarda el token y rol
         const data = await response.json();
-        localStorage.setItem('token', data.token); 
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('rol', data.rol); 
 
-        // Redirige a la página principal o dashboard
-        navigate('/profile'); 
+        //Lógica de redirección según el rol
+            if (data.rol === 'ROLE_ADMIN') {
+                navigate('/admin');
+            } else {
+                //Para USER o cualquier otro rol
+                navigate('/profile');
+            } 
         
     } catch (error) {
         // Muestra mensaje de error al usuario
