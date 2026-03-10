@@ -1,12 +1,8 @@
 [build]
-  # El comando se ejecuta desde la raíz, así que entramos a frontend
-  command = "cd frontend && npm run build"
-  
-  # Indicamos que los archivos estáticos están en frontend/dist
+  # Asegúrate de que npm esté disponible
+  command = "cd frontend && npm ci && npm run build"
   publish = "frontend/dist"
 
-# Esto soluciona el error de rutas (SPA)
-# Redirige cualquier petición que no sea un archivo real al index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
