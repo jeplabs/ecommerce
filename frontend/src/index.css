@@ -32,11 +32,13 @@
 
 }
 html, body { 
-  height:100%; 
+  height:100vh;
   font-family:'Instrument Sans', sans-serif; 
   background:var(--bg); 
   color:var(--text); 
-  overflow:hidden; 
+  overflow: scroll; 
+  scroll-behavior: smooth;
+  scrollbar-width: none;
 }
 
 body {
@@ -73,7 +75,7 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  /* font-size: 3.2em; */
   line-height: 1.1;
   text-align: center;
 }
@@ -88,6 +90,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  max-width: 400px;
 }
 button:hover {
   border-color: #646cff;
@@ -244,7 +247,7 @@ label {
   letter-spacing:0.08em; 
   text-transform:uppercase;
   color:var(--muted); 
-  margin-bottom:0.45rem;
+  /* margin-bottom:0.45rem; */
 }
 
 .field-inner { 

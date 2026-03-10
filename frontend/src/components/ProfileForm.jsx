@@ -50,7 +50,7 @@ export default function ProfileForm({ user, onSave, onCancel }) {
     if (!isEditing) {
         // --- VISTA DE SOLO LECTURA ---
         return (
-            <div className="profile-view">
+            <div className="profile-view form-box">
                 <h2>Detalles del Usuario</h2>
                 <div style={{ marginBottom: '10px' }}>
                     <strong>Nombre:</strong> {formData.nombre} {formData.apellido}
@@ -61,14 +61,18 @@ export default function ProfileForm({ user, onSave, onCancel }) {
                 <div style={{ marginBottom: '10px' }}>
                     <strong>Email:</strong> {formData.email} <span style={{fontSize: '0.8em', color: '#666'}}>(No editable)</span>
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                {/* <div style={{ marginBottom: '10px' }}>
                     <strong>Rol:</strong> {formData.rol} <span style={{fontSize: '0.8em', color: '#666'}}>(No editable)</span>
-                </div>
-                <div style={{ marginBottom: '20px' }}>
+                </div> */}
+                {/* <div style={{ marginBottom: '20px' }}>
                     <strong>ID:</strong> {formData.id} <span style={{fontSize: '0.8em', color: '#666'}}>(No editable)</span>
-                </div>
+                </div> */}
                 
-                <button onClick={() => setIsEditing(true)} style={{ padding: '8px 16px', cursor: 'pointer' }}>
+                <button 
+                    className='btn-submit'
+                    onClick={() => setIsEditing(true)} 
+                    //style={{ padding: '8px 16px', cursor: 'pointer' }}
+                >
                     Editar Perfil
                 </button>
             </div>
@@ -77,13 +81,15 @@ export default function ProfileForm({ user, onSave, onCancel }) {
 
     // --- VISTA DE EDICIÓN ---
     return (
-        <form onSubmit={handleSubmit} className="profile-form">
+        <form onSubmit={handleSubmit} className="form-box">
             <h2>Editar Perfil</h2>
             
             {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
 
             {/* Campos Editables */}
-            <div style={{ marginBottom: '15px' }}>
+            <div 
+                //style={{ marginBottom: '15px' }}
+            >
                 <label>Nombre:</label>
                 <input 
                     type="text" 
@@ -91,11 +97,13 @@ export default function ProfileForm({ user, onSave, onCancel }) {
                     value={formData.nombre} 
                     onChange={handleChange} 
                     required 
-                    style={{ width: '100%', padding: '8px' }}
+                    //style={{ width: '100%', padding: '8px' }}
                 />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
+            <div 
+                //style={{ marginBottom: '15px' }}
+            >
                 <label>Apellido:</label>
                 <input 
                     type="text" 
@@ -103,11 +111,13 @@ export default function ProfileForm({ user, onSave, onCancel }) {
                     value={formData.apellido} 
                     onChange={handleChange} 
                     required 
-                    style={{ width: '100%', padding: '8px' }}
+                    //style={{ width: '100%', padding: '8px' }}
                 />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
+            <div 
+                //style={{ marginBottom: '15px' }}
+            >
                 <label>País:</label>
                 <input 
                     type="text" 
@@ -115,43 +125,60 @@ export default function ProfileForm({ user, onSave, onCancel }) {
                     value={formData.pais} 
                     onChange={handleChange} 
                     required 
-                    style={{ width: '100%', padding: '8px' }}
+                    //style={{ width: '100%', padding: '8px' }}
                 />
             </div>
 
             {/* Campos de Solo Lectura (Visuales) */}
-            <div style={{ marginBottom: '15px', opacity: 0.6, pointerEvents: 'none' }}>
+            <div 
+                style={{ 
+                    //marginBottom: '15px', 
+                    opacity: 0.6, 
+                    pointerEvents: 'none' 
+                }}
+            >
                 <label>Email:</label>
                 <input 
                     type="email" 
                     value={formData.email} 
-                    style={{ width: '100%', padding: '8px', backgroundColor: '#f0f0f0' }}
+                    //style={{ width: '100%', padding: '8px', backgroundColor: '#f0f0f0' }}
                     tabIndex={-1}
                 />
             </div>
 
-            <div style={{ marginBottom: '15px', opacity: 0.6, pointerEvents: 'none' }}>
+            {/* <div 
+                style={{ 
+                    marginBottom: '15px', 
+                    opacity: 0.6, 
+                    pointerEvents: 'none' 
+                }}
+            >
                 <label>Rol:</label>
                 <input 
                     type="text" 
                     value={formData.rol} 
-                    style={{ width: '100%', padding: '8px', backgroundColor: '#f0f0f0' }}
+                    //style={{ width: '100%', padding: '8px', backgroundColor: '#f0f0f0' }}
                     tabIndex={-1}
                 />
-            </div>
+            </div> */}
 
             <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="submit" disabled={loading} style={{ padding: '8px 16px', cursor: 'pointer' }}>
+                <button 
+                    className='btn-submit' 
+                    type="submit" 
+                    disabled={loading} 
+                    style={{ padding: '8px 16px', cursor: 'pointer' }}
+                >
                     {loading ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
-                <button 
+                <button className='btn-submit'
                     type="button" 
                     onClick={() => {
                         setIsEditing(false);
                         onCancel(); // Opcional: para resetear cambios si el usuario cancela
                     }} 
                     disabled={loading}
-                    style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#ccc' }}
+                    //style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#ccc' }}
                 >
                     Cancelar
                 </button>

@@ -71,7 +71,7 @@ export default function Admin() {
                 <h1>Admin</h1>
                 <div className="usuarios-list">
                     <h2>Lista de usuarios</h2>
-                    
+                    <br />
                     {loading && <div className="loading">
                         <p>Cargando...</p>
                     </div>}
@@ -93,7 +93,12 @@ export default function Admin() {
                         </ul>
                     }
                 </div>
-                <button onClick={logout}>Cerrar sesión</button>
+                <button 
+                    onClick={logout}
+                    className='btn-submit'
+                >
+                    Cerrar sesión
+                </button>
             </main>
         </>
     );

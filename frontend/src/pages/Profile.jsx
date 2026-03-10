@@ -95,7 +95,7 @@ export default function Profile() {
         <>
             <Navbar />
 
-            <main className="profile-container">
+            <main className="profile-container form-box">
 
                 <h1>Mi Perfil</h1>
                 
@@ -108,7 +108,12 @@ export default function Profile() {
                     onSave={handleSaveProfile}
                     onCancel={() => fetchUsuario()} // Recargar datos si cancela
                 />
-                <button onClick={logout}>Cerrar sesión</button>
+                <button 
+                    className='btn-submit' 
+                    onClick={logout}
+                >
+                    Cerrar sesión
+                </button>
             </main>
         </>
     )
