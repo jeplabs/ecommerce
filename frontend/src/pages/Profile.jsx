@@ -80,9 +80,11 @@ export default function Profile() {
         fetchUsuario();
     }, []);
 
-    if (loading) return <><Navbar /><p>Cargando...</p></>;
-    if (error) return <><Navbar /><p style={{color: 'red'}}>Error: {error}</p></>;
-    if (!usuario) return <><Navbar /><p>No se encontraron datos.</p></>;
+    if (loading) return <><Navbar /><p className="loading">Cargando...</p></>;
+    if (error) return <><Navbar /><div className="loading">
+        <p style={{color: 'red'}}>Error: {error}</p>
+    </div></>;
+    if (!usuario) return <><Navbar /><p></p></>;
 
     const logout = () => {
         localStorage.removeItem('token');
@@ -97,6 +99,7 @@ export default function Profile() {
 
                 <h1>Mi Perfil</h1>
                 
+                {loading && <p>Cargando...</p>}
                 {msgExito && <p style={{ color: 'green', fontWeight: 'bold' }}>{msgExito}</p>}
 
                 {/* Pasamos los datos y la función de guardar al componente formulario */}

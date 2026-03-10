@@ -53,8 +53,10 @@ export default function Admin() {
             fetchUsuarios();
         }, []);
         
-        if (loading) return <><Navbar /><p>Cargando...</p></>;
-        if (error) return <><Navbar /><p style={{color: 'red'}}>Error: {error}</p></>;
+        //if (loading) return <><Navbar /><p className='loading'>Cargando...</p></>;
+        if (error) return <><Navbar /><div className="loading">
+            <p style={{color: 'red'}}>Error: {error}</p>
+        </div></>;
         //if (!token) return <><Navbar /><p>No se encontraron datos.</p></>;
 
         const logout = () => {
@@ -70,7 +72,9 @@ export default function Admin() {
                 <div className="usuarios-list">
                     <h2>Lista de usuarios</h2>
                     
-                    {loading && <p>Cargando...</p>}
+                    {loading && <div className="loading">
+                        <p>Cargando...</p>
+                    </div>}
                     {error && <p className="error">{error}</p>}
                     {!loading && usuarios.length === 0 && <p>No hay usuarios registrados</p>}
                     {!loading && usuarios.length > 0 && 
