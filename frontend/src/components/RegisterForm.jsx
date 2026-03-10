@@ -106,7 +106,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="form-box" onSubmit={handleSubmit}>
 
             {/* Input nombre */}
             <label htmlFor="nombre">Nombre</label>
@@ -190,7 +190,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
             <br />
 
             {/* Botón de enviar */}
-            <button type="submit" disabled={loading}>
+            <button className="btn-submit" type="submit" disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
             </button>
         </form>

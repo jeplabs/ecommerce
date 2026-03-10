@@ -16,19 +16,18 @@ nav {
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-  /* max-width: 400px; */
-  align-items: center;
+  gap: 0.8rem;
+  padding-top: 1rem;
+  /* align-items: center; */
 }
 
-input {
+/* input {
   padding: 0.5rem;
   font: inherit;
   border: 1px solid #ccc;
   border-radius: 0.25rem;
   width: 324px;
-}
+} */
 
 .error {
   color: red;

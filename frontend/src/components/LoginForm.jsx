@@ -53,7 +53,7 @@ export default function LoginForm() {
     }
     };
     return (
-        <form onSubmit={handleSubmit}>
+        <form className='form-box' onSubmit={handleSubmit}>
 
             {/* Input correo electrónico */}
             <label htmlFor="email">Correo electrónico</label>
@@ -80,7 +80,7 @@ export default function LoginForm() {
             {error && <span className="error">{error}</span>}
 
             <br />
-            <button type="submit">Iniciar sesión</button>
+            <button className='btn-submit' type="submit">Iniciar sesión</button>
         </form>
     )
 }
