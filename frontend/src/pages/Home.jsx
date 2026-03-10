@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar"
+import { ProductCatalog } from "../components/ProductCatalog"
 
 function Home() {
     
@@ -6,6 +7,7 @@ function Home() {
         <>
             <Navbar />
             <h1>Home</h1>
+            <ProductCatalog/>
         </>
     )
 }
