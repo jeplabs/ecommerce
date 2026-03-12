@@ -1,6 +1,7 @@
 package com.jeplabs.ecommerce.infra.exceptions;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -84,5 +85,13 @@ public class GestorDeErrores {
             LockedException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "Tu cuenta está bloqueada por demasiados intentos fallidos, intenta de nuevo en " + lockoutMinutes + " minutos"));
+    }
+
+// Capturar errores SQL de base de datos, de forma más clara.
+    @ExceptionHandler(InvalidDataAccessResourceUsageException.class)
+    public ResponseEntity<Map<String, String>> manejarErrorBD(
+            InvalidDataAccessResourceUsageException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Error al ejecutar la consulta en la base de datos"));
     }
 }
