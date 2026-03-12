@@ -191,7 +191,7 @@ label {
   position:relative; 
 }
 
-input {
+input, textarea, select, option {
   width:100%; 
   padding:0.78rem 1rem 0.78rem 2.7rem;
   /* padding: 0.85rem 1rem 0.85rem 2.8rem; */
@@ -206,11 +206,15 @@ input {
   appearance: none; 
 }
 
+textarea {
+  min-height:100px;
+}
+
 input::placeholder { 
   color:rgba(241,245,249,0.2); 
 }
 
-input:focus {
+input:focus, textarea:focus, select:focus {
   border-color:var(--indigo);
   background:rgba(99,102,241,0.05);
   box-shadow:0 0 0 3px rgba(99,102,241,0.14);

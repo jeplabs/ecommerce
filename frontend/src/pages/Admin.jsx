@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar"
 import { API_URL } from "../config/config";
+import { ProductForm } from '../components/ProductForm';
 
 export default function Admin() {
 
@@ -99,6 +100,7 @@ export default function Admin() {
                 >
                     Cerrar sesión
                 </button>
+            <ProductForm />
             </main>
         </>
     );
