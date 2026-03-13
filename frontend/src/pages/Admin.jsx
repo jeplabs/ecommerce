@@ -9,60 +9,75 @@ export default function Admin() {
         const [usuarios, setUsuarios] = useState([]);
         const [loading, setLoading] = useState(false);
         const [error, setError] = useState(null);
-
         const navigate = useNavigate();
 
-        const fetchUsuarios = async () => {
-
-            setLoading(true);
-            setError(null);
-
-            try {
-
-                // Leer token del localStorage
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    throw new Error('No estás autenticado');
-                }
-                
-                const response = await fetch(`${API_URL}/api/auth/usuarios`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al obtener usuarios');
-                }
-
-                // Guardar usuarios en estado
-                const data = await response.json();
-                setUsuarios(data);
-
-            } catch (error) {
-                // Muestra mensaje de error al usuario
-                console.error('Error al obtener usuarios', error);
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         useEffect(() => {
-            fetchUsuarios();
-        }, []);
-        
-        //if (loading) return <><Navbar /><p className='loading'>Cargando...</p></>;
-        if (error) return <><Navbar /><div className="loading">
-            <p style={{color: 'red'}}>Error: {error}</p>
-        </div></>;
-        //if (!token) return <><Navbar /><p>No se encontraron datos.</p></>;
+            const token = localStorage.getItem('token');
 
+            if (!token) {
+                navigate('/login', { replace: true });
+                return;
+            }
+
+            const fetchUsuarios = async () => {
+                setLoading(true);
+                setError(null);
+
+                try {
+
+                    // Leer token del localStorage
+                    // const token = localStorage.getItem('token');
+                    // if (!token) {
+                        // throw new Error('No estás autenticado');
+                    // }
+                    
+                    const response = await fetch(`${API_URL}/api/auth/usuarios`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            localStorage.removeItem('token');
+                            navigate('/login', { replace: true });
+                            return;
+                        }
+                        throw new Error('Error al obtener usuarios');
+                    }
+
+                    // Guardar usuarios en estado
+                    const data = await response.json();
+                    setUsuarios(data);
+
+                } catch (error) {
+                    // Muestra mensaje de error al usuario
+                    console.error('Error al obtener usuarios', error);
+                    setError(error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchUsuarios();
+        }, [navigate]);
+
+        // useEffect(() => {
+        //     fetchUsuarios();
+        // }, []);
+        
+        // Manejo de UI mientras carga o hay error
+        if (loading && usuarios.length === 0) {
+            return <><Navbar /><p className='loading'>Cargando...</p></>;
+        }
+
+        if (error) {
+            navigate('/', { replace: true });
+        }
         const logout = () => {
             localStorage.removeItem('token');
-            navigate('/');
+            navigate('/', { replace: true });
         };
 
     return (
