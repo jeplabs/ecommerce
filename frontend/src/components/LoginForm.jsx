@@ -58,6 +58,7 @@ export default function LoginForm() {
             {/* Input correo electrónico */}
             <label htmlFor="email">Correo electrónico</label>
             <input 
+                className='login-input'
                 type="email" 
                 id="email" 
                 name="email" 
@@ -70,6 +71,7 @@ export default function LoginForm() {
             {/* Input contraseña */}
             <label htmlFor="password">Contraseña</label>
             <input 
+                className='login-input'
                 type="password" 
                 id="password" 
                 name="password" 
