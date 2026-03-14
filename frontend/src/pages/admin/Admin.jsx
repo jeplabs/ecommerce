@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from "../components/Navbar"
-import { API_URL } from "../config/config";
-import { ProductForm } from '../components/ProductForm';
+import { useNavigate, NavLink } from 'react-router-dom';
+import Navbar from "../../components/Navbar"
+import { API_URL } from "../../config/config";
 
 export default function Admin() {
 
@@ -85,37 +84,20 @@ export default function Admin() {
             <Navbar />
             <main className="admin-container">
                 <h1>Admin</h1>
-                <div className="usuarios-list">
-                    <h2>Lista de usuarios</h2>
-                    <br />
-                    {loading && <div className="loading">
-                        <p>Cargando...</p>
-                    </div>}
-                    {error && <p className="error">{error}</p>}
-                    {!loading && usuarios.length === 0 && <p>No hay usuarios registrados</p>}
-                    {!loading && usuarios.length > 0 && 
-                        <ul>
-                            {usuarios.map((usuario) => (
-                                <li key={usuario.id}>
-                                    <strong>{usuario.nombre} {usuario.apellido}</strong>
-                                    <br />
-                                    <small>{usuario.email}</small>
-                                    <br />
-                                    <small>{usuario.pais}</small>
-                                    <br />
-                                    <small>{usuario.rol}</small>
-                                </li>
-                            ))}
-                        </ul>
-                    }
-                </div>
+                
+                <button className='btn-submit' onClick={() => navigate('/admin/users')}>
+                    Usuarios
+                </button>
+                <button className='btn-submit' onClick={() => navigate('/admin/products')}>
+                    Productos
+                </button>
+                
                 <button 
                     onClick={logout}
                     className='btn-submit'
                 >
                     Cerrar sesión
                 </button>
-            <ProductForm />
             </main>
         </>
     );
