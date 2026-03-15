@@ -69,9 +69,9 @@ export const UsersTable = ({ users, loading, error }) => {
                                     <button 
                                         className="btn-delete" 
                                         onClick={() => handleDelete(user.id)}
-                                        title="Eliminar usuario"
+                                        title="Desactivar usuario"
                                     >
-                                        Eliminar
+                                        Desactivar
                                     </button>
                                 </td>
                             </tr>

@@ -406,7 +406,7 @@ nav {
 
 nav button {
   background-color: transparent;
-  color: #007bff;
+  color: var(--indigo);
   padding: 0;
   border: none;
   margin: 0;

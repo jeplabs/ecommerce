@@ -1,5 +1,6 @@
 import { useState, useEffect, use } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Navbar from "../components/Navbar"
 import { API_URL } from "../config/config";
 import ProfileForm from '../components/ProfileForm';
@@ -12,6 +13,7 @@ export default function Profile() {
     const [msgExito, setMsgExito] = useState(null);
 
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -123,10 +125,10 @@ export default function Profile() {
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        navigate('/login', { replace: true });
-    };
+    // const logout = () => {
+    //     localStorage.removeItem('token');
+    //     navigate('/login', { replace: true });
+    // };
 
     return (
         <>

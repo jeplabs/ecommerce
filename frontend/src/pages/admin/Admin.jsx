@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Navbar from "../../components/Navbar"
 import { API_URL } from "../../config/config";
 
@@ -9,6 +10,7 @@ export default function Admin() {
         const [loading, setLoading] = useState(false);
         const [error, setError] = useState(null);
         const navigate = useNavigate();
+        const { logout } = useAuth();
 
         useEffect(() => {
             const token = localStorage.getItem('token');
@@ -74,10 +76,10 @@ export default function Admin() {
         if (error) {
             navigate('/', { replace: true });
         }
-        const logout = () => {
-            localStorage.removeItem('token');
-            navigate('/', { replace: true });
-        };
+        //logout();
+        // const logout = () => {
+        //     navigate('/', { replace: true });
+        // };
 
     return (
         <>

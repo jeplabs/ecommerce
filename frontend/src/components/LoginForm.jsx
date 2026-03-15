@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from "../config/config";
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginForm() {
 
@@ -14,44 +14,26 @@ export default function LoginForm() {
     const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+    const { login } = useAuth();
     
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
+        const { email, password } = formData;
+        const result = await login(email, password);
 
-    const { email, password } = formData;
-
-    try {
-        const response = await fetch(`${API_URL}/api/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-
-        if (!response.ok) {
-        throw new Error('Credenciales inválidas');
-        }
-
-        // Guarda el token y rol
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('rol', data.rol); 
-
-        //Lógica de redirección según el rol
-            if (data.rol === 'ROLE_ADMIN') {
+        if (result.success) {
+            //Lógica de redirección según el rol
+            if (result.rol === 'ROLE_ADMIN') {
                 navigate('/admin');
             } else {
                 //Para USER o cualquier otro rol
                 navigate('/profile');
-            } 
-        
-    } catch (error) {
-        // Muestra mensaje de error al usuario
-        console.error('Error en el login', error);
-        setError('Credenciales inválidas');
-    }
+            }
+        } else {
+            setError(result.error);
+        }
     };
+
     return (
         <form className='form-box' onSubmit={handleSubmit}>
 

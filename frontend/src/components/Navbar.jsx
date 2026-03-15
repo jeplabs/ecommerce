@@ -1,59 +1,32 @@
-import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
 
 export default function Navbar() {
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [rol, setRol] = useState(null);
-
+    const { isAuthenticated, userRol, logout } = useAuth();
     const navigate = useNavigate();
-
-    const checkAuth = () => {
-        const token = localStorage.getItem('token');
-        const rol = localStorage.getItem('rol');
-        
-        if (token) {
-            setIsLoggedIn(!!token);
-            setRol(rol);
-        } else {
-            setIsLoggedIn(false);
-            setRol(null);
-        }
-    };
-
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('rol');
-        setIsLoggedIn(false);
-        setRol(null);
-        navigate('/');
-    };
 
     return (
         <nav>
             <Link to="/">Home</Link>
-            {!isLoggedIn && (
+            {!isAuthenticated && (
                 <>
                 <Link to="/login">Iniciar sesión</Link>
                 <Link to="/register">Registrarse</Link>
                 </>
             )}
-            {isLoggedIn &&
+            {isAuthenticated &&
                 <>
-                    {rol === 'ROLE_CUSTOMER' &&
+                    {userRol === 'ROLE_CUSTOMER' &&
                     <Link to="/profile">Perfil</Link>
                     }
 
-                    {rol === 'ROLE_ADMIN' && 
+                    {userRol === 'ROLE_ADMIN' && 
                         <Link to="/admin">Admin</Link>
                     }
-                    {/* <button 
+                    <button 
                         onClick={logout}
-                    >Cerrar sesión</button> */}
+                    >Cerrar sesión</button>
                 </>
             }
         </nav>
