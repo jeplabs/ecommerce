@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { API_URL } from "../config/config";
+import { useAuth } from "../context/AuthContext";
 
 export default function RegisterForm({ onRegisterSuccess }) {
     // Estado para almacenar los datos del formulario, errores y estado de carga
@@ -15,6 +15,8 @@ export default function RegisterForm({ onRegisterSuccess }) {
     // Estado para almacenar los errores del formulario
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+
+    const { register } = useAuth();
     
     // Funcion para validar la contraseña
     const validatePassword = (password) => {
@@ -22,9 +24,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
         const hasUpperCase = /[A-Z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
         const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        
         return hasMinLength && hasUpperCase && hasNumber && hasSpecialChar;
-        //return hasMinLength && hasUpperCase && hasNumber;
     }
 
     // Función para validar el correo electrónico
@@ -38,6 +38,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
 
+        // Limpiar el error específico del campo que se está editando
         if (errors[name]) {
             setErrors({ ...errors, [name]: '' });
         }
@@ -46,62 +47,87 @@ export default function RegisterForm({ onRegisterSuccess }) {
     // Función para manejar el envío del formulario
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const newErrors = {};
-
-        // Validar que el correo sea válido
-        if (!validateEmail(formData.email)) {
-            newErrors.email = "Correo inválido";
+        
+        // Validacion Nombre
+        if (!formData.nombre || formData.nombre.trim() === "") {
+            newErrors.nombre = "El nombre es obligatorio";
+        } else if (formData.nombre.length < 2 || formData.nombre.length > 100) {
+            newErrors.nombre = "El nombre debe tener entre 2 y 100 caracteres";
         }
 
-        // Validar que la contraseña sea de 8 caracteres, incluir mayúsculas y minúsculas, y incluir números
-        if (!validatePassword(formData.password)) {
-            newErrors.password = "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales";
+        // Validacion Apellido
+        if (!formData.apellido || formData.apellido.trim() === "") {
+            newErrors.apellido = "El apellido es obligatorio";
+        } else if (formData.apellido.length < 2 || formData.apellido.length > 100) {
+            newErrors.apellido = "El apellido debe tener entre 2 y 100 caracteres";
         }
 
-        // Validar que las contraseñas coincidan
-        if (formData.password !== formData.confirmarPassword) {
-            newErrors.confirmPassword = "Las contraseñas no coinciden";
+        // Validacion País
+        if (!formData.pais || formData.pais.trim() === "") {
+            newErrors.pais = "El pais es obligatorio";
+        } else if (formData.pais.length < 2 || formData.pais.length > 100) {
+            newErrors.pais = "El país debe tener entre 2 y 100 caracteres";
         }
 
-        // Si hay algún error, mostrarlo
+        // Validacion Email
+        if (!formData.email || formData.email.trim() === "") {
+            newErrors.email = "El email es obligatorio";
+        } else if (!validateEmail(formData.email)) {
+            newErrors.email = "Formato de email inválido";
+        }
+
+        // Validacion Password
+        if (!formData.password || formData.password.trim() === "") {
+            newErrors.password = "La contraseña es obligatoria";
+        } else if (formData.password.length < 8) {
+            newErrors.password = "La contraseña debe tener al menos 8 caracteres";
+        } else if (!validatePassword(formData.password)) {
+            newErrors.password = "La contraseña debe tener al menos una mayúscula, un número y un carácter especial";
+        }
+
+        // Validacion Confirmar Password
+        if (!formData.confirmarPassword || formData.confirmarPassword.trim() === "") {
+            newErrors.confirmarPassword = "Debes confirmar la contraseña";
+        } else if (formData.password !== formData.confirmarPassword) {
+            newErrors.confirmarPassword = "Las contraseñas no coinciden";
+        }
+
+        // if (!formData.nombre.trim()) newErrors.nombre = "El nombre es obligatorio y debe tener entre 2 y 100 caracteres";
+        // if (!formData.apellido.trim()) newErrors.apellido = "El apellido es obligatorio y debe tener entre 2 y 100 caracteres";
+        // if (!formData.pais.trim()) newErrors.pais = "El país es obligatorio y debe tener entre 2 y 100 caracteres";
+        // if (!validateEmail(formData.email)) newErrors.email = "Correo inválido";
+        // if (!validatePassword(formData.password)) newErrors.password = "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial";
+        // if (formData.password !== formData.confirmarPassword) newErrors.confirmarPassword = "No coinciden las contraseñas";
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
 
-        // Mostrar que se está registrando
         setLoading(true);
+        // Limpiar errores previos
+        setErrors({}); 
 
-        try {
-            // Enviar el formulario a API
-            const response = await fetch(`${API_URL}/api/auth/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
+        const result = await register(formData);
+        setLoading(false);
 
-            if (!response.ok) {
-                const data = await response.json();
-                if (response.status === 400 && data.message?.includes("email")) {
-                    setErrors({ email: 'El correo ya está registrado' });
-                    setLoading(false);
-                    return;
-                } 
-                throw new Error("Error en el registro");
-            }
-
-            // Guardar el token en localStorage y redireccionar a login
-            const data = await response.json();
-            //localStorage.setItem("token", data.token);
+        if (result.success) {
+            setFormData({ nombre: "", apellido: "", pais: "", email: "", password: "", confirmarPassword: "" });
             onRegisterSuccess();
-        } catch (error) {
-            console.error('Error en el registro', error);
-            setErrors({ email: 'Error en el registro' });
-        } finally {
-            setLoading(false);
+        } else {
+            // Si el backend devolvió errores por campo (varios)
+            if (result.fields) {
+                setErrors(result.fields); // ¡Pinta todos los errores a la vez!
+            } 
+            // Si el backend devolvió un solo campo (compatibilidad)
+            else if (result.field) {
+                setErrors({ [result.field]: result.error });
+            } 
+            // Error general
+            else {
+                setErrors({ general: result.error });
+            }
         }
     };
 
@@ -116,7 +142,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
                 id="nombre"
                 value={formData.nombre}
                 onChange={handleChange} 
-                required
+                //required
             />
             {/* Mostrar errores si hay alguno */}
             {errors.nombre && <span className="error">{errors.nombre}</span>}
@@ -129,7 +155,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
                 id="apellido"
                 value={formData.apellido}
                 onChange={handleChange} 
-                required
+                // required
             />
             {/* Mostrar errores si hay alguno */}
             {errors.apellido && <span className="error">{errors.apellido}</span>}
@@ -142,7 +168,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
                 id="pais"
                 value={formData.pais}
                 onChange={handleChange} 
-                required
+                // required
             />
             {/* Mostrar errores si hay alguno */}
             {errors.pais && <span className="error">{errors.pais}</span>}
@@ -155,7 +181,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
                 id="email"
                 value={formData.email}
                 onChange={handleChange} 
-                required
+                // required
             />
             {/* Mostrar errores si hay alguno */}
             {errors.email && <span className="error">{errors.email}</span>}
@@ -168,7 +194,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
                 name="password" 
                 value={formData.password}
                 onChange={handleChange} 
-                required
+                // required
             />
             {/* Mostrar errores si hay alguno */}
             {errors.password && <span className="error">{errors.password}</span>}
@@ -181,7 +207,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
                 name="confirmarPassword" 
                 value={formData.confirmarPassword}
                 onChange={handleChange} 
-                required
+                // required
             />
             {/* Mostrar errores si hay alguno */}
             {errors.confirmarPassword && <span className="error">{errors.confirmarPassword}</span>}
@@ -193,6 +219,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
             <button className="btn-submit" type="submit" disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
             </button>
+            
         </form>
     )
 }

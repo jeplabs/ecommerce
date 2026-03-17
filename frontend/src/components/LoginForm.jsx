@@ -15,7 +15,24 @@ export default function LoginForm() {
 
     const navigate = useNavigate();
     const { login } = useAuth();
+
+    // Maneja el cambio en los inputs
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        
+        // Actualizar el valor del campo
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+
+        // Limpiar el error si el usuario empieza a escribir de nuevo
+        if (error) {
+            setError(null);
+        }
+    };
     
+    // Maneja el envío del formulario
     const handleSubmit = async (e) => {
         e.preventDefault();
         const { email, password } = formData;
@@ -45,7 +62,7 @@ export default function LoginForm() {
                 id="email" 
                 name="email" 
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={handleChange}
                 required
             />
             {error && <span className="error">{error}</span>}
@@ -58,7 +75,7 @@ export default function LoginForm() {
                 id="password" 
                 name="password" 
                 value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                onChange={handleChange}
                 required
             />
             {error && <span className="error">{error}</span>}
