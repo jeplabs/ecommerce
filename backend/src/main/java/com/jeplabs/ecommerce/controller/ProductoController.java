@@ -11,6 +11,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
@@ -88,6 +90,44 @@ public class ProductoController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> desactivar(@PathVariable Long id) {
         service.desactivar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Listar imágenes de un producto
+    // GET /api/productos/{id}/imagenes
+    @GetMapping("/{id}/imagenes")
+    public ResponseEntity<List<DatosRespuestaImagen>> listarImagenes(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarImagenes(id));
+    }
+
+    // Agregar imágenes a un producto existente
+    // POST /api/productos/{id}/imagenes
+    @PostMapping("/{id}/imagenes")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<DatosRespuestaImagen>> agregarImagenes(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosAgregarImagenes datos) {
+        return ResponseEntity.ok(service.agregarImagenes(id, datos));
+    }
+
+    // Cambiar imagen principal
+    // PATCH /api/productos/{id}/imagenes/{imagenId}/principal
+    @PatchMapping("/{id}/imagenes/{imagenId}/principal")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaImagen> cambiarImagenPrincipal(
+            @PathVariable Long id,
+            @PathVariable Long imagenId) {
+        return ResponseEntity.ok(service.cambiarImagenPrincipal(id, imagenId));
+    }
+
+    // Eliminar imagen
+    // DEL /api/productos/{id}/imagenes/{imagenId}
+    @DeleteMapping("/{id}/imagenes/{imagenId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminarImagen(
+            @PathVariable Long id,
+            @PathVariable Long imagenId) {
+        service.eliminarImagen(id, imagenId);
         return ResponseEntity.noContent().build();
     }
 }

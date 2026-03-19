@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // Contiene toda la lógica de negocio
@@ -127,5 +128,65 @@ public class ProductoService {
             throw new IllegalArgumentException("Una o más categorías no existen");
         }
         return categorias;
+    }
+
+    // Listar todas las imágenes de un producto
+    public List<DatosRespuestaImagen> listarImagenes(Long productoId) {
+        buscarProducto(productoId); // verifica que el producto exista
+        return imagenRepositorio.findByProductoId(productoId)
+                .stream()
+                .map(DatosRespuestaImagen::new)
+                .toList();
+    }
+
+    // Agregar imágenes a un producto existente
+    @Transactional
+    public List<DatosRespuestaImagen> agregarImagenes(Long productoId, DatosAgregarImagenes datos) {
+        Producto producto = buscarProducto(productoId);
+
+        boolean tienePrincipal = !imagenRepositorio.findByProductoId(productoId).isEmpty();
+
+        List<ProductoImagen> nuevas = new ArrayList<>();
+        for (int i = 0; i < datos.imagenesUrl().size(); i++) {
+            // Si el producto no tenía imágenes, la primera nueva será la principal
+            boolean esPrincipal = !tienePrincipal && i == 0;
+            nuevas.add(new ProductoImagen(producto, datos.imagenesUrl().get(i), esPrincipal));
+        }
+
+        imagenRepositorio.saveAll(nuevas);
+        return nuevas.stream().map(DatosRespuestaImagen::new).toList();
+    }
+
+    // Cambiar imagen principal
+    @Transactional
+    public DatosRespuestaImagen cambiarImagenPrincipal(Long productoId, Long imagenId) {
+        buscarProducto(productoId);
+
+        ProductoImagen imagen = imagenRepositorio.findByIdAndProductoId(imagenId, productoId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Imagen no encontrada con ID: " + imagenId + " para el producto: " + productoId));
+
+        // Quitar principal de todas y asignarla a la seleccionada
+        imagenRepositorio.resetearPrincipal(productoId);
+        imagen.marcarComoPrincipal();
+
+        return new DatosRespuestaImagen(imagen);
+    }
+
+    // Eliminar imagen
+    @Transactional
+    public void eliminarImagen(Long productoId, Long imagenId) {
+        buscarProducto(productoId);
+
+        ProductoImagen imagen = imagenRepositorio.findByIdAndProductoId(imagenId, productoId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Imagen no encontrada con ID: " + imagenId + " para el producto: " + productoId));
+
+        if (imagen.isPrincipal()) {
+            throw new IllegalArgumentException(
+                    "No puedes eliminar la imagen principal, primero asigna otra como principal");
+        }
+
+        imagenRepositorio.delete(imagen);
     }
 }

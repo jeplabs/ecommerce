@@ -29,4 +29,9 @@ public class ProductoImagen {
         this.url = url;
         this.principal = principal;
     }
+
+    // Método para marcar una imagen como principal, que el servicio llamará después de resetear las demás.
+    public void marcarComoPrincipal() {
+        this.principal = true;
+    }
 }
