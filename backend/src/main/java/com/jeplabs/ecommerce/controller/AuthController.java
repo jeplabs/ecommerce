@@ -70,7 +70,7 @@ public class AuthController {
         }
     }
 
-    // POST /api/auth/usuarios/{id}/rol
+    // PATCH /api/auth/usuarios/{id}/rol
     // Solo ADMIN puede cambiar roles, por medio de @PreAuthorize
     @PatchMapping("/usuarios/{id}/rol")
     @PreAuthorize("hasRole('ADMIN')")
@@ -80,7 +80,7 @@ public class AuthController {
         return ResponseEntity.ok(service.actualizarRol(id, datos));
     }
 
-    // POST /api/auth/usuarios
+    // GET /api/auth/usuarios
     // Lista los usuarios registrados, solo admin tiene acceso a este endpoint
     @GetMapping("/usuarios")
     @PreAuthorize("hasRole('ADMIN')")

@@ -68,6 +68,7 @@ public class ProductoController {
     }
 
     // PATCH /api/productos/{id}
+    // se puede enviar y actualizar solo una llave: valor, no necesariamente todas.
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaProducto> actualizar(

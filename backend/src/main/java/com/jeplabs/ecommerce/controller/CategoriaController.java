@@ -55,7 +55,8 @@ public class CategoriaController {
     }
 
     // Solo Admin
-    // POST /api/categorias/{id}
+    // PATCH /api/categorias/{id}
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaCategoria> actualizar(

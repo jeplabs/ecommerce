@@ -11,7 +11,9 @@ import java.util.Optional;
 // Repositorio básico para gestión de imágenes.
 public interface ProductoImagenRepository extends JpaRepository<ProductoImagen, Long> {
 
-    List<ProductoImagen> findByProductoId(Long productoId);
+    // List<ProductoImagen> findByProductoId(Long productoId);
+
+    List<ProductoImagen> findByProductoIdOrderByPrincipalDesc(Long productoId);
 
     Optional<ProductoImagen> findByIdAndProductoId(Long id, Long productoId);
 

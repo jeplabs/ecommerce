@@ -2,6 +2,7 @@ package com.jeplabs.ecommerce.domain.producto;
 
 import com.jeplabs.ecommerce.domain.categoria.Categoria;
 import com.jeplabs.ecommerce.domain.categoria.CategoriaRepository;
+import com.jeplabs.ecommerce.domain.categoria.DatosRespuestaCategoria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,22 +28,29 @@ public class ProductoService {
                 .map(DatosRespuestaProducto::new);
     }
 
+    // Validación para el endpoint público, lista solo productos que estén activos
     public DatosRespuestaProducto buscarPorId(Long id) {
-        return new DatosRespuestaProducto(buscarProducto(id));
+        return new DatosRespuestaProducto(buscarProductoActivo(id));
     }
 
+    // Validación para el endpoint público, lista producto con sku si producto esta activo
     public DatosRespuestaProducto buscarPorSku(String sku) {
-        return new DatosRespuestaProducto(
-                productoRepositorio.findBySku(sku)
-                        .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con SKU: " + sku))
-        );
+        Producto producto = productoRepositorio.findBySku(sku)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con SKU: " + sku));
+        if (!producto.isActive()) {
+            throw new IllegalArgumentException("Producto no encontrado con SKU: " + sku);
+        }
+        return new DatosRespuestaProducto(producto);
     }
 
+    // Validación para el endpoint público, lista producto con slug si producto esta activo
     public DatosRespuestaProducto buscarPorSlug(String slug) {
-        return new DatosRespuestaProducto(
-                productoRepositorio.findBySlug(slug)
-                        .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con slug: " + slug))
-        );
+        Producto producto = productoRepositorio.findBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con slug: " + slug));
+        if (!producto.isActive()) {
+            throw new IllegalArgumentException("Producto no encontrado con slug: " + slug);
+        }
+        return new DatosRespuestaProducto(producto);
     }
 
     // Vista admin con precio de costo y margen
@@ -117,11 +125,31 @@ public class ProductoService {
         producto.desactivar();
     }
 
+    // Para endpoints públicos - solo productos activos
+    private Producto buscarProductoActivo(Long id) {
+        Producto producto = buscarProducto(id);
+        if (!producto.isActive()) {
+            throw new IllegalArgumentException("Producto no encontrado con ID: " + id);
+        }
+        return producto;
+    }
+
+    // Para admin - devuelve cualquier producto activo o no
     private Producto buscarProducto(Long id) {
         return productoRepositorio.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + id));
     }
 
+//    // Público - listar categorías
+//    public List<DatosRespuestaCategoria> listarCategorias(Long productoId) {
+//        Producto producto = buscarProductoActivo(productoId); // ← cambio
+//        return producto.getCategorias()
+//                .stream()
+//                .map(DatosRespuestaCategoria::new)
+//                .toList();
+//    }
+
+    // Admin - listar categorías
     private List<Categoria> obtenerCategorias(List<Long> ids) {
         List<Categoria> categorias = categoriaRepositorio.findAllById(ids);
         if (categorias.size() != ids.size()) {
@@ -132,8 +160,8 @@ public class ProductoService {
 
     // Listar todas las imágenes de un producto
     public List<DatosRespuestaImagen> listarImagenes(Long productoId) {
-        buscarProducto(productoId); // verifica que el producto exista
-        return imagenRepositorio.findByProductoId(productoId)
+        buscarProductoActivo(productoId); // verifica que el producto exista y este activo
+        return imagenRepositorio.findByProductoIdOrderByPrincipalDesc(productoId)
                 .stream()
                 .map(DatosRespuestaImagen::new)
                 .toList();
@@ -144,7 +172,7 @@ public class ProductoService {
     public List<DatosRespuestaImagen> agregarImagenes(Long productoId, DatosAgregarImagenes datos) {
         Producto producto = buscarProducto(productoId);
 
-        boolean tienePrincipal = !imagenRepositorio.findByProductoId(productoId).isEmpty();
+        boolean tienePrincipal = !imagenRepositorio.findByProductoIdOrderByPrincipalDesc(productoId).isEmpty();
 
         List<ProductoImagen> nuevas = new ArrayList<>();
         for (int i = 0; i < datos.imagenesUrl().size(); i++) {
