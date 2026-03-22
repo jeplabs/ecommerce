@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
+
 // @Tag agrupa todos los endpoints de este controller bajo "Productos" en Swagger UI
 @Tag(name = "Productos", description = "Catálogo público y gestión admin de productos")
 @RestController
@@ -127,6 +129,8 @@ public class ProductoController {
             @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
+    // PATCH /api/productos/{id}
+    // se puede enviar y actualizar solo una llave: valor, no necesariamente todas.
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaProducto> actualizar(
@@ -135,16 +139,7 @@ public class ProductoController {
         return ResponseEntity.ok(service.actualizar(id, datos));
     }
 
-    @Operation(
-            summary = "Actualizar precio",
-            description = "Solo ADMIN. Endpoint dedicado exclusivamente a cambios de precio."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Precio actualizado exitosamente"),
-            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
-            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
-    })
+    // PATCH /api/productos/{id}/precio
     @PatchMapping("/{id}/precio")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaProductoAdmin> actualizarPrecio(
@@ -168,6 +163,44 @@ public class ProductoController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> desactivar(@PathVariable Long id) {
         service.desactivar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Listar imágenes de un producto
+    // GET /api/productos/{id}/imagenes
+    @GetMapping("/{id}/imagenes")
+    public ResponseEntity<List<DatosRespuestaImagen>> listarImagenes(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarImagenes(id));
+    }
+
+    // Agregar imágenes a un producto existente
+    // POST /api/productos/{id}/imagenes
+    @PostMapping("/{id}/imagenes")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<DatosRespuestaImagen>> agregarImagenes(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosAgregarImagenes datos) {
+        return ResponseEntity.ok(service.agregarImagenes(id, datos));
+    }
+
+    // Cambiar imagen principal
+    // PATCH /api/productos/{id}/imagenes/{imagenId}/principal
+    @PatchMapping("/{id}/imagenes/{imagenId}/principal")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaImagen> cambiarImagenPrincipal(
+            @PathVariable Long id,
+            @PathVariable Long imagenId) {
+        return ResponseEntity.ok(service.cambiarImagenPrincipal(id, imagenId));
+    }
+
+    // Eliminar imagen
+    // DEL /api/productos/{id}/imagenes/{imagenId}
+    @DeleteMapping("/{id}/imagenes/{imagenId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminarImagen(
+            @PathVariable Long id,
+            @PathVariable Long imagenId) {
+        service.eliminarImagen(id, imagenId);
         return ResponseEntity.noContent().build();
     }
 }
