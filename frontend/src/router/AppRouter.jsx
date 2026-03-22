@@ -1,0 +1,73 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Home from '../pages/Home';
+import Login from '../pages/Login';
+import Register from '../pages/Register';
+import Profile from '../pages/Profile';
+import Admin from '../pages/admin/Admin';
+import ProductList from '../pages/admin/ProductList';
+import ProductNew from '../pages/admin/ProductNew';
+import UsersList from '../pages/admin/UsersList';
+import PrivateRoute from './PrivateRoute';
+
+export const AppRouter = () => {
+    const { userRol } = useAuth();
+
+    return (
+
+        <Router>
+            <Routes>
+                {/* Rutas publicas */}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+
+                {/* Rutas para usuarios */}
+                <Route 
+                    path="/profile" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_CUSTOMER'>
+                            <Profile />
+                        </PrivateRoute>
+                    } 
+                />
+
+                {/* Rutas para admin */}
+                <Route 
+                    path="/admin" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_ADMIN'>
+                            <Admin />
+                        </PrivateRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin/products" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_ADMIN'>
+                            <ProductList />
+                        </PrivateRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin/products/new" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_ADMIN'>
+                            <ProductNew />
+                        </PrivateRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin/users" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_ADMIN'>
+                            <UsersList />
+                        </PrivateRoute>
+                    }
+                />
+            </Routes>
+        </Router>
+    );
+};
+
+export default AppRouter;

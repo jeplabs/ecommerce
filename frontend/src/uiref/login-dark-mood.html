@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAULT — Dark Mood Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0b0f1a;
+    --surface:   #111827;
+    --surface2:  #1a2235;
+    --border:    rgba(99,102,241,0.15);
+    --border2:   rgba(99,102,241,0.28);
+    --indigo:    #6366f1;
+    --violet:    #a855f7;
+    --text:      #f1f5f9;
+    --muted:     rgba(241,245,249,0.38);
+    --subtle:    rgba(241,245,249,0.12);
+    --accent:    #818cf8;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; font-family:'Instrument Sans', sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
+
+  /* ── GRID BACKGROUND ── */
+  .bg-grid {
+    position:fixed; inset:0; z-index:0;
+    background-image:
+      linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .bg-glow {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 50%, rgba(99,102,241,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 85% 20%, rgba(168,85,247,0.08) 0%, transparent 60%);
+  }
+  .vignette {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(11,15,26,0.85) 100%);
+  }
+
+  /* ── LAYOUT ── */
+  .page { position:relative; z-index:2; height:100vh; display:flex; align-items:stretch; }
+
+  /* LEFT PANEL */
+  .left-panel {
+    width:52%; padding:3.5rem 4rem;
+    display:flex; flex-direction:column; justify-content:space-between;
+    border-right:1px solid var(--border);
+    animation: panelIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .logo {
+    display:flex; align-items:center; gap:0.6rem;
+    font-size:0.72rem; letter-spacing:0.28em; text-transform:uppercase;
+    color:var(--muted); font-weight:500;
+  }
+  .logo-mark {
+    width:28px; height:28px; border-radius:8px;
+    background:linear-gradient(135deg, var(--indigo), var(--violet));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 16px rgba(99,102,241,0.4);
+  }
+  .logo-mark svg { width:14px; height:14px; stroke:white; stroke-width:2; fill:none; }
+
+  .hero-copy { flex:1; display:flex; flex-direction:column; justify-content:center; max-width:500px; }
+
+  .hero-eyebrow {
+    font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:1.5rem; font-weight:500;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .hero-eyebrow::before {
+    content:''; display:block; width:24px; height:1px; background:var(--accent);
+  }
+
+  .hero-title {
+    font-family:'Instrument Serif', serif;
+    font-size:clamp(2.8rem,4.5vw,4.2rem);
+    line-height:1.05; letter-spacing:-0.02em;
+    color:var(--text); margin-bottom:1.5rem;
+  }
+  .hero-title em {
+    font-style:italic; color:transparent;
+    background:linear-gradient(135deg, var(--indigo) 0%, var(--violet) 100%);
+    -webkit-background-clip:text; background-clip:text;
+  }
+
+  .hero-body {
+    font-size:0.9rem; color:var(--muted); line-height:1.75;
+    max-width:380px; font-weight:300;
+  }
+
+  /* Testimonial */
+  .testimonial {
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:1.4rem 1.6rem;
+    position:relative;
+    animation: fadeUp 0.9s ease 0.4s both;
+  }
+  .testimonial::before {
+    content:'"'; position:absolute; top:-0.5rem; left:1.2rem;
+    font-family:'Instrument Serif',serif; font-size:3rem; color:var(--indigo);
+    line-height:1;
+  }
+  .testi-text {
+    font-size:0.82rem; color:var(--muted); line-height:1.65;
+    font-style:italic; margin-bottom:1rem;
+  }
+  .testi-author { display:flex; align-items:center; gap:0.75rem; }
+  .testi-avatar {
+    width:32px; height:32px; border-radius:50%;
+    background:linear-gradient(135deg,#6366f1,#a855f7);
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.7rem; font-weight:600; color:white; flex-shrink:0;
+  }
+  .testi-name { font-size:0.75rem; font-weight:600; color:var(--text); }
+  .testi-role { font-size:0.68rem; color:var(--muted); }
+
+  /* RIGHT PANEL */
+  .right-panel {
+    width:48%; display:flex; align-items:center; justify-content:center;
+    padding:2rem;
+    animation: panelIn 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+  }
+
+  .form-box {
+    width:100%; max-width:400px;
+  }
+
+  .form-heading { margin-bottom:2rem; }
+  .form-title {
+    font-family:'Instrument Serif',serif; font-size:1.9rem;
+    letter-spacing:-0.01em; margin-bottom:0.35rem;
+  }
+  .form-sub { font-size:0.8rem; color:var(--muted); }
+  .form-sub a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(129,140,248,0.3); transition:border-color 0.2s; }
+  .form-sub a:hover { border-color:var(--accent); }
+
+  /* FIELDS */
+  .field { margin-bottom:1.1rem; }
+  .field label {
+    display:block; font-size:0.68rem; font-weight:500;
+    letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:0.45rem;
+  }
+  .field-inner { position:relative; }
+  .field-inner input {
+    width:100%; padding:0.78rem 1rem 0.78rem 2.7rem;
+    background:var(--surface); border:1px solid var(--border2);
+    border-radius:10px; color:var(--text);
+    font-family:'Instrument Sans',sans-serif; font-size:0.88rem;
+    outline:none; transition:border-color 0.25s, box-shadow 0.25s, background 0.25s;
+  }
+  .field-inner input::placeholder { color:rgba(241,245,249,0.2); }
+  .field-inner input:focus {
+    border-color:var(--indigo);
+    background:rgba(99,102,241,0.05);
+    box-shadow:0 0 0 3px rgba(99,102,241,0.14);
+  }
+  .field-icon {
+    position:absolute; left:0.85rem; top:50%; transform:translateY(-50%);
+    width:15px; height:15px; stroke:var(--muted); stroke-width:1.7; fill:none;
+    pointer-events:none; transition:stroke 0.25s;
+  }
+  .field-inner:focus-within .field-icon { stroke:var(--accent); }
+
+  .eye-toggle {
+    position:absolute; right:0.85rem; top:50%; transform:translateY(-50%);
+    background:none; border:none; cursor:pointer; color:var(--muted);
+    padding:3px; display:flex; align-items:center; transition:color 0.2s;
+  }
+  .eye-toggle:hover { color:var(--accent); }
+  .eye-toggle svg { width:15px; height:15px; stroke:currentColor; stroke-width:1.7; fill:none; }
+
+  /* REMEMBER / FORGOT */
+  .form-meta {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:1.5rem;
+  }
+  .remember { display:flex; align-items:center; gap:0.5rem; cursor:pointer; }
+  .remember input[type=checkbox] { display:none; }
+  .check-box {
+    width:16px; height:16px; border-radius:4px;
+    border:1.5px solid var(--border2); background:var(--surface);
+    display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s, border-color 0.2s; flex-shrink:0;
+  }
+  .check-box svg { width:10px; height:10px; stroke:white; stroke-width:2.5; fill:none; opacity:0; transition:opacity 0.15s; }
+  .remember input:checked ~ .check-box { background:var(--indigo); border-color:var(--indigo); }
+  .remember input:checked ~ .check-box svg { opacity:1; }
+  .remember-label { font-size:0.75rem; color:var(--muted); user-select:none; }
+  .forgot-link { font-size:0.75rem; color:var(--accent); text-decoration:none; opacity:0.75; transition:opacity 0.2s; }
+  .forgot-link:hover { opacity:1; }
+
+  /* SUBMIT */
+  .btn-submit {
+    width:100%; padding:0.85rem; border:none; border-radius:10px;
+    background:var(--indigo); color:white;
+    font-family:'Instrument Sans',sans-serif; font-size:0.88rem; font-weight:600;
+    letter-spacing:0.04em; cursor:pointer;
+    transition:background 0.25s, transform 0.15s, box-shadow 0.25s;
+    box-shadow:0 4px 20px rgba(99,102,241,0.3);
+    position:relative; overflow:hidden;
+  }
+  .btn-submit::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg,rgba(255,255,255,0.08),transparent);
+  }
+  .btn-submit:hover {
+    background:#4f46e5;
+    transform:translateY(-1px);
+    box-shadow:0 8px 32px rgba(99,102,241,0.45);
+  }
+  .btn-submit:active { transform:translateY(0); }
+
+  /* DIVIDER */
+  .divider {
+    display:flex; align-items:center; gap:0.75rem; margin:1.4rem 0;
+  }
+  .div-line { flex:1; height:1px; background:var(--border); }
+  .div-txt { font-size:0.68rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; }
+
+  /* SOCIAL */
+  .socials { display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; }
+  .btn-social {
+    display:flex; align-items:center; justify-content:center; gap:0.5rem;
+    padding:0.7rem; border-radius:10px;
+    background:var(--surface); border:1px solid var(--border2);
+    font-family:'Instrument Sans',sans-serif; font-size:0.75rem; font-weight:500;
+    color:var(--muted); cursor:pointer; transition:all 0.2s;
+  }
+  .btn-social:hover { border-color:var(--indigo); color:var(--text); background:var(--surface2); }
+  .btn-social svg { width:15px; height:15px; flex-shrink:0; }
+
+  /* SECURITY BADGE */
+  .security-badge {
+    display:flex; align-items:center; gap:0.5rem; justify-content:center;
+    margin-top:1.6rem;
+    font-size:0.65rem; color:var(--muted); letter-spacing:0.08em;
+  }
+  .security-badge svg { width:12px; height:12px; stroke:var(--muted); stroke-width:2; fill:none; opacity:0.6; }
+
+  /* STATUS STRIP TOP */
+  .top-strip {
+    position:fixed; top:0; left:0; right:0; z-index:10;
+    height:2px;
+    background:linear-gradient(90deg, transparent 0%, var(--indigo) 30%, var(--violet) 70%, transparent 100%);
+    opacity:0.6;
+  }
+
+  /* ACTIVITY FEED */
+  .activity {
+    display:flex; flex-direction:column; gap:0.5rem;
+  }
+  .activity-item {
+    display:flex; align-items:center; gap:0.6rem;
+    padding:0.6rem 0.8rem; border-radius:8px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(99,102,241,0.08);
+    font-size:0.72rem; color:var(--muted);
+    animation: fadeUp 0.6s ease both;
+  }
+  .activity-item:nth-child(2) { animation-delay:0.1s; }
+  .activity-item:nth-child(3) { animation-delay:0.2s; }
+  .activity-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .activity-time { margin-left:auto; font-size:0.65rem; opacity:0.5; }
+
+  @keyframes panelIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  @media(max-width:860px) {
+    .left-panel { display:none; }
+    .right-panel { width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-strip"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="vignette"></div>
+
+<div class="page">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      Vault Platform
+    </div>
+
+    <div class="hero-copy">
+      <div class="hero-eyebrow">Dashboard Analytics</div>
+      <h1 class="hero-title">Tu trabajo,<br><em>organizado</em><br>con precisión.</h1>
+      <p class="hero-body">VAULT centraliza métricas, flujos y colaboración en un solo espacio de trabajo. Diseñado para equipos que no toleran el ruido.</p>
+
+      <div style="margin-top:2.5rem;" class="activity">
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#4ade80;box-shadow:0 0 6px #4ade80;"></div>
+          <span>API conectada correctamente</span>
+          <span class="activity-time">ahora</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#818cf8;"></div>
+          <span>Reporte Q1 generado — 847 filas</span>
+          <span class="activity-time">2m</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#a855f7;"></div>
+          <span>3 usuarios conectados al workspace</span>
+          <span class="activity-time">5m</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial">
+      <p class="testi-text">Redujimos el tiempo de revisión de datos en 60%. El dark mode no es solo estético — reduce fatiga real en sesiones largas.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">MR</div>
+        <div>
+          <div class="testi-name">Martina Roldán</div>
+          <div class="testi-role">Head of Data · Fintech Latam</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <div class="form-box">
+      <div class="form-heading">
+        <div class="form-title">Bienvenido de nuevo</div>
+        <div class="form-sub">¿Sin cuenta? <a href="#">Solicitar acceso</a></div>
+      </div>
+
+      <div class="field">
+        <label>Correo</label>
+        <div class="field-inner">
+          <svg class="field-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" id="dm-email" placeholder="tu@empresa.io">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <div class="field-inner">
+          <svg class="field-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="dm-pass" placeholder="••••••••">
+          <button class="eye-toggle" onclick="dmToggle()" type="button">
+            <svg id="dm-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-meta">
+        <label class="remember">
+          <input type="checkbox" id="dm-remember">
+          <div class="check-box">
+            <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+          </div>
+          <span class="remember-label">Mantener sesión</span>
+        </label>
+        <a href="#" class="forgot-link">Olvidé mi contraseña</a>
+      </div>
+
+      <button class="btn-submit" id="dm-btn" onclick="dmLogin()">Iniciar Sesión</button>
+
+      <div class="divider">
+        <div class="div-line"></div>
+        <div class="div-txt">o accede con</div>
+        <div class="div-line"></div>
+      </div>
+
+      <div class="socials">
+        <button class="btn-social">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20.3 12.2c0-.6-.1-1.3-.2-1.9H12v3.6h4.7c-.2 1.1-.8 2-1.8 2.6v2.2h2.9c1.7-1.6 2.5-3.8 2.5-6.5z" fill="#4285F4"/><path d="M12 21c2.4 0 4.4-.8 5.8-2.1l-2.9-2.2c-.8.5-1.8.8-3 .8-2.3 0-4.2-1.5-4.9-3.6H4.1v2.3C5.5 19.3 8.5 21 12 21z" fill="#34A853"/><path d="M7.1 13.9c-.2-.5-.3-1-.3-1.6s.1-1.1.3-1.6V8.4H4.1C3.4 9.7 3 11.3 3 12.9s.4 3.2 1.1 4.5l3-2.5z" fill="#FBBC04"/><path d="M12 7.3c1.3 0 2.4.4 3.3 1.3l2.4-2.4C16.3 4.7 14.3 4 12 4 8.5 4 5.5 5.7 4.1 8.4l3 2.3C7.8 8.8 9.7 7.3 12 7.3z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="btn-social">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2.23c-3.34.72-4.04-1.42-4.04-1.42-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.1-.77.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23A11.5 11.5 0 0 1 12 5.8c1.02 0 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.69.82.57C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </button>
+      </div>
+
+      <div class="security-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Sesión cifrada con TLS 1.3 · SOC 2 Type II
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function dmToggle() {
+  const i = document.getElementById('dm-pass');
+  const e = document.getElementById('dm-eye');
+  if (i.type === 'password') {
+    i.type = 'text';
+    e.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+  } else {
+    i.type = 'password';
+    e.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+}
+
+function dmLogin() {
+  const btn = document.getElementById('dm-btn');
+  const email = document.getElementById('dm-email').value;
+  const pass  = document.getElementById('dm-pass').value;
+  if (!email || !pass) {
+    btn.style.background = '#7f1d1d';
+    btn.textContent = 'Completa los campos';
+    setTimeout(() => { btn.style.background = ''; btn.textContent = 'Iniciar Sesión'; }, 1800);
+    return;
+  }
+  btn.textContent = 'Verificando…';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.style.background = '#064e3b';
+    btn.textContent = '✓ Acceso concedido';
+    setTimeout(() => { btn.disabled = false; btn.style.background = ''; btn.textContent = 'Iniciar Sesión'; }, 2200);
+  }, 1300);
+}
+
+// Checkbox functionality
+document.querySelectorAll('.remember').forEach(el => {
+  el.addEventListener('click', () => {
+    const cb = el.querySelector('input[type=checkbox]');
+    cb.checked = !cb.checked;
+  });
+});
+</script>
+</body>
+</html>

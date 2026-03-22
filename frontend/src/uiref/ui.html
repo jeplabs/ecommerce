@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diseño Web 2026 — Paletas Llamativas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mocha: #A47864;
+    --cloud: #F0EEE9;
+    --ink: #1A1A1A;
+    --neon-mint: #00FFB2;
+    --neon-violet: #8B5CF6;
+    --terra: #E2725B;
+    --sage: #8FAF8A;
+    --dusty-pink: #C89B9B;
+    --gold: #F5C842;
+    --navy: #0F1B35;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0D0D0D;
+    color: #F0EEE9;
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 2rem;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, #1a0a2e 0%, #0D0D0D 70%);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(139,92,246,0.18) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(0,255,178,0.12) 0%, transparent 50%),
+      radial-gradient(circle at 50% 90%, rgba(226,114,91,0.10) 0%, transparent 40%);
+    pointer-events: none;
+  }
+
+  .hero-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(6rem, 22vw, 18rem);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #8B5CF6 0%, #00FFB2 50%, #F5C842 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 1s ease forwards;
+  }
+
+  .hero-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.6rem);
+    color: rgba(240,238,233,0.6);
+    letter-spacing: 0.1em;
+    margin-top: 1rem;
+    z-index: 1;
+    animation: fadeUp 1s ease 0.2s both;
+  }
+
+  .hero-tag {
+    margin-top: 2rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--neon-mint);
+    z-index: 1;
+    animation: fadeUp 1s ease 0.4s both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--neon-mint);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── TRENDS GRID ── */
+  .trends {
+    padding: 6rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .trends-header {
+    margin-bottom: 4rem;
+  }
+
+  .trends-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+
+  .card-preview {
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .card-preview-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 0.05em;
+    mix-blend-mode: overlay;
+    opacity: 0.5;
+    position: absolute;
+    bottom: 1rem;
+    left: 1.5rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    background: #161616;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-desc {
+    font-size: 0.82rem;
+    color: rgba(240,238,233,0.55);
+    line-height: 1.55;
+    margin-bottom: 1rem;
+  }
+
+  .swatches {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
+  }
+
+  .swatch:hover { transform: scale(1.2); }
+
+  .swatch-hex {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    white-space: nowrap;
+    color: rgba(240,238,233,0.5);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  .swatch:hover .swatch-hex { opacity: 1; }
+
+  /* ── INDIVIDUAL CARD THEMES ── */
+  /* 1. Mocha Mousse */
+  .c1 .card-preview {
+    background: linear-gradient(135deg, #A47864 0%, #6B4F40 50%, #3D2B22 100%);
+  }
+  /* 2. Neon Minimal Dark */
+  .c2 .card-preview {
+    background: #0A0A0A;
+    background-image:
+      radial-gradient(circle at 30% 50%, rgba(0,255,178,0.2) 0%, transparent 40%),
+      radial-gradient(circle at 70% 50%, rgba(139,92,246,0.2) 0%, transparent 40%);
+  }
+  /* 3. Muted Pastels */
+  .c3 .card-preview {
+    background: linear-gradient(120deg, #C89B9B 0%, #B5C9B0 40%, #B6CBE0 100%);
+  }
+  /* 4. Retro 70s/80s */
+  .c4 .card-preview {
+    background: linear-gradient(135deg, #F5C842 0%, #E07B39 40%, #8B3E2F 100%);
+  }
+  /* 5. Cloud Dancer Minimal */
+  .c5 .card-preview {
+    background: #F0EEE9;
+  }
+  .c5 .card-preview-text { color: #1A1A1A; }
+  /* 6. Galactic Iridescent */
+  .c6 .card-preview {
+    background: linear-gradient(135deg, #1a0a2e 0%, #4c1d95 30%, #0ea5e9 65%, #06b6d4 100%);
+    background-size: 200% 200%;
+    animation: shiftGradient 4s ease infinite alternate;
+  }
+  @keyframes shiftGradient {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  /* 7. Terracotta Earthy */
+  .c7 .card-preview {
+    background: linear-gradient(135deg, #E2725B 0%, #C4956A 50%, #8B6452 100%);
+  }
+  /* 8. Dark Mode Mood */
+  .c8 .card-preview {
+    background: #111827;
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(139,92,246,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(99,102,241,0.2) 0%, transparent 50%);
+  }
+  /* 9. Sage & Cream */
+  .c9 .card-preview {
+    background: linear-gradient(135deg, #8FAF8A 0%, #D4C9A8 50%, #F5F0E8 100%);
+  }
+
+  /* ── SITE REFS ── */
+  .refs {
+    padding: 4rem 2rem 6rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .refs-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    margin-bottom: 2.5rem;
+  }
+
+  .site-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .site-card {
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: border-color 0.3s ease, background 0.3s ease;
+    cursor: default;
+  }
+
+  .site-card:hover {
+    border-color: var(--neon-mint);
+    background: #161616;
+  }
+
+  .site-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .site-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.05em;
+    margin: 0.6rem 0 0.3rem;
+  }
+
+  .site-url {
+    font-size: 0.7rem;
+    color: var(--neon-mint);
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+    margin-bottom: 0.6rem;
+  }
+
+  .site-desc {
+    font-size: 0.8rem;
+    color: rgba(240,238,233,0.5);
+    line-height: 1.5;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 0.7rem;
+    border: 1px solid currentColor;
+  }
+
+  /* ── TIPS ── */
+  .tips {
+    padding: 4rem 2rem 8rem;
+    max-width: 900px;
+    margin: 0 auto;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .tip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .tip-item {
+    padding: 1.5rem;
+    border-left: 3px solid var(--neon-mint);
+    background: #111;
+    border-radius: 0 12px 12px 0;
+  }
+
+  .tip-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: rgba(0,255,178,0.2);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .tip-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .tip-text {
+    font-size: 0.78rem;
+    color: rgba(240,238,233,0.5);
+    line-height: 1.5;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.7rem;
+    color: rgba(240,238,233,0.2);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ── COPY FEEDBACK ── */
+  .copied-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--neon-mint);
+    color: #000;
+    padding: 0.5rem 1.5rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .copied-toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-year">2026</div>
+  <div class="hero-sub">Diseño Web & Paletas que Dominan</div>
+  <div class="hero-tag">▸ Tendencias · Color · Inspiración</div>
+</div>
+
+<section class="trends">
+  <div class="trends-header">
+    <div class="section-label">— Paletas Protagonistas</div>
+    <div class="trends-title">9 Estilos de Color<br>que lo están Rompiendo</div>
+  </div>
+
+  <div class="cards">
+
+    <div class="card c1">
+      <div class="card-preview">
+        <div class="card-preview-text">MOCHA</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Mocha Mousse</div>
+        <div class="card-desc">Color del año Pantone 2026. Marrón terroso, sofisticado y cálido. Transmite autenticidad y calma. Perfecto para marcas de bienestar, café, moda y lifestyle.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#A47864" onclick="copyHex('#A47864', this)"><span class="swatch-hex">#A47864</span></div>
+          <div class="swatch" style="background:#6B4F40" onclick="copyHex('#6B4F40', this)"><span class="swatch-hex">#6B4F40</span></div>
+          <div class="swatch" style="background:#3D2B22" onclick="copyHex('#3D2B22', this)"><span class="swatch-hex">#3D2B22</span></div>
+          <div class="swatch" style="background:#F0EEE9" onclick="copyHex('#F0EEE9', this)"><span class="swatch-hex">#F0EEE9</span></div>
+          <div class="swatch" style="background:#D4B8AE" onclick="copyHex('#D4B8AE', this)"><span class="swatch-hex">#D4B8AE</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c2">
+      <div class="card-preview">
+        <div class="card-preview-text" style="color:#00FFB2">NEON</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Neon Minimal Dark</div>
+        <div class="card-desc">Fondos negros profundos con destellos de neón controlado. Energía digital sin caer en el caos. Muy popular en SaaS, crypto, tech y gaming.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#00FFB2" onclick="copyHex('#00FFB2', this)"><span class="swatch-hex">#00FFB2</span></div>
+          <div class="swatch" style="background:#8B5CF6" onclick="copyHex('#8B5CF6', this)"><span class="swatch-hex">#8B5CF6</span></div>
+          <div class="swatch" style="background:#0A0A0A" onclick="copyHex('#0A0A0A', this)"><span class="swatch-hex">#0A0A0A</span></div>
+          <div class="swatch" style="background:#1A1A2E" onclick="copyHex('#1A1A2E', this)"><span class="swatch-hex">#1A1A2E</span></div>
+          <div class="swatch" style="background:#F5C842" onclick="copyHex('#F5C842', this)"><span class="swatch-hex">#F5C842</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c3">
+      <div class="card-preview">
+        <div class="card-preview-text" style="color:rgba(0,0,0,0.3)">PASTEL</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Pasteles Apagados</div>
+        <div class="card-desc">Rosas polvosos, verdes salvia, azules cielo. La versión madura y sofisticada del pastel. Tendencia en portafolios, marcas femeninas y wellness.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#C89B9B" onclick="copyHex('#C89B9B', this)"><span class="swatch-hex">#C89B9B</span></div>
+          <div class="swatch" style="background:#8FAF8A" onclick="copyHex('#8FAF8A', this)"><span class="swatch-hex">#8FAF8A</span></div>
+          <div class="swatch" style="background:#B6CBE0" onclick="copyHex('#B6CBE0', this)"><span class="swatch-hex">#B6CBE0</span></div>
+          <div class="swatch" style="background:#E8D5C0" onclick="copyHex('#E8D5C0', this)"><span class="swatch-hex">#E8D5C0</span></div>
+          <div class="swatch" style="background:#C4B5D4" onclick="copyHex('#C4B5D4', this)"><span class="swatch-hex">#C4B5D4</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c4">
+      <div class="card-preview">
+        <div class="card-preview-text" style="color:rgba(0,0,0,0.3)">RETRO</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Retro 70s / 80s</div>
+        <div class="card-desc">Amarillos girasol, sienna quemada, teal desteñido y coral polvoroso. Paletas nostálgicas que conectan emocionalmente con el usuario y distinguen la marca.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#F5C842" onclick="copyHex('#F5C842', this)"><span class="swatch-hex">#F5C842</span></div>
+          <div class="swatch" style="background:#E07B39" onclick="copyHex('#E07B39', this)"><span class="swatch-hex">#E07B39</span></div>
+          <div class="swatch" style="background:#8B3E2F" onclick="copyHex('#8B3E2F', this)"><span class="swatch-hex">#8B3E2F</span></div>
+          <div class="swatch" style="background:#5B8A7A" onclick="copyHex('#5B8A7A', this)"><span class="swatch-hex">#5B8A7A</span></div>
+          <div class="swatch" style="background:#F2D4B0" onclick="copyHex('#F2D4B0', this)"><span class="swatch-hex">#F2D4B0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c5">
+      <div class="card-preview">
+        <div class="card-preview-text">CLOUD</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Cloud Dancer</div>
+        <div class="card-desc">El "reset" visual del año. Blanco con matiz cálido/frío que reduce fatiga ocular. Ideal para e-commerce, portafolios y marcas que dejan que el contenido hable.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#F0EEE9" onclick="copyHex('#F0EEE9', this)"><span class="swatch-hex">#F0EEE9</span></div>
+          <div class="swatch" style="background:#1A1A1A" onclick="copyHex('#1A1A1A', this)"><span class="swatch-hex">#1A1A1A</span></div>
+          <div class="swatch" style="background:#6B7A8D" onclick="copyHex('#6B7A8D', this)"><span class="swatch-hex">#6B7A8D</span></div>
+          <div class="swatch" style="background:#C8A882" onclick="copyHex('#C8A882', this)"><span class="swatch-hex">#C8A882</span></div>
+          <div class="swatch" style="background:#E8E4DE" onclick="copyHex('#E8E4DE', this)"><span class="swatch-hex">#E8E4DE</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c6">
+      <div class="card-preview">
+        <div class="card-preview-text" style="color:rgba(255,255,255,0.5)">IRIDIS</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Galáctico Iridiscente</div>
+        <div class="card-desc">Paletas que se sienten computacionales y hyperreales. Gradientes metálicos y animados impulsados por diseño AI. Dominan en agencias creativas y portfolios premium.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#4c1d95" onclick="copyHex('#4c1d95', this)"><span class="swatch-hex">#4c1d95</span></div>
+          <div class="swatch" style="background:#0ea5e9" onclick="copyHex('#0ea5e9', this)"><span class="swatch-hex">#0ea5e9</span></div>
+          <div class="swatch" style="background:#06b6d4" onclick="copyHex('#06b6d4', this)"><span class="swatch-hex">#06b6d4</span></div>
+          <div class="swatch" style="background:#a855f7" onclick="copyHex('#a855f7', this)"><span class="swatch-hex">#a855f7</span></div>
+          <div class="swatch" style="background:#1a0a2e" onclick="copyHex('#1a0a2e', this)"><span class="swatch-hex">#1a0a2e</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c7">
+      <div class="card-preview">
+        <div class="card-preview-text" style="color:rgba(0,0,0,0.3)">TERRA</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Terracotta & Tierra</div>
+        <div class="card-desc">Rojo terracota vacacional: atrevido pero relajado. Eleva neutros, hace que los blancos y cremas brillen. Dominando interiorismo, moda y marcas eco.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#E2725B" onclick="copyHex('#E2725B', this)"><span class="swatch-hex">#E2725B</span></div>
+          <div class="swatch" style="background:#C4956A" onclick="copyHex('#C4956A', this)"><span class="swatch-hex">#C4956A</span></div>
+          <div class="swatch" style="background:#8B6452" onclick="copyHex('#8B6452', this)"><span class="swatch-hex">#8B6452</span></div>
+          <div class="swatch" style="background:#F5EDE4" onclick="copyHex('#F5EDE4', this)"><span class="swatch-hex">#F5EDE4</span></div>
+          <div class="swatch" style="background:#3D2416" onclick="copyHex('#3D2416', this)"><span class="swatch-hex">#3D2416</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c8">
+      <div class="card-preview">
+        <div class="card-preview-text" style="color:#a855f7">MOOD</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Dark Mood Mode</div>
+        <div class="card-desc">Dark mode elevado a expresión de marca, no solo un toggle. Paletas con contraste trabajado, tokens de color, y WCAG 4.5:1. Reina en dashboards y SaaS.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#111827" onclick="copyHex('#111827', this)"><span class="swatch-hex">#111827</span></div>
+          <div class="swatch" style="background:#6366f1" onclick="copyHex('#6366f1', this)"><span class="swatch-hex">#6366f1</span></div>
+          <div class="swatch" style="background:#a855f7" onclick="copyHex('#a855f7', this)"><span class="swatch-hex">#a855f7</span></div>
+          <div class="swatch" style="background:#F9FAFB" onclick="copyHex('#F9FAFB', this)"><span class="swatch-hex">#F9FAFB</span></div>
+          <div class="swatch" style="background:#374151" onclick="copyHex('#374151', this)"><span class="swatch-hex">#374151</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c9">
+      <div class="card-preview">
+        <div class="card-preview-text" style="color:rgba(0,0,0,0.25)">SAGE</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Sage & Cream Natural</div>
+        <div class="card-desc">Verde salvia más crema orgánica. La combinación de marcas eco-conscientes y wellness. Minimalismo con alma. Muy usado en blogs, marcas de alimentos y apps de salud.</div>
+        <div class="swatches">
+          <div class="swatch" style="background:#8FAF8A" onclick="copyHex('#8FAF8A', this)"><span class="swatch-hex">#8FAF8A</span></div>
+          <div class="swatch" style="background:#D4C9A8" onclick="copyHex('#D4C9A8', this)"><span class="swatch-hex">#D4C9A8</span></div>
+          <div class="swatch" style="background:#F5F0E8" onclick="copyHex('#F5F0E8', this)"><span class="swatch-hex">#F5F0E8</span></div>
+          <div class="swatch" style="background:#4A6741" onclick="copyHex('#4A6741', this)"><span class="swatch-hex">#4A6741</span></div>
+          <div class="swatch" style="background:#2C3E2D" onclick="copyHex('#2C3E2D', this)"><span class="swatch-hex">#2C3E2D</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- REFERENCIAS DE SITIOS -->
+<section class="refs">
+  <div class="section-label">— Sitios de Referencia</div>
+  <div class="refs-title">Webs que Lideran<br>el Diseño Hoy</div>
+
+  <div class="site-list">
+
+    <div class="site-card">
+      <span class="site-dot" style="background:#F5C842"></span>
+      <span style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.4)">Dopamina Visual</span>
+      <div class="site-name">Poppi — poppi.com</div>
+      <div class="site-url">poppi.com</div>
+      <div class="site-desc">Paleta saturada y alegre inspirada en los 80s. Amarillo dorado, verde lima y rojo intenso. Ejemplo perfecto de dopamine design que convierte.</div>
+      <span class="tag" style="color:#F5C842">Retro · FMCG</span>
+    </div>
+
+    <div class="site-card">
+      <span class="site-dot" style="background:#C89B9B"></span>
+      <span style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.4)">Pastel Minimal</span>
+      <div class="site-name">Glossier — glossier.com</div>
+      <div class="site-url">glossier.com</div>
+      <div class="site-desc">Rosa polvoroso sobre blanco cálido. Tipografía limpia y mucho espacio negativo. Referente de cómo los pasteles apagados construyen marca premium.</div>
+      <span class="tag" style="color:#C89B9B">Beauty · Pastel</span>
+    </div>
+
+    <div class="site-card">
+      <span class="site-dot" style="background:#00FFB2"></span>
+      <span style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.4)">Neon Dark Tech</span>
+      <div class="site-name">Linear — linear.app</div>
+      <div class="site-url">linear.app</div>
+      <div class="site-desc">Fondo negro profundo con detalles en violeta y cyan neón. El estándar de referencia en diseño SaaS oscuro y sofisticado en 2025-2026.</div>
+      <span class="tag" style="color:#00FFB2">SaaS · Dark Mode</span>
+    </div>
+
+    <div class="site-card">
+      <span class="site-dot" style="background:#6366f1"></span>
+      <span style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.4)">Iridiscente Premium</span>
+      <div class="site-name">Stripe — stripe.com</div>
+      <div class="site-url">stripe.com</div>
+      <div class="site-desc">Gradientes mesh suaves que capturan luz como un holograma. Combina Cloud Dancer con púrpura iridiscente. Uno de los sitios más imitados del mundo.</div>
+      <span class="tag" style="color:#6366f1">Fintech · Gradiente</span>
+    </div>
+
+    <div class="site-card">
+      <span class="site-dot" style="background:#E2725B"></span>
+      <span style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.4)">Tierra & Calidez</span>
+      <div class="site-name">Airbnb — airbnb.com</div>
+      <div class="site-url">airbnb.com</div>
+      <div class="site-desc">Coral/rosa coral como color clave sobre blanco limpio. Terracota digital: acogedor, humano y reconocible. Paleta tierra que ya se convirtió en ícono global.</div>
+      <span class="tag" style="color:#E2725B">Travel · Terra</span>
+    </div>
+
+    <div class="site-card">
+      <span class="site-dot" style="background:#8FAF8A"></span>
+      <span style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(240,238,233,0.4)">Eco Natural</span>
+      <div class="site-name">Allbirds — allbirds.com</div>
+      <div class="site-url">allbirds.com</div>
+      <div class="site-desc">Verde salvia, crema y tierra. Minimalismo natural que comunica sustentabilidad. Referente absoluto del diseño eco-consciente en e-commerce premium.</div>
+      <span class="tag" style="color:#8FAF8A">Eco · Sage</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- TIPS -->
+<section class="tips">
+  <div class="section-label">— Criterios Clave</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,3.5rem);margin-bottom:0.5rem;">
+    Qué hace que una paleta<br>funcione en 2026
+  </div>
+
+  <div class="tip-grid">
+    <div class="tip-item">
+      <div class="tip-num">01</div>
+      <div class="tip-title">Sistemas, no colores sueltos</div>
+      <div class="tip-text">Las paletas ganadoras tienen tokens: primario, secundario, acento y neutros. Se adaptan entre light/dark mode sin romper jerarquía.</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">02</div>
+      <div class="tip-title">Accesibilidad no negociable</div>
+      <div class="tip-text">Contraste WCAG 4.5:1 para texto normal. Los mejores sitios de 2026 basan su paleta en restricciones de accesibilidad, no al revés.</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">03</div>
+      <div class="tip-title">Un color domina</div>
+      <div class="tip-text">Las paletas efectivas tienen 1 color protagonista, 1-2 de apoyo, y neutros. Muchos colores iguales = ruido visual, no armonía.</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">04</div>
+      <div class="tip-title">Gradientes suaves, no arcoiris</div>
+      <div class="tip-text">En 2026 los gradientes son mesh ambientales y de baja saturación. Los gradientes duros de colores opuestos gritan "2018".</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Tendencias compiladas de Pantone, Wix Design, Lounge Lizard, Webflow Blog · Marzo 2026
+</footer>
+
+<div class="copied-toast" id="toast">✓ Copiado al portapapeles</div>
+
+<script>
+function copyHex(hex, el) {
+  navigator.clipboard.writeText(hex).then(() => {
+    const toast = document.getElementById('toast');
+    toast.textContent = `✓ ${hex} copiado`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1800);
+  });
+}
+</script>
+
+</body>
+</html>
