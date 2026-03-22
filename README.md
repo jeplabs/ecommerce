@@ -149,12 +149,12 @@ com.jeplabs.ecommerce
 - CRUD completo de productos (con historial de precios e imágenes)
 - Perfil de usuario autenticado
 - Documentación API con SpringDoc
-
+---
 ### 🔄 En Curso (Sprint Actual)
 - Backend: eliminación de productos (soft delete)
 - Frontend: formulario de edición de producto
 - Frontend: vista de eliminación de productos
-
+---
 ### 📋 Backlog
 - Gestión de usuarios (admin): listar, desactivar
 - Filtro de productos por categoría y búsqueda por nombre
