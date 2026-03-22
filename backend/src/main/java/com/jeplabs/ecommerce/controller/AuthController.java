@@ -22,9 +22,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
-// Expone los endpoints de Auth, es decir lo relacionado a Usuario Autenticado y Autorizado.
-@RestController // Indica que esta clase maneja peticiones HTTP y retorna JSON automáticamente
-@RequestMapping("/api/auth") // Prefijo base para todos los endpoints de este controlador
+// @Tag agrupa todos los endpoints de este controller bajo "Autenticación" en Swagger UI
+@Tag(name = "Autenticación", description = "Registro, login y gestión de usuarios (admin)")
+@RestController
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
