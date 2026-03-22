@@ -3,6 +3,10 @@ package com.jeplabs.ecommerce.controller;
 import com.jeplabs.ecommerce.domain.categoria.CategoriaService;
 import com.jeplabs.ecommerce.domain.categoria.DatosCrearCategoria;
 import com.jeplabs.ecommerce.domain.categoria.DatosRespuestaCategoria;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +16,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+// @Tag agrupa todos los endpoints de este controller bajo "Categorías" en Swagger UI
+@Tag(name = "Categorías", description = "Gestión del árbol jerárquico de categorías")
 @RestController
 @RequestMapping("/api/categorias")
 @RequiredArgsConstructor
@@ -19,31 +25,55 @@ public class CategoriaController {
 
     private final CategoriaService service;
 
-    // Público - devuelve árbol jerárquico completo
-    // GET /api/categorias
+    @Operation(
+            summary = "Listar todas las categorías",
+            description = "Público. Retorna el árbol jerárquico completo de categorías."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista retornada exitosamente")
+    })
     @GetMapping
     public ResponseEntity<List<DatosRespuestaCategoria>> listar() {
         return ResponseEntity.ok(service.listar());
     }
 
-    // Público - buscar por ID
-    // GET /api/categorias/{id}
+    @Operation(
+            summary = "Buscar categoría por ID",
+            description = "Público. Retorna una categoría específica con sus subcategorías."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Categoría encontrada"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<DatosRespuestaCategoria> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
-    // Público - buscar por slug
-    // GET /api/categorias/slug/{slug}
+    @Operation(
+            summary = "Buscar categoría por slug",
+            description = "Público. Útil para URLs amigables en el frontend."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Categoría encontrada"),
+            @ApiResponse(responseCode = "404", description = "Slug no encontrado")
+    })
     @GetMapping("/slug/{slug}")
     public ResponseEntity<DatosRespuestaCategoria> buscarPorSlug(@PathVariable String slug) {
         return ResponseEntity.ok(service.buscarPorSlug(slug));
     }
 
-    // Solo Admin
-    // POST /api/categorias
-    // Ejemplo: { "nombre": "Electronica", "parentId": null }, null es opcional, sino se envia igual la crea como raiz
-    // Ejemplo: { "nombre": "Cámaras Mirrorless", "parentId": 1 }, crea una subcategoría hija de 1, Electrónica
+    @Operation(
+            summary = "Crear categoría",
+            description = "Solo ADMIN. Si 'parentId' es null se crea como categoría raíz. " +
+                    "Si 'parentId' tiene valor, se crea como subcategoría hija."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Categoría creada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción")
+    })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaCategoria> crear(
@@ -54,8 +84,17 @@ public class CategoriaController {
         return ResponseEntity.created(uri).body(respuesta);
     }
 
-    // Solo Admin
-    // POST /api/categorias/{id}
+    @Operation(
+            summary = "Actualizar categoría",
+            description = "Solo ADMIN. Actualiza nombre o categoría padre."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Categoría actualizada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+    })
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaCategoria> actualizar(
