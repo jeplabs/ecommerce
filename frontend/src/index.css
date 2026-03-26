@@ -957,13 +957,25 @@ nav button {
   text-transform: uppercase;
 }
 
-.product-status[data-status="activo"] {
+.product-status[data-status="DISPONIBLE"] {
   background: rgba(34, 197, 94, 0.2);
   color: #22c55e;
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.product-status[data-status="inactivo"] {
+.product-status[data-status="SIN-STOCK"] {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.product-status[data-status="OCULTO"] {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.product-status[data-status="DESCONTINUADO"] {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.3);

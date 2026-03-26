@@ -117,8 +117,13 @@ export default function ProductList() {
                                         <div className="product-info">
                                             <span className="product-sku">SKU: {producto.sku}</span>
                                             <span className="product-stock">Stock: {producto.stock || 0}</span>
-                                            <span className="product-status" data-status={producto.active ? 'activo' : 'inactivo'}>
-                                                {producto.active ? 'Activo' : 'Inactivo'}
+                                            <span 
+                                                className="product-status" 
+                                                data-status={producto.estado || 'desconocido'}
+                                            >
+                                                {producto.estado 
+                                                    ? producto.estado.charAt(0).toUpperCase() + producto.estado.slice(1) 
+                                                    : 'Desconocido'}
                                             </span>
                                         </div>
 

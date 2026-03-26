@@ -442,8 +442,10 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                             onChange={handleChange}
                             required
                         >
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
+                            <option value="disponible">Disponible</option>
+                            <option value="sin-stock">Sin stock</option>
+                            <option value="oculto">Oculto</option>
+                            <option value="descontinuado">Descontinuado</option>
                         </select>
                     </div>
 
