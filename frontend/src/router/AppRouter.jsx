@@ -7,6 +7,7 @@ import Profile from '../pages/Profile';
 import Admin from '../pages/admin/Admin';
 import ProductList from '../pages/admin/ProductList';
 import ProductNew from '../pages/admin/ProductNew';
+import ProductEdit from '../pages/admin/ProductEdit';
 import UsersList from '../pages/admin/UsersList';
 import PrivateRoute from './PrivateRoute';
 
@@ -54,6 +55,14 @@ export const AppRouter = () => {
                     element={
                         <PrivateRoute requiredRol='ROLE_ADMIN'>
                             <ProductNew />
+                        </PrivateRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin/products/edit/:id" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_ADMIN'>
+                            <ProductEdit />
                         </PrivateRoute>
                     } 
                 />

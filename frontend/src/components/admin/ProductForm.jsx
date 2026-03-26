@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';    
+import { useState, useEffect } from 'react';
+import { useToast } from '../../context/ToastContext';
 
-export const ProductForm = () => {
+export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false, onCancel, categorias = [] }) => {
+    //Datos iniciales del formulario (si es edición)
+    const isEditing = !!initialData; 
+
+    //Modo de imagen (url o file)
+    const [imageMode, setImageMode] = useState('url'); // Solo URLs, sin archivos
+
     //  Estado para los campos del formulario
     const [formData, setFormData] = useState({
         nombre: '',
@@ -9,9 +16,13 @@ export const ProductForm = () => {
         price: '',
         stock: '',
         estado: 'activo',
-        categoria: '1',
-        images: [] // Para manejar los archivos
+        categoria: '',
+        moneda: 'USD',
+        images: [] 
     });
+
+    // Estado para manejar el input de URL 
+    const [urlInput, setUrlInput] = useState('');
 
     // Estado para el mensaje de error
     const [errors, setErrors] = useState({});
@@ -21,7 +32,54 @@ export const ProductForm = () => {
         { id: Date.now(), key: '', value: '' } // Valor inicial con 1 fila vacía
     ]);
 
-    // Este efecto se ejecuta CADA VEZ que el estado 'errors' cambia
+    // Cargar datos si es edición
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                nombre: initialData.nombre || '',
+                sku: initialData.sku || '',
+                descripcion: initialData.descripcion || '',
+                price: initialData.price || '',
+                stock: initialData.stock || '',
+                estado: initialData.estado || 'activo',
+                categoria: initialData.categoria?.id?.toString() || initialData.categoria?.toString() || '',
+                moneda: initialData.moneda || 'USD',
+                images: [] 
+            });
+
+            // Si el producto editado tiene imágenes que son URLs (strings), las cargamos
+            if (initialData.images && initialData.images.length > 0) {
+                const loadedImages = initialData.images.map((img, index) => {
+                    const isUrl = typeof img === 'string';
+                    return {
+                        id: index,
+                        type: isUrl ? 'url' : 'file',
+                        url: isUrl ? img : null,
+                        file: isUrl ? null : img,
+                        preview: isUrl ? img : URL.createObjectURL(img)
+                    };
+                });
+                setFormData(prev => ({ ...prev, images: loadedImages }));
+                
+                // Si hay URLs, cambiamos el modo automáticamente (opcional)
+                if (loadedImages.some(i => i.type === 'url')) {
+                    setImageMode('url');
+                }
+            }
+
+            if (initialData.caracteristicas && initialData.caracteristicas.length > 0) {
+                setSpecs(initialData.caracteristicas.map((c, index) => ({
+                    id: index,
+                    key: c.key || c.nombre,
+                    value: c.value
+                })));
+            } else {
+                setSpecs([{ id: Date.now(), key: '', value: '' }]);
+            }
+        }
+    }, [initialData]);
+
+    // Efecto de scroll de errores
     useEffect(() => {
         // Si hay al menos un error en el objeto...
         if (Object.keys(errors).length > 0) {
@@ -51,10 +109,9 @@ export const ProductForm = () => {
                 }
             }
             }, 100); // 100ms es suficiente
-
-            return () => clearTimeout(timer); // Limpieza
+            return () => clearTimeout(timer); 
         }
-    }, [errors]); // <--- Esto es clave: solo se ejecuta cuando 'errors' cambia
+    }, [errors]); 
 
     // Manejador para campos simples
     const handleChange = (e) => {
@@ -76,9 +133,9 @@ export const ProductForm = () => {
     // Manejador para archivos
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
-
         const newImages = selectedFiles.map(file => ({
             id: Date.now() + Math.random(),
+            type: 'file',
             file: file,
             preview: URL.createObjectURL(file)
         }));
@@ -89,18 +146,45 @@ export const ProductForm = () => {
         }));
         
         // Limpiar error de imágenes si se selecciona al menos una
-        if (formData.images.length + newImages.length > 0 && errors.images) {
-            setErrors(prev => ({ ...prev, images: null }));
-        }
+        // if (formData.images.length + newImages.length > 0 && errors.images) {
+        //     setErrors(prev => ({ ...prev, images: null }));
+        // }
+
+        if (errors.images) setErrors(prev => ({ ...prev, images: null }));
 
         // Limpiar el input de archivos
         e.target.value = '';
     };
 
+    // Manejador para URLS
+    const handleAddUrl = () => {
+        if (!urlInput.trim()) return;
+        
+        // Validación básica de URL
+        if (!urlInput.startsWith('http://') && !urlInput.startsWith('https://')) {
+            setErrors(prev => ({ ...prev, images: 'La URL debe comenzar con http:// o https://' }));
+            return;
+        }
+
+        const newImage = {
+            id: Date.now(),
+            type: 'url',
+            url: urlInput,
+            preview: urlInput
+        };
+
+        setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, newImage]
+        }));
+        
+        setUrlInput(''); // Limpiar input
+        if (errors.images) setErrors(prev => ({ ...prev, images: null }));
+    };
+
     const removeImage = (idToRemove) => {
         setFormData(prev => {
             const newImages = prev.images.filter(img => img.id !== idToRemove);
-
             if (newImages.length === 0) {
                 setErrors(err => ({ ...err, images: 'Debe seleccionar al menos una imagen del producto' }));
             }
@@ -141,39 +225,54 @@ export const ProductForm = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.nombre.trim()) {
+        const nombre = (formData.nombre ?? '').toString();
+        const sku = (formData.sku ?? '').toString();
+        const descripcion = (formData.descripcion ?? '').toString();
+        const price = (formData.price ?? '').toString();
+        const stock = (formData.stock ?? '').toString();
+        const estado = (formData.estado ?? '').toString();
+        const moneda = (formData.moneda ?? '').toString();
+        const categoria = (formData.categoria ?? '').toString();
+
+        if (!nombre.trim()) {
             newErrors.nombre = "El nombre es obligatorio";
         }
 
-        if (!formData.sku.trim()) {
+        if (!sku.trim()) {
             newErrors.sku = "El SKU es obligatorio";
         }
 
-        if (!formData.descripcion.trim()) {
+        if (!descripcion.trim()) {
             newErrors.descripcion = "La descripción es obligatoria";
         }
 
-        if (!formData.price.trim()) {
+        if (!price.trim()) {
             newErrors.price = "El precio es obligatorio";
-        } else if (isNaN(formData.price)) {
+        } else if (isNaN(price)) {
             newErrors.price = "El precio debe ser un número mayor a 0";
         }
 
-        if (!formData.stock.trim()) {
+        if (!stock.trim()) {
             newErrors.stock = "El stock es obligatorio";
-        } else if (isNaN(formData.stock)) {
+        } else if (isNaN(stock)) {
             newErrors.stock = "El stock debe ser un número mayor a 0";
         }
 
-        if (!formData.estado.trim()) {
+        if (!estado.trim()) {
             newErrors.estado = "El estado es obligatorio";
         }
 
-        if (!formData.categoria.trim()) {
+        if (!moneda.trim()) {
+            newErrors.moneda = "La moneda es obligatoria";
+        }
+
+        if (!categoria.trim()) {
             newErrors.categoria = "La categoria es obligatoria";
         }
 
-        if (formData.images.length === 0) {
+        // En edición, no requerimos imágenes (ya existen en el servidor)
+        // En creación, sí requerimos al menos una imagen
+        if (!isEditing && formData.images.length === 0) {
             newErrors.images = "Debe seleccionar al menos una imagen del producto";
         }
 
@@ -186,38 +285,53 @@ export const ProductForm = () => {
         e.preventDefault();
 
         // Ejecutar validación antes de proceder
-        if (!validateForm()) {
-            // Scroll suave hacia el primer error
-            const firstErrorField = document.querySelector('.error');
-            if (firstErrorField) {
-                firstErrorField.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }
+        if (!validateForm()) return;
+
+        const filesToUpload = formData.images.filter(img => img.type === 'file').map(img => img.file);
+        const urlsToSave = formData.images.filter(img => img.type === 'url').map(img => img.url);
+
+        if (filesToUpload.length > 0) {
+            setErrors(prev => ({ ...prev, images: 'Por favor usa URLs de imagen para crear producto (backend no soporta carga directa de archivos aquí).'}));
             return;
         }
 
-        // Convertir los archivos a arreglo de objetos
-        const filesToUpload = formData.images.map(img => img.file);
+        // En creación: obligar al menos una imagen
+        // En edición: permitir no cambiar imágenes
+        if (!isEditing && urlsToSave.length === 0) {
+            setErrors(prev => ({ ...prev, images: 'Debe haber al menos una imagen en formato URL.'}));
+            return;
+        }
 
-        // Combinar formData con specs procesados
+        // Combinar formData con specs procesados y esquema que exige el backend
+        const specsObject = specs
+            .filter(s => s.key && s.value)
+            .reduce((acc, spec) => {
+                acc[spec.key] = spec.value;
+                return acc;
+            }, {});
+
         const finalData = {
-            ...formData,
-            images: filesToUpload,
-            price: parseInt(formData.price),
-            stock: parseInt(formData.stock),
-            caracteristicas: specs.filter(s => s.key && s.value)
+            sku: formData.sku.trim(),
+            nombre: formData.nombre.trim(),
+            descripcion: formData.descripcion.trim() || null,
+            specs: Object.keys(specsObject).length > 0 ? specsObject : null,
+            stock: Number(formData.stock),
+            precio: {
+                precioVenta: Number(formData.price),
+                precioCosto: Number(formData.price),
+                moneda: formData.moneda || 'USD'
+            },
+            categoriaIds: [Number(formData.categoria)],
+            imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null
         };
 
-        console.log('Enviando producto:', finalData);
-        alert('Producto listo para enviar (ver consola)');
-        // Aquí iría tu llamada a la API
+        console.debug('ProductForm submit finalData', finalData);
+        onSubmit(finalData);
     };
 
     return (
         <section className="product-form">
-            <h2>Formulario de producto</h2>
+            <h2>{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</h2>
             {/* <br /> */}
             <form onSubmit={handleSubmit} noValidate>
 
@@ -242,7 +356,8 @@ export const ProductForm = () => {
                     name="sku" 
                     value={formData.sku}
                     onChange={handleChange}
-                    placeholder="SKU del producto" 
+                    placeholder="SKU del producto"
+                    disabled={isEditing}
                     required
                 />
                 {errors.sku && <span className="error">{errors.sku}</span>}
@@ -282,6 +397,21 @@ export const ProductForm = () => {
                             required
                         />
                         {errors.price && <span className="error">{errors.price}</span>}
+                    </div>
+
+                    {/* Moneda */}
+                    <div className="form-field">
+                        <label htmlFor="moneda">Moneda</label>
+                        <select
+                            id="moneda"
+                            name="moneda"
+                            value={formData.moneda}
+                            onChange={handleChange}
+                        >
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="ARS">ARS</option>
+                        </select>
                     </div>
 
                     {/* Stock */}
@@ -327,12 +457,12 @@ export const ProductForm = () => {
                             onChange={handleChange}
                             required
                         >
-                            <option value="1">Electrónica</option>
-                            <option value="2">Hogar</option>
-                            <option value="3">Moda</option>
-                            <option value="4">Deportes</option>
-                            <option value="5">Juguetes</option>
-                            <option value="6">Otros</option>
+                            <option value="">Selecciona una categoría</option>
+                            {categorias.map((categoria) => (
+                                <option key={categoria.id} value={categoria.id}>
+                                    {categoria.nombre}
+                                </option>
+                            ))}
                         </select>
                     </div>
                 </div>
@@ -386,7 +516,7 @@ export const ProductForm = () => {
                 </div>
 
                 {/* Imágenes */}
-                <label htmlFor="image">Imágenes</label>
+                {/* <label htmlFor="image">Imágenes</label>
                 <input 
                     type="file" 
                     id="image" 
@@ -394,13 +524,110 @@ export const ProductForm = () => {
                     multiple
                     onChange={handleFileChange}
                     accept='image/**'
-                />
-                {formData.images.length > 0 && (
+                /> */}
+                {/* {formData.images.length > 0 && (
                     <span className="file-count">{formData.images.length} archivo(s) seleccionado(s)</span>
+                )} */}
+
+
+                {/* Solo se permiten URLs de imágenes */}
+                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '10px' }}>
+                    Ingresa las URLs de las imágenes del producto:
+                </p>
+
+                {/* Opción B: Usar URLs */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <input
+                        type="url"
+                        placeholder="https://ejemplo.com/imagen.jpg"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUrl())}
+                    />
+                    <button type="button" onClick={handleAddUrl} style={{ padding: '8px 15px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                        Agregar URL
+                    </button>
+                </div>
+
+                {/* Opción comentada: Subir Archivos (no se usa) */}
+                {/*
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                            type="radio"
+                            name="imageMode"
+                            value="file"
+                            checked={imageMode === 'file'}
+                            onChange={() => setImageMode('file')}
+                            style={{ marginRight: '5px' }}
+                        />
+                        Subir Archivos
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                            type="radio"
+                            name="imageMode"
+                            value="url"
+                            checked={imageMode === 'url'}
+                            onChange={() => setImageMode('url')}
+                            style={{ marginRight: '5px' }}
+                        />
+                        Usar URL
+                    </label>
+                </div>
+
+                {imageMode === 'file' && (
+                    <div>
+                        <input
+                            type="file"
+                            id="image"
+                            name="image"
+                            multiple
+                            onChange={handleFileChange}
+                            accept='image/**'
+                        />
+                        <p style={{ fontSize: '0.8rem', color: '#666' }}>Puedes seleccionar múltiples archivos.</p>
+                    </div>
                 )}
+                */}
 
                 {errors.images && <span className="error">{errors.images}</span>}
 
+                {/* Vista Previa (Común para ambos) */}
+                {/* {formData.images.length > 0 && (
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', 
+                        gap: '10px', 
+                        marginTop: '15px' 
+                    }}>
+                        {formData.images.map((img) => (
+                            <div key={img.id} style={{ position: 'relative', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+                                <img 
+                                    src={img.preview} 
+                                    alt="Vista previa"
+                                    style={{ width: '100%', height: '100px', objectFit: 'cover' }}
+                                />
+                                {img.type === 'url' && (
+                                    <span style={{ position: 'absolute', top: '2px', left: '2px', background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '10px', padding: '2px 4px', borderRadius: '4px' }}>URL</span>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => removeImage(img.id)}
+                                    style={{
+                                        position: 'absolute', top: '2px', right: '2px',
+                                        background: '#ef4444', color: 'white', border: 'none',
+                                        borderRadius: '50%', width: '20px', height: '20px',
+                                        cursor: 'pointer', fontSize: '12px', lineHeight: '20px', textAlign: 'center'
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
                 {formData.images.length > 0 && !errors.images && (
                     <div style={{ 
                         color: '#10b981', 
@@ -415,63 +642,9 @@ export const ProductForm = () => {
                         </svg>
                         {formData.images.length} imagen(es) lista(s) para subir
                     </div>
-                )}
+                )} */}
 
-                {formData.images.length > 0 && (
-        <div style={{ 
-            padding: '1rem', 
-            borderRadius: '6px', 
-            border: '1px solid #e2e8f0',
-            marginBottom: '1rem'
-        }}>
-            <p style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem', color: '#475569' }}>
-                Archivos seleccionados ({formData.images.length}):
-            </p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {formData.images.map((img) => (
-                    <li key={img.id} style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center',
-                        //background: 'white',
-                        padding: '0.5rem',
-                        borderRadius: '4px',
-                        //border: '1px solid #f1f5f9',
-                        fontSize: '0.9rem'
-                    }}>
-                        <span style={{ 
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis', 
-                            whiteSpace: 'nowrap',
-                            maxWidth: '80%',
-                            //color: '#334155'
-                        }}>
-                            📄 {img.file.name}
-                        </span>
-                        
-                        {/* Botón para eliminar este archivo específico */}
-                        <button
-                            type="button"
-                            onClick={() => removeImage(img.id)}
-                            style={{
-                                color: '#ef4444',
-                                border: 'none',
-                                borderRadius: '4px',
-                                padding: '0.2rem 0.6rem',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                fontSize: '1rem',
-                                marginLeft: '0.5rem'
-                            }}
-                            title="Eliminar archivo"
-                        >
-                            ×
-                        </button>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    )}
+                
 
                 {/* Vistas previas de las imágenes */}
                 {formData.images.length > 0 && (
@@ -531,7 +704,19 @@ export const ProductForm = () => {
                     </div>
                 )}
                 {/* Botón de enviar */}
-                <button type="submit" className="btn-submit">Agregar producto</button>
+                {/* <button type="submit" className="btn-submit">Agregar producto</button>
+                <br /> */}
+                {/* Botones */}
+                <div style={{ marginTop: '20px' }}>
+                    <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar Producto' : 'Agregar Producto')}
+                    </button>
+                    {onCancel && (
+                        <button type="button" onClick={onCancel} style={{ marginLeft: '10px' }} disabled={isSubmitting}>
+                            Cancelar
+                        </button>
+                    )}
+                </div>
                 <br />
             </form>
         </section>
