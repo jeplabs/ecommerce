@@ -1,11 +1,11 @@
 package com.jeplabs.ecommerce.controller;
 
-import com.jeplabs.ecommerce.domain.usuario.AutenticacionService;
-import com.jeplabs.ecommerce.domain.usuario.DatosActualizarRol;
-import com.jeplabs.ecommerce.domain.usuario.DatosRegistro;
-import com.jeplabs.ecommerce.domain.usuario.DatosRespuestaUsuario;
 import com.jeplabs.ecommerce.domain.usuario.*;
 import com.jeplabs.ecommerce.infra.security.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,60 +18,75 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
-// Expone los endpoints de Auth, es decir lo relacionado a Usuario Autenticado y Autorizado.
-@RestController // Indica que esta clase maneja peticiones HTTP y retorna JSON automáticamente
-@RequestMapping("/api/auth") // Prefijo base para todos los endpoints de este controlador
+// @Tag agrupa todos los endpoints de este controller bajo "Autenticación" en Swagger UI
+@Tag(name = "Autenticación", description = "Registro, login y gestión de usuarios (admin)")
+@RestController
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    // Inyecciones
     private final AutenticacionService service;
     private final AuthenticationManager authManager;
     private final TokenService tokenService;
 
-    // POST /api/auth/register
-    // Recibe los datos del nuevo usuario y lo registra en la base de datos
+    // @Operation describe el propósito del endpoint en Swagger UI
+    // summary → título corto que aparece en la lista de endpoints
+    // description → texto expandido al abrir el endpoint
+    @Operation(
+            summary = "Registrar nuevo usuario",
+            description = "Crea una cuenta nueva. No requiere token."
+    )
+    // @ApiResponses define los posibles códigos HTTP que puede retornar el endpoint
+    // cada @ApiResponse indica el código y una descripción de cuándo ocurre
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o email ya registrado")
+    })
     @PostMapping("/register")
     public ResponseEntity<DatosRespuestaUsuario> registrar(
             @RequestBody @Valid DatosRegistro datos,
             UriComponentsBuilder uriBuilder) {
-
         DatosRespuestaUsuario respuesta = service.registrar(datos);
         var uri = uriBuilder.path("/api/usuarios/{id}").buildAndExpand(respuesta.id()).toUri();
         return ResponseEntity.created(uri).body(respuesta);
     }
 
-    // POST /api/auth/login
-    // Endpoint para realizar login
+    @Operation(
+            summary = "Iniciar sesión",
+            description = "Autentica al usuario y retorna un JWT token. Úsalo en el botón 'Authorize'."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login exitoso, retorna token JWT"),
+            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas"),
+            @ApiResponse(responseCode = "403", description = "Cuenta bloqueada temporalmente")
+    })
     @PostMapping("/login")
     public ResponseEntity<DatosRespuestaToken> login(
             @RequestBody @Valid DatosLogin datos) {
         try {
-            // Verificar si el bloqueo temporal ya expiró antes de intentar autenticar
             service.verificarBloqueoExpirado(datos.email());
-
-            var authToken = new UsernamePasswordAuthenticationToken(
-                    datos.email(), datos.password()
-            );
+            var authToken = new UsernamePasswordAuthenticationToken(datos.email(), datos.password());
             var usuarioAutenticado = authManager.authenticate(authToken);
             Usuario usuario = (Usuario) usuarioAutenticado.getPrincipal();
-
-            // Login exitoso, por lo tanto resetear intentos
             service.procesarLoginExitoso(datos.email());
-
             var token = tokenService.generarToken(usuario);
-            // Devuelve token y datos del usuario para frontend.
             return ResponseEntity.ok(new DatosRespuestaToken(token, usuario));
-
         } catch (BadCredentialsException e) {
-            // Login fallido, por lo tanto sumar intento
             service.procesarLoginFallido(datos.email());
             throw e;
         }
     }
 
-    // PATCH /api/auth/usuarios/{id}/rol
-    // Solo ADMIN puede cambiar roles, por medio de @PreAuthorize
+    @Operation(
+            summary = "Cambiar rol de usuario",
+            description = "Solo ADMIN. Cambia el rol de un usuario por su ID."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Rol actualizado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PatchMapping("/usuarios/{id}/rol")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaUsuario> actualizarRol(
@@ -80,20 +95,34 @@ public class AuthController {
         return ResponseEntity.ok(service.actualizarRol(id, datos));
     }
 
-    // GET /api/auth/usuarios
-    // Lista los usuarios registrados, solo admin tiene acceso a este endpoint
+    @Operation(
+            summary = "Listar todos los usuarios",
+            description = "Solo ADMIN. Retorna la lista completa de usuarios registrados."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista retornada exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción")
+    })
     @GetMapping("/usuarios")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DatosRespuestaUsuario>> listarUsuarios() {
         return ResponseEntity.ok(service.listarUsuarios());
     }
 
-    // GET /api/auth/usuarios/{id}
-    // Busqueda de un usuario por ID, solo admin tiene acceso a este endpoint
+    @Operation(
+            summary = "Buscar usuario por ID",
+            description = "Solo ADMIN. Retorna los datos de un usuario específico."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @GetMapping("/usuarios/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaUsuario> buscarUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
-
 }

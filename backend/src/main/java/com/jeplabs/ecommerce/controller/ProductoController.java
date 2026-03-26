@@ -1,6 +1,11 @@
 package com.jeplabs.ecommerce.controller;
 
+import com.jeplabs.ecommerce.domain.categoria.DatosRespuestaCategoria;
 import com.jeplabs.ecommerce.domain.producto.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +18,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+// @Tag agrupa todos los endpoints de este controller bajo "Productos" en Swagger UI
+@Tag(name = "Productos", description = "Catálogo público y gestión admin de productos")
 @RestController
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
@@ -20,8 +27,14 @@ public class ProductoController {
 
     private final ProductoService service;
 
-    // Endpoints públicos
-    // GET /api/productos
+    @Operation(
+            summary = "Listar productos",
+            description = "Público. Soporta filtros por nombre y categoría, y paginación. " +
+                    "Ejemplo: /api/productos?nombre=rtx&categoriaId=2&page=0&size=10"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Página de productos retornada exitosamente")
+    })
     @GetMapping
     public ResponseEntity<Page<DatosRespuestaProducto>> listar(
             @RequestParam(required = false) String nombre,
@@ -30,33 +43,72 @@ public class ProductoController {
         return ResponseEntity.ok(service.listar(nombre, categoriaId, pageable));
     }
 
-    // GET /api/productos/{id}
+    @Operation(
+            summary = "Buscar producto por ID",
+            description = "Público. Retorna los datos visibles del producto."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Producto encontrado"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<DatosRespuestaProducto> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
-    // GET /api/productos/sku/{sku}
+    @Operation(
+            summary = "Buscar producto por SKU",
+            description = "Público. Retorna el producto que coincide con el SKU exacto."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Producto encontrado"),
+            @ApiResponse(responseCode = "404", description = "SKU no encontrado")
+    })
     @GetMapping("/sku/{sku}")
     public ResponseEntity<DatosRespuestaProducto> buscarPorSku(@PathVariable String sku) {
         return ResponseEntity.ok(service.buscarPorSku(sku));
     }
 
-    // GET /api/productos/slug/{slug}
+    @Operation(
+            summary = "Buscar producto por slug",
+            description = "Público. Útil para URLs amigables en el frontend."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Producto encontrado"),
+            @ApiResponse(responseCode = "404", description = "Slug no encontrado")
+    })
     @GetMapping("/slug/{slug}")
     public ResponseEntity<DatosRespuestaProducto> buscarPorSlug(@PathVariable String slug) {
         return ResponseEntity.ok(service.buscarPorSlug(slug));
     }
 
-    // Endpoints admin - Buscar un producto por id para ver datos exclusivos de admin
-    // POST /api/productos/admin/{id}
+    @Operation(
+            summary = "Buscar producto por ID (vista admin)",
+            description = "Solo ADMIN. Retorna datos extendidos del producto, incluyendo campos internos."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Producto encontrado"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
     @GetMapping("/admin/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaProductoAdmin> buscarAdminPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarAdminPorId(id));
     }
 
-    // POST /api/productos
+    @Operation(
+            summary = "Crear producto",
+            description = "Solo ADMIN. El SKU se genera automáticamente a partir de categoría, " +
+                    "marca, modelo, capacidad y color."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Producto creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción")
+    })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaProducto> crear(
@@ -67,6 +119,17 @@ public class ProductoController {
         return ResponseEntity.created(uri).body(respuesta);
     }
 
+    @Operation(
+            summary = "Actualizar producto",
+            description = "Solo ADMIN. Actualiza los campos del producto. Solo se modifican los campos enviados."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Producto actualizado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
     // PATCH /api/productos/{id}
     // se puede enviar y actualizar solo una llave: valor, no necesariamente todas.
     @PatchMapping("/{id}")
@@ -86,11 +149,31 @@ public class ProductoController {
         return ResponseEntity.ok(service.actualizarPrecio(id, datos));
     }
 
-    // DEL /api/productos/{id}
+    // Admin cambia estado manualmente (OCULTO, DISPONIBLE, etc.)
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProductoAdmin> cambiarEstado(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarEstado datos) {
+        return ResponseEntity.ok(service.cambiarEstado(id, datos));
+    }
+
+    @Operation(
+            summary = "Descontinuar producto, borrado permanente, no se puede revertir",
+            description = "Solo ADMIN. Realiza borrado permanente: el producto se descontinua " +
+                    "no se elimina de la base de datos."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Producto borrado y descontinuado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
+    // Borrado logico permanente, DESCONTINUADO, no se puede revertir
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> desactivar(@PathVariable Long id) {
-        service.desactivar(id);
+    public ResponseEntity<Void> descontinuar (@PathVariable Long id) {
+        service.descontinuar(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -130,5 +213,48 @@ public class ProductoController {
             @PathVariable Long imagenId) {
         service.eliminarImagen(id, imagenId);
         return ResponseEntity.noContent().build();
+    }
+
+    // Listar categorías de un producto
+    // GET /api/productos/{id}/categorias
+    @GetMapping("/{id}/categorias")
+    public ResponseEntity<List<DatosRespuestaCategoria>> listarCategorias(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarCategorias(id));
+    }
+
+    // Agregar categorías a un producto
+    // POST /api/productos/{id}/categorias
+    // Header: Authorization: Bearer <token_admin>
+    // Body: { "categoriaIds": [3, 4] }
+    @PostMapping("/{id}/categorias")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProducto> agregarCategorias(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarCategorias datos) {
+        return ResponseEntity.ok(service.agregarCategorias(id, datos));
+    }
+
+    // Quitar categorías específicas de un producto
+    // DELETE /api/productos/{id}/categorias
+    // Header: Authorization: Bearer <token_admin>
+    // Body: { "categoriaIds": [2] }
+    @DeleteMapping("/{id}/categorias")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProducto> quitarCategorias(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarCategorias datos) {
+        return ResponseEntity.ok(service.quitarCategorias(id, datos));
+    }
+
+    // Reemplazar todas las categorías de un producto
+    // PUT /api/productos/{id}/categorias
+    // Header: Authorization: Bearer <token_admin>
+    // Body: { "categoriaIds": [1, 5] }
+    @PutMapping("/{id}/categorias")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProducto> reemplazarCategorias(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarCategorias datos) {
+        return ResponseEntity.ok(service.reemplazarCategorias(id, datos));
     }
 }

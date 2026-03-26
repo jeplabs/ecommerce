@@ -44,6 +44,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll() // ← público
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // ← público
                         .requestMatchers("/api/usuarios/perfil").authenticated()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/index.html").permitAll()
                         //.requestMatchers(HttpMethod.GET, "/api/auth/usuarios").permitAll()
                         .anyRequest().authenticated()
                 )
