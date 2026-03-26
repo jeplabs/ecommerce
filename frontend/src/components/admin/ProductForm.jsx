@@ -15,7 +15,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
         descripcion: '',
         price: '',
         stock: '',
-        estado: 'activo',
+        estado: 'disponible',
         categoria: '',
         moneda: 'USD',
         images: [] 
@@ -41,7 +41,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                 descripcion: initialData.descripcion || '',
                 price: initialData.price || '',
                 stock: initialData.stock || '',
-                estado: initialData.estado || 'activo',
+                estado: initialData.estado || 'disponible',
                 categoria: initialData.categoria?.id?.toString() || initialData.categoria?.toString() || '',
                 moneda: initialData.moneda || 'USD',
                 images: [] 
@@ -322,7 +322,8 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                 moneda: formData.moneda || 'USD'
             },
             categoriaIds: [Number(formData.categoria)],
-            imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null
+            imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null,
+            estado: formData.estado // <-- ¡Siempre incluir el estado!
         };
 
         console.debug('ProductForm submit finalData', finalData);

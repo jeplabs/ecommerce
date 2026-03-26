@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useProduct } from '../../context/ProductContext';
@@ -5,10 +6,11 @@ import { useToast } from '../../context/ToastContext';
 import Navbar from "../../components/Navbar"
 import { ProductForm } from "../../components/admin/ProductForm";
 
+
 export default function ProductEdit() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { getProductById, updateProduct, addProductImages, loading, categorias } = useProduct();
+    const { getProductById, updateProduct, updateProductStatus, addProductImages, loading, categorias } = useProduct();
     const { showSuccess, showError } = useToast();
     const [productData, setProductData] = useState(null);
     const [error, setError] = useState(null);
@@ -26,7 +28,7 @@ export default function ProductEdit() {
                         ...product,
                         price: String(product.precioVenta ?? ''), // Confirmar cadena para input
                         descripcion: product.descripcion || '',
-                        estado: product.active ? 'activo' : 'inactivo',
+                        estado: product.estado || 'disponible',
                         // La forma esperada por ProductForm es array de URLs (strings) o items con type/url.
                         images: product.imagenesUrl || [],
                         categoria: product.categorias?.[0]?.id?.toString() || '',
@@ -49,13 +51,22 @@ export default function ProductEdit() {
         }
     }, [id]);
 
+
     const handleUpdate = async (finalData) => {
         console.debug('ProductEdit handleUpdate payload', finalData);
         try {
-            // Actualizar datos básicos
-            const result = await updateProduct(id, finalData);
-            console.debug('ProductEdit updateProduct result', result);
-            
+            // Forzar siempre la llamada a updateProductStatus para depuración
+            const estadoNuevo = finalData.estado || productData.estado;
+            console.log('[ProductEdit] Llamando updateProductStatus con:', estadoNuevo);
+            const resEstado = await updateProductStatus(id, estadoNuevo);
+            if (!resEstado.success) {
+                showError(`Error al actualizar el estado: ${resEstado.message}`);
+                return;
+            }
+
+            // Actualizar otros datos (sin el campo estado)
+            const { estado, ...rest } = finalData;
+            const result = await updateProduct(id, rest);
             if (!result.success) {
                 showError(`Error al actualizar el producto: ${result.message}`);
                 return;
@@ -63,35 +74,25 @@ export default function ProductEdit() {
 
             // Manejar cambios de imágenes si fue en edición
             if (productData && finalData.imagenesUrl) {
-                const urlsOriginales = productData.images || []; // array de strings (URLs)
-                const urlsNuevas = finalData.imagenesUrl || []; // array de strings (URLs)
-                
-                // URLs que fueron eliminadas
+                const urlsOriginales = productData.images || [];
+                const urlsNuevas = finalData.imagenesUrl || [];
                 const urlsEliminadas = urlsOriginales.filter(url => !urlsNuevas.includes(url));
-                
-                // URLs que fueron agregadas
                 const urlsAgregadas = urlsNuevas.filter(url => !urlsOriginales.includes(url));
-                
                 if (urlsEliminadas.length > 0 || urlsAgregadas.length > 0) {
                     console.debug('ProductEdit imagen cambios - eliminadas:', urlsEliminadas, 'agregadas:', urlsAgregadas);
                 }
-                
-                // Agregar nuevas imágenes
                 if (urlsAgregadas.length > 0) {
                     const addImagesResult = await addProductImages(id, urlsAgregadas);
                     if (!addImagesResult.success) {
                         console.error('ProductEdit error agregando imágenes:', addImagesResult.message);
-                        // No salimos del flujo, las imágenes ya estaban pero esto es un detalle
                     } else {
                         console.debug('ProductEdit imágenes agregadas exitosamente');
                     }
                 }
-                
                 // TODO: Eliminar imágenes que fueron quitadas
-                // Requeriría obtener los IDs de las imágenes del backend
             }
-            
-            showSuccess('Producto actualizado exitosamente');
+
+            showSuccess('Estado y producto actualizados exitosamente');
             navigate('/admin/products');
         } catch (error) {
             showError(`Error al actualizar el producto: ${error.message}`);

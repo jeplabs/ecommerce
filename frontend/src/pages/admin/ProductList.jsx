@@ -14,15 +14,19 @@ export default function ProductList() {
         if (!confirmed) return;
 
         try {
+            console.debug('ProductList handleDelete iniciado con id:', id, 'nombre:', nombre);
             const result = await deleteProduct(id);
+            console.debug('ProductList deleteProduct result:', result);
+            
             if (result.success) {
-                showSuccess('Producto eliminado exitosamente');
+                showSuccess('Producto desactivado exitosamente');
                 await reloadProducts();
             } else {
-                showError(`Error al eliminar el producto: ${result.message}`);
+                showError(`Error al desactivar el producto: ${result.message}`);
             }
         } catch (error) {
-            showError('Error al eliminar el producto');
+            console.error('ProductList error en handleDelete:', error);
+            showError('Error al desactivar el producto');
         }
     };
     
@@ -121,9 +125,15 @@ export default function ProductList() {
                                                 className="product-status" 
                                                 data-status={producto.estado || 'desconocido'}
                                             >
-                                                {producto.estado 
-                                                    ? producto.estado.charAt(0).toUpperCase() + producto.estado.slice(1) 
-                                                    : 'Desconocido'}
+                                                {(() => {
+                                                    switch ((producto.estado || '').toUpperCase()) {
+                                                        case 'DISPONIBLE': return 'Disponible';
+                                                        case 'SIN_STOCK': return 'Sin stock';
+                                                        case 'OCULTO': return 'Oculto';
+                                                        case 'DESCONTINUADO': return 'Descontinuado';
+                                                        default: return 'Desconocido';
+                                                    }
+                                                })()}
                                             </span>
                                         </div>
 

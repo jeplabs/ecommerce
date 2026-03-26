@@ -312,11 +312,14 @@ export const ProductProvider = ({ children }) => {
 
     const deleteProduct = async (id) => {
         try {
+            console.debug('ProductContext deleteProduct iniciado con id:', id);
             const headers = getAuthHeaders(false);
             const response = await fetch(`${API_URL}/api/productos/${id}`, {
                 method: 'DELETE',
                 headers,
             });
+
+            console.debug('ProductContext deleteProduct response status:', response.status);
 
             if (response.status === 401) {
                 console.warn("Token inválido - Redirigiendo al login");
@@ -328,14 +331,15 @@ export const ProductProvider = ({ children }) => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Error al eliminar producto:', errorText);
+                console.error('ProductContext Error al eliminar producto:', errorText);
                 return { success: false, message: errorText || 'Error al eliminar producto' };
             }
 
+            console.debug('ProductContext deleteProduct exitoso, filtrando producto id:', id);
             setProductos(prev => prev.filter(p => p.id !== id));
             return { success: true };
         } catch (error) {
-            console.error('Error al eliminar producto:', error);
+            console.error('ProductContext Error al eliminar producto:', error);
             return { success: false, message: 'Error de conexión' };
         }
     };
@@ -438,6 +442,59 @@ export const ProductProvider = ({ children }) => {
     //     }
     // };
 
+
+    // Cambiar estado de producto (PATCH /api/productos/{id}/estado)
+    const updateProductStatus = async (id, estado) => {
+        try {
+            const headers = getAuthHeaders(true);
+            let estadoBackend = estado
+                .replace(/[-\s]/g, '_')
+                .toUpperCase();
+            const validos = ['DISPONIBLE', 'SIN_STOCK', 'OCULTO', 'DESCONTINUADO'];
+            if (!validos.includes(estadoBackend)) {
+                console.error('[updateProductStatus] Estado no válido para backend:', estado, '->', estadoBackend);
+                return { success: false, message: 'Estado no válido' };
+            }
+            const url = `${API_URL}/api/productos/${id}/estado`;
+            const payload = { estado: estadoBackend };
+            console.log('[updateProductStatus] PATCH', url, payload);
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify(payload)
+            });
+            console.log('[updateProductStatus] response status:', response.status);
+            let responseBody = null;
+            try {
+                responseBody = await response.clone().json();
+            } catch {
+                responseBody = await response.text();
+            }
+            console.log('[updateProductStatus] response body:', responseBody);
+            if (response.status === 401) {
+                console.warn("Token inválido - Redirigiendo al login");
+                localStorage.removeItem('token');
+                localStorage.removeItem('rol');
+                window.location.href = '/login';
+                return { success: false, message: 'Sesión expirada' };
+            }
+            if (!response.ok) {
+                console.error('[updateProductStatus] Error al actualizar estado:', responseBody);
+                return { success: false, message: responseBody || 'Error al actualizar estado' };
+            }
+            await reloadProducts();
+            const refreshedProduct = await getProductById(id);
+            if (refreshedProduct) {
+                setProductos(prev => prev.map(p => p.id === Number(id) ? refreshedProduct : p));
+                return { success: true, product: refreshedProduct };
+            }
+            return { success: true };
+        } catch (error) {
+            console.error('[updateProductStatus] Error al actualizar estado:', error);
+            return { success: false, message: 'Error de conexión' };
+        }
+    };
+
     return (
         <ProductContext.Provider 
             value={{ 
@@ -448,6 +505,7 @@ export const ProductProvider = ({ children }) => {
                 createCategory,
                 getProductById,
                 updateProduct, 
+                updateProductStatus,
                 deleteProduct,
                 addProductImages,
                 reloadProducts
