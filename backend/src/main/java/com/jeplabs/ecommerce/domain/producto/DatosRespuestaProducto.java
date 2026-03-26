@@ -17,7 +17,7 @@ public record DatosRespuestaProducto(
         String descripcion,
         Map<String, Object> specs,
         Integer stock,
-        boolean active,
+        EstadoProducto estado,
         BigDecimal precioVenta,
         String moneda,
         List<String> imagenesUrl,
@@ -25,6 +25,7 @@ public record DatosRespuestaProducto(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
+    // Constructor
     public DatosRespuestaProducto(Producto producto) {
         this(
                 producto.getId(),
@@ -34,11 +35,18 @@ public record DatosRespuestaProducto(
                 producto.getDescripcion(),
                 producto.getSpecs(),
                 producto.getStock(),
-                producto.isActive(),
+                producto.getEstado(),
                 precioActual(producto),
                 monedaActual(producto),
-                producto.getImagenes().stream().map(ProductoImagen::getUrl).toList(),
-                producto.getCategorias().stream().map(DatosRespuestaCategoria::new).toList(),
+                producto.getImagenes()
+                        .stream()
+                        .map(ProductoImagen::getUrl)
+                        .toList(),
+                // Mapeo de categorías
+                producto.getCategorias()
+                        .stream()
+                        .map(DatosRespuestaCategoria::new)
+                        .toList(),
                 producto.getCreatedAt(),
                 producto.getUpdatedAt()
         );

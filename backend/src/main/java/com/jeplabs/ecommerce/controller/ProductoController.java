@@ -1,5 +1,6 @@
 package com.jeplabs.ecommerce.controller;
 
+import com.jeplabs.ecommerce.domain.categoria.DatosRespuestaCategoria;
 import com.jeplabs.ecommerce.domain.producto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -148,21 +149,31 @@ public class ProductoController {
         return ResponseEntity.ok(service.actualizarPrecio(id, datos));
     }
 
+    // Admin cambia estado manualmente (OCULTO, DISPONIBLE, etc.)
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProductoAdmin> cambiarEstado(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarEstado datos) {
+        return ResponseEntity.ok(service.cambiarEstado(id, datos));
+    }
+
     @Operation(
-            summary = "Desactivar producto",
-            description = "Solo ADMIN. Realiza un soft delete: el producto deja de ser visible " +
-                    "públicamente pero no se elimina de la base de datos."
+            summary = "Descontinuar producto, borrado permanente, no se puede revertir",
+            description = "Solo ADMIN. Realiza borrado permanente: el producto se descontinua " +
+                    "no se elimina de la base de datos."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Producto desactivado exitosamente"),
+            @ApiResponse(responseCode = "204", description = "Producto borrado y descontinuado exitosamente"),
             @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
             @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
+    // Borrado logico permanente, DESCONTINUADO, no se puede revertir
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> desactivar(@PathVariable Long id) {
-        service.desactivar(id);
+    public ResponseEntity<Void> descontinuar (@PathVariable Long id) {
+        service.descontinuar(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -202,5 +213,48 @@ public class ProductoController {
             @PathVariable Long imagenId) {
         service.eliminarImagen(id, imagenId);
         return ResponseEntity.noContent().build();
+    }
+
+    // Listar categorías de un producto
+    // GET /api/productos/{id}/categorias
+    @GetMapping("/{id}/categorias")
+    public ResponseEntity<List<DatosRespuestaCategoria>> listarCategorias(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarCategorias(id));
+    }
+
+    // Agregar categorías a un producto
+    // POST /api/productos/{id}/categorias
+    // Header: Authorization: Bearer <token_admin>
+    // Body: { "categoriaIds": [3, 4] }
+    @PostMapping("/{id}/categorias")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProducto> agregarCategorias(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarCategorias datos) {
+        return ResponseEntity.ok(service.agregarCategorias(id, datos));
+    }
+
+    // Quitar categorías específicas de un producto
+    // DELETE /api/productos/{id}/categorias
+    // Header: Authorization: Bearer <token_admin>
+    // Body: { "categoriaIds": [2] }
+    @DeleteMapping("/{id}/categorias")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProducto> quitarCategorias(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarCategorias datos) {
+        return ResponseEntity.ok(service.quitarCategorias(id, datos));
+    }
+
+    // Reemplazar todas las categorías de un producto
+    // PUT /api/productos/{id}/categorias
+    // Header: Authorization: Bearer <token_admin>
+    // Body: { "categoriaIds": [1, 5] }
+    @PutMapping("/{id}/categorias")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaProducto> reemplazarCategorias(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarCategorias datos) {
+        return ResponseEntity.ok(service.reemplazarCategorias(id, datos));
     }
 }

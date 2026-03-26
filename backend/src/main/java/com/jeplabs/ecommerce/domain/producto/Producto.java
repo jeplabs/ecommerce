@@ -42,7 +42,9 @@ public class Producto {
     private Map<String, Object> specs;
 
     private Integer stock;
-    private boolean active;
+
+    @Enumerated(EnumType.STRING)
+    private EstadoProducto estado;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -73,7 +75,7 @@ public class Producto {
         this.descripcion = datos.descripcion();
         this.specs = datos.specs();
         this.stock = datos.stock();
-        this.active = true;
+        this.estado = datos.stock() > 0 ? EstadoProducto.DISPONIBLE : EstadoProducto.SIN_STOCK; // ← automático
         this.categorias = categorias;
     }
 
@@ -84,11 +86,30 @@ public class Producto {
         }
         if (datos.descripcion() != null) this.descripcion = datos.descripcion();
         if (datos.specs() != null) this.specs = datos.specs();
-        if (datos.stock() != null) this.stock = datos.stock();
+        if (datos.stock() != null) {
+            this.stock = datos.stock();
+            actualizarEstadoPorStock(); // ← automático al actualizar stock
+        }
     }
 
-    public void desactivar() {
-        this.active = false;
+    // Cambia entre DISPONIBLE y SIN_STOCK automáticamente según el stock
+    // Solo actúa si el estado actual es uno de los dos, respeta OCULTO y DESCONTINUADO
+    private void actualizarEstadoPorStock() {
+        if (this.estado == EstadoProducto.DISPONIBLE || this.estado == EstadoProducto.SIN_STOCK) {
+            this.estado = this.stock > 0 ? EstadoProducto.DISPONIBLE : EstadoProducto.SIN_STOCK;
+        }
+    }
+
+    public void cambiarEstado(EstadoProducto nuevoEstado) {
+        if (this.estado == EstadoProducto.DESCONTINUADO && nuevoEstado != EstadoProducto.DESCONTINUADO) {
+            throw new IllegalArgumentException(
+                    "Un producto descontinuado no puede cambiar de estado");
+        }
+        this.estado = nuevoEstado;
+    }
+
+    public void descontinuar() {
+        this.estado = EstadoProducto.DESCONTINUADO;
     }
 
     public static String generarSlug(String nombre) {

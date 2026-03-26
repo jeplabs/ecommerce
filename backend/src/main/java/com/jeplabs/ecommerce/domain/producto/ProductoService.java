@@ -37,7 +37,7 @@ public class ProductoService {
     public DatosRespuestaProducto buscarPorSku(String sku) {
         Producto producto = productoRepositorio.findBySku(sku)
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con SKU: " + sku));
-        if (!producto.isActive()) {
+        if (!producto.getEstado().esVisibleParaCliente()) {
             throw new IllegalArgumentException("Producto no encontrado con SKU: " + sku);
         }
         return new DatosRespuestaProducto(producto);
@@ -47,7 +47,7 @@ public class ProductoService {
     public DatosRespuestaProducto buscarPorSlug(String slug) {
         Producto producto = productoRepositorio.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con slug: " + slug));
-        if (!producto.isActive()) {
+        if (!producto.getEstado().esVisibleParaCliente()) {
             throw new IllegalArgumentException("Producto no encontrado con slug: " + slug);
         }
         return new DatosRespuestaProducto(producto);
@@ -118,17 +118,25 @@ public class ProductoService {
         return new DatosRespuestaProductoAdmin(productoRepositorio.findById(id).orElseThrow());
     }
 
-    // Borrado lógico
+    // Cambiar el estado de un producto
     @Transactional
-    public void desactivar(Long id) {
+    public DatosRespuestaProductoAdmin cambiarEstado(Long id, DatosActualizarEstado datos) {
         Producto producto = buscarProducto(id);
-        producto.desactivar();
+        producto.cambiarEstado(datos.estado());
+        return new DatosRespuestaProductoAdmin(producto);
     }
 
-    // Para endpoints públicos - solo productos activos
+    // Borrado lógico, es decir DESCONTINUADO
+    @Transactional
+    public void descontinuar(Long id) {
+        Producto producto = buscarProducto(id);
+        producto.descontinuar();
+    }
+
+    // Para endpoints públicos - solo productos por estado DISPONIBLE y SIN_STOCK
     private Producto buscarProductoActivo(Long id) {
         Producto producto = buscarProducto(id);
-        if (!producto.isActive()) {
+        if (!producto.getEstado().esVisibleParaCliente()) {
             throw new IllegalArgumentException("Producto no encontrado con ID: " + id);
         }
         return producto;
@@ -139,15 +147,6 @@ public class ProductoService {
         return productoRepositorio.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + id));
     }
-
-//    // Público - listar categorías
-//    public List<DatosRespuestaCategoria> listarCategorias(Long productoId) {
-//        Producto producto = buscarProductoActivo(productoId); // ← cambio
-//        return producto.getCategorias()
-//                .stream()
-//                .map(DatosRespuestaCategoria::new)
-//                .toList();
-//    }
 
     // Admin - listar categorías
     private List<Categoria> obtenerCategorias(List<Long> ids) {
@@ -216,5 +215,62 @@ public class ProductoService {
         }
 
         imagenRepositorio.delete(imagen);
+    }
+
+    // Listar categorías de un producto
+    public List<DatosRespuestaCategoria> listarCategorias(Long productoId) {
+        Producto producto = buscarProductoActivo(productoId);
+        return producto.getCategorias()
+                .stream()
+                .map(DatosRespuestaCategoria::new)
+                .toList();
+    }
+
+    // Agregar categorías a un producto existente
+    @Transactional
+    public DatosRespuestaProducto agregarCategorias(Long productoId, DatosActualizarCategorias datos) {
+        Producto producto = buscarProducto(productoId);
+
+        List<Categoria> nuevasCategorias = obtenerCategorias(datos.categoriaIds());
+
+        // Agrega solo las que no tiene ya asignadas
+        nuevasCategorias.stream()
+                .filter(c -> !producto.getCategorias().contains(c))
+                .forEach(producto.getCategorias()::add);
+
+        return new DatosRespuestaProducto(producto);
+    }
+
+    // Quitar categorías de un producto
+    @Transactional
+    public DatosRespuestaProducto quitarCategorias(Long productoId, DatosActualizarCategorias datos) {
+        Producto producto = buscarProducto(productoId);
+
+        List<Categoria> categoriasAQuitar = obtenerCategorias(datos.categoriaIds());
+
+        // Verifica que no quede sin ninguna categoría
+        long categoriasRestantes = producto.getCategorias().stream()
+                .filter(c -> !categoriasAQuitar.contains(c))
+                .count();
+
+        if (categoriasRestantes == 0) {
+            throw new IllegalArgumentException(
+                    "El producto debe pertenecer al menos a una categoría");
+        }
+
+        producto.getCategorias().removeAll(categoriasAQuitar);
+        return new DatosRespuestaProducto(producto);
+    }
+
+    // Reemplazar todas las categorías de un producto
+    @Transactional
+    public DatosRespuestaProducto reemplazarCategorias(Long productoId, DatosActualizarCategorias datos) {
+        Producto producto = buscarProducto(productoId);
+
+        List<Categoria> nuevasCategorias = obtenerCategorias(datos.categoriaIds());
+        producto.getCategorias().clear();
+        producto.getCategorias().addAll(nuevasCategorias);
+
+        return new DatosRespuestaProducto(producto);
     }
 }
