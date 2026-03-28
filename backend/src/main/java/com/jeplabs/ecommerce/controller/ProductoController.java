@@ -246,6 +246,18 @@ public class ProductoController {
         return ResponseEntity.ok(service.quitarCategorias(id, datos));
     }
 
+    // admin - endpoint para listar todos los productos sin importar estado
+    // GET /api/productos/admin
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<DatosRespuestaProductoAdmin>> listarAdmin(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) EstadoProducto estado,
+            @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
+        return ResponseEntity.ok(service.listarAdmin(nombre, categoriaId, estado, pageable));
+    }
+
     // Reemplazar todas las categorías de un producto
     // PUT /api/productos/{id}/categorias
     // Header: Authorization: Bearer <token_admin>

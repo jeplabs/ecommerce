@@ -148,6 +148,14 @@ public class ProductoService {
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + id));
     }
 
+    //Para admin - devuelve lista de todos los productos con sus estados
+    public Page<DatosRespuestaProductoAdmin> listarAdmin(
+            String nombre, Long categoriaId, EstadoProducto estado, Pageable pageable) {
+        String estadoStr = estado != null ? estado.name() : null;
+        return productoRepositorio.buscarTodosAdmin(nombre, categoriaId, estadoStr, pageable)
+                .map(DatosRespuestaProductoAdmin::new);
+    }
+
     // Admin - listar categorías
     private List<Categoria> obtenerCategorias(List<Long> ids) {
         List<Categoria> categorias = categoriaRepositorio.findAllById(ids);
