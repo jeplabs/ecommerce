@@ -10,7 +10,7 @@ import { ProductForm } from "../../components/admin/ProductForm";
 export default function ProductEdit() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { getProductById, updateProduct, updateProductStatus, addProductImages, loading, categorias } = useProduct();
+    const { getProductById, updateProduct, updateProductStatus, addProductImages, loading, categorias, subcategorias } = useProduct();
     const { showSuccess, showError } = useToast();
     const [productData, setProductData] = useState(null);
     const [error, setError] = useState(null);
@@ -18,10 +18,21 @@ export default function ProductEdit() {
     useEffect(() => {
         const loadProduct = async () => {
             try {
-                console.log('ProductEdit loadProduct iniciado con id:', id);
                 const product = await getProductById(id);
-                console.log('ProductEdit getProductById retornó:', product);
-                
+                //console.log(product.categorias[0].id)
+                //console.log(product.categorias[0].parentId)
+
+                let categoriaProductoEdit = '';
+                let subcategoriaProductoEdit = '';
+                if (product.categorias[0].parentId == null) {
+                    categoriaProductoEdit = product.categorias[0];
+                } else {
+                    subcategoriaProductoEdit = product.categorias[0];
+                }
+
+                console.log('categoriaProductoEdit', categoriaProductoEdit)
+                console.log('subcategoriaProductoEdit', subcategoriaProductoEdit)
+
                 if (product) {
                     // Transformar los datos del backend para que sean compatibles con el formulario
                     const transformedProduct = {
@@ -31,10 +42,13 @@ export default function ProductEdit() {
                         estado: product.estado || 'disponible',
                         // La forma esperada por ProductForm es array de URLs (strings) o items con type/url.
                         images: product.imagenesUrl || [],
-                        categoria: product.categorias?.[0]?.id?.toString() || '',
+                        //categoria: product.categorias?.[0]?.id?.toString() || '',
+                        categoria: categoriaProductoEdit,
+                        //subcategoria: product.categorias?.[0]?.subcategorias?.[0]?.id?.toString() || '',
+                        subcategoria: subcategoriaProductoEdit,
                         moneda: product.moneda || 'USD'
                     };
-                    console.log('ProductEdit transformedProduct:', transformedProduct);
+                    //console.log('ProductEdit transformedProduct:', transformedProduct);
                     setProductData(transformedProduct);
                 } else {
                     console.log('ProductEdit getProductById retornó null');
@@ -140,6 +154,7 @@ export default function ProductEdit() {
                     isSubmitting={loading}
                     onCancel={handleCancel}
                     categorias={categorias}
+                    subcategorias={subcategorias}
                 />
             </main>
         </>

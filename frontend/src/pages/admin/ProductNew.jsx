@@ -7,7 +7,7 @@ import { ProductForm } from "../../components/admin/ProductForm";
 
 export default function ProductNew() {
     const navigate = useNavigate();
-    const { createProduct, loading, categorias } = useProduct();
+    const { createProduct, loading, categorias, subcategorias } = useProduct();
     const { showSuccess, showError } = useToast();
     const [error, setError] = useState(null);
 
@@ -32,6 +32,7 @@ export default function ProductNew() {
                 onSubmit={handleCreate} 
                 isSubmitting={loading}
                 categorias={categorias}
+                subcategorias={subcategorias}
             />
         </>
     );

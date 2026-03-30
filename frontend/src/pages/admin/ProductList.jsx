@@ -6,7 +6,7 @@ import { CategoryForm } from "../../components/admin/CategoryForm";
 
 export default function ProductList() {
     const navigate = useNavigate();
-    const { productos, categorias, loading, reloadProducts, updateProduct, deleteProduct, createCategory } = useProduct();
+    const { productos, categorias, subcategorias, loading, reloadProducts, updateProduct, deleteProduct, createCategory } = useProduct();
     const { showSuccess, showError } = useToast();
 
     const handleDelete = async (id, nombre) => {
@@ -57,6 +57,7 @@ export default function ProductList() {
                 <section className="category-section">
                     <CategoryForm
                         categorias={categorias || []}
+                        subcategorias={subcategorias || []}
                         onCreate={async (datos) => {
                             try {
                                 await createCategory(datos);
@@ -70,7 +71,7 @@ export default function ProductList() {
                     />
 
                     <div className="category-list">
-                        <h2>Categorías existentes</h2>
+                        <h2>Categorías</h2>
                         {categorias?.length > 0 ? (
                             <ul>
                                 {categorias.map((cat) => (
@@ -81,6 +82,19 @@ export default function ProductList() {
                             </ul>
                         ) : (
                             <p>No hay categorías cargadas.</p>
+                        )}
+                        <br />
+                        <h2>Subcategorías</h2>
+                        {subcategorias?.length > 0 ? (
+                            <ul>
+                                {subcategorias.map((cat) => (
+                                    <li key={cat.id}>
+                                        {cat.nombre} {cat.parentId ? `(hijo de ${cat.nombre})` : '(raíz)'}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>No hay subcategorías cargadas.</p>
                         )}
                     </div>
                 </section>

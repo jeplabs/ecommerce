@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
 
-export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false, onCancel, categorias = [] }) => {
+export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false, onCancel, categorias = [], subcategorias = [] }) => {
     //Datos iniciales del formulario (si es edición)
     const isEditing = !!initialData; 
 
@@ -17,10 +17,12 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
         stock: '',
         estado: 'disponible',
         categoria: '',
+        subcategoria: '',
         moneda: 'USD',
         images: [] 
     });
 
+    //console.log(subcategorias)
     // Estado para manejar el input de URL 
     const [urlInput, setUrlInput] = useState('');
 
@@ -35,6 +37,19 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
     // Cargar datos si es edición
     useEffect(() => {
         if (initialData) {
+            //console.log(initialData.categorias.subcategorias)
+            
+            let categoria = '';
+            let subcategoria = '';
+            for (const cat in initialData.categorias) {
+                if (initialData.categorias[cat].parentId == null) {
+                    categoria = cat;
+                } else {
+                    subcategoria = cat;
+                }
+            }
+            //console.log('categoria', categoria)
+            //console.log('subcategoria', subcategoria)
             setFormData({
                 nombre: initialData.nombre || '',
                 sku: initialData.sku || '',
@@ -43,6 +58,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                 stock: initialData.stock || '',
                 estado: initialData.estado || 'disponible',
                 categoria: initialData.categoria?.id?.toString() || initialData.categoria?.toString() || '',
+                subcategoria: initialData.subcategoria?.id?.toString() || initialData.subcategoria?.toString() || '',
                 moneda: initialData.moneda || 'USD',
                 images: [] 
             });
@@ -233,6 +249,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
         const estado = (formData.estado ?? '').toString();
         const moneda = (formData.moneda ?? '').toString();
         const categoria = (formData.categoria ?? '').toString();
+        const subcategoria = (formData.subcategoria ?? '').toString();
 
         if (!nombre.trim()) {
             newErrors.nombre = "El nombre es obligatorio";
@@ -268,6 +285,10 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
 
         if (!categoria.trim()) {
             newErrors.categoria = "La categoria es obligatoria";
+        }
+
+        if (!subcategoria.trim()) {
+            newErrors.subcategoria = "La subcategoría es obligatoria";
         }
 
         // En edición, no requerimos imágenes (ya existen en el servidor)
@@ -326,7 +347,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
             estado: formData.estado // <-- ¡Siempre incluir el estado!
         };
 
-        console.debug('ProductForm submit finalData', finalData);
+        //console.debug('ProductForm submit finalData', finalData);
         onSubmit(finalData);
     };
 
@@ -430,9 +451,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                         />
                         {errors.stock && <span className="error">{errors.stock}</span>}
                     </div>
-                </div>
-
-                <div className="form-row">
+                <div className="">
                     {/* Estado */}
                     <div className="form-field">
                         <label htmlFor="estado">Estado</label>
@@ -449,6 +468,8 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                             <option value="descontinuado">Descontinuado</option>
                         </select>
                     </div>
+                </div>
+
 
                     {/* Categoria */}
                     <div className="form-field">
@@ -465,6 +486,28 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                                 <option key={categoria.id} value={categoria.id}>
                                     {categoria.nombre}
                                 </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Subcategoria */}
+                    <div className="form-field">
+                        <label htmlFor="subcategoria">Subcategoria</label>
+                        <select
+                            id="subcategoria"
+                            name="subcategoria"
+                            value={formData.subcategoria}
+                            onChange={handleChange}
+                            required
+                            disabled={!formData.categoria} 
+                        >
+                            <option value="">Selecciona una subcategoría</option>
+                            {subcategorias
+                                .filter((sub) => sub.parentId === formData.categoria)
+                                .map((subcategoria) => (
+                                    <option key={subcategoria.id} value={subcategoria.id}>
+                                        {subcategoria.nombre}
+                                    </option>
                             ))}
                         </select>
                     </div>

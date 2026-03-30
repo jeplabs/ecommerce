@@ -36,6 +36,7 @@ const flattenCategories = (categories) => {
 export const ProductProvider = ({ children }) => {
     const [productos, setProductos] = useState([]);
     const [categorias, setCategorias] = useState([]);
+    const [subcategorias, setSubcategorias] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const getAuthHeaders = (isJson = true) => {
@@ -90,6 +91,24 @@ export const ProductProvider = ({ children }) => {
                     console.error('Error al cargar categorías:', catError);
                 }
 
+                let categoriasRaiz = [];
+                for (const cat of categoriasData) {
+                    if (cat.parentId === null) {
+                        categoriasRaiz.push(cat);
+                    }
+                }
+                //setCategorias(categoriasRaiz);
+
+                let subcategoriasData = [];
+                for (const cat of categoriasData) {
+                    if (cat.parentId !== null) {
+                        //console.log('Subcategoría encontrada:', cat.nombre, 'ParentId:', cat.parentId);
+                        subcategoriasData.push(cat);
+                    }
+                    //console.log('Subcategorias encontradas:', subcategoriasData);
+                }
+                //setSubcategorias(subcategoriasData);
+
                 // Intentar cargar productos (requiere auth)
                 let productosData = [];
                 if (token) {
@@ -124,12 +143,14 @@ export const ProductProvider = ({ children }) => {
                 }
 
                 setProductos(productosData);
-                setCategorias(categoriasData);
+                setCategorias(categoriasRaiz);
+                setSubcategorias(subcategoriasData);
 
             } catch (error) {
                 console.error('Error general al cargar datos:', error);
                 setProductos([]);
                 setCategorias([]);
+                setSubcategorias([]);
             } finally {
                 setLoading(false);
             }
@@ -500,6 +521,7 @@ export const ProductProvider = ({ children }) => {
             value={{ 
                 productos, 
                 categorias, 
+                subcategorias,
                 loading,
                 createProduct, 
                 createCategory,
