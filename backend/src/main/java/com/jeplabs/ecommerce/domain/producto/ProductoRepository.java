@@ -39,4 +39,28 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
             @Param("categoriaId") Long categoriaId,
             Pageable pageable
     );
+
+    // Endpoint admin - para lista productos con todos los estados con filtro opcional
+    @Query(value = """
+            SELECT DISTINCT p.* FROM productos p
+            LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
+            WHERE (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
+            AND (:categoriaId IS NULL OR pc.categoria_id = :categoriaId)
+            AND (:estado IS NULL OR p.estado = :estado)
+            ORDER BY p.nombre
+            """,
+            countQuery = """
+            SELECT COUNT(DISTINCT p.id) FROM productos p
+            LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
+            WHERE (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
+            AND (:categoriaId IS NULL OR pc.categoria_id = :categoriaId)
+            AND (:estado IS NULL OR p.estado = :estado)
+            """,
+            nativeQuery = true)
+    Page<Producto> buscarTodosAdmin(
+            @Param("nombre") String nombre,
+            @Param("categoriaId") Long categoriaId,
+            @Param("estado") String estado,
+            Pageable pageable
+    );
 }
