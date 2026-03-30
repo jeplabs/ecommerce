@@ -132,10 +132,15 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
     // Manejador para campos simples
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+
+        setFormData(prev => {
+            const newData = { ...prev, [name]: value };
+            if (name === 'categoria') {
+                newData.subcategoria = "";
+            }
+            return newData;
+        
+        });
     
         // Limpiar error del campo cuando el usuario empieza a escribir
         if (errors[name]) {
@@ -353,7 +358,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
 
     return (
         <section className="product-form">
-            <h2>{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</h2>
+            {/* <h2>{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</h2> */}
             {/* <br /> */}
             <form onSubmit={handleSubmit} noValidate>
 
@@ -503,7 +508,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                         >
                             <option value="">Selecciona una subcategoría</option>
                             {subcategorias
-                                .filter((sub) => sub.parentId === formData.categoria)
+                                .filter((sub) => sub.parentId == formData.categoria)
                                 .map((subcategoria) => (
                                     <option key={subcategoria.id} value={subcategoria.id}>
                                         {subcategoria.nombre}
@@ -582,7 +587,9 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                 </p>
 
                 {/* Opción B: Usar URLs */}
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div 
+                    style={{ display: 'flex', gap: '10px' }}
+                >
                     <input
                         type="url"
                         placeholder="https://ejemplo.com/imagen.jpg"
@@ -591,7 +598,12 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                         style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUrl())}
                     />
-                    <button type="button" onClick={handleAddUrl} style={{ padding: '8px 15px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    <button 
+                        type="button" 
+                        onClick={handleAddUrl} 
+                        className="btn-submit"
+                        style={{ width: '140px' }}
+                    >
                         Agregar URL
                     </button>
                 </div>
@@ -757,8 +769,15 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                     <button type="submit" className="btn-submit" disabled={isSubmitting}>
                         {isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar Producto' : 'Agregar Producto')}
                     </button>
+                    <br />
+                    <br />
                     {onCancel && (
-                        <button type="button" onClick={onCancel} style={{ marginLeft: '10px' }} disabled={isSubmitting}>
+                        <button 
+                            type="button" 
+                            onClick={onCancel} 
+                            disabled={isSubmitting}
+                            className="btn-submit"
+                        >
                             Cancelar
                         </button>
                     )}
