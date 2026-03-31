@@ -6,17 +6,19 @@ import { CategoryForm } from "../../components/admin/CategoryForm";
 
 export default function ProductList() {
     const navigate = useNavigate();
-    const { productos, categorias, subcategorias, loading, reloadProducts, updateProduct, deleteProduct, createCategory } = useProduct();
+    const { productos, productosAdmin, categorias, subcategorias, loading, reloadProducts, updateProduct, deleteProduct, createCategory } = useProduct();
     const { showSuccess, showError } = useToast();
 
+    console.log(productosAdmin)
+    console.log(productos)
     const handleDelete = async (id, nombre) => {
         const confirmed = window.confirm(`¿Estás seguro de que quieres desactivar el producto ${nombre}?`);
         if (!confirmed) return;
 
         try {
-            console.debug('ProductList handleDelete iniciado con id:', id, 'nombre:', nombre);
+            //console.debug('ProductList handleDelete iniciado con id:', id, 'nombre:', nombre);
             const result = await deleteProduct(id);
-            console.debug('ProductList deleteProduct result:', result);
+            //console.debug('ProductList deleteProduct result:', result);
             
             if (result.success) {
                 showSuccess('Producto desactivado exitosamente');
@@ -101,9 +103,9 @@ export default function ProductList() {
 
                     <h2>Productos</h2>
                 <section className="admin-product-list">
-                    {productos?.length > 0 ? (
+                    {productosAdmin?.length > 0 ? (
                         <div className="admin-product-grid">
-                            {productos.map((producto) => {
+                            {productosAdmin.map((producto) => {
                                 //.log('Producto:', producto.nombre, 'Imágenes:', producto.imagenesUrl);
                                 return (
                                 <article key={producto.id} className="product-card">

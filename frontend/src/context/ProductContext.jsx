@@ -35,6 +35,7 @@ const flattenCategories = (categories) => {
 
 export const ProductProvider = ({ children }) => {
     const [productos, setProductos] = useState([]);
+    const [productosAdmin, setProductosAdmin] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [subcategorias, setSubcategorias] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -142,7 +143,41 @@ export const ProductProvider = ({ children }) => {
                     }
                 }
 
+                // Intentar cargar productos (requiere auth)
+                let productosAdminData = [];
+                if (token) {
+                    try {
+                        const headers = getAuthHeaders(false);
+                        const resProductos = await fetch(`${API_URL}/api/productos/admin`, { headers });
+
+                        if (resProductos.status === 401) {
+                            console.warn("Token inválido - Redirigiendo al login");
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('rol');
+                            window.location.href = '/login';
+                            return;
+                        }
+
+                        if (resProductos.ok) {
+                            const rawProductos = await resProductos.json();
+                            
+                            // El backend devuelve un Page de Spring Data, extraer el content
+                            if (rawProductos.content && Array.isArray(rawProductos.content)) {
+                                productosAdminData = rawProductos.content;
+                            } else if (Array.isArray(rawProductos)) {
+                                productosAdminData = rawProductos;
+                            } else {
+                                console.warn('Formato de productos desconocido:', rawProductos);
+                                productosAdminData = [];
+                            }
+                        }
+                    } catch (prodError) {
+                        console.error('Error al cargar productos:', prodError);
+                    }
+                }
+
                 setProductos(productosData);
+                setProductosAdmin(productosAdminData);
                 setCategorias(categoriasRaiz);
                 setSubcategorias(subcategoriasData);
 
@@ -520,6 +555,7 @@ export const ProductProvider = ({ children }) => {
         <ProductContext.Provider 
             value={{ 
                 productos, 
+                productosAdmin,
                 categorias, 
                 subcategorias,
                 loading,
