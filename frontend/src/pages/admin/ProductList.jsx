@@ -1,24 +1,29 @@
 import Navbar from "../../components/Navbar"
 import { useNavigate } from 'react-router-dom';
 import { useProduct } from "../../context/ProductContext";
+import { useCategorias } from "../../context/CategoriasContext";
 import { useToast } from "../../context/ToastContext";
 import { CategoryForm } from "../../components/admin/CategoryForm";
 
 export default function ProductList() {
     const navigate = useNavigate();
-    const { productos, productosAdmin, categorias, subcategorias, loading, reloadProducts, updateProduct, deleteProduct, createCategory } = useProduct();
     const { showSuccess, showError } = useToast();
+    // const { arbolCategorias, createCategory } = useCategorias();
+    const { 
+        productos, 
+        productosOcultos, 
+        productosDescontinuados, 
+        loading, 
+        reloadProducts, 
+        deleteProduct, 
+    } = useProduct();
 
-    console.log(productosAdmin)
-    console.log(productos)
     const handleDelete = async (id, nombre) => {
         const confirmed = window.confirm(`¿Estás seguro de que quieres desactivar el producto ${nombre}?`);
         if (!confirmed) return;
 
         try {
-            //console.debug('ProductList handleDelete iniciado con id:', id, 'nombre:', nombre);
             const result = await deleteProduct(id);
-            //console.debug('ProductList deleteProduct result:', result);
             
             if (result.success) {
                 showSuccess('Producto desactivado exitosamente');
@@ -40,12 +45,18 @@ export default function ProductList() {
                 
                 {loading && <div className="loading-indicator">Cargando datos...</div>}
 
-                <div className="admin-actions">
+                <div className="admin-product-actions">
                     <button 
                         onClick={() => navigate('/admin/products/new')}
                         className='btn-submit'
                     >
                         Agregar Producto
+                    </button>
+                    <button 
+                        onClick={() => navigate('/admin')}
+                        className='btn-submit'
+                    >
+                        Volver atrás
                     </button>
 
                     {/* <button 
@@ -56,10 +67,9 @@ export default function ProductList() {
                     </button> */}
                 </div>
 
-                <section className="category-section">
+                {/* <section className="category-section">
                     <CategoryForm
-                        categorias={categorias || []}
-                        subcategorias={subcategorias || []}
+                        categorias={arbolCategorias || []}
                         onCreate={async (datos) => {
                             try {
                                 await createCategory(datos);
@@ -74,9 +84,9 @@ export default function ProductList() {
 
                     <div className="category-list">
                         <h2>Categorías</h2>
-                        {categorias?.length > 0 ? (
+                        {arbolCategorias?.length > 0 ? (
                             <ul>
-                                {categorias.map((cat) => (
+                                {arbolCategorias.map((cat) => (
                                     <li key={cat.id}>
                                         {cat.nombre} {cat.parentId ? `(hijo de ${cat.parentId})` : '(raíz)'}
                                     </li>
@@ -87,25 +97,27 @@ export default function ProductList() {
                         )}
                         <br />
                         <h2>Subcategorías</h2>
-                        {subcategorias?.length > 0 ? (
+                        {arbolCategorias?.length > 0 ? (
                             <ul>
-                                {subcategorias.map((cat) => (
-                                    <li key={cat.id}>
-                                        {cat.nombre} {cat.parentId ? `(hijo de ${cat.nombre})` : '(raíz)'}
-                                    </li>
-                                ))}
+                                {arbolCategorias.flatMap((cat) => 
+                                    cat.subcategorias?.map((subcat) => (
+                                        <li key={subcat.id}>
+                                            {subcat.nombre} {subcat.parentId ? `(hijo de ${subcat.parentId})` : '(raíz)'}
+                                        </li>
+                                    ))
+                                )}
                             </ul>
                         ) : (
                             <p>No hay subcategorías cargadas.</p>
                         )}
                     </div>
-                </section>
+                </section> */}
 
-                    <h2>Productos</h2>
+                <h2>Productos Disponibles</h2>
                 <section className="admin-product-list">
-                    {productosAdmin?.length > 0 ? (
+                    {productos?.length > 0 ? (
                         <div className="admin-product-grid">
-                            {productosAdmin.map((producto) => {
+                            {productos.map((producto) => {
                                 //.log('Producto:', producto.nombre, 'Imágenes:', producto.imagenesUrl);
                                 return (
                                 <article key={producto.id} className="product-card">
@@ -130,6 +142,62 @@ export default function ProductList() {
                                         </div>
                                     </div>
 
+                                    <div className="card-body">
+                                        <h3 className="card-name">{producto.nombre.length > 25 ? producto.nombre.slice(0, 25) + '...' : producto.nombre}</h3>
+                                        {/* <p className="card-desc">{producto.descripcion || 'Sin descripción'}</p> */}
+
+                                        <div className="product-info">
+                                            <span className="product-sku">SKU: {producto.sku}</span>
+                                            <span className="product-stock">Stock: {producto.stock || 0}</span>
+                                            <span 
+                                                className="product-status" 
+                                                data-status={producto.estado || 'desconocido'}
+                                            >
+                                                {(() => {
+                                                    switch ((producto.estado || '').toUpperCase()) {
+                                                        case 'DISPONIBLE': return 'Disponible';
+                                                        case 'SIN_STOCK': return 'Sin stock';
+                                                        case 'OCULTO': return 'Oculto';
+                                                        case 'DESCONTINUADO': return 'Descontinuado';
+                                                        default: return 'Desconocido';
+                                                    }
+                                                })()}
+                                            </span>
+                                        </div>
+
+                                        <div className="product-actions">
+                                            <button
+                                                onClick={() => navigate(`/admin/products/edit/${producto.id}`)}
+                                                className="btn-edit"
+                                                title="Editar producto"
+                                            >
+                                                ✏️ Editar
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(producto.id, producto.nombre)}
+                                                className="btn-delete"
+                                                title="Eliminar producto"
+                                            >
+                                                🗑️ Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <p>No hay productos disponibles.</p>
+                    )}
+                </section>
+                
+                <h2>Productos Ocultos</h2>
+                <section className="admin-product-list">
+                    {productosOcultos?.length > 0 ? (
+                        <div className="admin-product-grid">
+                            {productosOcultos.map((producto) => {
+                                return (
+                                <article key={producto.id} className="product-card">
                                     <div className="card-body">
                                         <h3 className="card-name">{producto.nombre}</h3>
                                         <p className="card-desc">{producto.descripcion || 'Sin descripción'}</p>
@@ -176,6 +244,43 @@ export default function ProductList() {
                         </div>
                     ) : (
                         <p>No hay productos disponibles.</p>
+                    )}
+                </section>
+
+                <h2>Productos Descontinuados</h2>
+                <section className="admin-product-list">
+                    {productosDescontinuados?.length > 0 ? (
+                        <div className="admin-product-grid">
+                            {productosDescontinuados.map((producto) => {
+                                return (
+                                <article key={producto.id} className="product-card">
+                                    <div className="card-body">
+                                        <h3 className="card-name">{producto.nombre}</h3>
+                                        <p className="card-desc">{producto.descripcion || 'Sin descripción'}</p>
+                                        <div className="product-info">
+                                            <span className="product-sku">SKU: {producto.sku}</span>
+                                            <span 
+                                                className="product-status" 
+                                                data-status={producto.estado || 'desconocido'}
+                                            >
+                                                {(() => {
+                                                    switch ((producto.estado || '').toUpperCase()) {
+                                                        case 'DISPONIBLE': return 'Disponible';
+                                                        case 'SIN_STOCK': return 'Sin stock';
+                                                        case 'OCULTO': return 'Oculto';
+                                                        case 'DESCONTINUADO': return 'Descontinuado';
+                                                        default: return 'Desconocido';
+                                                    }
+                                                })()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </article>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <p>No hay productos descontinuados.</p>
                     )}
                 </section>
 

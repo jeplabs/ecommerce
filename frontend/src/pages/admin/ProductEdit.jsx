@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useProduct } from '../../context/ProductContext';
+import { useCategorias } from '../../context/CategoriasContext';
 import { useToast } from '../../context/ToastContext';
 import Navbar from "../../components/Navbar"
 import { ProductForm } from "../../components/admin/ProductForm";
@@ -10,7 +11,14 @@ import { ProductForm } from "../../components/admin/ProductForm";
 export default function ProductEdit() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { getProductById, updateProduct, updateProductStatus, addProductImages, loading, categorias, subcategorias } = useProduct();
+    const { arbolCategorias } = useCategorias();
+    const { 
+        getProductById, 
+        updateProduct, 
+        updateProductStatus, 
+        addProductImages, 
+        loading
+    } = useProduct();
     const { showSuccess, showError } = useToast();
     const [productData, setProductData] = useState(null);
     const [error, setError] = useState(null);
@@ -19,33 +27,29 @@ export default function ProductEdit() {
         const loadProduct = async () => {
             try {
                 const product = await getProductById(id);
-                //console.log(product.categorias[0].id)
-                //console.log(product.categorias[0].parentId)
-
-                let categoriaProductoEdit = '';
-                let subcategoriaProductoEdit = '';
-                if (product.categorias[0].parentId == null) {
-                    categoriaProductoEdit = product.categorias[0];
-                } else {
-                    subcategoriaProductoEdit = product.categorias[0];
-                }
-
-                console.log('categoriaProductoEdit', categoriaProductoEdit)
-                console.log('subcategoriaProductoEdit', subcategoriaProductoEdit)
-
+                // console.log('ProductEdit product', product);
                 if (product) {
+
+                    let catId = '';
+                    let subcatId = '';
+                    let subSubcatId = '';
+
+                    if (product.categorias && product.categorias.length > 0) {
+                        catId = product.categorias[0].id?.toString() || '';
+                        subcatId = product.categorias[1].id?.toString() || '';
+                        subSubcatId = product.categorias[2].id?.toString() || '';
+                    }
+                    
                     // Transformar los datos del backend para que sean compatibles con el formulario
                     const transformedProduct = {
                         ...product,
                         price: String(product.precioVenta ?? ''), // Confirmar cadena para input
                         descripcion: product.descripcion || '',
                         estado: product.estado || 'disponible',
-                        // La forma esperada por ProductForm es array de URLs (strings) o items con type/url.
                         images: product.imagenesUrl || [],
-                        //categoria: product.categorias?.[0]?.id?.toString() || '',
-                        categoria: categoriaProductoEdit,
-                        //subcategoria: product.categorias?.[0]?.subcategorias?.[0]?.id?.toString() || '',
-                        subcategoria: subcategoriaProductoEdit,
+                        categoria: catId?.toString() || '',
+                        subcategoria: subcatId?.toString() || '',
+                        subsubcategoria: subSubcatId?.toString() || '', // Asumimos que no hay subsubcategoría en este ejemplo
                         moneda: product.moneda || 'USD'
                     };
                     //console.log('ProductEdit transformedProduct:', transformedProduct);
@@ -153,8 +157,7 @@ export default function ProductEdit() {
                     onSubmit={handleUpdate}
                     isSubmitting={loading}
                     onCancel={handleCancel}
-                    categorias={categorias}
-                    subcategorias={subcategorias}
+                    arbolCategorias={arbolCategorias}
                 />
             </main>
         </>

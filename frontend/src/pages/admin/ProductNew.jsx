@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProduct } from '../../context/ProductContext';
+import { useCategorias } from '../../context/CategoriasContext';
 import { useToast } from '../../context/ToastContext';
 import Navbar from "../../components/Navbar"
 import { ProductForm } from "../../components/admin/ProductForm";
 
 export default function ProductNew() {
     const navigate = useNavigate();
-    const { createProduct, loading, categorias, subcategorias, onCancel } = useProduct();
+    const { createProduct, loading } = useProduct();
+    const { arbolCategorias } = useCategorias();
     const { showSuccess, showError } = useToast();
     const [error, setError] = useState(null);
 
@@ -21,12 +23,10 @@ export default function ProductNew() {
             setError(error.message);
         }
     };
-
     
     const handleCancel = () => {
         navigate('/admin/products');
     };
-
 
     return (
         <>
@@ -36,8 +36,7 @@ export default function ProductNew() {
             <ProductForm 
                 onSubmit={handleCreate} 
                 isSubmitting={loading}
-                categorias={categorias}
-                subcategorias={subcategorias}
+                arbolCategorias={arbolCategorias}
                 onCancel={handleCancel}
             />
         </>

@@ -11,33 +11,35 @@ export const useProduct = () => {
     return context;
 };
 
-// Función para aplanar el árbol de categorías en una lista
-const flattenCategories = (categories) => {
-    const flattened = [];
+// // Función para aplanar el árbol de categorías en una lista
+// const flattenCategories = (categories) => {
+//     const flattened = [];
     
-    const flatten = (cats) => {
-        cats.forEach(cat => {
-            flattened.push({
-                id: cat.id,
-                nombre: cat.nombre,
-                slug: cat.slug,
-                parentId: cat.parentId
-            });
-            if (cat.subcategorias && cat.subcategorias.length > 0) {
-                flatten(cat.subcategorias);
-            }
-        });
-    };
+//     const flatten = (cats) => {
+//         cats.forEach(cat => {
+//             flattened.push({
+//                 id: cat.id,
+//                 nombre: cat.nombre,
+//                 slug: cat.slug,
+//                 parentId: cat.parentId
+//             });
+//             if (cat.subcategorias && cat.subcategorias.length > 0) {
+//                 flatten(cat.subcategorias);
+//             }
+//         });
+//     };
     
-    flatten(categories);
-    return flattened;
-};
+//     flatten(categories);
+//     //console.log(flattened);
+//     return flattened;
+// };
 
 export const ProductProvider = ({ children }) => {
     const [productos, setProductos] = useState([]);
-    const [productosAdmin, setProductosAdmin] = useState([]);
-    const [categorias, setCategorias] = useState([]);
-    const [subcategorias, setSubcategorias] = useState([]);
+    const [productosOcultos, setProductosOcultos] = useState([]);
+    const [productosDescontinuados, setProductosDescontinuados] = useState([]);
+    // const [categorias, setCategorias] = useState([]);
+    // const [subcategorias, setSubcategorias] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const getAuthHeaders = (isJson = true) => {
@@ -81,34 +83,37 @@ export const ProductProvider = ({ children }) => {
                 const token = localStorage.getItem('token');
 
                 // Intentar cargar categorías (público)
-                let categoriasData = [];
-                try {
-                    const resCategorias = await fetch(`${API_URL}/api/categorias`);
-                    if (resCategorias.ok) {
-                        const rawCategorias = await resCategorias.json();
-                        categoriasData = flattenCategories(rawCategorias);
-                    }
-                } catch (catError) {
-                    console.error('Error al cargar categorías:', catError);
-                }
+                // let categoriasData = [];
+                // try {
+                //     const resCategorias = await fetch(`${API_URL}/api/categorias`);
+                //     if (resCategorias.ok) {
+                //         //const rawCategorias = await resCategorias.json();
+                //         categoriasData = await resCategorias.json();
+                //         console.log('categoriasData', categoriasData);
+                //         //console.log('rawCategorias', rawCategorias);
+                //         //categoriasData = flattenCategories(rawCategorias);
+                //     }
+                // } catch (catError) {
+                //     console.error('Error al cargar categorías:', catError);
+                // }
 
-                let categoriasRaiz = [];
-                for (const cat of categoriasData) {
-                    if (cat.parentId === null) {
-                        categoriasRaiz.push(cat);
-                    }
-                }
-                //setCategorias(categoriasRaiz);
+                // let categoriasRaiz = [];
+                // for (const cat of categoriasData) {
+                //     if (cat.parentId === null) {
+                //         categoriasRaiz.push(cat);
+                //     }
+                // }
+                // //setCategorias(categoriasRaiz);
 
-                let subcategoriasData = [];
-                for (const cat of categoriasData) {
-                    if (cat.parentId !== null) {
-                        //console.log('Subcategoría encontrada:', cat.nombre, 'ParentId:', cat.parentId);
-                        subcategoriasData.push(cat);
-                    }
-                    //console.log('Subcategorias encontradas:', subcategoriasData);
-                }
-                //setSubcategorias(subcategoriasData);
+                // let subcategoriasData = [];
+                // for (const cat of categoriasData) {
+                //     if (cat.parentId !== null) {
+                //         //console.log('Subcategoría encontrada:', cat.nombre, 'ParentId:', cat.parentId);
+                //         subcategoriasData.push(cat);
+                //     }
+                //     //console.log('Subcategorias encontradas:', subcategoriasData);
+                // }
+                // //setSubcategorias(subcategoriasData);
 
                 // Intentar cargar productos (requiere auth)
                 let productosData = [];
@@ -144,13 +149,13 @@ export const ProductProvider = ({ children }) => {
                 }
 
                 // Intentar cargar productos (requiere auth)
-                let productosAdminData = [];
+                let productosOcultosData = [];
                 if (token) {
                     try {
                         const headers = getAuthHeaders(false);
-                        const resProductos = await fetch(`${API_URL}/api/productos/admin`, { headers });
+                        const resProductosOcultos = await fetch(`${API_URL}/api/productos/admin?estado=OCULTO`, { headers });
 
-                        if (resProductos.status === 401) {
+                        if (resProductosOcultos.status === 401) {
                             console.warn("Token inválido - Redirigiendo al login");
                             localStorage.removeItem('token');
                             localStorage.removeItem('rol');
@@ -158,17 +163,48 @@ export const ProductProvider = ({ children }) => {
                             return;
                         }
 
-                        if (resProductos.ok) {
-                            const rawProductos = await resProductos.json();
+                        if (resProductosOcultos.ok) {
+                            const rawProductos = await resProductosOcultos.json();
                             
                             // El backend devuelve un Page de Spring Data, extraer el content
                             if (rawProductos.content && Array.isArray(rawProductos.content)) {
-                                productosAdminData = rawProductos.content;
+                                productosOcultosData = rawProductos.content;
                             } else if (Array.isArray(rawProductos)) {
-                                productosAdminData = rawProductos;
+                                productosOcultosData = rawProductos;
                             } else {
                                 console.warn('Formato de productos desconocido:', rawProductos);
-                                productosAdminData = [];
+                                productosOcultosData = [];
+                            }
+                        }
+                    } catch (prodError) {
+                        console.error('Error al cargar productos:', prodError);
+                    }
+                }
+                let productosDescontinuadosData = [];
+                if (token) {
+                    try {
+                        const headers = getAuthHeaders(false);
+                        const resProductosDescontinuados = await fetch(`${API_URL}/api/productos/admin?estado=DESCONTINUADO`, { headers });
+
+                        if (resProductosDescontinuados.status === 401) {
+                            console.warn("Token inválido - Redirigiendo al login");
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('rol');
+                            window.location.href = '/login';
+                            return;
+                        }
+
+                        if (resProductosDescontinuados.ok) {
+                            const rawProductos = await resProductosDescontinuados.json();
+                            
+                            // El backend devuelve un Page de Spring Data, extraer el content
+                            if (rawProductos.content && Array.isArray(rawProductos.content)) {
+                                productosDescontinuadosData = rawProductos.content;
+                            } else if (Array.isArray(rawProductos)) {
+                                productosDescontinuadosData = rawProductos;
+                            } else {
+                                console.warn('Formato de productos desconocido:', rawProductos);
+                                productosDescontinuadosData = [];
                             }
                         }
                     } catch (prodError) {
@@ -177,9 +213,10 @@ export const ProductProvider = ({ children }) => {
                 }
 
                 setProductos(productosData);
-                setProductosAdmin(productosAdminData);
-                setCategorias(categoriasRaiz);
-                setSubcategorias(subcategoriasData);
+                setProductosOcultos(productosOcultosData);
+                setProductosDescontinuados(productosDescontinuadosData);
+                // setCategorias(categoriasRaiz);
+                // setSubcategorias(subcategoriasData);
 
             } catch (error) {
                 console.error('Error general al cargar datos:', error);
@@ -223,35 +260,35 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
-    const createCategory = async (categoriaDatos) => {
-        setLoading(true);
-        try {
-            const resCategoria = await fetch(`${API_URL}/api/categorias`, {
-                method: 'POST',
-                headers: getAuthHeaders(true),
-                body: JSON.stringify(categoriaDatos),
-            });
+    // const createCategory = async (categoriaDatos) => {
+    //     setLoading(true);
+    //     try {
+    //         const resCategoria = await fetch(`${API_URL}/api/categorias`, {
+    //             method: 'POST',
+    //             headers: getAuthHeaders(true),
+    //             body: JSON.stringify(categoriaDatos),
+    //         });
 
-            if (resCategoria.status === 401) {
-                throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
-            }
+    //         if (resCategoria.status === 401) {
+    //             throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
+    //         }
 
-            if (!resCategoria.ok) {
-                const errorData = await resCategoria.json();
-                throw new Error(errorData.error || 'No se pudo crear la categoría');
-            }
+    //         if (!resCategoria.ok) {
+    //             const errorData = await resCategoria.json();
+    //             throw new Error(errorData.error || 'No se pudo crear la categoría');
+    //         }
 
-            const nuevaCategoria = await resCategoria.json();
-            // actualizar categorias localmente sin recargar
-            setCategorias((prev) => [...prev, nuevaCategoria]);
-            return nuevaCategoria;
-        } catch (error) {
-            console.error('Error al crear la categoria', error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         const nuevaCategoria = await resCategoria.json();
+    //         // actualizar categorias localmente sin recargar
+    //         setCategorias((prev) => [...prev, nuevaCategoria]);
+    //         return nuevaCategoria;
+    //     } catch (error) {
+    //         console.error('Error al crear la categoria', error);
+    //         throw error;
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     const getProductById = async (id) => {
         try {
@@ -437,69 +474,6 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
-    // const updateProduct = async (producto) => {
-    //     setLoading(true);
-    //     try {
-    //         const resProducto = await fetch(`${API_URL}/productos/${producto.id}`, {
-    //             method: 'PUT',
-    //             headers: getAuthHeaders(true),
-    //             body: JSON.stringify(producto),
-    //         });
-
-    //         if (resProducto.status === 401) {
-    //             throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
-    //         }
-
-    //         if (!resProducto.ok) {
-    //             const errorData = await resProducto.json();
-    //             //console.log("🔴 Respuesta Backend:", errorData);
-    //             throw new Error(errorData.error || 'No se pudo editar el producto');
-    //         }
-
-    //         const productoEditado = await resProducto.json();
-    //         setProductos(productos.map((p) => (p.id === productoEditado.id ? productoEditado : p)));
-    //         return productoEditado;
-
-    //     } catch (error) {
-    //         console.error('Error al editar el producto', error);
-    //         throw error;
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    // const deleteProduct = async (id) => {
-    //     setLoading(true);
-    //     try {
-    //         const resProducto = await fetch(`${API_URL}/productos/${id}`, {
-    //             method: 'DELETE',
-    //             headers: getAuthHeaders(false),
-    //         });
-
-    //         if (resProducto.status === 401) {
-    //             throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
-    //         }
-
-    //         if (!resProducto.ok) {
-    //             const errorData = await resProducto.json();
-    //             //console.log("🔴 Respuesta Backend:", errorData);
-    //             throw new Error(errorData.error || 'No se pudo eliminar el producto');
-    //         }
-
-    //         //const productoEliminado = await resProducto.json();
-    //         setProductos(prev => prev.filter(p => p.id !== id));
-    //         return true;
-
-    //     } catch (error) {
-    //         console.error('Error al eliminar el producto', error);
-    //         throw error;
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-
-    // Cambiar estado de producto (PATCH /api/productos/{id}/estado)
     const updateProductStatus = async (id, estado) => {
         try {
             const headers = getAuthHeaders(true);
@@ -555,12 +529,13 @@ export const ProductProvider = ({ children }) => {
         <ProductContext.Provider 
             value={{ 
                 productos, 
-                productosAdmin,
-                categorias, 
-                subcategorias,
+                productosOcultos,
+                productosDescontinuados,
+                // categorias, 
+                // subcategorias,
                 loading,
                 createProduct, 
-                createCategory,
+                // createCategory,
                 getProductById,
                 updateProduct, 
                 updateProductStatus,

@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export const ProductCard = ({ imageSrc, altText, title, description, price, actionLabel = "Ver producto", onAction }) => {
     return (
-        <article className="card product-card">
+        <article className="product-card">
         {/* La imagen del producto va en figure */}
             <figure className="card-preview">
                 <img 
@@ -13,7 +13,7 @@ export const ProductCard = ({ imageSrc, altText, title, description, price, acti
                 />
                 {/* Opcional: Etiqueta de oferta o categoría sobre la imagen */}
                 {price && (
-                <span className="product-price-tag">{price}</span>
+                <span className="product-price-tag">${price}</span>
                 )}
             </figure>
             

@@ -201,6 +201,7 @@ button:focus-visible {
 form {
   display: flex;
   flex-direction: column;
+  max-width: 600px;
   gap: 0.8rem;
   padding-top: 1rem;
   /* align-items: center; */
@@ -651,6 +652,11 @@ nav button {
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
 }
 
+.admin-product-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
 
 /* USERS TABLE */
 .table-container {
@@ -1050,7 +1056,10 @@ nav button {
     height: 160px;
   }
 
-  .product-actions {
+  /* .product-actions {
+    flex-direction: column;
+  } */
+  .admin-product-actions {
     flex-direction: column;
   }
 

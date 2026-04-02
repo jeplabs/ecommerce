@@ -1,12 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
 
-export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false, onCancel, categorias = [], subcategorias = [] }) => {
+export const ProductForm = ({ 
+    initialData = null, 
+    onSubmit, 
+    isSubmitting = false, 
+    onCancel, 
+    arbolCategorias = [] 
+}) => {
     //Datos iniciales del formulario (si es edición)
     const isEditing = !!initialData; 
 
     //Modo de imagen (url o file)
     const [imageMode, setImageMode] = useState('url'); // Solo URLs, sin archivos
+
+    //console.log(subcategorias)
+    // Estado para manejar el input de URL 
+    const [urlInput, setUrlInput] = useState('');
+
+    // Estado para el mensaje de error
+    const [errors, setErrors] = useState({});
+
+    // Estado para las características dinámicas (Array de objetos)
+    const [specs, setSpecs] = useState([]);
 
     //  Estado para los campos del formulario
     const [formData, setFormData] = useState({
@@ -18,29 +34,23 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
         estado: 'disponible',
         categoria: '',
         subcategoria: '',
+        subsubcategoria: '',
         moneda: 'USD',
         images: [] 
     });
 
-    //console.log(subcategorias)
-    // Estado para manejar el input de URL 
-    const [urlInput, setUrlInput] = useState('');
-
-    // Estado para el mensaje de error
-    const [errors, setErrors] = useState({});
-
-    // Estado para las características dinámicas (Array de objetos)
-    const [specs, setSpecs] = useState([
-        { id: Date.now(), key: '', value: '' } // Valor inicial con 1 fila vacía
-    ]);
-
     // Cargar datos si es edición
     useEffect(() => {
         if (initialData) {
-            //console.log(initialData.categorias.subcategorias)
+            console.log(initialData)
+
+            const estadoNormalizado = initialData.estado
+                ? initialData.estado.toLowerCase().replace(/_/g, '-')
+                : 'disponible';
             
             let categoria = '';
             let subcategoria = '';
+            let subsubcategoria = '';
             for (const cat in initialData.categorias) {
                 if (initialData.categorias[cat].parentId == null) {
                     categoria = cat;
@@ -48,17 +58,32 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                     subcategoria = cat;
                 }
             }
-            //console.log('categoria', categoria)
-            //console.log('subcategoria', subcategoria)
+
+            if (initialData && initialData.specs) {
+                if (specs.length === 0) {
+                    if (initialData.specs && Object.keys(initialData.specs).length > 0) {
+                        const specsArray = Object.entries(initialData.specs).map(([k, v], idx) => ({
+                            id: `spec_${Date.now()}_${idx}`,
+                            key: k,
+                            value: v
+                        }));
+                        setSpecs(specsArray);
+                    } else {
+                        setSpecs([]);
+                    }       
+                }
+            }
+            
             setFormData({
                 nombre: initialData.nombre || '',
                 sku: initialData.sku || '',
                 descripcion: initialData.descripcion || '',
                 price: initialData.price || '',
                 stock: initialData.stock || '',
-                estado: initialData.estado || 'disponible',
+                estado: estadoNormalizado,
                 categoria: initialData.categoria?.id?.toString() || initialData.categoria?.toString() || '',
                 subcategoria: initialData.subcategoria?.id?.toString() || initialData.subcategoria?.toString() || '',
+                subsubcategoria: initialData.subsubcategoria?.id?.toString() || initialData.subsubcategoria?.toString() || '',
                 moneda: initialData.moneda || 'USD',
                 images: [] 
             });
@@ -83,15 +108,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                 }
             }
 
-            if (initialData.caracteristicas && initialData.caracteristicas.length > 0) {
-                setSpecs(initialData.caracteristicas.map((c, index) => ({
-                    id: index,
-                    key: c.key || c.nombre,
-                    value: c.value
-                })));
-            } else {
-                setSpecs([{ id: Date.now(), key: '', value: '' }]);
-            }
+            // setSpecs(initialData.specs || {})
         }
     }, [initialData]);
 
@@ -135,11 +152,17 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
 
         setFormData(prev => {
             const newData = { ...prev, [name]: value };
+
             if (name === 'categoria') {
                 newData.subcategoria = "";
+                newData.subsubcategoria = "";
             }
+
+            if (name === 'subcategoria') {
+                newData.subsubcategoria = "";
+            }
+
             return newData;
-        
         });
     
         // Limpiar error del campo cuando el usuario empieza a escribir
@@ -225,20 +248,24 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
 
     // Lógica para características dinámicas
     const addSpec = () => {
-        setSpecs([...specs, { id: Date.now(), key: '', value: '' }]);
+        const newSpec = {
+            id: `spec_${Date.now()}_${Math.random()}`,
+            key: '',
+            value: ''
+        };
+        setSpecs(prev => {
+            const nuevoArray = [...prev, newSpec]
+            return nuevoArray;
+        });
     };
 
-    const removeSpec = (id) => {
-        if (specs.length === 1) {
-            setSpecs([{ id: Date.now(), key: '', value: '' }]);
-            return;
-        }
-        setSpecs(specs.filter(spec => spec.id !== id));
+    const removeSpec = (idToRemove) => {
+        setSpecs(prev => prev.filter(spec => spec.id !== idToRemove));
     };
 
-    const updateSpec = (id, field, value) => {
-        setSpecs(specs.map(spec => 
-            spec.id === id ? { ...spec, [field]: value } : spec
+    const updateSpec = (id, field, newValue) => {
+        setSpecs(prev => prev.map(spec => 
+            spec.id === id ? { ...spec, [field]: newValue } : spec
         ));
     };
 
@@ -255,6 +282,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
         const moneda = (formData.moneda ?? '').toString();
         const categoria = (formData.categoria ?? '').toString();
         const subcategoria = (formData.subcategoria ?? '').toString();
+        const subsubcategoria = (formData.subsubcategoria ?? '').toString();
 
         if (!nombre.trim()) {
             newErrors.nombre = "El nombre es obligatorio";
@@ -296,6 +324,10 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
             newErrors.subcategoria = "La subcategoría es obligatoria";
         }
 
+        if (!subsubcategoria.trim()) {
+            newErrors.subsubcategoria = "La subsubcategoría es obligatoria";
+        }
+
         // En edición, no requerimos imágenes (ya existen en el servidor)
         // En creación, sí requerimos al menos una imagen
         if (!isEditing && formData.images.length === 0) {
@@ -329,12 +361,20 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
         }
 
         // Combinar formData con specs procesados y esquema que exige el backend
-        const specsObject = specs
-            .filter(s => s.key && s.value)
-            .reduce((acc, spec) => {
-                acc[spec.key] = spec.value;
-                return acc;
-            }, {});
+        const specsObject = {};
+        specs.forEach(spec => {
+            if (spec.key && spec.value && spec.key.trim() !== '') {
+                specsObject[spec.key] = spec.value;
+            }
+        });
+
+        const categoriasIds = [
+            formData.categoria,
+            formData.subcategoria,
+            formData.subsubcategoria
+        ]
+            .filter(id => id)
+            .map(id => Number(id));
 
         const finalData = {
             sku: formData.sku.trim(),
@@ -342,14 +382,14 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
             descripcion: formData.descripcion.trim() || null,
             specs: Object.keys(specsObject).length > 0 ? specsObject : null,
             stock: Number(formData.stock),
+            estado: formData.estado,
             precio: {
                 precioVenta: Number(formData.price),
                 precioCosto: Number(formData.price),
                 moneda: formData.moneda || 'USD'
             },
-            categoriaIds: [Number(formData.categoria)],
-            imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null,
-            estado: formData.estado // <-- ¡Siempre incluir el estado!
+            categoriaIds: categoriasIds,
+            imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null
         };
 
         //console.debug('ProductForm submit finalData', finalData);
@@ -487,7 +527,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                             required
                         >
                             <option value="">Selecciona una categoría</option>
-                            {categorias.map((categoria) => (
+                            {arbolCategorias.map((categoria) => (
                                 <option key={categoria.id} value={categoria.id}>
                                     {categoria.nombre}
                                 </option>
@@ -507,8 +547,9 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                             disabled={!formData.categoria} 
                         >
                             <option value="">Selecciona una subcategoría</option>
-                            {subcategorias
-                                .filter((sub) => sub.parentId == formData.categoria)
+                            {arbolCategorias
+                                .find((cat) => cat.id == formData.categoria)
+                                ?.subcategorias
                                 .map((subcategoria) => (
                                     <option key={subcategoria.id} value={subcategoria.id}>
                                         {subcategoria.nombre}
@@ -516,9 +557,34 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                             ))}
                         </select>
                     </div>
+
+                    {/* Subsubcategoria */}
+                    <div className="form-field">
+                        <label htmlFor="subsubcategoria">Subsubcategoria</label>
+                        <select
+                            id="subsubcategoria"
+                            name="subsubcategoria"
+                            value={formData.subsubcategoria}
+                            onChange={handleChange}
+                            required
+                            disabled={!formData.subcategoria} 
+                        >
+                            <option value="">Selecciona una subcategoría</option>
+                            {arbolCategorias
+                                .find((cat) => cat.id == formData.categoria)
+                                ?.subcategorias
+                                .find((subcat) => subcat.id == formData.subcategoria)
+                                ?.subcategorias
+                                .map((subsubcategoria) => (
+                                    <option key={subsubcategoria.id} value={subsubcategoria.id}>
+                                        {subsubcategoria.nombre}
+                                    </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                {/* Características */}
+                {/* Specs */}
 
                 <div className="field specs-section">
                     <div className="specs-header">
@@ -534,7 +600,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                     </div>
                     
                     <div className="specs-list">
-                        {specs.map((spec, index) => (
+                        {specs.map((spec) => (
                             <div key={spec.id} className="spec-row">
                                 <input 
                                     type="text" 
@@ -562,7 +628,7 @@ export const ProductForm = ({ initialData = null, onSubmit, isSubmitting = false
                             </div>
                         ))}
                     </div>
-                    {errors.caracteristicas && <span className="error">{errors.caracteristicas}</span>}
+                    {errors.specs && <span className="error">{errors.specs}</span>}
                     <p className="field-help">Agrega pares clave-valor para detallar el producto.</p>
                 </div>
 
