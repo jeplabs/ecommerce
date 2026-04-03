@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function RegisterForm({ onRegisterSuccess }) {
     // Estado para almacenar los datos del formulario, errores y estado de carga

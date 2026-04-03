@@ -1,0 +1,230 @@
+/* Variables locales para fácil personalización */
+.ecommerce-footer {
+  --bg-color: #0f172a;       /* Azul noche muy oscuro */
+  --text-main: #94a3b8;      /* Gris azulado suave */
+  --text-white: #f8fafc;     /* Blanco casi puro */
+  --accent: #3b82f6;         /* Azul brillante */
+  --border: #1e293b;         /* Gris oscuro para bordes */
+  --input-bg: #1e293b;
+  
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 4rem 1.5rem 2rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* GRID LAYOUT */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 3rem;
+  }
+}
+
+/* TIPOGRAFÍA */
+.footer-logo {
+  color: var(--text-white);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.5px;
+}
+
+.accent { color: var(--accent); }
+
+.footer-heading {
+  color: var(--text-white);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 1.25rem 0;
+  font-weight: 600;
+}
+
+.footer-desc {
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  max-width: 300px;
+}
+
+.footer-small {
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* LISTAS DE ENLACES */
+.footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-list a {
+  text-decoration: none;
+  color: var(--text-main);
+  transition: color 0.2s, transform 0.2s;
+  display: inline-block;
+}
+
+.footer-list a:hover {
+  color: var(--accent);
+  transform: translateX(5px);
+}
+
+/* REDES SOCIALES */
+.social-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  color: var(--text-main);
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.social-btn:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-3px);
+}
+
+/* NEWSLETTER FORM */
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.footer-input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text-white);
+  padding: 0.75rem;
+  border-radius: 6px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.footer-input:focus {
+  border-color: var(--accent);
+}
+
+.footer-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.footer-btn:hover { background: #2563eb; }
+
+.contact-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.icon-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* BARRA DE CARACTERÍSTICAS */
+.features-bar {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .features-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  color: var(--text-main);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.feature-icon-wrap {
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* FOOTER BOTTOM */
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #64748b; /* Más oscuro */
+}
+
+@media (min-width: 768px) {
+  .footer-bottom {
+    flex-direction: row;
+  }
+}
+
+.payments {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.pay-tag {
+  background: rgba(255,255,255,0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}

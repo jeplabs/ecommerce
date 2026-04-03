@@ -1,5 +1,6 @@
-import Navbar from "../components/Navbar"
-import { ProductCatalog } from "../components/ProductCatalog"
+import Navbar from "../components/layout/Navbar/Navbar"
+import Footer from "../components/layout/Footer/Footer"
+import { ProductCatalog } from "../components/layout/ProductCatalog"
 
 function Home() {
     
@@ -8,6 +9,7 @@ function Home() {
             <Navbar />
             <h1>JEPLabs Ecommerce</h1>
             <ProductCatalog/>
+            <Footer />
         </>
     )
 }

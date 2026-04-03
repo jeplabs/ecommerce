@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
+import Producto from '../pages/Producto';
 import Admin from '../pages/admin/Admin';
 import ProductList from '../pages/admin/ProductList';
 import ProductNew from '../pages/admin/ProductNew';
@@ -22,6 +23,7 @@ export const AppRouter = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/producto/:id" element={<Producto />} />
 
                 {/* Rutas para usuarios */}
                 <Route 

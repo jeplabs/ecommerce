@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useProduct } from '../../context/ProductContext';
 import { useCategorias } from '../../context/CategoriasContext';
 import { useToast } from '../../context/ToastContext';
-import Navbar from "../../components/Navbar"
+import Navbar from "../../components/layout/Navbar/Navbar";
 import { ProductForm } from "../../components/admin/ProductForm";
 
 

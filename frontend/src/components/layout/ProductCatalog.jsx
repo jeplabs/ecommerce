@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { ProductCard } from "./ProductCard";
-import { useProduct } from "../context/ProductContext";
+import { ProductCard } from "../ui/Card/ProductCard";
+import { useProduct } from "../../context/ProductContext";
 import { useNavigate } from "react-router-dom";
 
 export const ProductCatalog = ({  }) => {
@@ -37,8 +37,8 @@ export const ProductCatalog = ({  }) => {
                     title={producto.nombre} 
                     description={producto.descripcion} 
                     price={producto.precioVenta} 
-                    actionLabel={producto.actionLabel} 
-                    onAction={() => navigate(`/producto/${producto.id}`) || alert(`Ver detalle del producto ${producto.nombre}`)}
+                    actionLabel="Ver producto" 
+                    onAction={() => navigate(`/producto/${producto.id}`)}
                     />
                 ))}
             </div>

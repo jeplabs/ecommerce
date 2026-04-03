@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
-import Navbar from "../components/Navbar"
-import RegisterForm from "../components/RegisterForm"
+import Navbar from "../components/layout/Navbar/Navbar"
+import RegisterForm from "../components/ui/Form/RegisterForm"
 
 function Register() {
     const navigate = useNavigate();

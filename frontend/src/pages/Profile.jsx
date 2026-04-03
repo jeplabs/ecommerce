@@ -1,9 +1,9 @@
 import { useState, useEffect, use } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Navbar from "../components/Navbar"
+import Navbar from "../components/layout/Navbar/Navbar";
 import { API_URL } from "../config/config";
-import ProfileForm from '../components/ProfileForm';
+import ProfileForm from '../components/ui/Form/ProfileForm';
 
 export default function Profile() {
 

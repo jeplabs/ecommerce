@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from "../../components/Navbar";
+import Navbar from "../../components/layout/Navbar/Navbar";
 import { API_URL } from "../../config/config";
 import UsersTable from "../../components/admin/UsersTable";
 
