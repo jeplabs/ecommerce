@@ -8,7 +8,10 @@ public record DatosRespuestaUsuario(
         String apellido,
         String email,
         String pais,
-        String rol
+        String rol,
+        boolean activo,
+        boolean bloqueado,
+        Integer intentosFallidos
 ) {
     public DatosRespuestaUsuario(Usuario usuario) {
         this(
@@ -17,6 +20,10 @@ public record DatosRespuestaUsuario(
                 usuario.getApellido(),
                 usuario.getEmail(),
                 usuario.getPais(),
-                usuario.getRol().name());
+                usuario.getRol().name(),
+                usuario.isActivo(),
+                usuario.isBloqueado(),
+                usuario.getIntentosFallidos());
+
     }
 }

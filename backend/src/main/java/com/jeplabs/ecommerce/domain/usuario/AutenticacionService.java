@@ -82,4 +82,39 @@ public class AutenticacionService {
         usuario.actualizarPerfil(datos);
         return new DatosRespuestaUsuario(usuario);
     }
+
+    // Actualizar estado del usuario activar/desactivar
+    // email del admin autenticado viene como parámetro desde el controller, extraído del token
+    @Transactional
+    public DatosRespuestaUsuario actualizarEstado(
+            Long id,
+            DatosActualizarEstadoUsuario datos,
+            String emailAdminAutenticado) {
+
+        Usuario usuario = repositorio.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + id));
+
+        if (!datos.activo()) {
+
+            // Validación 1: ¿Desactivar este usuario dejaría el sistema sin admins activos?
+            if (usuario.getRol() == Rol.ROLE_ADMIN) {
+                long adminsActivos = repositorio.countByRolAndActivo(Rol.ROLE_ADMIN, true);
+                if (adminsActivos <= 1) {
+                    throw new IllegalArgumentException(
+                            "No es posible desactivar esta cuenta porque dejaría el sistema sin administradores activos");
+                }
+            }
+
+            // Validación 2: ¿Es su propia cuenta?
+            if (usuario.getEmail().equals(emailAdminAutenticado)) {
+                throw new IllegalArgumentException("No puedes desactivar tu propia cuenta");
+            }
+
+            usuario.desactivar();
+        } else {
+            usuario.activar();
+        }
+
+        return new DatosRespuestaUsuario(usuario);
+    }
 }

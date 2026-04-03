@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -124,5 +125,18 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaUsuario> buscarUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    // Enpoint para actualizar el estado del usuario desactivar/activar
+    // El email del admin autenticado se extrae del token mediante Authentication
+    // PATCH /api/usuarios/{id}/estado
+    @PatchMapping("/usuarios/{id}/estado")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DatosRespuestaUsuario> actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarEstadoUsuario datos,
+            Authentication authentication) {
+        String emailAdmin = authentication.getName();
+        return ResponseEntity.ok(service.actualizarEstado(id, datos, emailAdmin));
     }
 }
