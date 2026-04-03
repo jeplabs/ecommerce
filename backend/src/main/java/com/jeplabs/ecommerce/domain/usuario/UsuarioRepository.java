@@ -7,6 +7,10 @@ import java.util.Optional;
 // Por medio de JPA, Spring genera toda la implementación SQL automaticamente.
 // findByEmail y existsByEmail, se usan sin necesidad de escribir ninguna query.
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+
     Optional<Usuario> findByEmail(String email);
+
     boolean existsByEmail(String email);
+    // Cuenta los admins activos para la validación del último admin
+    long countByRolAndActivo(Rol rol, boolean activo);
 }

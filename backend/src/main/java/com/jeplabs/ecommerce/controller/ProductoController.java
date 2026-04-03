@@ -246,7 +246,7 @@ public class ProductoController {
         return ResponseEntity.ok(service.quitarCategorias(id, datos));
     }
 
-    // admin - endpoint para listar todos los productos sin importar estado
+    // admin - endpoint para listar todos los productos sin importar estado, ve todos los estados.
     // GET /api/productos/admin
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")

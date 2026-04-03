@@ -91,6 +91,19 @@ public class Usuario implements UserDetails {
         this.pais = datos.pais();
     }
 
+    // Metodos para activar usuario y al mismo tiempo desbloquea cuenta y reset intentos fallidos
+    public void activar() {
+        this.activo = true;
+        this.bloqueado = false;       // desbloquea la cuenta
+        this.intentosFallidos = 0;    // resetea intentos fallidos
+        this.ultimoIntentoFallido = null;
+    }
+
+    // Metodo para desactivar conscientemente a un usuario
+    public void desactivar() {
+        this.activo = false;
+    }
+
     // UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

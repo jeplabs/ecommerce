@@ -1,6 +1,8 @@
 package com.jeplabs.ecommerce.domain.producto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 // Respuesta exclusiva para admin que incluye precio de costo y margen calculado.
 public record DatosRespuestaProductoAdmin(
@@ -13,7 +15,10 @@ public record DatosRespuestaProductoAdmin(
         BigDecimal precioVenta,
         BigDecimal precioCosto,
         BigDecimal margenPorcentaje,
-        String moneda
+        String moneda,
+        List<String> imagenesUrl,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
     public DatosRespuestaProductoAdmin(Producto producto) {
         this(
@@ -26,7 +31,13 @@ public record DatosRespuestaProductoAdmin(
                 precioActual(producto).getPrecioVenta(),
                 precioActual(producto).getPrecioCosto(),
                 precioActual(producto).calcularMargen(),
-                precioActual(producto).getMoneda()
+                precioActual(producto).getMoneda(),
+                producto.getImagenes()
+                        .stream()
+                        .map(ProductoImagen::getUrl)
+                        .toList(),
+                producto.getCreatedAt(),
+                producto.getUpdatedAt()
         );
     }
 
