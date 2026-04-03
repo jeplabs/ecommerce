@@ -29,6 +29,7 @@
 .pd-breadcrumbs {
     display: flex;
     align-items: center;
+    line-height: normal;
     gap: 0.5rem;
     margin-bottom: 2rem;
     font-size: 0.9rem;

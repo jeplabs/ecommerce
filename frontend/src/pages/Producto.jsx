@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useProduct } from "../context/ProductContext";
 import Navbar from "../components/layout/Navbar/Navbar";
+import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
 import Footer from "../components/layout/Footer/Footer";
 import "./Producto.css";
 
-export default function ProductDetail() {
+export default function Producto() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { productos, loading } = useProduct();
@@ -55,11 +56,12 @@ export default function ProductDetail() {
     return (
         <>
             <Navbar />
+            <CategoriasNav />
             <main className="product-detail-page">
                 <div className="pd-container">
                     
                     {/* BREADCRUMBS */}
-                    <nav className="pd-breadcrumbs">
+                    <div className="pd-breadcrumbs">
                         {breadcrumbs.map((crumb, index) => (
                             <div key={index} className="bc-item">
                                 {index < breadcrumbs.length - 1 ? (
@@ -68,11 +70,11 @@ export default function ProductDetail() {
                                     <span className="bc-current">{crumb.label}</span>
                                 )}
                                 {index < breadcrumbs.length - 1 && (
-                                    <span className="material-symbols-outlined bc-icon">chevron_right</span>
+                                    <span className="bc-separator"> /</span>
                                 )}
                             </div>
                         ))}
-                    </nav>
+                    </div>
 
                     {/* SECCIÓN PRINCIPAL: GRID IMAGEN + INFO */}
                     <div className="pd-main-grid">

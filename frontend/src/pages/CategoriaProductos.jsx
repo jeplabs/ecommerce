@@ -1,20 +1,14 @@
 import Navbar from "../components/layout/Navbar/Navbar"
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav"
 import Footer from "../components/layout/Footer/Footer"
-import { ProductCatalog } from "../components/layout/ProductCatalog"
 
-function Home() {
-    
+export default function CategoriaProductos({ id }) {
     return (
         <>
             <Navbar />
             <CategoriasNav />
-            <br />
-            <h1>JEPLabs Ecommerce</h1>
-            <ProductCatalog/>
+            <h1>CategoriaProductos</h1>
             <Footer />
         </>
-    )
+    );
 }
-
-export default Home

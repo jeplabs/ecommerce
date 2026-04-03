@@ -11,7 +11,7 @@ export const ProductCatalog = ({  }) => {
     useEffect(() => {
         if (productos && productos.length > 0) {
             setProductosCatalogo(productos);
-            console.log('ProductCatalog productos', productos);
+            // console.log('ProductCatalog productos', productos);
         }
     }, [productos]);
 

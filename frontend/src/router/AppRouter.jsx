@@ -5,6 +5,8 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Producto from '../pages/Producto';
+import Catalogo from '../pages/Catalogo';
+import CategoriaProductos from '../pages/CategoriaProductos';
 import Admin from '../pages/admin/Admin';
 import ProductList from '../pages/admin/ProductList';
 import ProductNew from '../pages/admin/ProductNew';
@@ -24,7 +26,9 @@ export const AppRouter = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/producto/:id" element={<Producto />} />
-
+                <Route path="/catalogo" element={<Catalogo />} />
+                <Route path="/categoria/:id" element={<CategoriaProductos />} />
+                
                 {/* Rutas para usuarios */}
                 <Route 
                     path="/profile" 
