@@ -56,6 +56,51 @@ export const ProductProvider = ({ children }) => {
         return headers;
     }
 
+    const parseListResponse = (raw) => {
+        if (raw?.content && Array.isArray(raw.content)) return raw.content;
+        if (Array.isArray(raw)) return raw;
+        return [];
+    };
+
+    const reloadAdminBuckets = async () => {
+        const token = localStorage.getItem('token');
+        const isAdmin = userRol === 'ROLE_ADMIN';
+        if (!token || !isAdmin) return;
+
+        const headers = getAuthHeaders(false);
+
+        const fetchAdmin = async (query) => {
+            try {
+                const res = await fetch(`${API_URL}/api/productos/admin?${query}`, { headers });
+                if (res.status === 401) {
+                    console.warn("Token inválido - Redirigiendo al login");
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('rol');
+                    window.location.href = '/login';
+                    return null;
+                }
+                if (!res.ok) {
+                    const body = await res.text().catch(() => '');
+                    console.warn('[reloadAdminBuckets] admin fetch failed', res.status, body);
+                    return null;
+                }
+                return await res.json();
+            } catch (e) {
+                console.warn('[reloadAdminBuckets] admin fetch error', e);
+                return null;
+            }
+        };
+
+        const [rawOcultos, rawDescontinuados] = await Promise.all([
+            fetchAdmin('estado=OCULTO'),
+            fetchAdmin('estado=DESCONTINUADO')
+        ]);
+
+        // Si falla alguno, no cortamos el flujo principal (guardar/volver)
+        if (rawOcultos) setProductosOcultos(parseListResponse(rawOcultos));
+        if (rawDescontinuados) setProductosDescontinuados(parseListResponse(rawDescontinuados));
+    };
+
     const reloadProducts = async () => {
         try {
             // Público: catálogo de cliente no requiere token
@@ -63,14 +108,16 @@ export const ProductProvider = ({ children }) => {
             if (!resProductos.ok) throw new Error('No se pudo obtener los productos');
 
             const rawProductos = await resProductos.json();
-            if (rawProductos?.content && Array.isArray(rawProductos.content)) {
-                setProductos(rawProductos.content);
-            } else if (Array.isArray(rawProductos)) {
-                setProductos(rawProductos);
+            const lista = parseListResponse(rawProductos);
+            if (lista.length > 0 || rawProductos?.content || Array.isArray(rawProductos)) {
+                setProductos(lista);
             } else {
                 console.warn('Formato de productos desconocido:', rawProductos);
                 setProductos([]);
             }
+
+            // Si es admin, refrescar también los buckets del panel
+            await reloadAdminBuckets();
 
         } catch (error) {
             console.error('Error al obtener los productos', error);
@@ -128,14 +175,7 @@ export const ProductProvider = ({ children }) => {
                     const rawProductos = await resProductos.json();
 
                     // El backend devuelve un Page de Spring Data, extraer el content
-                    if (rawProductos?.content && Array.isArray(rawProductos.content)) {
-                        productosData = rawProductos.content;
-                    } else if (Array.isArray(rawProductos)) {
-                        productosData = rawProductos;
-                    } else {
-                        console.warn('Formato de productos desconocido:', rawProductos);
-                        productosData = [];
-                    }
+                    productosData = parseListResponse(rawProductos);
                 } catch (prodError) {
                     console.error('Error al cargar productos:', prodError);
                 }
@@ -159,14 +199,7 @@ export const ProductProvider = ({ children }) => {
                             const rawProductos = await resProductosOcultos.json();
                             
                             // El backend devuelve un Page de Spring Data, extraer el content
-                            if (rawProductos.content && Array.isArray(rawProductos.content)) {
-                                productosOcultosData = rawProductos.content;
-                            } else if (Array.isArray(rawProductos)) {
-                                productosOcultosData = rawProductos;
-                            } else {
-                                console.warn('Formato de productos desconocido:', rawProductos);
-                                productosOcultosData = [];
-                            }
+                            productosOcultosData = parseListResponse(rawProductos);
                         }
                     } catch (prodError) {
                         console.error('Error al cargar productos:', prodError);
@@ -190,14 +223,7 @@ export const ProductProvider = ({ children }) => {
                             const rawProductos = await resProductosDescontinuados.json();
                             
                             // El backend devuelve un Page de Spring Data, extraer el content
-                            if (rawProductos.content && Array.isArray(rawProductos.content)) {
-                                productosDescontinuadosData = rawProductos.content;
-                            } else if (Array.isArray(rawProductos)) {
-                                productosDescontinuadosData = rawProductos;
-                            } else {
-                                console.warn('Formato de productos desconocido:', rawProductos);
-                                productosDescontinuadosData = [];
-                            }
+                            productosDescontinuadosData = parseListResponse(rawProductos);
                         }
                     } catch (prodError) {
                         console.error('Error al cargar productos:', prodError);
@@ -305,6 +331,31 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
+    const getProductByIdAdmin = async (id) => {
+        try {
+            const headers = getAuthHeaders(false);
+            const response = await fetch(`${API_URL}/api/productos/admin/${id}`, { headers });
+
+            if (response.status === 401) {
+                console.warn("Token inválido - Redirigiendo al login");
+                localStorage.removeItem('token');
+                localStorage.removeItem('rol');
+                window.location.href = '/login';
+                return null;
+            }
+
+            if (!response.ok) {
+                const errorText = await response.text().catch(() => '');
+                throw new Error(errorText || 'Producto no encontrado');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error al obtener producto admin por ID:', error);
+            throw error;
+        }
+    };
+
     const updateProduct = async (id, productData) => {
         try {
             const headers = getAuthHeaders(true);
@@ -375,7 +426,9 @@ export const ProductProvider = ({ children }) => {
             // No hacemos modificaciones de imágenes aquí porque el endpoint PATCH/productos no lo maneja
 
             // Refrescar producto para tener datos consistentes en el estado local
-            const refreshedProduct = await getProductById(id);
+            const refreshedProduct = userRol === 'ROLE_ADMIN'
+                ? await getProductByIdAdmin(id)
+                : await getProductById(id);
             if (refreshedProduct) {
                 setProductos(prev => prev.map(p => p.id === Number(id) ? refreshedProduct : p));
                 return { success: true, product: refreshedProduct };
@@ -418,8 +471,8 @@ export const ProductProvider = ({ children }) => {
                 return { success: false, message: errorText || 'Error al eliminar producto' };
             }
 
-            console.debug('ProductContext deleteProduct exitoso, filtrando producto id:', id);
-            setProductos(prev => prev.filter(p => p.id !== id));
+            console.debug('ProductContext deleteProduct exitoso, refrescando listados');
+            await reloadProducts();
             return { success: true };
         } catch (error) {
             console.error('ProductContext Error al eliminar producto:', error);
@@ -502,12 +555,7 @@ export const ProductProvider = ({ children }) => {
                 console.error('[updateProductStatus] Error al actualizar estado:', responseBody);
                 return { success: false, message: responseBody || 'Error al actualizar estado' };
             }
-            await reloadProducts();
-            const refreshedProduct = await getProductById(id);
-            if (refreshedProduct) {
-                setProductos(prev => prev.map(p => p.id === Number(id) ? refreshedProduct : p));
-                return { success: true, product: refreshedProduct };
-            }
+            await reloadProducts(); // incluye buckets admin si corresponde
             return { success: true };
         } catch (error) {
             console.error('[updateProductStatus] Error al actualizar estado:', error);
@@ -527,6 +575,7 @@ export const ProductProvider = ({ children }) => {
                 createProduct, 
                 // createCategory,
                 getProductById,
+                getProductByIdAdmin,
                 updateProduct, 
                 updateProductStatus,
                 deleteProduct,

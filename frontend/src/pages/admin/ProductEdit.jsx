@@ -17,6 +17,7 @@ export default function ProductEdit() {
         updateProduct, 
         updateProductStatus, 
         addProductImages, 
+        reloadProducts,
         loading
     } = useProduct();
     const { showSuccess, showError } = useToast();
@@ -26,6 +27,8 @@ export default function ProductEdit() {
     useEffect(() => {
         const loadProduct = async () => {
             try {
+                // Usamos el endpoint público para obtener datos completos (descripcion, specs, categorias).
+                // Para productos ocultos/descontinuados, este endpoint puede no devolver data (validación backend).
                 const product = await getProductById(id);
                 // console.log('ProductEdit product', product);
                 if (product) {
@@ -109,6 +112,9 @@ export default function ProductEdit() {
                 }
                 // TODO: Eliminar imágenes que fueron quitadas
             }
+
+            // Asegurar que los listados admin queden actualizados antes de volver
+            await reloadProducts();
 
             showSuccess('Estado y producto actualizados exitosamente');
             navigate('/admin/products');
