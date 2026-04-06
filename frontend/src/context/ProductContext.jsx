@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { API_URL } from '../config/config';
+import { useAuth } from './AuthContext';
 
 const ProductContext = createContext();
 
@@ -40,7 +41,8 @@ export const ProductProvider = ({ children }) => {
     const [productosDescontinuados, setProductosDescontinuados] = useState([]);
     // const [categorias, setCategorias] = useState([]);
     // const [subcategorias, setSubcategorias] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const { userRol } = useAuth();
 
     const getAuthHeaders = (isJson = true) => {
         const token = localStorage.getItem('token');
@@ -56,17 +58,19 @@ export const ProductProvider = ({ children }) => {
 
     const reloadProducts = async () => {
         try {
-            const resProductos = await fetch(`${API_URL}/api/productos`, {
-                headers: getAuthHeaders(false)
-            });
-
-            if (resProductos.status === 401) {
-                throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
-            }
+            // Público: catálogo de cliente no requiere token
+            const resProductos = await fetch(`${API_URL}/api/productos`);
             if (!resProductos.ok) throw new Error('No se pudo obtener los productos');
 
-            const productos = await resProductos.json();
-            if (Array.isArray(productos)) setProductos(productos);
+            const rawProductos = await resProductos.json();
+            if (rawProductos?.content && Array.isArray(rawProductos.content)) {
+                setProductos(rawProductos.content);
+            } else if (Array.isArray(rawProductos)) {
+                setProductos(rawProductos);
+            } else {
+                console.warn('Formato de productos desconocido:', rawProductos);
+                setProductos([]);
+            }
 
         } catch (error) {
             console.error('Error al obtener los productos', error);
@@ -81,6 +85,7 @@ export const ProductProvider = ({ children }) => {
             setLoading(true);
             try {
                 const token = localStorage.getItem('token');
+                const isAdmin = userRol === 'ROLE_ADMIN';
 
                 // Intentar cargar categorías (público)
                 // let categoriasData = [];
@@ -115,42 +120,29 @@ export const ProductProvider = ({ children }) => {
                 // }
                 // //setSubcategorias(subcategoriasData);
 
-                // Intentar cargar productos (requiere auth)
+                // Público: catálogo cliente
                 let productosData = [];
-                if (token) {
-                    try {
-                        const headers = getAuthHeaders(false);
-                        const resProductos = await fetch(`${API_URL}/api/productos`, { headers });
+                try {
+                    const resProductos = await fetch(`${API_URL}/api/productos`);
+                    if (!resProductos.ok) throw new Error('No se pudo obtener los productos');
+                    const rawProductos = await resProductos.json();
 
-                        if (resProductos.status === 401) {
-                            console.warn("Token inválido - Redirigiendo al login");
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('rol');
-                            window.location.href = '/login';
-                            return;
-                        }
-
-                        if (resProductos.ok) {
-                            const rawProductos = await resProductos.json();
-                            
-                            // El backend devuelve un Page de Spring Data, extraer el content
-                            if (rawProductos.content && Array.isArray(rawProductos.content)) {
-                                productosData = rawProductos.content;
-                            } else if (Array.isArray(rawProductos)) {
-                                productosData = rawProductos;
-                            } else {
-                                console.warn('Formato de productos desconocido:', rawProductos);
-                                productosData = [];
-                            }
-                        }
-                    } catch (prodError) {
-                        console.error('Error al cargar productos:', prodError);
+                    // El backend devuelve un Page de Spring Data, extraer el content
+                    if (rawProductos?.content && Array.isArray(rawProductos.content)) {
+                        productosData = rawProductos.content;
+                    } else if (Array.isArray(rawProductos)) {
+                        productosData = rawProductos;
+                    } else {
+                        console.warn('Formato de productos desconocido:', rawProductos);
+                        productosData = [];
                     }
+                } catch (prodError) {
+                    console.error('Error al cargar productos:', prodError);
                 }
 
                 // Intentar cargar productos (requiere auth)
                 let productosOcultosData = [];
-                if (token) {
+                if (token && isAdmin) {
                     try {
                         const headers = getAuthHeaders(false);
                         const resProductosOcultos = await fetch(`${API_URL}/api/productos/admin?estado=OCULTO`, { headers });
@@ -181,7 +173,7 @@ export const ProductProvider = ({ children }) => {
                     }
                 }
                 let productosDescontinuadosData = [];
-                if (token) {
+                if (token && isAdmin) {
                     try {
                         const headers = getAuthHeaders(false);
                         const resProductosDescontinuados = await fetch(`${API_URL}/api/productos/admin?estado=DESCONTINUADO`, { headers });
@@ -221,14 +213,12 @@ export const ProductProvider = ({ children }) => {
             } catch (error) {
                 console.error('Error general al cargar datos:', error);
                 setProductos([]);
-                setCategorias([]);
-                setSubcategorias([]);
             } finally {
                 setLoading(false);
             }
         };
         getProducts();
-    }, []);
+    }, [userRol]);
 
     const createProduct = async (producto) => {
         setLoading(true);
