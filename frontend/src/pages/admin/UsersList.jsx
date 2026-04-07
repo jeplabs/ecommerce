@@ -3,22 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from "../../components/layout/Navbar/Navbar";
 import { API_URL } from "../../config/config";
 import UsersTable from "../../components/admin/UsersTable";
+import { useAuth } from "../../context/AuthContext";
 
 export default function UsersList() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const { desactivarUsuario, activarUsuario } = useAuth();
 
     useEffect(() => {
-        // 1. Verificación de seguridad al montar
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/login', { replace: true });
             return;
         }
 
-        // 2. Función para obtener datos
         const fetchUsers = async () => {
             setLoading(true);
             setError(null);
@@ -55,17 +55,53 @@ export default function UsersList() {
         fetchUsers();
     }, [navigate]);
 
+    // --- NUEVAS FUNCIONES WRAPPER ---
+    // Estas funciones ejecutan la acción Y LUEGO actualizan la lista visualmente
+    const handleActivarUsuario = async (userId) => {
+        const resultado = await activarUsuario(userId);
+        
+        if (resultado.success) {
+            // Actualizamos el estado local inmediatamente sin recargar toda la página
+            setUsers(prevUsers => 
+                prevUsers.map(user => 
+                    user.id === userId ? { ...user, activo: true } : user
+                )
+            );
+        } else {
+            alert(`Error: ${resultado.error}`);
+        }
+    };
+
+    const handleDesactivarUsuario = async (userId) => {
+
+        const resultado = await desactivarUsuario(userId);
+        
+        if (resultado.success) {
+            // Actualizamos el estado local inmediatamente
+            setUsers(prevUsers => 
+                prevUsers.map(user => 
+                    user.id === userId ? { ...user, activo: false } : user
+                )
+            );
+        } else {
+            alert(`Error: ${resultado.error}`);
+        }
+    };
+    // -------------------------------
+
     return (
         <>
             <Navbar />
             <main className="admin-container">
-                    <h1>Gestión de Usuarios</h1>
+                <h1>Gestión de Usuarios</h1>
 
-                {/* Pasamos los datos y estados al componente tabla */}
+                {/* Pasamos las NUEVAS funciones wrapper en lugar de las del contexto directo */}
                 <UsersTable 
                     users={users} 
                     loading={loading} 
                     error={error} 
+                    desactivarUsuario={handleDesactivarUsuario}
+                    activarUsuario={handleActivarUsuario}
                 />
             </main>
         </>

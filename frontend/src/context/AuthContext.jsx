@@ -145,6 +145,52 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('rol');
     }
 
+    const desactivarUsuario = async (id) => {
+        try {
+            const response = await fetch(`${API_URL}/api/auth/usuarios/${id}/estado`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({ "activo": false })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error en el login');
+            }
+
+            return { success: true, message: 'Usuario desactivado exitosamente' };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
+
+    const activarUsuario = async (id) => {
+        try {
+            const response = await fetch(`${API_URL}/api/auth/usuarios/${id}/estado`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({ "activo": true })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error en el login');
+            }
+
+            return { success: true, message: 'Usuario activado exitosamente' };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
+
     return (
         <AuthContext.Provider 
             value={{ 
@@ -153,7 +199,9 @@ export const AuthProvider = ({ children }) => {
                 userRol, 
                 login, 
                 register, 
-                logout 
+                logout,
+                desactivarUsuario,
+                activarUsuario
             }}
         >
             {!loading && children}

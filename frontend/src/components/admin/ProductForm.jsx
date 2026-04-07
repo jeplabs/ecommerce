@@ -24,6 +24,10 @@ export const ProductForm = ({
     // Estado para las características dinámicas (Array de objetos)
     const [specs, setSpecs] = useState([]);
 
+    // Estado para categorías adicionales
+    const [additionalCategories, setAdditionalCategories] = useState([]);
+
+
     //  Estado para los campos del formulario
     const [formData, setFormData] = useState({
         nombre: '',
@@ -48,16 +52,101 @@ export const ProductForm = ({
                 ? initialData.estado.toLowerCase().replace(/_/g, '-')
                 : 'disponible';
             
-            let categoria = '';
-            let subcategoria = '';
-            let subsubcategoria = '';
-            for (const cat in initialData.categorias) {
-                if (initialData.categorias[cat].parentId == null) {
-                    categoria = cat;
-                } else {
-                    subcategoria = cat;
+                // 1. Obtener todos los IDs de categorías disponibles
+            // Usamos el array 'categorias' que envía el backend
+            const todosLosNodos = initialData.categorias || [];
+            const todosLosIds = todosLosNodos.map(n => n.id);
+
+            // 2. Función auxiliar para ordenar una rama jerárquica (Padre -> Hijo -> Nieto)
+            const construirRama = (idsDisponibles) => {
+                if (idsDisponibles.length === 0) return [];
+                
+                // Buscar el nodo raíz (el que tiene parentId null)
+                let raiz = todosLosNodos.find(n => idsDisponibles.includes(n.id) && n.parentId === null);
+                
+                // Si no hay raíz explícita (ej. todo son subcategorías), tomamos el primero disponible como base
+                if (!raiz) raiz = todosLosNodos.find(n => idsDisponibles.includes(n.id));
+                if (!raiz) return [];
+
+                const rama = [raiz.id];
+
+                // Buscar hijo
+                let hijo = todosLosNodos.find(n => n.parentId === raiz.id && idsDisponibles.includes(n.id));
+                if (hijo) {
+                    rama.push(hijo.id);
+                    // Buscar nieto
+                    let nieto = todosLosNodos.find(n => n.parentId === hijo.id && idsDisponibles.includes(n.id));
+                    if (nieto) rama.push(nieto.id);
+                }
+                return rama;
+            };
+
+            // 3. Construir la Categoría Principal
+            const ramaPrincipal = construirRama(todosLosIds);
+            
+            setFormData({
+                nombre: initialData.nombre || '',
+                sku: initialData.sku || '',
+                descripcion: initialData.descripcion || '',
+                price: initialData.price || '',
+                stock: initialData.stock || '',
+                estado: estadoNormalizado,
+                categoria: ramaPrincipal[0]?.toString() || '',
+                subcategoria: ramaPrincipal[1]?.toString() || '',
+                subsubcategoria: ramaPrincipal[2]?.toString() || '',
+                moneda: initialData.moneda || 'USD',
+                images: [] 
+            });
+
+            // 4. Construir Categorías Adicionales
+            // Quitamos los IDs que ya usamos en la principal
+            const idsUsados = new Set(ramaPrincipal);
+            const idsRestantes = todosLosIds.filter(id => !idsUsados.has(id));
+
+            const gruposAdicionales = [];
+            if (idsRestantes.length > 0) {
+                // Mientras queden IDs, intentamos construir ramas de 3
+                let idsTemp = [...idsRestantes];
+                let index = 0;
+                
+                while (idsTemp.length > 0) {
+                    const rama = construirRama(idsTemp);
+                    if (rama.length > 0) {
+                        gruposAdicionales.push({
+                            id: `edit_cat_${Date.now()}_${index}`,
+                            categoria: rama[0]?.toString() || '',
+                            subcategoria: rama[1]?.toString() || '',
+                            subsubcategoria: rama[2]?.toString() || ''
+                        });
+                        // Remover los IDs usados de la lista temporal
+                        idsTemp = idsTemp.filter(id => !rama.includes(id));
+                        index++;
+                    } else {
+                        // Si no podemos construir una rama lógica, agregamos lo que quede como categoría suelta
+                        // (Esto es un caso borde por si los datos están muy sucios)
+                        gruposAdicionales.push({
+                            id: `edit_cat_${Date.now()}_${index}`,
+                            categoria: idsTemp[0]?.toString() || '',
+                            subcategoria: '',
+                            subsubcategoria: ''
+                        });
+                        idsTemp.shift();
+                        index++;
+                    }
                 }
             }
+
+            setAdditionalCategories(gruposAdicionales);
+            // let categoria = '';
+            // let subcategoria = '';
+            // let subsubcategoria = '';
+            // for (const cat in initialData.categorias) {
+            //     if (initialData.categorias[cat].parentId == null) {
+            //         categoria = cat;
+            //     } else {
+            //         subcategoria = cat;
+            //     }
+            // }
 
             if (initialData && initialData.specs) {
                 if (specs.length === 0) {
@@ -74,19 +163,55 @@ export const ProductForm = ({
                 }
             }
             
-            setFormData({
-                nombre: initialData.nombre || '',
-                sku: initialData.sku || '',
-                descripcion: initialData.descripcion || '',
-                price: initialData.price || '',
-                stock: initialData.stock || '',
-                estado: estadoNormalizado,
-                categoria: initialData.categoria?.id?.toString() || initialData.categoria?.toString() || '',
-                subcategoria: initialData.subcategoria?.id?.toString() || initialData.subcategoria?.toString() || '',
-                subsubcategoria: initialData.subsubcategoria?.id?.toString() || initialData.subsubcategoria?.toString() || '',
-                moneda: initialData.moneda || 'USD',
-                images: [] 
-            });
+            // setFormData({
+            //     nombre: initialData.nombre || '',
+            //     sku: initialData.sku || '',
+            //     descripcion: initialData.descripcion || '',
+            //     price: initialData.price || '',
+            //     stock: initialData.stock || '',
+            //     estado: estadoNormalizado,
+            //     categoria: initialData.categoria?.id?.toString() || initialData.categoria?.toString() || '',
+            //     subcategoria: initialData.subcategoria?.id?.toString() || initialData.subcategoria?.toString() || '',
+            //     subsubcategoria: initialData.subsubcategoria?.id?.toString() || initialData.subsubcategoria?.toString() || '',
+            //     moneda: initialData.moneda || 'USD',
+            //     images: [] 
+            // });
+
+            // const gruposAdicionales = [];
+            
+            // // Opción A: Si tu backend llega a enviar un campo 'categoriaIds' en el futuro
+            // if (initialData.categoriaIds && Array.isArray(initialData.categoriaIds)) {
+            //     const idsRestantes = initialData.categoriaIds.slice(3); // Saltamos los 3 primeros
+            //     for (let i = 0; i < idsRestantes.length; i += 3) {
+            //         const chunk = idsRestantes.slice(i, i + 3);
+            //         if (chunk.length > 0) {
+            //             gruposAdicionales.push({
+            //                 id: `edit_cat_${Date.now()}_${i}`,
+            //                 categoria: chunk[0]?.toString() || '',
+            //                 subcategoria: chunk[1]?.toString() || '',
+            //                 subsubcategoria: chunk[2]?.toString() || ''
+            //             });
+            //         }
+            //     }
+            // } 
+            // // Opción B: Usar el array 'categorias' si contiene más objetos que la rama principal
+            // else if (initialData.categorias && Array.isArray(initialData.categorias) && initialData.categorias.length > 3) {
+            //     // Asumimos que los primeros 3 son la principal, el resto son adicionales
+            //     const catsRestantes = initialData.categorias.slice(3);
+            //     for (let i = 0; i < catsRestantes.length; i += 3) {
+            //         const chunk = catsRestantes.slice(i, i + 3);
+            //         if (chunk.length > 0) {
+            //             gruposAdicionales.push({
+            //                 id: `edit_cat_${Date.now()}_${i}`,
+            //                 categoria: chunk[0]?.id?.toString() || '',
+            //                 subcategoria: chunk[1]?.id?.toString() || '',
+            //                 subsubcategoria: chunk[2]?.id?.toString() || ''
+            //             });
+            //         }
+            //     }
+            // }
+
+            // setAdditionalCategories(gruposAdicionales);
 
             // Si el producto editado tiene imágenes que son URLs (strings), las cargamos
             if (initialData.images && initialData.images.length > 0) {
@@ -269,6 +394,38 @@ export const ProductForm = ({
         ));
     };
 
+    // Lógica para Categorías Adicionales
+    const addAdditionalCategory = () => {
+        const newCatGroup = {
+            id: `cat_group_${Date.now()}_${Math.random()}`,
+            categoria: '',
+            subcategoria: '',
+            subsubcategoria: ''
+        };
+        setAdditionalCategories(prev => [...prev, newCatGroup]);
+    };
+
+    const removeAdditionalCategory = (idToRemove) => {
+        setAdditionalCategories(prev => prev.filter(cat => cat.id !== idToRemove));
+    };
+
+    const updateAdditionalCategory = (id, field, newValue) => {
+        setAdditionalCategories(prev => prev.map(cat => {
+            if (cat.id !== id) return cat;
+            
+            const updatedCat = { ...cat, [field]: newValue };
+            
+            if (field === 'categoria') {
+                updatedCat.subcategoria = '';
+                updatedCat.subsubcategoria = '';
+            }
+            if (field === 'subcategoria') {
+                updatedCat.subsubcategoria = '';
+            }
+            return updatedCat;
+        }));
+    };
+
     // Validar campos obligatorios
     const validateForm = () => {
         const newErrors = {};
@@ -324,9 +481,9 @@ export const ProductForm = ({
             newErrors.subcategoria = "La subcategoría es obligatoria";
         }
 
-        if (!subsubcategoria.trim()) {
-            newErrors.subsubcategoria = "La subsubcategoría es obligatoria";
-        }
+        // if (!subsubcategoria.trim()) {
+        //     newErrors.subsubcategoria = "La subsubcategoría es obligatoria";
+        // }
 
         // En edición, no requerimos imágenes (ya existen en el servidor)
         // En creación, sí requerimos al menos una imagen
@@ -368,13 +525,25 @@ export const ProductForm = ({
             }
         });
 
-        const categoriasIds = [
-            formData.categoria,
-            formData.subcategoria,
-            formData.subsubcategoria
-        ]
-            .filter(id => id)
-            .map(id => Number(id));
+        // const categoriasIds = [
+        //     formData.categoria,
+        //     formData.subcategoria,
+        //     formData.subsubcategoria
+        // ]
+        //     .filter(id => id)
+        //     .map(id => Number(id));
+
+        const allCategoryIds = new Set();
+
+        if (formData.categoria) allCategoryIds.add(Number(formData.categoria));
+        if (formData.subcategoria) allCategoryIds.add(Number(formData.subcategoria));
+        if (formData.subsubcategoria) allCategoryIds.add(Number(formData.subsubcategoria));
+
+        additionalCategories.forEach(group => {
+            if (group.categoria) allCategoryIds.add(Number(group.categoria));
+            if (group.subcategoria) allCategoryIds.add(Number(group.subcategoria));
+            if (group.subsubcategoria) allCategoryIds.add(Number(group.subsubcategoria));
+        });
 
         const finalData = {
             sku: formData.sku.trim(),
@@ -388,12 +557,137 @@ export const ProductForm = ({
                 precioCosto: Number(formData.price),
                 moneda: formData.moneda || 'USD'
             },
-            categoriaIds: categoriasIds,
+            // categoriaIds: categoriasIds,
+            categoriaIds: Array.from(allCategoryIds),
             imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null
         };
 
         //console.debug('ProductForm submit finalData', finalData);
         onSubmit(finalData);
+    };
+
+    // Helper para encontrar nodos en el árbol
+    const findNodeById = (id, tree) => {
+        for (const node of tree) {
+            if (node.id == id) return node;
+            if (node.subcategorias) {
+                const found = findNodeById(id, node.subcategorias);
+                if (found) return found;
+            }
+        }
+        return null;
+    };
+
+    // Componente interno para renderizar un grupo de categorías (Principal o Adicional)
+    const renderCategoryGroup = (catData, isAdditional = false, index = null) => {
+        const catId = isAdditional ? catData.categoria : formData.categoria;
+        const subCatId = isAdditional ? catData.subcategoria : formData.subcategoria;
+        const subSubCatId = isAdditional ? catData.subsubcategoria : formData.subsubcategoria;
+
+        const catNode = findNodeById(catId, arbolCategorias);
+        const subCatNode = subCatId ? findNodeById(subCatId, arbolCategorias) : null;
+
+        const handleChangeLocal = (e) => {
+            const { name, value } = e.target;
+            if (isAdditional && index !== null) {
+                updateAdditionalCategory(catData.id, name, value);
+            } else {
+                // Para la principal, usamos el handleChange global del formulario
+                // Pero necesitamos simular el evento con el nombre correcto
+                handleChange(e);
+            }
+        };
+
+        return (
+            <div className={`category-group ${isAdditional ? 'additional-category-group' : 'main-category-group'}`} 
+                style={{ 
+                    background: 'rgba(255,255,255,0.05)', 
+                    padding: '15px', 
+                    borderRadius: '8px', 
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    marginBottom: '15px',
+                    position: 'relative'
+                }}>
+                
+                {/* Fila 1: Categoría y Subcategoría */}
+                <div className="form-row" style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+                    <div className="form-field" style={{ flex: 1 }}>
+                        <label>{isAdditional ? 'Categoría' : 'Categoria'}</label>
+                        <select
+                            name="categoria"
+                            value={catId}
+                            onChange={handleChangeLocal}
+                            required={!isAdditional}
+                            style={{ width: '100%', padding: '8px' }}
+                        >
+                            <option value="">Selecciona una categoría</option>
+                            {arbolCategorias.map((cat) => (
+                                <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-field" style={{ flex: 1 }}>
+                        <label>{isAdditional ? 'Subcategoría' : 'Subcategoria'}</label>
+                        <select
+                            name="subcategoria"
+                            value={subCatId}
+                            onChange={handleChangeLocal}
+                            disabled={!catId}
+                            style={{ width: '100%', padding: '8px' }}
+                        >
+                            <option value="">Selecciona una subcategoría</option>
+                            {catId && catNode?.subcategorias?.map((sub) => (
+                                <option key={sub.id} value={sub.id}>{sub.nombre}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                {/* Fila 2: Subsubcategoría y Botón Eliminar (si es adicional) */}
+                <div className="form-row" style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
+                    <div className="form-field" style={{ flex: 1 }}>
+                        <label>{isAdditional ? 'Subsubcategoría' : 'Subsubcategoria'}</label>
+                        <select
+                            name="subsubcategoria"
+                            value={subSubCatId}
+                            onChange={handleChangeLocal}
+                            disabled={!subCatId}
+                            // required={!isAdditional} // Opcional: hacerla obligatoria solo en la principal
+                            style={{ width: '100%', padding: '8px' }}
+                        >
+                            <option value="">Selecciona una subsubcategoría</option>
+                            {subCatId && subCatNode?.subcategorias?.map((subsub) => (
+                                <option key={subsub.id} value={subsub.id}>{subsub.nombre}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {isAdditional && (
+                        <div className="form-field" style={{ flex: '0 0 auto' }}>
+                            <label style={{ visibility: 'hidden' }}>Acción</label>
+                            <button 
+                                type="button" 
+                                onClick={() => removeAdditionalCategory(catData.id)}
+                                className="btn-remove-spec"
+                                style={{ 
+                                    width: '100%', 
+                                    padding: '8px', 
+                                    background: '#ef4444', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -496,7 +790,7 @@ export const ProductForm = ({
                         />
                         {errors.stock && <span className="error">{errors.stock}</span>}
                     </div>
-                <div className="">
+
                     {/* Estado */}
                     <div className="form-field">
                         <label htmlFor="estado">Estado</label>
@@ -513,8 +807,6 @@ export const ProductForm = ({
                             <option value="descontinuado">Descontinuado</option>
                         </select>
                     </div>
-                </div>
-
 
                     {/* Categoria */}
                     <div className="form-field">
@@ -566,7 +858,7 @@ export const ProductForm = ({
                             name="subsubcategoria"
                             value={formData.subsubcategoria}
                             onChange={handleChange}
-                            required
+                            //required
                             disabled={!formData.subcategoria} 
                         >
                             <option value="">Selecciona una subcategoría</option>
@@ -582,7 +874,97 @@ export const ProductForm = ({
                             ))}
                         </select>
                     </div>
+
+                    {/* Botón Agregar */}
+                    <div>
+                        <label>(Opcional)</label>
+                        <button 
+                            type="button" 
+                            onClick={addAdditionalCategory} 
+                            className="btn-submit"
+                            style={{ marginTop: '6px' }}
+                        >
+                            Agregar categoría
+                        </button>
+                    </div>
                 </div>
+
+                {/* Categorías Adicionales */}
+                {additionalCategories.map((group) => {
+                    const catNode = findNodeById(group.categoria, arbolCategorias);
+                    const subCatNode = group.subcategoria ? findNodeById(group.subcategoria, arbolCategorias) : null;
+
+                    return (
+                        <div 
+                            key={group.id} 
+                            // style={{ marginTop: '20px' }}
+                            className="form-row"
+                        >
+                            <div className="form-field">
+                                <label>Categoria Adicional</label>
+                                <select
+                                    value={group.categoria}
+                                    onChange={(e) => updateAdditionalCategory(group.id, 'categoria', e.target.value)}
+                                >
+                                    <option value="">Selecciona una categoría</option>
+                                    {arbolCategorias.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="form-field">
+                                <label>Subcategoria</label>
+                                <select
+                                    value={group.subcategoria}
+                                    onChange={(e) => updateAdditionalCategory(group.id, 'subcategoria', e.target.value)}
+                                    disabled={!group.categoria}
+                                >
+                                    <option value="">Selecciona una subcategoría</option>
+                                    {catNode?.subcategorias?.map((sub) => (
+                                        <option key={sub.id} value={sub.id}>{sub.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="form-field">
+                                <label>Subsubcategoria</label>
+                                <div 
+                                    style={{ display: 'flex', gap: '10px' }}
+                                >
+                                    <select
+                                        value={group.subsubcategoria}
+                                        onChange={(e) => updateAdditionalCategory(group.id, 'subsubcategoria', e.target.value)}
+                                        disabled={!group.subcategoria}
+                                        // style={{ flex: 1 }}
+                                    >
+                                        <option value="">Selecciona una subcategoría</option>
+                                        {subCatNode?.subcategorias?.map((subsub) => (
+                                            <option key={subsub.id} value={subsub.id}>{subsub.nombre}</option>
+                                        ))}
+                                    </select>
+                                    
+                                    
+                                </div>
+                                
+                            </div>
+                            {/* Botón Eliminar */}
+                            <div>
+                                <label>Remover</label>
+                                <button 
+                                    type="button" 
+                                    className="btn-submit" 
+                                    onClick={() => removeAdditionalCategory(group.id)}
+                                    title="Eliminar categoría"
+                                    style={{ marginTop: '6px' }}
+                                >
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })}
+                
 
                 {/* Specs */}
 
@@ -601,7 +983,8 @@ export const ProductForm = ({
                     
                     <div className="specs-list">
                         {specs.map((spec) => (
-                            <div key={spec.id} className="spec-row">
+                            <div key={spec.id} className="spec-row" >
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', width: '100%' }}>
                                 <input 
                                     type="text" 
                                     placeholder="Clave (ej. Color)" 
@@ -609,22 +992,23 @@ export const ProductForm = ({
                                     onChange={(e) => updateSpec(spec.id, 'key', e.target.value)}
                                     className="spec-key"
                                 />
-                                <input 
-                                    type="text" 
-                                    placeholder="Valor (ej. Rojo)" 
-                                    value={spec.value}
-                                    onChange={(e) => updateSpec(spec.id, 'value', e.target.value)}
-                                    className="spec-value"
-                                />
-                                <button 
-                                    type="button" 
-                                    className="btn-remove-spec" 
-                                    onClick={() => removeSpec(spec.id)}
-                                    title="Eliminar fila"
-                                    aria-label="Eliminar característica"
-                                >
-                                    ×
-                                </button>
+                                    <input
+                                        type="text"
+                                        placeholder="Valor (ej. Rojo)"
+                                        value={spec.value}
+                                        onChange={(e) => updateSpec(spec.id, 'value', e.target.value)}
+                                        className="spec-value"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn-remove-spec"
+                                        onClick={() => removeSpec(spec.id)}
+                                        title="Eliminar fila"
+                                        aria-label="Eliminar característica"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
