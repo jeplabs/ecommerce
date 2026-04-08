@@ -16,7 +16,7 @@ export const UsersTable = ({ users, loading, error, desactivarUsuario, activarUs
             desactivarUsuario(id);
         }
     };
-    console.log("Usuarios recibidos en UsersTable:", users);
+    // console.log("Usuarios recibidos en UsersTable:", users);
 
     const handleActivate = (id) => {
         const confirmActivate = window.confirm("¿Estás seguro de que deseas activar este usuario?");

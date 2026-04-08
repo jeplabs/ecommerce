@@ -27,6 +27,11 @@ export const ProductForm = ({
     // Estado para categorías adicionales
     const [additionalCategories, setAdditionalCategories] = useState([]);
 
+    // Para rastrear qué IDs de imágenes originales se eliminaron en esta sesión
+    const [imagenesAEliminarIds, setImagenesAEliminarIds] = useState([]); 
+    
+    // Para guardar el ID de la imagen que el usuario marca como principal
+    const [imagenPrincipalId, setImagenPrincipalId] = useState(null); 
 
     //  Estado para los campos del formulario
     const [formData, setFormData] = useState({
@@ -46,7 +51,13 @@ export const ProductForm = ({
     // Cargar datos si es edición
     useEffect(() => {
         if (initialData) {
-            console.log(initialData)
+
+            console.log('🔍 DEBUG BACKEND - initialData completo:', initialData);
+            console.log('🖼️ DEBUG IMÁGENES - initialData.images:', initialData.images);
+            
+            // console.log(initialData)
+            setImagenesAEliminarIds([]); 
+            setImagenPrincipalId(null);
 
             const estadoNormalizado = initialData.estado
                 ? initialData.estado.toLowerCase().replace(/_/g, '-')
@@ -216,13 +227,19 @@ export const ProductForm = ({
             // Si el producto editado tiene imágenes que son URLs (strings), las cargamos
             if (initialData.images && initialData.images.length > 0) {
                 const loadedImages = initialData.images.map((img, index) => {
-                    const isUrl = typeof img === 'string';
+                    const isUrl = typeof img === 'string' ? { url: img, principal: false } : img;
+                    
+                    if (isUrl.principal) {
+                        setImagenPrincipalId(isUrl.id); // Guardamos el ID de la principal actual
+                    }
+
                     return {
-                        id: index,
+                        id: isUrl.id || index, 
                         type: isUrl ? 'url' : 'file',
                         url: isUrl ? img : null,
                         file: isUrl ? null : img,
-                        preview: isUrl ? img : URL.createObjectURL(img)
+                        preview: isUrl ? img : URL.createObjectURL(img),
+                        principal: isUrl.principal || false
                     };
                 });
                 setFormData(prev => ({ ...prev, images: loadedImages }));
@@ -352,10 +369,26 @@ export const ProductForm = ({
     };
 
     const removeImage = (idToRemove) => {
+        const isConfirmed = window.confirm("¿Estás seguro de que deseas eliminar esta imagen?");
+        if (!isConfirmed) return; 
+        
         setFormData(prev => {
+            // Buscamos la imagen antes de filtrarla para ver si es original
+            const imagenAEliminar = prev.images.find(img => img.id === idToRemove);
+            
+            // Si la imagen tenía un ID original (viene de la BD), la agregamos a la lista de eliminación
+            if (imagenAEliminar && imagenAEliminar.id) {
+                setImagenesAEliminarIds(prevIds => [...prevIds, imagenAEliminar.id]);
+            }
             const newImages = prev.images.filter(img => img.id !== idToRemove);
+            
             if (newImages.length === 0) {
                 setErrors(err => ({ ...err, images: 'Debe seleccionar al menos una imagen del producto' }));
+            }
+
+            // Si eliminamos la que era principal, limpiamos la selección
+            if (imagenPrincipalId === idToRemove) {
+                setImagenPrincipalId(null);
             }
 
             return { 
@@ -370,6 +403,18 @@ export const ProductForm = ({
                 images: "Debe seleccionar al menos una imagen del producto" 
         }));
     };
+
+    const handleSetPrincipal = (id) => {
+    setImagenPrincipalId(id);
+    // Actualizamos visualmente el estado local para mostrar el borde/marca inmediatamente
+    setFormData(prev => ({
+        ...prev,
+        images: prev.images.map(img => ({
+            ...img,
+            principal: img.id === id
+        }))
+    }));
+};
 
     // Lógica para características dinámicas
     const addSpec = () => {
@@ -545,6 +590,21 @@ export const ProductForm = ({
             if (group.subsubcategoria) allCategoryIds.add(Number(group.subsubcategoria));
         });
 
+        let imagenesAEliminar = [];
+        
+        if (isEditing && initialData && initialData.images) {
+            // 1. Obtener URLs originales que tenía el producto
+            const urlsOriginales = initialData.images.map(img => typeof img === 'string' ? img : img.url);
+            
+            // 2. Obtener URLs que quedan actualmente en el formulario
+            const urlsActuales = formData.images
+                .filter(img => img.type === 'url')
+                .map(img => img.url);
+            
+            // 3. Calcular la diferencia: Las que están en Originales pero NO en Actuales
+            imagenesAEliminar = urlsOriginales.filter(url => !urlsActuales.includes(url));
+        }
+
         const finalData = {
             sku: formData.sku.trim(),
             nombre: formData.nombre.trim(),
@@ -559,7 +619,11 @@ export const ProductForm = ({
             },
             // categoriaIds: categoriasIds,
             categoriaIds: Array.from(allCategoryIds),
-            imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null
+            imagenesUrl: urlsToSave.length > 0 ? urlsToSave : null,
+            // Lista de IDs a eliminar en el backend
+            imagenesAEliminarIds: imagenesAEliminarIds.length > 0 ? imagenesAEliminarIds : null,
+            // ID de la nueva imagen principal (si cambió)
+            imagenPrincipalId: imagenPrincipalId
         };
 
         //console.debug('ProductForm submit finalData', finalData);
@@ -1173,10 +1237,29 @@ export const ProductForm = ({
                                         aspectRatio: '1/1', 
                                         objectFit: 'cover', 
                                         borderRadius: '8px',
-                                        border: '1px solid var(--border, rgba(255,255,255,0.1))',
+                                       // Borde verde si es la principal
+                                        border: img.principal ? '3px solid #10b981' : '1px solid var(--border, rgba(255,255,255,0.1))',
                                         boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
                                     }}
                                 />
+
+                                {/* Etiqueta de Principal (Opcional) */}
+                                {img.principal && (
+                                    <span style={{
+                                        position: 'absolute',
+                                        bottom: '4px',
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        background: '#10b981',
+                                        color: 'white',
+                                        fontSize: '10px',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        PRINCIPAL
+                                    </span>
+                                )}
                                 
                                 {/* Botón Eliminar (X) */}
                                 <button
@@ -1207,6 +1290,36 @@ export const ProductForm = ({
                                 >
                                     &times;
                                 </button>
+
+                                {/* --- NUEVO BOTÓN: ESTABLECER PRINCIPAL --- */}
+                                {!img.principal && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSetPrincipal(img.id)}
+                                        title="Marcar como principal"
+                                        style={{
+                                            position: 'absolute',
+                                            bottom: '-6px',
+                                            right: '-6px',
+                                            background: '#3b82f6', // Azul
+                                            color: 'white',
+                                            border: '2px solid #1a2235',
+                                            borderRadius: '50%',
+                                            width: '24px',
+                                            height: '24px',
+                                            fontSize: '10px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                                            zIndex: 10
+                                        }}
+                                    >
+                                        ★
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>

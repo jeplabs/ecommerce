@@ -17,6 +17,8 @@ export default function ProductEdit() {
         updateProduct, 
         updateProductStatus, 
         addProductImages, 
+        deleteProductImage,
+        changeMainImage,
         reloadProducts,
         loading
     } = useProduct();
@@ -78,7 +80,7 @@ export default function ProductEdit() {
         try {
             // Forzar siempre la llamada a updateProductStatus para depuración
             const estadoNuevo = finalData.estado || productData.estado;
-            console.log('[ProductEdit] Llamando updateProductStatus con:', estadoNuevo);
+            //console.log('[ProductEdit] Llamando updateProductStatus con:', estadoNuevo);
             const resEstado = await updateProductStatus(id, estadoNuevo);
             if (!resEstado.success) {
                 showError(`Error al actualizar el estado: ${resEstado.message}`);
@@ -94,23 +96,69 @@ export default function ProductEdit() {
             }
 
             // Manejar cambios de imágenes si fue en edición
-            if (productData && finalData.imagenesUrl) {
-                const urlsOriginales = productData.images || [];
-                const urlsNuevas = finalData.imagenesUrl || [];
-                const urlsEliminadas = urlsOriginales.filter(url => !urlsNuevas.includes(url));
-                const urlsAgregadas = urlsNuevas.filter(url => !urlsOriginales.includes(url));
-                if (urlsEliminadas.length > 0 || urlsAgregadas.length > 0) {
-                    console.debug('ProductEdit imagen cambios - eliminadas:', urlsEliminadas, 'agregadas:', urlsAgregadas);
-                }
-                if (urlsAgregadas.length > 0) {
-                    const addImagesResult = await addProductImages(id, urlsAgregadas);
-                    if (!addImagesResult.success) {
-                        console.error('ProductEdit error agregando imágenes:', addImagesResult.message);
-                    } else {
-                        console.debug('ProductEdit imágenes agregadas exitosamente');
+            // if (productData && finalData.imagenesUrl) {
+            //     const urlsOriginales = productData.images || [];
+            //     const urlsNuevas = finalData.imagenesUrl || [];
+            //     const urlsEliminadas = urlsOriginales.filter(url => !urlsNuevas.includes(url));
+            //     const urlsAgregadas = urlsNuevas.filter(url => !urlsOriginales.includes(url));
+            //     if (urlsEliminadas.length > 0 || urlsAgregadas.length > 0) {
+            //         console.debug('ProductEdit imagen cambios - eliminadas:', urlsEliminadas, 'agregadas:', urlsAgregadas);
+            //     }
+            //     if (urlsAgregadas.length > 0) {
+            //         const addImagesResult = await addProductImages(id, urlsAgregadas);
+            //         if (!addImagesResult.success) {
+            //             console.error('ProductEdit error agregando imágenes:', addImagesResult.message);
+            //         } else {
+            //             console.debug('ProductEdit imágenes agregadas exitosamente');
+            //         }
+            //     }
+            //     TODO: Eliminar imágenes que fueron quitadas
+            // }
+
+            // 1. Eliminar imágenes (El formulario envía los IDs explícitos a borrar)
+            if (finalData.imagenesAEliminarIds && finalData.imagenesAEliminarIds.length > 0) {
+                console.debug('Eliminando imágenes IDs:', finalData.imagenesAEliminarIds);
+                
+                for (const imgId of finalData.imagenesAEliminarIds) {
+                    const res = await deleteProductImage(id, imgId);
+                    if (!res.success) {
+                        console.error(`Error al eliminar imagen ${imgId}:`, res.message);
+                        // Decidimos si continuar o lanzar error. Aquí continuamos pero podrías lanzar excepción.
                     }
                 }
-                // TODO: Eliminar imágenes que fueron quitadas
+                showSuccess(`${finalData.imagenesAEliminarIds.length} imagen(es) eliminada(s)`);
+            }
+
+            // 2. Cambiar imagen principal (Si el usuario seleccionó una nueva)
+            if (finalData.imagenPrincipalId) {
+                console.debug('Cambiando imagen principal a ID:', finalData.imagenPrincipalId);
+                const res = await changeMainImage(id, finalData.imagenPrincipalId);
+                if (!res.success) {
+                    console.error('Error al cambiar imagen principal:', res.message);
+                    showError(`Error al definir imagen principal: ${res.message}`);
+                }
+            }
+
+            // 3. Agregar nuevas imágenes (Solo las URLs nuevas que vienen en imagenesUrl)
+            // Nota: El formulario envía TODAS las URLs actuales en imagenesUrl.
+            // Necesitamos filtrar solo las que NO estaban antes para no duplicar llamadas.
+            if (finalData.imagenesUrl && finalData.imagenesUrl.length > 0) {
+                const urlsOriginales = productData.images || [];
+                // Filtramos solo las URLs que son nuevas
+                const urlsNuevas = finalData.imagenesUrl.filter(
+                    url => !urlsOriginales.includes(url)
+                );
+
+                if (urlsNuevas.length > 0) {
+                    console.debug('Agregando nuevas URLs:', urlsNuevas);
+                    const addImagesResult = await addProductImages(id, urlsNuevas);
+                    if (!addImagesResult.success) {
+                        console.error('Error agregando imágenes:', addImagesResult.message);
+                        showError(`Error al agregar imágenes: ${addImagesResult.message}`);
+                    } else {
+                        showSuccess(`${urlsNuevas.length} imagen(es) agregada(s)`);
+                    }
+                }
             }
 
             // Asegurar que los listados admin queden actualizados antes de volver
