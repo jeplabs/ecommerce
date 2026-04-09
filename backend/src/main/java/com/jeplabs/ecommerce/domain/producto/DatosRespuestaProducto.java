@@ -20,7 +20,7 @@ public record DatosRespuestaProducto(
         EstadoProducto estado,
         BigDecimal precioVenta,
         String moneda,
-        List<String> imagenesUrl,
+        List<DatosRespuestaImagen> imagenes,
         List<DatosRespuestaCategoria> categorias,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -40,7 +40,7 @@ public record DatosRespuestaProducto(
                 monedaActual(producto),
                 producto.getImagenes()
                         .stream()
-                        .map(ProductoImagen::getUrl)
+                        .map(DatosRespuestaImagen::new)
                         .toList(),
                 // Mapeo de categorías
                 producto.getCategorias()

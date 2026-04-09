@@ -16,7 +16,7 @@ public record DatosRespuestaProductoAdmin(
         BigDecimal precioCosto,
         BigDecimal margenPorcentaje,
         String moneda,
-        List<String> imagenesUrl,
+        List<DatosRespuestaImagen> imagenes,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -34,7 +34,7 @@ public record DatosRespuestaProductoAdmin(
                 precioActual(producto).getMoneda(),
                 producto.getImagenes()
                         .stream()
-                        .map(ProductoImagen::getUrl)
+                        .map(DatosRespuestaImagen::new)
                         .toList(),
                 producto.getCreatedAt(),
                 producto.getUpdatedAt()

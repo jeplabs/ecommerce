@@ -66,6 +66,7 @@ public class Producto {
     private List<PrecioHistorial> precios = new ArrayList<>();
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("principal DESC")
     private List<ProductoImagen> imagenes = new ArrayList<>();
 
     public Producto(DatosCrearProducto datos, List<Categoria> categorias) {
