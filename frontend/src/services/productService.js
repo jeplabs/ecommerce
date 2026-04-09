@@ -1,4 +1,5 @@
 import { API_URL } from '../config/config';
+//import { getAuthHeaders, parseListResponse, isAuthError } from '../utils/apiHelpers';
 
 // Helper para headers (igual que tu función original)
 const getAuthHeaders = (isJson = true) => {
