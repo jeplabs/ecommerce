@@ -193,6 +193,19 @@ export const productService = {
         return true;
     },
 
+    // 9b. Listar imágenes (incluye id/url/principal)
+    getImages: async (productId) => {
+        const res = await fetch(`${API_URL}/api/productos/${productId}/imagenes`, {
+            headers: getAuthHeaders(false),
+        });
+        if (res.status === 401) throw new Error('Sesión expirada');
+        if (!res.ok) {
+            const errorText = await res.text().catch(() => '');
+            throw new Error(errorText || 'No se pudo obtener imágenes');
+        }
+        return await res.json();
+    },
+
     // 10. Eliminar una imagen específica
     deleteImage: async (productId, imageId) => {
         const res = await fetch(`${API_URL}/api/productos/${productId}/imagenes/${imageId}`, {

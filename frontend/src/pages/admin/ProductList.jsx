@@ -124,7 +124,13 @@ export default function ProductList() {
                                     <div className="card-preview">
                                         {((producto.imagenesUrl && producto.imagenesUrl.length > 0) || (producto.images && producto.images.length > 0)) ? (
                                             <img
-                                                src={producto.imagenesUrl?.[0] || producto.images?.[0] || ''}
+                                                src={
+                                                    producto.imagenesUrl?.[0] ||
+                                                    (typeof producto.images?.[0] === 'string'
+                                                        ? producto.images?.[0]
+                                                        : (producto.images?.[0]?.url || producto.images?.[0]?.imagenUrl || '')) ||
+                                                    ''
+                                                }
                                                 alt={producto.nombre}
                                                 className="product-image"
                                                 onError={(e) => {

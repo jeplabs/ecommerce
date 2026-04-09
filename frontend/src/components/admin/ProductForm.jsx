@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useToast } from '../../context/ToastContext';
+//import { useToast } from '../../context/ToastContext';
 
 export const ProductForm = ({ 
     initialData = null, 
@@ -52,8 +52,8 @@ export const ProductForm = ({
     useEffect(() => {
         if (initialData) {
 
-            console.log('🔍 DEBUG BACKEND - initialData completo:', initialData);
-            console.log('🖼️ DEBUG IMÁGENES - initialData.images:', initialData.images);
+            //console.log('🔍 DEBUG BACKEND - initialData completo:', initialData);
+            //console.log('🖼️ DEBUG IMÁGENES - initialData.images:', initialData.images);
             
             // console.log(initialData)
             setImagenesAEliminarIds([]); 
@@ -227,19 +227,32 @@ export const ProductForm = ({
             // Si el producto editado tiene imágenes que son URLs (strings), las cargamos
             if (initialData.images && initialData.images.length > 0) {
                 const loadedImages = initialData.images.map((img, index) => {
-                    const isUrl = typeof img === 'string' ? { url: img, principal: false } : img;
+                    const normalized =
+                        typeof img === 'string'
+                            ? { url: img, principal: false }
+                            : img;
+
+                    const resolvedUrl =
+                        normalized?.url ??
+                        normalized?.imagenUrl ??
+                        normalized?.urlImagen ??
+                        normalized?.src ??
+                        (typeof img === 'string' ? img : '');
                     
-                    if (isUrl.principal) {
-                        setImagenPrincipalId(isUrl.id); // Guardamos el ID de la principal actual
+                    if (normalized?.principal && normalized?.id != null) {
+                        setImagenPrincipalId(normalized.id); // Guardamos el ID real de la principal actual
                     }
 
                     return {
-                        id: isUrl.id || index, 
-                        type: isUrl ? 'url' : 'file',
-                        url: isUrl ? img : null,
-                        file: isUrl ? null : img,
-                        preview: isUrl ? img : URL.createObjectURL(img),
-                        principal: isUrl.principal || false
+                        id: normalized?.id ?? index,
+                        backendId: normalized?.id ?? null,
+                        type: 'url',
+                        url: resolvedUrl,
+                        file: null,
+                        preview: resolvedUrl,
+                        principal: normalized?.principal || false,
+                        // "persisted" solo si vino como objeto con ID desde backend
+                        persisted: normalized?.id != null && typeof img !== 'string'
                     };
                 });
                 setFormData(prev => ({ ...prev, images: loadedImages }));
@@ -354,9 +367,11 @@ export const ProductForm = ({
 
         const newImage = {
             id: Date.now(),
+            backendId: null,
             type: 'url',
             url: urlInput,
-            preview: urlInput
+            preview: urlInput,
+            persisted: false
         };
 
         setFormData(prev => ({
@@ -376,9 +391,9 @@ export const ProductForm = ({
             // Buscamos la imagen antes de filtrarla para ver si es original
             const imagenAEliminar = prev.images.find(img => img.id === idToRemove);
             
-            // Si la imagen tenía un ID original (viene de la BD), la agregamos a la lista de eliminación
-            if (imagenAEliminar && imagenAEliminar.id) {
-                setImagenesAEliminarIds(prevIds => [...prevIds, imagenAEliminar.id]);
+            // Solo si la imagen existe en BD (tiene ID persistido) la marcamos para eliminar en backend
+            if (imagenAEliminar?.persisted && imagenAEliminar.backendId != null) {
+                setImagenesAEliminarIds(prevIds => [...prevIds, imagenAEliminar.backendId]);
             }
             const newImages = prev.images.filter(img => img.id !== idToRemove);
             
@@ -404,14 +419,14 @@ export const ProductForm = ({
         }));
     };
 
-    const handleSetPrincipal = (id) => {
-    setImagenPrincipalId(id);
+    const handleSetPrincipal = (backendId) => {
+    setImagenPrincipalId(backendId);
     // Actualizamos visualmente el estado local para mostrar el borde/marca inmediatamente
     setFormData(prev => ({
         ...prev,
         images: prev.images.map(img => ({
             ...img,
-            principal: img.id === id
+            principal: img.backendId === backendId
         }))
     }));
 };
@@ -1292,10 +1307,10 @@ export const ProductForm = ({
                                 </button>
 
                                 {/* --- NUEVO BOTÓN: ESTABLECER PRINCIPAL --- */}
-                                {!img.principal && (
+                                {!img.principal && img.persisted && (
                                     <button
                                         type="button"
-                                        onClick={() => handleSetPrincipal(img.id)}
+                                        onClick={() => handleSetPrincipal(img.backendId)}
                                         title="Marcar como principal"
                                         style={{
                                             position: 'absolute',

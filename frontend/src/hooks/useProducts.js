@@ -120,6 +120,10 @@ export const useProducts = () => {
         }
     };
 
+    const getProductImages = async (productId) => {
+        return await productService.getImages(productId);
+    };
+
     // Hooks específicos para obtener un solo producto (útiles en páginas de detalle)
     const getProductById = async (id) => {
         return await productService.getById(id);
@@ -141,6 +145,7 @@ export const useProducts = () => {
         addProductImages,
         deleteProductImage,
         changeMainImage,
+        getProductImages,
         getProductById,
         getProductByIdAdmin,
         reloadProducts

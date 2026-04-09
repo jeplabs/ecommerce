@@ -14,11 +14,13 @@ export default function ProductEdit() {
     const { arbolCategorias } = useCategorias();
     const { 
         getProductById, 
+        getProductByIdAdmin,
         updateProduct, 
         updateProductStatus, 
         addProductImages, 
         deleteProductImage,
         changeMainImage,
+        getProductImages,
         reloadProducts,
         loading
     } = useProduct();
@@ -29,9 +31,31 @@ export default function ProductEdit() {
     useEffect(() => {
         const loadProduct = async () => {
             try {
-                // Usamos el endpoint público para obtener datos completos (descripcion, specs, categorias).
-                // Para productos ocultos/descontinuados, este endpoint puede no devolver data (validación backend).
-                const product = await getProductById(id);
+                // En vista admin necesitamos el endpoint admin para traer imágenes con ID/principal
+                // (necesario para borrar imágenes y cambiar la principal).
+                //
+                // Pero si el endpoint admin no incluye campos de detalle (p. ej. descripcion/specs),
+                // hacemos fallback al endpoint público y combinamos.
+                const [adminRes, publicRes] = await Promise.allSettled([
+                    getProductByIdAdmin(id),
+                    getProductById(id)
+                ]);
+
+                const adminProduct = adminRes.status === 'fulfilled' ? adminRes.value : null;
+                const publicProduct = publicRes.status === 'fulfilled' ? publicRes.value : null;
+
+                // Preferimos el público para campos de detalle si existe; usamos admin para imágenes con IDs.
+                const baseProduct = publicProduct || adminProduct;
+                const imagesMeta = baseProduct ? await getProductImages(id) : [];
+                const product = baseProduct
+                    ? {
+                        ...baseProduct,
+                        // Para edición: usamos imágenes con ID/url/principal desde /{id}/imagenes
+                        images: Array.isArray(imagesMeta) ? imagesMeta : [],
+                        // Asegurar que descripcion venga del público si el admin no la trae
+                        descripcion: baseProduct.descripcion ?? publicProduct?.descripcion ?? adminProduct?.descripcion
+                    }
+                    : null;
                 // console.log('ProductEdit product', product);
                 if (product) {
 
@@ -45,13 +69,15 @@ export default function ProductEdit() {
                         subSubcatId = product.categorias[2].id?.toString() || '';
                     }
                     
+                    const rawImages = product.images ?? [];
+                    
                     // Transformar los datos del backend para que sean compatibles con el formulario
                     const transformedProduct = {
                         ...product,
                         price: String(product.precioVenta ?? ''), // Confirmar cadena para input
                         descripcion: product.descripcion || '',
                         estado: product.estado || 'disponible',
-                        images: product.imagenesUrl || [],
+                        images: rawImages,
                         categoria: catId?.toString() || '',
                         subcategoria: subcatId?.toString() || '',
                         subsubcategoria: subSubcatId?.toString() || '', // Asumimos que no hay subsubcategoría en este ejemplo
@@ -78,10 +104,12 @@ export default function ProductEdit() {
     const handleUpdate = async (finalData) => {
         console.debug('ProductEdit handleUpdate payload', finalData);
         try {
+            const productId = Number.isFinite(Number(id)) ? Number(id) : id;
+
             // Forzar siempre la llamada a updateProductStatus para depuración
             const estadoNuevo = finalData.estado || productData.estado;
             //console.log('[ProductEdit] Llamando updateProductStatus con:', estadoNuevo);
-            const resEstado = await updateProductStatus(id, estadoNuevo);
+            const resEstado = await updateProductStatus(productId, estadoNuevo);
             if (!resEstado.success) {
                 showError(`Error al actualizar el estado: ${resEstado.message}`);
                 return;
@@ -89,7 +117,7 @@ export default function ProductEdit() {
 
             // Actualizar otros datos (sin el campo estado)
             const { estado, ...rest } = finalData;
-            const result = await updateProduct(id, rest);
+            const result = await updateProduct(productId, rest);
             if (!result.success) {
                 showError(`Error al actualizar el producto: ${result.message}`);
                 return;
@@ -117,25 +145,39 @@ export default function ProductEdit() {
 
             // 1. Eliminar imágenes (El formulario envía los IDs explícitos a borrar)
             if (finalData.imagenesAEliminarIds && finalData.imagenesAEliminarIds.length > 0) {
-                console.debug('Eliminando imágenes IDs:', finalData.imagenesAEliminarIds);
+                const uniqueDeleteIds = Array.from(
+                    new Set(finalData.imagenesAEliminarIds.filter((x) => x != null))
+                );
+                console.debug('Eliminando imágenes IDs:', uniqueDeleteIds);
                 
-                for (const imgId of finalData.imagenesAEliminarIds) {
-                    const res = await deleteProductImage(id, imgId);
+                const failedDeletes = [];
+                for (const imgId of uniqueDeleteIds) {
+                    const res = await deleteProductImage(productId, imgId);
                     if (!res.success) {
                         console.error(`Error al eliminar imagen ${imgId}:`, res.message);
-                        // Decidimos si continuar o lanzar error. Aquí continuamos pero podrías lanzar excepción.
+                        const msg = String(res.message || '');
+                        // Si el backend dice "no encontrada", lo tratamos como idempotente:
+                        // pudo haberse eliminado ya por un intento previo o por duplicación de IDs.
+                        if (!msg.includes('Imagen no encontrada')) {
+                            failedDeletes.push({ imgId, message: msg });
+                        }
                     }
                 }
-                showSuccess(`${finalData.imagenesAEliminarIds.length} imagen(es) eliminada(s)`);
+                if (failedDeletes.length > 0) {
+                    showError(`No se pudieron eliminar ${failedDeletes.length} imagen(es). ${failedDeletes[0].message || ''}`.trim());
+                    return;
+                }
+                showSuccess(`${uniqueDeleteIds.length} imagen(es) eliminada(s)`);
             }
 
             // 2. Cambiar imagen principal (Si el usuario seleccionó una nueva)
             if (finalData.imagenPrincipalId) {
                 console.debug('Cambiando imagen principal a ID:', finalData.imagenPrincipalId);
-                const res = await changeMainImage(id, finalData.imagenPrincipalId);
+                const res = await changeMainImage(productId, finalData.imagenPrincipalId);
                 if (!res.success) {
                     console.error('Error al cambiar imagen principal:', res.message);
                     showError(`Error al definir imagen principal: ${res.message}`);
+                    return;
                 }
             }
 
@@ -143,7 +185,12 @@ export default function ProductEdit() {
             // Nota: El formulario envía TODAS las URLs actuales en imagenesUrl.
             // Necesitamos filtrar solo las que NO estaban antes para no duplicar llamadas.
             if (finalData.imagenesUrl && finalData.imagenesUrl.length > 0) {
-                const urlsOriginales = productData.images || [];
+                const urlsOriginales = (productData.images || [])
+                    .map((img) => {
+                        if (typeof img === 'string') return img;
+                        return img?.url || img?.imagenUrl || img?.urlImagen || null;
+                    })
+                    .filter(Boolean);
                 // Filtramos solo las URLs que son nuevas
                 const urlsNuevas = finalData.imagenesUrl.filter(
                     url => !urlsOriginales.includes(url)
@@ -151,10 +198,11 @@ export default function ProductEdit() {
 
                 if (urlsNuevas.length > 0) {
                     console.debug('Agregando nuevas URLs:', urlsNuevas);
-                    const addImagesResult = await addProductImages(id, urlsNuevas);
+                    const addImagesResult = await addProductImages(productId, urlsNuevas);
                     if (!addImagesResult.success) {
                         console.error('Error agregando imágenes:', addImagesResult.message);
                         showError(`Error al agregar imágenes: ${addImagesResult.message}`);
+                        return;
                     } else {
                         showSuccess(`${urlsNuevas.length} imagen(es) agregada(s)`);
                     }
