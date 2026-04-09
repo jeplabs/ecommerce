@@ -5,6 +5,7 @@ import Navbar from "../components/layout/Navbar/Navbar";
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
 import Footer from "../components/layout/Footer/Footer";
 import "./Producto.css";
+import { getProductImageUrls, getMainProductImageUrl } from "../utils/productImages";
 
 export default function Producto() {
     const { id } = useParams();
@@ -21,7 +22,7 @@ export default function Producto() {
             const encontrado = productos.find(p => p.id === parseInt(id));
             if (encontrado) {
                 setProducto(encontrado);
-                setImagenActiva(encontrado.imagenesUrl[0]);
+                setImagenActiva(getMainProductImageUrl(encontrado));
             }
         }
     }, [id, productos]);
@@ -88,9 +89,9 @@ export default function Producto() {
                                 )}
                             </div>
                             
-                            {producto.imagenesUrl.length > 1 && (
+                            {getProductImageUrls(producto).length > 1 && (
                                 <div className="thumbnail-list">
-                                    {producto.imagenesUrl.map((img, idx) => (
+                                    {getProductImageUrls(producto).map((img, idx) => (
                                         <button 
                                             key={idx}
                                             className={`thumb-btn ${imagenActiva === img ? 'active' : ''}`}

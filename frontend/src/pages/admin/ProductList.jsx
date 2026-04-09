@@ -122,10 +122,13 @@ export default function ProductList() {
                                 return (
                                 <article key={producto.id} className="product-card">
                                     <div className="card-preview">
-                                        {((producto.imagenesUrl && producto.imagenesUrl.length > 0) || (producto.images && producto.images.length > 0)) ? (
+                                        {((producto.imagenesUrl && producto.imagenesUrl.length > 0) || (producto.imagenes && producto.imagenes.length > 0) || (producto.images && producto.images.length > 0)) ? (
                                             <img
                                                 src={
                                                     producto.imagenesUrl?.[0] ||
+                                                    (typeof producto.imagenes?.[0]?.url === 'string'
+                                                        ? (producto.imagenes.find(i => i?.principal)?.url || producto.imagenes?.[0]?.url)
+                                                        : '') ||
                                                     (typeof producto.images?.[0] === 'string'
                                                         ? producto.images?.[0]
                                                         : (producto.images?.[0]?.url || producto.images?.[0]?.imagenUrl || '')) ||

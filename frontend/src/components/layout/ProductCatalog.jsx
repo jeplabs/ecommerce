@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ProductCard } from "../ui/Card/ProductCard";
 import { useProduct } from "../../context/ProductContext";
 import { useNavigate } from "react-router-dom";
+import { getMainProductImageUrl } from "../../utils/productImages";
 
 export const ProductCatalog = ({  }) => {
     const { productos, loading } = useProduct();
@@ -32,7 +33,7 @@ export const ProductCatalog = ({  }) => {
                     <ProductCard 
                     className="product-card"
                     key={producto.id} 
-                    imageSrc={producto.imagenesUrl[0]}
+                    imageSrc={getMainProductImageUrl(producto)}
                     altText={producto.altText} 
                     title={producto.nombre} 
                     description={producto.descripcion} 
