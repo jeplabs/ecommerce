@@ -1,0 +1,265 @@
+:root {
+    --filter-bg: #ffffff;
+    --filter-border: #e2e8f0;
+    --filter-text: #1e293b;
+    --filter-primary: #2563eb; /* Azul tecnológico */
+    --filter-primary-hover: #1d4ed8;
+    --filter-gray: #64748b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --radius: 8px;
+}
+
+/* Contenedor Principal (Desktop) */
+.product-filters {
+    background: var(--filter-bg);
+    border: 1px solid var(--filter-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    height: fit-content;
+    position: sticky;
+    top: 20px; /* Se queda fijo al hacer scroll en desktop */
+}
+
+/* Encabezado */
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--filter-border);
+}
+
+.filters-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--filter-text);
+}
+
+.btn-clear {
+    background: none;
+    border: none;
+    color: var(--filter-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.btn-clear:hover {
+    background: #eff6ff;
+}
+
+/* Secciones de Filtros */
+.filter-section {
+    margin-bottom: 1.5rem;
+}
+
+.filter-section h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--filter-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Inputs de Precio */
+.price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.price-inputs input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--filter-border);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.price-inputs input:focus {
+    outline: none;
+    border-color: var(--filter-primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+/* Checkboxes Personalizados */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--filter-gray);
+    transition: color 0.2s;
+}
+
+.checkbox-label:hover {
+    color: var(--filter-text);
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 0.75rem;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--filter-primary);
+    cursor: pointer;
+}
+
+/* Botón Flotante (Solo Móvil) */
+.mobile-filter-btn {
+    display: none; /* Oculto en desktop */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--filter-primary);
+    color: white;
+    border: none;
+    padding: 1rem 1.25rem;
+    border-radius: 50px;
+    box-shadow: var(--shadow-md);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 40;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.mobile-filter-btn:hover {
+    background: var(--filter-primary-hover);
+    transform: translateY(-2px);
+}
+
+/* Modal / Drawer Overlay (Fondo oscuro) */
+.filter-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.filter-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Drawer Panel (Contenido del modal) */
+.filter-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 320px;
+    background: var(--filter-bg);
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+}
+
+.filter-drawer.active {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--filter-border);
+}
+
+.btn-close-drawer {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--filter-gray);
+    padding: 0.25rem;
+}
+
+/* Botón Aplicar en Móvil */
+.btn-apply-mobile {
+    display: none;
+    width: 100%;
+    padding: 1rem;
+    background: var(--filter-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+
+/* Tablet (Max 1024px) */
+@media (max-width: 1024px) {
+    .product-catalog-container {
+        flex-direction: column;
+    }
+    
+    .product-filters {
+        position: static; /* Ya no sticky en tablet si se pone arriba */
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Móvil (Max 768px) */
+@media (max-width: 768px) {
+    /* Ocultar la sidebar clásica */
+    .product-filters {
+        display: none;
+    }
+
+    /* Mostrar botón flotante */
+    .mobile-filter-btn {
+        display: flex;
+        z-index: 1000; /* Asegura que esté por encima de otros elementos */
+    }
+
+    /* Mostrar botón aplicar dentro del drawer */
+    .btn-apply-mobile {
+        display: block;
+    }
+    
+    /* Ajustar grid de productos para que no haya scroll horizontal */
+    /* .admin-product-grid {
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 1rem !important;
+    } */
+}
+
+/* Utilidad para iconos SVG simples */
+.icon-filter {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
