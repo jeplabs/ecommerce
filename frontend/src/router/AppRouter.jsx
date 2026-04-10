@@ -28,6 +28,7 @@ export const AppRouter = () => {
                 <Route path="/producto/:id" element={<Producto />} />
                 <Route path="/catalogo" element={<Catalogo />} />
                 <Route path="/categoria/:id" element={<CategoriaProductos />} />
+                {/* <Route path="/categoria/:slug" element={<CategoriaProductos />} /> */}
                 
                 {/* Rutas para usuarios */}
                 <Route 
