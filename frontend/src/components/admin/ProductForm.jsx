@@ -643,7 +643,7 @@ export const ProductForm = ({
         // Ejecutar validación antes de proceder
         if (!validateForm()) return;
 
-              // --- AGREGA ESTO PARA VER LA VERDAD ---
+        // --- AGREGA ESTO PARA VER LA VERDAD ---
         console.log('🔍 DEBUG SUBMIT:');
         console.log('1. imagenPrincipalId (estado):', imagenPrincipalId);
         console.log('2. formData.images.length:', formData.images.length);

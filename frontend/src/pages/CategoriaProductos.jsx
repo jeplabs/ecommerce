@@ -12,7 +12,7 @@ const buscarNombreCategoria = (arbol, idBuscado) => {
         // 1. Verificar si es la categoría actual
         if (categoria.id === parseInt(idBuscado)) {
             return categoria.nombre;
-        }
+        }0
         
         // 2. Si tiene subcategorías, buscar recursivamente en ellas
         if (categoria.subcategorias && categoria.subcategorias.length > 0) {
