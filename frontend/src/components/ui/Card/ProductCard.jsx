@@ -1,4 +1,4 @@
-import { useState } from "react";
+import "./ProductCard.css";
 
 export const ProductCard = ({ imageSrc, altText, title, description, price, actionLabel = "Ver producto", onAction }) => {
     return (
