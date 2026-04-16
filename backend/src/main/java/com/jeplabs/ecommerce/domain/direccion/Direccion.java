@@ -21,7 +21,7 @@ public class Direccion {
     private Usuario usuario;
 
     private String alias;
-    private String calle;
+    private String direccion;
     private String ciudad;
     private String estado;
     private String codigoPostal;
@@ -34,7 +34,7 @@ public class Direccion {
     public Direccion(Usuario usuario, DatosCrearDireccion datos) {
         this.usuario = usuario;
         this.alias = datos.alias();
-        this.calle = datos.calle();
+        this.direccion = datos.direccion();
         this.ciudad = datos.ciudad();
         this.estado = datos.estado();
         this.codigoPostal = datos.codigoPostal();
@@ -47,7 +47,7 @@ public class Direccion {
 
     public void actualizar(DatosActualizarDireccion datos) {
         if (datos.alias() != null) this.alias = datos.alias();
-        if (datos.calle() != null) this.calle = datos.calle();
+        if (datos.direccion() != null) this.direccion = datos.direccion();
         if (datos.ciudad() != null) this.ciudad = datos.ciudad();
         if (datos.estado() != null) this.estado = datos.estado();
         if (datos.codigoPostal() != null) this.codigoPostal = datos.codigoPostal();

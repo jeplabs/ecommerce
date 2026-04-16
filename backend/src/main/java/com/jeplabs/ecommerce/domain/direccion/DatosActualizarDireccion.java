@@ -10,7 +10,7 @@ public record DatosActualizarDireccion(
         String alias,
 
         @Size(max = 255, message = "La calle no puede superar 255 caracteres")
-        String calle,
+        String direccion,
 
         @Size(max = 100, message = "La ciudad no puede superar 100 caracteres")
         String ciudad,

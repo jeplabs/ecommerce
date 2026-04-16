@@ -4,7 +4,7 @@ package com.jeplabs.ecommerce.domain.direccion;
 public record DatosRespuestaDireccion(
         Long id,
         String alias,
-        String calle,
+        String direccion,
         String ciudad,
         String estado,
         String codigoPostal,
@@ -18,7 +18,7 @@ public record DatosRespuestaDireccion(
         this(
                 direccion.getId(),
                 direccion.getAlias(),
-                direccion.getCalle(),
+                direccion.getDireccion(),
                 direccion.getCiudad(),
                 direccion.getEstado(),
                 direccion.getCodigoPostal(),

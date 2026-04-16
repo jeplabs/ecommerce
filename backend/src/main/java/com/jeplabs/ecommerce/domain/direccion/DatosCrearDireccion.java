@@ -13,7 +13,7 @@ public record DatosCrearDireccion(
 
         @NotBlank(message = "La calle es obligatoria")
         @Size(max = 255, message = "La calle no puede superar 255 caracteres")
-        String calle,
+        String direccion,
 
         @NotBlank(message = "La ciudad es obligatoria")
         @Size(max = 100, message = "La ciudad no puede superar 100 caracteres")
