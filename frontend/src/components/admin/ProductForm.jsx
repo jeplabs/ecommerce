@@ -371,13 +371,28 @@ export const ProductForm = ({
             type: 'url',
             url: urlInput,
             preview: urlInput,
-            persisted: false
+            persisted: false,
+            principal: false
         };
 
-        setFormData(prev => ({
-            ...prev,
-            images: [...prev.images, newImage]
-        }));
+        // setFormData(prev => ({
+        //     ...prev,
+        //     images: [...prev.images, newImage]
+        // }));
+
+        setFormData(prev => {
+            // Si es la PRIMERA imagen que se agrega, la hacemos principal automáticamente
+            const isFirstImage = prev.images.length === 0;
+            if (isFirstImage) {
+                newImage.principal = true;
+                setImagenPrincipalId(newImage.id);
+            }
+
+            return {
+                ...prev,
+                images: [...prev.images, newImage]
+            };
+        });
         
         setUrlInput(''); // Limpiar input
         if (errors.images) setErrors(prev => ({ ...prev, images: null }));
@@ -393,17 +408,74 @@ export const ProductForm = ({
             
             // Solo si la imagen existe en BD (tiene ID persistido) la marcamos para eliminar en backend
             if (imagenAEliminar?.persisted && imagenAEliminar.backendId != null) {
-                setImagenesAEliminarIds(prevIds => [...prevIds, imagenAEliminar.backendId]);
+                //setImagenesAEliminarIds(prevIds => [...prevIds, imagenAEliminar.backendId]);
+                setImagenesAEliminarIds(prevIds => {
+                // Evitar duplicados en la lista de eliminación
+                if (prevIds.includes(imagenAEliminar.backendId)) return prevIds;
+                return [...prevIds, imagenAEliminar.backendId];
+            });
             }
             const newImages = prev.images.filter(img => img.id !== idToRemove);
             
-            if (newImages.length === 0) {
-                setErrors(err => ({ ...err, images: 'Debe seleccionar al menos una imagen del producto' }));
-            }
+            // if (newImages.length === 0) {
+            //     setErrors(err => ({ ...err, images: 'Debe seleccionar al menos una imagen del producto' }));
+            // }
 
-            // Si eliminamos la que era principal, limpiamos la selección
-            if (imagenPrincipalId === idToRemove) {
+            // // Si eliminamos la que era principal, limpiamos la selección
+            // if (imagenPrincipalId === idToRemove) {
+            //     setImagenPrincipalId(null);
+            // }
+
+        //     if (imagenAEliminar?.principal && newImages.length > 0) {
+        //         // Marcamos la primera de la lista como principal visualmente
+        //         newImages[0].principal = true;
+        //         // Actualizamos el ID de referencia
+        //         setImagenPrincipalId(newImages[0].backendId || newImages[0].id);
+        //     } else if (newImages.length === 0) {
+        //         // Si no quedan imágenes, limpiamos todo
+        //         setImagenPrincipalId(null);
+        //         setErrors(err => ({ ...err, images: 'Debe seleccionar al menos una imagen del producto' }));
+        //     }
+
+        //     return { 
+        //         ...prev, 
+        //         images: newImages 
+        //     };
+        // });
+
+        // if (formData.images.length === 1)
+        //     setErrors(prev => ({ 
+        //         ...prev, 
+        //         images: "Debe seleccionar al menos una imagen del producto" 
+        // }));
+            if (imagenAEliminar?.principal && newImages.length > 0) {
+                // ¡CORRECCIÓN! No mutamos. Creamos un array nuevo con objetos nuevos.
+                const imagesUpdated = newImages.map((img, index) => {
+                    if (index === 0) {
+                        // Esta será la nueva principal. Creamos un OBJETO NUEVO.
+                        return {
+                            ...img,
+                            principal: true
+                        };
+                    }
+                    // El resto se mantiene igual (pero son referencias seguras aquí)
+                    return img;
+                });
+
+                // Actualizamos el ID de referencia
+                const nuevaPrincipal = imagesUpdated[0];
+                setImagenPrincipalId(nuevaPrincipal.backendId || nuevaPrincipal.id);
+
+                return {
+                    ...prev,
+                    images: imagesUpdated
+                };
+            } 
+            
+            // Si no había principal o no quedan imágenes
+            if (newImages.length === 0) {
                 setImagenPrincipalId(null);
+                setErrors(err => ({ ...err, images: 'Debe seleccionar al menos una imagen del producto' }));
             }
 
             return { 
@@ -411,25 +483,34 @@ export const ProductForm = ({
                 images: newImages 
             };
         });
-
-        if (formData.images.length === 1)
-            setErrors(prev => ({ 
-                ...prev, 
-                images: "Debe seleccionar al menos una imagen del producto" 
-        }));
     };
 
-    const handleSetPrincipal = (backendId) => {
-    setImagenPrincipalId(backendId);
-    // Actualizamos visualmente el estado local para mostrar el borde/marca inmediatamente
+    const handleSetPrincipal = (targetId) => {
     setFormData(prev => ({
         ...prev,
-        images: prev.images.map(img => ({
-            ...img,
-            principal: img.backendId === backendId
-        }))
+        images: prev.images.map(img => {
+            // Identificamos por backendId si existe, sino por id temporal
+            const isMatch = img.backendId ? img.backendId === targetId : img.id === targetId;
+            return {
+                ...img,
+                principal: isMatch // True solo para la seleccionada, False para el resto
+            };
+        })
     }));
-};
+    
+    // Actualizamos el ID de referencia para el envío al backend
+    setImagenPrincipalId(targetId);
+
+    // setImagenPrincipalId(backendId);
+    // // Actualizamos visualmente el estado local para mostrar el borde/marca inmediatamente
+    // setFormData(prev => ({
+    //     ...prev,
+    //     images: prev.images.map(img => ({
+    //         ...img,
+    //         principal: img.backendId === backendId
+    //     }))
+    // }));
+    };
 
     // Lógica para características dinámicas
     const addSpec = () => {
@@ -562,6 +643,15 @@ export const ProductForm = ({
         // Ejecutar validación antes de proceder
         if (!validateForm()) return;
 
+        // --- AGREGA ESTO PARA VER LA VERDAD ---
+        console.log('🔍 DEBUG SUBMIT:');
+        console.log('1. imagenPrincipalId (estado):', imagenPrincipalId);
+        console.log('2. formData.images.length:', formData.images.length);
+        console.log('3. Primera imagen en formData:', formData.images[0]);
+        console.log('4. ¿La primera imagen tiene principal=true?', formData.images[0]?.principal);
+        // ---------------------------------------
+
+
         const filesToUpload = formData.images.filter(img => img.type === 'file').map(img => img.file);
         const urlsToSave = formData.images.filter(img => img.type === 'url').map(img => img.url);
 
@@ -620,6 +710,18 @@ export const ProductForm = ({
             imagenesAEliminar = urlsOriginales.filter(url => !urlsActuales.includes(url));
         }
 
+        let finalImagenPrincipalId = imagenPrincipalId;
+
+        // SEGURIDAD: Si no hay imagen principal seleccionada pero hay imágenes,
+        // forzamos que la primera sea la principal para el envío.
+        if (!finalImagenPrincipalId && formData.images.length > 0) {
+            const primeraImagen = formData.images[0];
+            finalImagenPrincipalId = primeraImagen.backendId || primeraImagen.id;
+            
+            // Actualizamos el estado local también para consistencia visual
+            setImagenPrincipalId(finalImagenPrincipalId);
+        }
+
         const finalData = {
             sku: formData.sku.trim(),
             nombre: formData.nombre.trim(),
@@ -638,7 +740,8 @@ export const ProductForm = ({
             // Lista de IDs a eliminar en el backend
             imagenesAEliminarIds: imagenesAEliminarIds.length > 0 ? imagenesAEliminarIds : null,
             // ID de la nueva imagen principal (si cambió)
-            imagenPrincipalId: imagenPrincipalId
+            //imagenPrincipalId: imagenPrincipalId
+            imagenPrincipalId: finalImagenPrincipalId
         };
 
         //console.debug('ProductForm submit finalData', finalData);
@@ -1310,7 +1413,7 @@ export const ProductForm = ({
                                 {!img.principal && img.persisted && (
                                     <button
                                         type="button"
-                                        onClick={() => handleSetPrincipal(img.backendId)}
+                                        onClick={() => handleSetPrincipal(img.backendId || img.id)}
                                         title="Marcar como principal"
                                         style={{
                                             position: 'absolute',

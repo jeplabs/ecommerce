@@ -103,6 +103,11 @@ export default function ProductEdit() {
 
     const handleUpdate = async (finalData) => {
         console.debug('ProductEdit handleUpdate payload', finalData);
+        console.log('🔍 DEBUG ENVÍO:', {
+            imagenesAEliminarIds: finalData.imagenesAEliminarIds,
+            imagenPrincipalId: finalData.imagenPrincipalId, // <--- ¿Llega valor aquí?
+            imagenesUrl: finalData.imagenesUrl
+        });
         try {
             const productId = Number.isFinite(Number(id)) ? Number(id) : id;
 
@@ -170,16 +175,6 @@ export default function ProductEdit() {
                 showSuccess(`${uniqueDeleteIds.length} imagen(es) eliminada(s)`);
             }
 
-            // 2. Cambiar imagen principal (Si el usuario seleccionó una nueva)
-            if (finalData.imagenPrincipalId) {
-                console.debug('Cambiando imagen principal a ID:', finalData.imagenPrincipalId);
-                const res = await changeMainImage(productId, finalData.imagenPrincipalId);
-                if (!res.success) {
-                    console.error('Error al cambiar imagen principal:', res.message);
-                    showError(`Error al definir imagen principal: ${res.message}`);
-                    return;
-                }
-            }
 
             // 3. Agregar nuevas imágenes (Solo las URLs nuevas que vienen en imagenesUrl)
             // Nota: El formulario envía TODAS las URLs actuales en imagenesUrl.
@@ -209,6 +204,17 @@ export default function ProductEdit() {
                 }
             }
 
+            // 2. Cambiar imagen principal (Si el usuario seleccionó una nueva)
+            if (finalData.imagenPrincipalId) {
+                console.debug('Cambiando imagen principal a ID:', finalData.imagenPrincipalId);
+                const res = await changeMainImage(productId, finalData.imagenPrincipalId);
+                if (!res.success) {
+                    console.error('Error al cambiar imagen principal:', res.message);
+                    showError(`Error al definir imagen principal: ${res.message}`);
+                    return;
+                }
+            }
+            
             // Asegurar que los listados admin queden actualizados antes de volver
             await reloadProducts();
 

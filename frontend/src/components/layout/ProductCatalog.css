@@ -1,0 +1,92 @@
+.product-catalog {
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Desktop: Layout Flex (Sidebar + Productos) */
+.catalog-container {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.catalog-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    min-width: 250px;
+}
+
+.catalog-content {
+    flex-grow: 1;
+    min-width: 0; /* Permite que el contenido se encoja si es necesario */
+    width: 100%;
+}
+
+.catalog-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #1e293b;
+}
+
+/* Grid de Productos */
+.admin-product-grid {
+    display: grid;
+    gap: 1.5rem;
+    /* Desktop: Columnas automáticas de mínimo 220px */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+/* TABLET (Max 1024px) */
+@media (max-width: 1024px) {
+    .catalog-container {
+        gap: 1.5rem;
+    }
+    
+    .admin-product-grid {
+        /* Tablet: Un poco más pequeños */
+        grid-template-columns: repeat(auto-fill, minmax(180px, 2fr));
+        gap: 1rem;
+    }
+}
+
+/* MÓVIL (Max 768px) */
+@media (max-width: 768px) {
+    .product-catalog {
+        padding: 0.5rem;
+    }
+
+    /* CAMBIO CLAVE: En móvil, el contenedor ya NO es flex row.
+       Es block, así que el sidebar (oculto) no afecta el ancho */
+    .catalog-container {
+        display: block; 
+    }
+
+    .catalog-sidebar {
+        display: none; /* Se oculta completamente, se usa el botón flotante */
+    }
+
+    .catalog-content {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .catalog-title {
+        font-size: 1.25rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    /* CAMBIO CLAVE: Grilla para móvil */
+    .admin-product-grid {
+        grid-template-columns: 1fr; 
+        gap: 0.75rem; /* Gap más pequeño para aprovechar espacio */
+    }
+    
+    /* Ajuste opcional para tarjetas muy pequeñas en móviles muy antiguos */
+    @media (max-width: 360px) {
+        .admin-product-grid {
+            grid-template-columns: 1fr; /* 1 sola columna en pantallas diminutas */
+        }
+    }
+}

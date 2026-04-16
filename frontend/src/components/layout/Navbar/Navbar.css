@@ -1,0 +1,17 @@
+/* NAVBAR */
+nav {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    /* margin-bottom: 2rem; */
+    padding: 1rem;
+}
+
+nav button {
+    background-color: transparent;
+    color: var(--indigo);
+    padding: 0;
+    border: none;
+    margin: 0;
+    cursor: pointer;
+}

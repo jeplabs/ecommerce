@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../../../context/AuthContext"
+import "./Navbar.css"
 
 export default function Navbar() {
 
@@ -9,6 +10,7 @@ export default function Navbar() {
     return (
         <nav>
             <Link to="/">Home</Link>
+            <Link to="/catalogo">Catálogo</Link>
             {!isAuthenticated && (
                 <>
                 <Link to="/login">Iniciar sesión</Link>

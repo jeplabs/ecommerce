@@ -22,6 +22,34 @@ const parseListResponse = (raw) => {
 };
 
 export const productService = {
+    // Obtener productos paginados y filtrados por categoría
+    getByCategory: async (categoriaId, page = 1, limit = 10) => {
+        const params = new URLSearchParams({
+            categoriaId: categoriaId,
+            page: page,
+            limit: limit
+        });
+        
+        const res = await fetch(`${API_URL}/api/productos?${params.toString()}`);
+        
+        if (!res.ok) {
+            throw new Error(res.statusText || 'Error al cargar productos de la categoría');
+        }
+        
+        return res.json();
+    },
+    
+    // Si necesitas obtener todos (para el catálogo general) y tu API lo soporta con paginación
+    // getAll: async (page = 1, limit = 20) => {
+    //     const params = new URLSearchParams({
+    //         page: page,
+    //         limit: limit
+    //     });
+    //     const res = await fetch(`${API_URL}/api/productos?${params.toString()}`);
+    //     if (!res.ok) throw new Error('Error al cargar todos los productos');
+    //     return res.json();
+    // },
+    
     // 1. Obtener todos los productos públicos
     getAll: async () => {
         const res = await fetch(`${API_URL}/api/productos`);
