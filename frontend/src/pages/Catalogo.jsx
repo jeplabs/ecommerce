@@ -8,6 +8,7 @@ export default function Catalogo() {
         <>
             <Navbar />
             <CategoriasNav />
+            <br />
             <h1>Catalogo</h1>
             <ProductCatalog/>
             <Footer />
