@@ -1,17 +1,197 @@
-/* NAVBAR */
-nav {
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-    /* margin-bottom: 2rem; */
-    padding: 1rem;
+/* Variables de color para tema oscuro tecnológico */
+:root {
+    --bg-dark: #0a0e17;       /* Negro azulado muy oscuro */
+    --bg-element: #151a25;    /* Gris azulado para elementos */
+    --text-main: #e0e6ed;     /* Blanco grisáceo */
+    --text-muted: #94a3b8;    /* Gris medio */
+    --accent-blue: #2563eb;   /* Azul tecnológico */
+    --accent-hover: #1d4ed8;  /* Azul más oscuro para hover */
+    --border-color: #1e293b;  /* Borde sutil */
 }
 
-nav button {
-    background-color: transparent;
-    color: var(--indigo);
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-dark);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10000;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Izquierda: Logo --- */
+.navbar-left {
+    flex: 1;
+}
+
+.navbar-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+    transition: color 0.3s ease;
+}
+
+.navbar-logo:hover {
+    color: var(--accent-blue);
+}
+
+/* --- Centro: Buscador --- */
+.navbar-center {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 1rem;
+}
+
+.search-form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     padding: 0;
+    width: 100%;
+    /* height: 45px; */
+    align-items: center;
+    background-color: var(--bg-element);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-form:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    /* display: block; */
+    background: transparent;
     border: none;
-    margin: 0;
+    padding: 0.75rem 1rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-btn {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    padding: 0 1rem;
     cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    color: var(--accent-blue);
+}
+
+/* --- Derecha: Botones --- */
+.navbar-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.auth-links, .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Estilos comunes para enlaces tipo botón */
+.btn-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.btn-link:hover {
+    color: var(--text-main);
+}
+
+/* Botón Primario (Registrarse) */
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    color: white;
+    background-color: var(--accent-hover);
+}
+
+/* Botón Cerrar Sesión */
+.btn-logout {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    color: #ef4444; /* Rojo sutil para logout */
+    border-color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* --- Responsividad --- */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .navbar-left, .navbar-center, .navbar-right {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .navbar-center {
+        order: 2; /* Buscador abajo en móviles si se prefiere, o quitar para mantener orden */
+    }
+    
+    .navbar-right {
+        order: 3;
+    }
+}
+
+@media (min-width: 1200px) {
+    .navbar {
+        padding: 1rem 12rem;
+        /* max-width: 1200px; */
+        justify-content: space-between;
+    }
 }
