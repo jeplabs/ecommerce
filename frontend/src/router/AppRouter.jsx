@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
+import Cart from '../pages/Cart';
 import Producto from '../pages/Producto';
 import Catalogo from '../pages/Catalogo';
 import CategoriaProductos from '../pages/CategoriaProductos';
@@ -36,6 +37,14 @@ export const AppRouter = () => {
                     element={
                         <PrivateRoute requiredRol='ROLE_CUSTOMER'>
                             <Profile />
+                        </PrivateRoute>
+                    } 
+                />
+                <Route 
+                    path="/cart" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_CUSTOMER'>
+                            <Cart />
                         </PrivateRoute>
                     } 
                 />

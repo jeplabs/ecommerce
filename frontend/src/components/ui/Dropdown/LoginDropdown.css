@@ -1,0 +1,119 @@
+.btn-login-trigger:hover {
+    color: var(--text-main);
+    border-color: var(--accent-blue);
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* --- Dropdown Menu (El contenedor desplegable) --- */
+.dropdown-menu {
+    position: absolute;
+    top: 120%; /* Un poco separado del botón */
+    right: 0;
+    width: 320px;
+    background-color: var(--bg-element);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    z-index: 1001;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Animación suave de aparición */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.dropdown-header span {
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: block;
+}
+
+/* Formulario dentro del dropdown */
+.mini-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.dropdown-input {
+    width: 100%;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.7rem;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box; /* Importante para que el padding no rompa el ancho */
+}
+
+.dropdown-input:focus {
+    border-color: var(--accent-blue);
+}
+
+.btn-dropdown-submit {
+    width: 100%;
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 0.5rem;
+}
+
+.btn-dropdown-submit:hover {
+    background-color: var(--accent-hover);
+}
+
+/* Divisor y Footer del dropdown */
+.dropdown-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 1.2rem 0;
+}
+
+.dropdown-footer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-dropdown-register {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.btn-dropdown-register:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* Ajuste para móviles: ocultar dropdown complejo si es necesario o adaptarlo */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        position: fixed;
+        top: 70px;
+        left: 1rem;
+        right: 1rem;
+        width: auto;
+    }
+}

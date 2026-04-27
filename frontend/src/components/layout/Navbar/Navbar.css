@@ -109,6 +109,20 @@
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    position: relative;
+}
+
+/* Botón "Iniciar sesión" (Trigger) */
+.btn-login-trigger {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .auth-links, .user-menu {

@@ -2,6 +2,7 @@ import { useState, useEffect, use } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from "../components/layout/Navbar/Navbar";
+import Footer from "../components/layout/Footer/Footer";
 import { API_URL } from "../config/config";
 import ProfileForm from '../components/ui/Form/ProfileForm';
 
@@ -125,17 +126,12 @@ export default function Profile() {
         }
     };
 
-    // const logout = () => {
-    //     localStorage.removeItem('token');
-    //     navigate('/login', { replace: true });
-    // };
-
     return (
         <>
             <Navbar />
 
             <main className="profile-container form-box">
-
+                <br />
                 <h1>Mi Perfil</h1>
                 
                 {loading && <p>Cargando...</p>}
@@ -154,6 +150,9 @@ export default function Profile() {
                     Cerrar sesión
                 </button>
             </main>
+            <br />
+            <br />
+            <Footer />
         </>
     )
 }
