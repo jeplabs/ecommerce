@@ -1,6 +1,7 @@
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../../../context/AuthContext"
-import { useState, useEffect, useRef } from "react";
+import useClickOutside from "../../../hooks/useClickOutside";
 import LoginDropdown from "../../ui/Dropdown/LoginDropdown";
 import "./Navbar.css"
 
@@ -9,40 +10,23 @@ export default function Navbar() {
     const navigate = useNavigate();
     
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const menuRef = useRef(null); 
+    const menuRef = useClickOutside(() => {
+        setIsMenuOpen(false)
+    });     
+    
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+    const closeMenu = () => setIsMenuOpen(false);
+
 
     // Función preparada para la búsqueda (actualmente comentada)
     const handleSearch = (e) => {
         e.preventDefault();
         const query = e.target.searchQuery.value;
         if (query.trim()) {
-            // Lógica futura: navigate(`/products?search=${query}`);
             console.log("Buscando producto:", query);
             navigate(`/products?search=${query}`)
         }
     };
-
-    // Cerrar menú al hacer clic fuera
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setIsMenuOpen(false);
-            }
-        };
-
-        if (isMenuOpen) {
-            document.addEventListener("mousedown", handleClickOutside);
-        } else {
-            document.removeEventListener("mousedown", handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [isMenuOpen]);
-
-    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-    const closeMenu = () => setIsMenuOpen(false);
 
     return (
         <nav className="navbar">
