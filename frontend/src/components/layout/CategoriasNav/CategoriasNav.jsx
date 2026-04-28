@@ -3,104 +3,127 @@ import { Link } from "react-router-dom";
 import { useCategorias } from "../../../context/CategoriasContext";
 import "./CategoriasNav.css";
 
-// --- Componente Recursivo (Sin cambios) ---
-const MenuItem = ({ cat, nivel, nivelesAbiertos, setNivelesAbiertos }) => {
+const MegaMenuColumn = ({ cat }) => {
     const hijos = cat.subcategorias || [];
-    const tieneHijos = hijos.length > 0;
-    const estaAbierto = nivelesAbiertos[nivel] === cat.id;
-
-    const toggle = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setNivelesAbiertos(prev => {
-            const nuevoEstado = { ...prev };
-            if (estaAbierto) {
-                delete nuevoEstado[nivel];
-                for (let i = nivel + 1; i < 10; i++) delete nuevoEstado[i];
-            } else {
-                nuevoEstado[nivel] = cat.id;
-                for (let i = nivel + 1; i < 10; i++) delete nuevoEstado[i];
-            }
-            return nuevoEstado;
-        });
-    };
+    if (hijos.length === 0) return null;
 
     return (
-        <li className={`cat-item ${estaAbierto ? 'abierto' : ''}`}>
-            <div className="cat-row">
-                <Link to={`/categoria/${cat.id}`} className="cat-link-text">
-                    {cat.nombre}
-                </Link>
-                {tieneHijos && (
-                    <button className="cat-arrow-btn" onClick={toggle}>
-                        <span className={`material-symbols-outlined ${estaAbierto ? 'rotado' : ''}`}>
-                            {estaAbierto ? 'expand_less' : 'expand_more'}
-                        </span>
-                    </button>
-                )}
-            </div>
-            {tieneHijos && (
-                <ul className={`cat-submenu ${estaAbierto ? 'visible' : ''}`}>
-                    {hijos.map((hijo) => (
-                        <MenuItem 
-                            key={hijo.id}
-                            cat={hijo}
-                            nivel={nivel + 1}
-                            nivelesAbiertos={nivelesAbiertos}
-                            setNivelesAbiertos={setNivelesAbiertos}
-                        />
-                    ))}
-                </ul>
-            )}
-        </li>
+        <div className="mega-column">
+            <Link to={`/categoria/${cat.id}`} className="mega-col-title">
+                {cat.nombre}
+            </Link>
+            <ul className="mega-sub-list">
+                {hijos.map((hijo) => (
+                    <li key={hijo.id}>
+                        <Link to={`/categoria/${hijo.id}`} className="mega-sub-link">
+                            {hijo.nombre}
+                        </Link>
+                        {hijo.subcategorias && hijo.subcategorias.length > 0 && (
+                            <ul className="mega-deep-list">
+                                {hijo.subcategorias.map((nieto) => (
+                                    <li key={nieto.id}>
+                                        <Link to={`/categoria/${nieto.id}`}>{nieto.nombre}</Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 };
 
-// --- Componente Principal (Con el botón toggle) ---
 const CategoriasNav = () => {
     const { arbolCategorias, loading } = useCategorias();
-    const [nivelesAbiertos, setNivelesAbiertos] = useState({});
-    
-    // NUEVO ESTADO: Controla si el menú completo está visible
-    const [menuVisible, setMenuVisible] = useState(false);
-
-    const toggleMenuPrincipal = (e) => {
-        e.preventDefault();
-        setMenuVisible(!menuVisible);
-        // Opcional: Si quieres que al cerrar el menú principal también se limpien las subcategorías abiertas:
-        if (menuVisible) setNivelesAbiertos({});
-    };
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     if (loading || !arbolCategorias || arbolCategorias.length === 0) return null;
 
     return (
-        <div className="categorias-wrapper">
-            <div className="categorias-container">
-                
-                {/* BOTÓN PRINCIPAL (Siempre visible) */}
-                <button className="btn-ver-categorias" onClick={toggleMenuPrincipal}>
-                    <span className="material-symbols-outlined icono-menu">
-                        {menuVisible ? 'close' : 'menu'} 
-                    </span>
-                    <span className="texto-btn">
-                        {menuVisible ? 'Ocultar Categorías' : 'Ver Categorías'}
-                    </span>
-                </button>
-
-                {/* LISTA DE CATEGORÍAS (Solo visible si menuVisible es true) */}
-                    <ul className={`categorias-lista lista-categorias ${!menuVisible ? 'oculto-mobile' : ''}`}>
+        <>
+            {/* DESKTOP NAV */}
+            <div className="categorias-wrapper desktop-nav">
+                <div className="categorias-container">
+                    <ul className="categorias-lista">
                         {arbolCategorias.map((cat) => (
-                            <MenuItem 
-                                key={cat.id}
-                                cat={cat}
-                                nivel={0}
-                                nivelesAbiertos={nivelesAbiertos}
-                                setNivelesAbiertos={setNivelesAbiertos}
-                            />
+                            <li key={cat.id} className="cat-item">
+                                <Link to={`/categoria/${cat.id}`} className="cat-link">
+                                    {cat.nombre}
+                                </Link>
+                                
+                                {/* El menú está ahora correctamente anidado dentro del LI */}
+                                {cat.subcategorias && cat.subcategorias.length > 0 && (
+                                    <div className="mega-panel">
+                                        <div className="mega-panel-content">
+                                            {cat.subcategorias.map((sub) => (
+                                                <MegaMenuColumn key={sub.id} cat={sub} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </li>
                         ))}
                     </ul>
+                </div>
             </div>
-        </div>
+
+            {/* MÓVIL / TABLET */}
+            <div className="mobile-trigger" onClick={() => setIsDrawerOpen(true)}>
+                <span className="material-symbols-outlined">menu</span>
+                <span>Ver Categorías</span>
+            </div>
+
+            <div className={`drawer-overlay ${isDrawerOpen ? 'active' : ''}`} onClick={() => setIsDrawerOpen(false)}></div>
+            <div className={`drawer-menu ${isDrawerOpen ? 'active' : ''}`}>
+                <div className="drawer-header">
+                    <span className="drawer-title">Categorías</span>
+                    <button className="drawer-close" onClick={() => setIsDrawerOpen(false)}>
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div className="drawer-content">
+                    <ul className="drawer-list">
+                        {arbolCategorias.map((cat) => (
+                            <DrawerItem key={cat.id} cat={cat} onClose={() => setIsDrawerOpen(false)} />
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </>
+    );
+};
+
+const DrawerItem = ({ cat, onClose }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const hijos = cat.subcategorias || [];
+
+    const handleLinkClick = () => {
+        if (onClose) onClose();
+    };
+
+    return (
+        <li className="drawer-item">
+            <div className="drawer-row" onClick={() => setIsOpen(!isOpen)}>
+                <Link to={`/categoria/${cat.id}`} className="drawer-link" onClick={handleLinkClick}>
+                    {cat.nombre}
+                </Link>
+                {hijos.length > 0 && (
+                    <button className="drawer-toggle">
+                        <span className={`material-symbols-outlined ${isOpen ? 'rotated' : ''}`}>
+                            {isOpen ? 'expand_less' : 'expand_more'}
+                        </span>
+                    </button>
+                )}
+            </div>
+            {hijos.length > 0 && (
+                <ul className={`drawer-sub ${isOpen ? 'open' : ''}`}>
+                    {hijos.map((hijo) => (
+                        <DrawerItem key={hijo.id} cat={hijo} onClose={onClose} />
+                    ))}
+                </ul>
+            )}
+        </li>
     );
 };
 

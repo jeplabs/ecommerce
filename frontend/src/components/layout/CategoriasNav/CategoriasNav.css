@@ -1,210 +1,375 @@
-/* ... (Tus variables y estilos base anteriores se mantienen) ... */
-
 :root {
     --cat-bg: #0f172a;
-    --cat-row-bg: rgba(255, 255, 255, 0.05);
     --cat-hover: #1e293b;
     --cat-text: #f8fafc;
+    --cat-text-muted: #94a3b8;
     --cat-accent: #3b82f6;
     --cat-border: #334155;
-    --btn-bg: #1e293b;
+    --mega-panel-width: 100%; /* Ancho completo del contenedor padre o fijo */
+    --drawer-width: 300px;
 }
 
-.categorias-wrapper {
-    width: 100%;
+/* =========================================
+    DESKTOP NAV (Hover Mega Panel)
+   ========================================= */
+.categorias-wrapper.desktop-nav {
     background-color: var(--cat-bg);
     border-bottom: 1px solid var(--cat-border);
-    font-family: system-ui, -apple-system, sans-serif;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 1000;
+    display: block; /* Visible por defecto */
+}
+
+@media (max-width: 1024px) {
+    .categorias-wrapper.desktop-nav {
+        display: none; /* Ocultar en tablet/móvil */
+    }
 }
 
 .categorias-container {
-    width: 100%;
-    max-width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0.5rem 1rem; /* Padding uniforme */
-    box-sizing: border-box;
-}
-
-/* --- ESTILOS DEL NUEVO BOTÓN PRINCIPAL --- */
-.btn-ver-categorias {
-    width: 100%;
+    padding: 0 1rem;
+    height: 55px;
     display: flex;
     align-items: center;
-    justify-content: center; /* Centrado en móvil */
-    gap: 10px;
-    background-color: var(--btn-bg);
-    color: var(--cat-text);
-    border: 1px solid var(--cat-border);
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    outline: none;
+    position: relative;
+    width: 100%;
 }
 
-.btn-ver-categorias:hover {
+.categorias-lista {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    gap: 2px;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    z-index: 20;
+}
+
+.cat-item {
+    /* position: relative; */
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.cat-link {
+    padding: 0 18px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--cat-text);
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+    position: relative;
+    z-index: 20;
+}
+
+.cat-link::after {
+    content: '';
+    position: absolute;
+    top: 100%; /* Comienza justo debajo del link */
+    left: 0;
+    width: 100%;
+    height: 40px; /* Altura suficiente para cubrir el gap hasta el menú */
+    background: transparent; /* Invisible */
+    z-index: 10; /* Por encima del fondo pero por debajo del texto */
+    pointer-events: auto; /* Asegura que capture el mouse */
+}
+
+.cat-link:hover {
     background-color: var(--cat-hover);
-    border-color: var(--cat-accent);
     color: var(--cat-accent);
 }
 
-.icono-menu {
-    font-size: 24px;
+/* --- MEGA PANEL ÚNICO --- */
+.mega-menus-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Permite que el hover pase a través del contenedor vacío */
+    z-index: 10;
 }
 
-/* --- LISTA DE CATEGORÍAS --- */
-.categorias-lista {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.mega-panel {
+    position: absolute;
+    top: 100%;
+    /* top: 0; */
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    width: 100%; 
+    min-width: 1200px; 
+    display: flex;
+    justify-content: center;
+    
+    background-color: var(--cat-hover);
+    border: 1px solid var(--cat-border);
+    border-top: 2px solid var(--cat-accent);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    border-radius: 0 0 8px 8px;
+    padding: 2rem;
+    z-index: 1000;
+    
+    /* Animación */
+    opacity: 0;
+    visibility: hidden;
+    /* transform: translateY(10px); */
+    pointer-events: auto; 
+    transition: all 0.25s ease;
+    overflow: visible;
+}
+
+.mega-menus-container {
+    /* pointer-events: none;  <-- Esto estaba bien para el contenedor vacío, 
+       pero ahora los paneles tienen pointer-events: auto, así que está bien. */
+    height: auto; /* Permitir que el contenido (y el puente) existan */
+    overflow: visible; /* Crucial: dejar que el ::before salga hacia arriba */
+}
+
+.categorias-container:has(.cat-item:nth-child(1):hover) .panel-0,
+.categorias-container:has(.cat-item:nth-child(2):hover) .panel-1,
+.categorias-container:has(.cat-item:nth-child(3):hover) .panel-2,
+.categorias-container:has(.cat-item:nth-child(4):hover) .panel-3,
+.categorias-container:has(.cat-item:nth-child(5):hover) .panel-4,
+.categorias-container:has(.cat-item:nth-child(6):hover) .panel-5,
+.categorias-container:has(.cat-item:nth-child(7):hover) .panel-6,
+.categorias-container:has(.cat-item:nth-child(8):hover) .panel-7 {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Mostrar panel al hacer hover en el item padre */
+.cat-item:hover .mega-panel {
+    opacity: 1;
+    visibility: visible;
+    /* transform: translateY(0); */
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Grid interno para las columnas */
+.mega-panel-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Columnas responsivas dentro del panel */
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Columnas individuales */
+.mega-column {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    width: 100%;
-    /* Animación de entrada suave */
-    animation: slideDown 0.3s ease;
 }
 
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+.mega-col-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cat-accent);
+    margin-bottom: 1rem;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 0.5rem;
+    display: block;
 }
 
-/* ... (El resto de tus estilos de .cat-item, .cat-row, .cat-submenu se mantienen IGUALES) ... */
-/* Copia aquí todo el CSS de items, flechas y submenús del archivo anterior */
+.mega-col-title:hover {
+    color: #60a5fa;
+}
 
-.cat-item { list-style: none; width: 100%; border-radius: 6px; overflow: visible; position: relative; }
-.cat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 12px; background-color: var(--cat-row-bg); border-radius: 6px; transition: background 0.2s; box-sizing: border-box; cursor: pointer; margin-top: 4px; }
-.cat-item:hover .cat-row { background-color: var(--cat-hover); }
-.cat-link-text { text-decoration: none; color: var(--cat-text); font-size: 0.95rem; font-weight: 500; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: auto; }
-.cat-link-text:hover { color: var(--cat-accent); }
-.cat-arrow-btn { background: transparent; border: none; color: var(--cat-text); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; margin-left: 8px; border-radius: 4px; flex-shrink: 0; pointer-events: auto; }
-.cat-arrow-btn:hover { background-color: rgba(255, 255, 255, 0.1); color: var(--cat-accent); }
-.cat-arrow-btn .material-symbols-outlined { font-size: 20px; transition: transform 0.3s ease; display: block; }
-.cat-item.abierto .cat-arrow-btn .material-symbols-outlined { transform: rotate(180deg); }
+.mega-sub-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
 
-/* Submenús */
-.cat-submenu { list-style: none; margin: 0; padding: 8px 0; background-color: #1e293b; border-radius: 8px; min-width: 200px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid var(--cat-border); display: none; opacity: 0; transform: translateY(5px); transition: opacity 0.2s, transform 0.2s; z-index: 1001; }
-.cat-submenu.visible { display: block; opacity: 1; transform: translateY(0); }
-.cat-submenu .cat-item { width: 100%; }
-.cat-submenu .cat-row { background: transparent; padding: 8px 16px; border-radius: 6px; border: none; }
-.cat-submenu .cat-link-text { font-size: 0.9rem; color: #cbd5e1; }
+.mega-sub-link {
+    text-decoration: none;
+    color: var(--cat-text-muted);
+    font-size: 0.9rem;
+    transition: color 0.2s, padding-left 0.2s;
+    display: block;
+}
 
-/* =========================================
-    DESKTOP GRANDE (Min 1241px)
-   ========================================= */
-@media (min-width: 1241px) {
-    .categorias-container {
-        max-width: 1200px;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0 1rem;
-    }
+.mega-sub-link:hover {
+    color: var(--cat-text);
+    padding-left: 5px;
+}
 
-    /* En desktop, el botón puede ser más discreto o la lista puede estar siempre visible si prefieres.
-       Con este código, el botón controla todo también en desktop. */
-    
-    .btn-ver-categorias {
-        display: none !important;
-    }
-    .lista-categorias {
-        display: flex !important; /* Forzamos flex aunque menuVisible sea false en React */
-        flex-direction: row !important;
-        gap: 8px;
-        margin-top: 0 !important;
-        padding: 0;
-        opacity: 1 !important;
-        visibility: visible !important;
-        height: auto;
-        animation: none;
-    }
+/* Lista profunda (Nivel 3) */
+.mega-deep-list {
+    list-style: none;
+    padding: 0.5rem 0 0 1rem;
+    margin: 0.5rem 0 0 0;
+    border-left: 2px solid var(--cat-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
 
-    /* Resto de estilos desktop para items y submenús (los que ya tenías) */
-    .categorias-container {
-        max-width: 1200px;
-        display: flex;
-        align-items: center;
-        padding: 0 1rem;
-    }
-    
-    .cat-item { 
-        width: auto; 
-        height: auto; 
-        display: flex; 
-        align-items: center; 
-    }
-    .cat-row { 
-        background: transparent; 
-        padding: 8px 12px; 
-        width: auto; 
-        height: auto; 
-        margin-top: 0; 
-    }
+.mega-deep-list li a {
+    text-decoration: none;
+    color: #64748b;
+    font-size: 0.85rem;
+}
 
-    .categorias-lista, 
-    .categorias-lista.oculto-mobile {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 8px;
-        margin: 0;
-        padding: 0;
-        /* La lista aparece al lado del botón o debajo, según prefieras. 
-           Aquí la dejo fluir. Si quieres que sea un dropdown bajo el botón, avísame. */
-    }
-    
-    /* Ajustes específicos de desktop para la lista horizontal (copiados de la versión anterior) */
-    .cat-item { width: auto; height: auto; display: flex; align-items: center; }
-    .cat-row { background: transparent; padding: 8px 12px; width: auto; height: auto; margin-top: 0; }
-    .cat-submenu { position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 220px; margin-left: 0; border-left: none; }
-    .cat-submenu .cat-submenu { top: 0; left: 100%; margin-left: 8px; margin-top: 0; }
-    .cat-submenu .cat-row { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .cat-submenu .cat-submenu .cat-row { border-left: 3px solid var(--cat-accent); padding-left: 20px; }
+.mega-deep-list li a:hover {
+    color: var(--cat-accent);
 }
 
 /* =========================================
-    MÓVIL Y TABLET (Max 1240px)
+    MÓVIL / TABLET (Drawer Lateral)
    ========================================= */
-@media (max-width: 1240px) {
-    .categorias-container {
-        display: flex;
-        flex-direction: column; /* Apila botón y lista verticalmente */
-        align-items: center;    /* Centra horizontalmente los hijos (el botón) */
-        justify-content: center;
-        padding: 0.5rem 1rem;
-    }
+.mobile-trigger {
+    display: none;
+    background-color: var(--cat-bg);
+    color: var(--cat-text);
+    padding: 1rem;
+    border-bottom: 1px solid var(--cat-border);
+    cursor: pointer;
+    font-weight: 600;
+    align-items: center;
+    gap: 10px;
+}
 
-    .btn-ver-categorias {
-        width: 90%;             /* Un poco de margen a los lados, o usa 'auto' con max-width */
-        max-width: 400px;       /* Evita que sea demasiado ancho en tablets grandes */
-        justify-content: center; /* Centra el contenido interno (icono + texto) */
-        margin: 0 auto;         /* Asegura el centrado del propio botón */
-        text-align: center;
-    }
-    .lista-categorias {
-        /* Aquí dejamos que React controle el display mediante {menuVisible && ...} */
-        /* Pero si el elemento no existe en el DOM porque menuVisible es false, 
-           estas reglas no importan. Si existe, se comportará como bloque/columna. */
+@media (max-width: 1024px) {
+    .mobile-trigger {
         display: flex;
-        flex-direction: column;
     }
-    
-    .categorias-lista {
-        width: 100%;
-        max-width: 1200px;
-        margin-top: 10px; /* Espacio entre botón y lista */
-    }
-    .categorias-lista.oculto-mobile {
-        display: none !important;
-    }
+}
 
-    .cat-submenu { position: relative; top: 0; left: 0; width: 100%; margin-top: 4px; box-shadow: none; border: none; background-color: rgba(0, 0, 0, 0.2); min-width: auto; transition: all 0.3s ease; }
-    .cat-submenu .cat-row { padding-left: 24px; border-left: 2px solid var(--cat-accent); margin-left: 10px; background: transparent; }
-    .cat-submenu .cat-submenu .cat-row { padding-left: 40px; border-left-color: rgba(59, 130, 246, 0.5); }
-    .cat-submenu .cat-submenu .cat-submenu .cat-row { padding-left: 56px; }
+/* Overlay oscuro */
+.drawer-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    backdrop-filter: blur(2px);
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Menú Drawer */
+.drawer-menu {
+    position: fixed;
+    top: 0;
+    left: -100%; /* Oculto a la izquierda */
+    width: var(--drawer-width);
+    max-width: 85%;
+    height: 100vh;
+    background-color: var(--cat-bg);
+    border-right: 1px solid var(--cat-border);
+    z-index: 2000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer-menu.active {
+    left: 0;
+}
+
+.drawer-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--cat-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drawer-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cat-text);
+}
+
+.drawer-close {
+    background: transparent;
+    border: none;
+    color: var(--cat-text);
+    cursor: pointer;
+}
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+/* Estilos del Acordeón en Drawer */
+.drawer-list, .drawer-sub {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.drawer-item {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.drawer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+}
+
+.drawer-link {
+    text-decoration: none;
+    color: var(--cat-text);
+    font-weight: 500;
+    flex: 1;
+}
+
+.drawer-toggle {
+    background: transparent;
+    border: none;
+    color: var(--cat-text-muted);
+    cursor: pointer;
+    padding: 0;
+}
+
+.drawer-toggle .material-symbols-outlined {
+    transition: transform 0.3s;
+}
+
+.drawer-toggle .rotated {
+    transform: rotate(180deg);
+}
+
+.drawer-sub {
+    max-height: 0;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.2);
+    transition: max-height 0.3s ease;
+}
+
+.drawer-sub.open {
+    max-height: 1000px; /* Valor suficiente para contenido */
+}
+
+.drawer-sub .drawer-row {
+    padding-left: 2.5rem;
+    background-color: rgba(255,255,255,0.02);
+}
+
+.drawer-sub .drawer-sub .drawer-row {
+    padding-left: 3.5rem;
 }
