@@ -5,7 +5,8 @@ import { getProductImageUrls, getMainProductImageUrl } from "../utils/productIma
 import Navbar from "../components/layout/Navbar/Navbar";
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
 import Breadcrumbs from "../components/ui/Breadcrumbs/Breadcrumbs";
-import ProductGallery from "../components/ui/ProductGallery/ProductGallery";
+import ProductGallery from "../components/product/ProductGallery/ProductGallery";
+import ProductInfo from "../components/product/ProductInfo/ProductInfo";
 import Footer from "../components/layout/Footer/Footer";
 import "./Producto.css";
 
@@ -109,7 +110,12 @@ export default function Producto() {
                         </div> */}
 
                         {/* COLUMNA DERECHA: DATOS CLAVE */}
-                        <div className="pd-info">
+                        <ProductInfo 
+                            producto={producto} 
+                            precioFormateado={precioFormateado} 
+                            onAddToCart={() => alert("Añadido al carrito")} 
+                        />
+                        {/* <div className="pd-info">
                             <h1 className="pd-title">{producto.nombre}</h1>
                             
                             <div className="pd-meta">
@@ -148,7 +154,7 @@ export default function Producto() {
                                     <span>Compra Protegida</span>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* SECCIÓN INFERIOR: PESTAÑAS (DESCRIPCIÓN & SPECS) */}

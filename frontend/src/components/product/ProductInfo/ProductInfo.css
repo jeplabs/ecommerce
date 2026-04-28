@@ -1,0 +1,101 @@
+/* INFO PRODUCTO */
+.pd-title {
+    font-size: 1.8rem;
+    line-height: 1.2;
+    margin: 0 0 1rem 0;
+    color: var(--pd-text-main);
+}
+
+.pd-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--pd-text-muted);
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--pd-border);
+}
+
+.pd-stock.in { color: var(--pd-success); font-weight: 600; }
+.pd-stock.out { color: var(--pd-danger); font-weight: 600; }
+
+.pd-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--pd-accent);
+    margin-bottom: 1.5rem;
+}
+
+.pd-short-desc {
+    color: var(--pd-text-muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.pd-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    flex: 1;
+    background-color: var(--pd-accent);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--pd-accent-hover);
+}
+
+.btn-primary:disabled {
+    background-color: var(--pd-border);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-secondary {
+    width: 54px;
+    background-color: var(--pd-card-bg);
+    border: 1px solid var(--pd-border);
+    color: var(--pd-text-main);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    border-color: var(--pd-accent);
+    color: var(--pd-accent);
+}
+
+.pd-trust {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--pd-border);
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--pd-text-muted);
+}
+
+.trust-item .material-symbols-outlined {
+    color: var(--pd-accent);
+    font-size: 20px;
+}
