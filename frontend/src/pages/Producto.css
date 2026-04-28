@@ -31,38 +31,6 @@
     margin: 0 auto;
 }
 
-/* BREADCRUMBS */
-.pd-breadcrumbs {
-    display: flex;
-    align-items: center;
-    line-height: normal;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
-    color: var(--pd-text-muted);
-    flex-wrap: wrap;
-}
-
-.bc-link {
-    color: var(--pd-text-muted);
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.bc-link:hover {
-    color: var(--pd-accent);
-}
-
-.bc-current {
-    color: var(--pd-text-main);
-    font-weight: 500;
-}
-
-.bc-icon {
-    font-size: 18px;
-    color: var(--pd-text-muted);
-}
-
 /* GRID PRINCIPAL */
 .pd-main-grid {
     display: grid;

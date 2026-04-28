@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useProduct } from "../context/ProductContext";
+import { getProductImageUrls, getMainProductImageUrl } from "../utils/productImages";
 import Navbar from "../components/layout/Navbar/Navbar";
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
+import Breadcrumbs from "../components/ui/Breadcrumbs/Breadcrumbs";
 import Footer from "../components/layout/Footer/Footer";
 import "./Producto.css";
-import { getProductImageUrls, getMainProductImageUrl } from "../utils/productImages";
 
 export default function Producto() {
     const { id } = useParams();
@@ -61,8 +62,9 @@ export default function Producto() {
             <main className="product-detail-page">
                 <div className="pd-container">
                     
+                    <Breadcrumbs items={breadcrumbs} />
                     {/* BREADCRUMBS */}
-                    <div className="pd-breadcrumbs">
+                    {/* <div className="pd-breadcrumbs">
                         {breadcrumbs.map((crumb, index) => (
                             <div key={index} className="bc-item">
                                 {index < breadcrumbs.length - 1 ? (
@@ -75,7 +77,7 @@ export default function Producto() {
                                 )}
                             </div>
                         ))}
-                    </div>
+                    </div> */}
 
                     {/* SECCIÓN PRINCIPAL: GRID IMAGEN + INFO */}
                     <div className="pd-main-grid">
