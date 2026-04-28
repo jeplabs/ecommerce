@@ -5,6 +5,7 @@ import { getProductImageUrls, getMainProductImageUrl } from "../utils/productIma
 import Navbar from "../components/layout/Navbar/Navbar";
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
 import Breadcrumbs from "../components/ui/Breadcrumbs/Breadcrumbs";
+import ProductGallery from "../components/ui/ProductGallery/ProductGallery";
 import Footer from "../components/layout/Footer/Footer";
 import "./Producto.css";
 
@@ -83,7 +84,8 @@ export default function Producto() {
                     <div className="pd-main-grid">
                         
                         {/* COLUMNA IZQUIERDA: GALERÍA */}
-                        <div className="pd-gallery">
+                        <ProductGallery producto={producto} />
+                        {/* <div className="pd-gallery">
                             <div className="main-image-wrapper">
                                 <img src={imagenActiva} alt={producto.nombre} className="main-img" />
                                 {producto.stock === 0 && (
@@ -104,7 +106,7 @@ export default function Producto() {
                                     ))}
                                 </div>
                             )}
-                        </div>
+                        </div> */}
 
                         {/* COLUMNA DERECHA: DATOS CLAVE */}
                         <div className="pd-info">
