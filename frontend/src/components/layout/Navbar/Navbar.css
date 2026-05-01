@@ -210,3 +210,28 @@
         justify-content: space-between;
     }
 }
+
+/* Estilo para el botón del carrito para que parezca un icono limpio */
+.btn-cart-trigger {
+    background: transparent;
+    border: none;
+    color: var(--text-muted); /* O el color que uses para iconos */
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.5rem; /* Espacio respecto a otros elementos */
+}
+
+.btn-cart-trigger:hover {
+    color: var(--accent-blue); /* Color al pasar el mouse */
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Asegurar que los iconos de material se alineen bien */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useProduct } from "../context/ProductContext";
+import { useCart } from "../context/CartContext";
 import { getProductImageUrls, getMainProductImageUrl } from "../utils/productImages";
 import Navbar from "../components/layout/Navbar/Navbar";
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
@@ -15,6 +16,7 @@ export default function Producto() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { productos, loading } = useProduct();
+    const { addToCart } = useCart();
     
     const [producto, setProducto] = useState(null);
     const [imagenActiva, setImagenActiva] = useState("");
@@ -70,7 +72,7 @@ export default function Producto() {
                         <ProductInfo 
                             producto={producto} 
                             precioFormateado={precioFormateado} 
-                            onAddToCart={() => alert("Añadido al carrito")} 
+                            onAddToCart={addToCart}
                         />
                     </div>
                     <ProductTabs producto={producto} />
