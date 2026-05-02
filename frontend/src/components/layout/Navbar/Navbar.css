@@ -235,3 +235,24 @@
 .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+.cart-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background-color: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    line-height: 18px;
+    text-align: center;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.btn-cart-trigger {
+    position: relative;
+}

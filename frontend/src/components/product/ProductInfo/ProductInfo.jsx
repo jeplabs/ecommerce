@@ -1,19 +1,34 @@
 import "./ProductInfo.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
+import { useToast } from "../../../context/ToastContext";
 
 export default function ProductInfo({ producto, precioFormateado, onAddToCart }) {
     const disponible = producto.stock > 0;
     const [cantidad, setCantidad] = useState(1);
     const [agregando, setAgregando] = useState(false);
+    const { isAuthenticated } = useAuth();
+    const { showSuccess, showError } = useToast();
+    const navigate = useNavigate();
 
     const handleAddToCart = async () => {
+        if (!isAuthenticated) {
+            navigate('/login');
+            return;
+        }
+
         setAgregando(true);
         try {
             const resultado = await onAddToCart(producto.id, cantidad);
             if (resultado?.success) {
-                // Opcional: mostrar toast de éxito
+                showSuccess(`${producto.nombre} agregado al carrito`);
                 setCantidad(1);
+            } else {
+                showError(resultado?.error || 'No se pudo agregar el producto');
             }
+        } catch (error) {
+            showError(error?.message || 'Error al agregar al carrito');
         } finally {
             setAgregando(false);
         }

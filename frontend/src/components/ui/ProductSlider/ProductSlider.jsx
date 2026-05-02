@@ -3,7 +3,7 @@ import { ProductCard } from '../Card/ProductCard';
 import { getMainProductImageUrl } from '../../../utils/productImages'; // Ajusta la ruta
 import { useNavigate } from 'react-router-dom';
 import './ProductSlider.css';
-export const ProductSlider = ({ title, products }) => {
+export const ProductSlider = ({ title, products, onAddToCart }) => {
   const sliderRef = useRef(null);
   const [showLeftBtn, setShowLeftBtn] = useState(false);
   const [showRightBtn, setShowRightBtn] = useState(true);
@@ -74,6 +74,8 @@ export const ProductSlider = ({ title, products }) => {
                 price={producto.precioVenta} 
                 actionLabel="Ver producto" 
                 onAction={() => navigate(`/producto/${producto.id}`)}
+                onAddToCart={onAddToCart ? () => onAddToCart(producto.id, producto.nombre) : undefined}
+                addLabel="Agregar"
               />
             </div>
           ))}

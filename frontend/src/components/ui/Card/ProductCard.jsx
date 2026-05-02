@@ -1,19 +1,17 @@
 import "./ProductCard.css";
 
-export const ProductCard = ({ imageSrc, altText, title, description, price, actionLabel = "Ver producto", onAction }) => {
+export const ProductCard = ({ className = '', imageSrc, altText, title, description, price, actionLabel = "Ver producto", onAction, onAddToCart, addLabel = "Agregar" }) => {
     return (
-        <article className="product-card">
-        {/* La imagen del producto va en figure */}
+        <article className={`product-card ${className}`.trim()}>
             <figure className="card-preview">
                 <img 
-                src={imageSrc} 
-                alt={altText || title} 
-                className="product-image"
-                loading="lazy"
+                    src={imageSrc} 
+                    alt={altText || title} 
+                    className="product-image"
+                    loading="lazy"
                 />
-                {/* Opcional: Etiqueta de oferta o categoría sobre la imagen */}
                 {price && (
-                <span className="product-price-tag">${price}</span>
+                    <span className="product-price-tag">${price}</span>
                 )}
             </figure>
             
@@ -21,14 +19,24 @@ export const ProductCard = ({ imageSrc, altText, title, description, price, acti
                 <h3 className="card-name">{title}</h3>
                 <p className="card-desc">{description}</p>
                 
-                {/* Botón de acción en lugar de swatches */}
-                <button 
-                className="product-btn" 
-                onClick={onAction}
-                aria-label={`Ver detalles de ${title}`}
-                >
-                {actionLabel}
-                </button>
+                <div className="card-actions">
+                    <button 
+                        className="product-btn secondary"
+                        onClick={onAction}
+                        aria-label={`Ver detalles de ${title}`}
+                    >
+                        {actionLabel}
+                    </button>
+                    {onAddToCart && (
+                        <button
+                            className="product-btn primary"
+                            onClick={onAddToCart}
+                            aria-label={`Agregar ${title} al carrito`}
+                        >
+                            {addLabel}
+                        </button>
+                    )}
+                </div>
             </div>
         </article>
     );

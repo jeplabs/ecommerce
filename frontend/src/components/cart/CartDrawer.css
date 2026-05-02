@@ -28,11 +28,13 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s;
+    pointer-events: none;
 }
 
 .cart-overlay.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 /* Panel Deslizante (Drawer) */

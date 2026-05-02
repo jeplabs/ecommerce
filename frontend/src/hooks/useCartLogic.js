@@ -1,25 +1,36 @@
 import { useState, useEffect, useCallback } from 'react';
 import { cartService } from '../services/cartService';
 import { useAuthLogic } from './useAuthLogic';
+import { useProduct } from '../context/ProductContext';
+import { getMainProductImageUrl } from '../utils/productImages';
 
 // Mapear estructura del backend a estructura del frontend
-const mapCartResponse = (response) => {
+const mapCartResponse = (response, productos) => {
     if (!response || !response.items) return [];
     
-    return response.items.map(item => ({
-        id: item.id,
-        productoId: item.productoId,
-        name: item.nombreProducto,
-        sku: item.skuProducto,
-        price: parseFloat(item.precioUnitario),
-        quantity: item.cantidad,
-        qty: item.cantidad, // Alias para compatibilidad
-        subtotal: parseFloat(item.subtotal)
-    }));
+    return response.items.map(item => {
+        const producto = productos.find(p => p.id === item.productoId);
+        const imageUrl = producto ? getMainProductImageUrl(producto) : '';
+        const altText = producto ? producto.nombre : item.nombreProducto;
+
+        return {
+            id: item.id,
+            productoId: item.productoId,
+            name: item.nombreProducto,
+            sku: item.skuProducto,
+            price: parseFloat(item.precioUnitario),
+            quantity: item.cantidad,
+            qty: item.cantidad, // Alias para compatibilidad
+            subtotal: parseFloat(item.subtotal),
+            imageUrl,
+            altText
+        };
+    });
 };
 
 export const useCartLogic = () => {
     const { isAuthenticated } = useAuthLogic();
+    const { productos } = useProduct();
     
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -35,11 +46,19 @@ export const useCartLogic = () => {
         }
     }, [isAuthenticated]);
 
+    // Refrescar carrito cuando cambien los productos (para obtener imágenes)
+    useEffect(() => {
+        if (isAuthenticated && productos.length > 0 && items.length > 0) {
+            // Solo refrescar si ya hay items y productos cargados
+            refreshCart();
+        }
+    }, [productos]);
+
     const fetchCart = useCallback(async () => {
         setLoading(true);
         try {
             const data = await cartService.getCart();
-            const mappedItems = mapCartResponse(data);
+            const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
         } catch (err) {
@@ -48,13 +67,13 @@ export const useCartLogic = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [productos]);
 
     const addToCart = useCallback(async (productId, quantity = 1) => {
         setLoading(true);
         try {
             const data = await cartService.addToCart(productId, quantity);
-            const mappedItems = mapCartResponse(data);
+            const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
             return { success: true };
@@ -64,7 +83,7 @@ export const useCartLogic = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [productos]);
 
     const updateQuantity = useCallback(async (itemId, quantity) => {
         if (quantity <= 0) return removeFromCart(itemId);
@@ -72,7 +91,7 @@ export const useCartLogic = () => {
         setLoading(true);
         try {
             const data = await cartService.updateItemQuantity(itemId, quantity);
-            const mappedItems = mapCartResponse(data);
+            const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
             return { success: true };
@@ -82,7 +101,7 @@ export const useCartLogic = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [productos]);
 
     const removeFromCart = useCallback(async (itemId) => {
         // Optimistic update
@@ -92,7 +111,7 @@ export const useCartLogic = () => {
         setLoading(true);
         try {
             const data = await cartService.removeItem(itemId);
-            const mappedItems = mapCartResponse(data);
+            const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
             return { success: true };
@@ -103,7 +122,7 @@ export const useCartLogic = () => {
         } finally {
             setLoading(false);
         }
-    }, [items]);
+    }, [items, productos]);
 
     const clearCart = useCallback(async () => {
         setLoading(true);
@@ -122,7 +141,7 @@ export const useCartLogic = () => {
 
     const refreshCart = useCallback(async () => {
         return fetchCart();
-    }, []);
+    }, [fetchCart]);
 
     // Cálculos derivados
     const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);

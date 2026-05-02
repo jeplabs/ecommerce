@@ -94,6 +94,12 @@
     overflow: hidden;
 }
 
+.card-actions {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
 .product-btn {
     width: 100%;
     padding: 0.75rem;
@@ -110,7 +116,17 @@
     transition: all 0.2s ease;
 }
 
-.product-btn:hover {
+.product-btn.primary {
+    background: var(--indigo);
+    color: #fff;
+    border-color: var(--indigo);
+}
+
+.product-btn.secondary {
+    background: rgba(255,255,255,0.04);
+}
+
+.product-btn:hover:not(:disabled) {
     background: var(--indigo);
     color: #0D0D0D;
     border-color: var(--indigo);

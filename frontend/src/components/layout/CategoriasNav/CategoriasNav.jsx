@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCategorias } from "../../../context/CategoriasContext";
 import "./CategoriasNav.css";
@@ -37,6 +37,18 @@ const MegaMenuColumn = ({ cat }) => {
 const CategoriasNav = () => {
     const { arbolCategorias, loading } = useCategorias();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    // Controlar scroll del body cuando el drawer está abierto
+    useEffect(() => {
+        if (isDrawerOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isDrawerOpen]);
 
     if (loading || !arbolCategorias || arbolCategorias.length === 0) return null;
 

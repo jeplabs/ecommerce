@@ -258,11 +258,13 @@
     visibility: hidden;
     transition: all 0.3s;
     backdrop-filter: blur(2px);
+    pointer-events: none;
 }
 
 .drawer-overlay.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 /* Menú Drawer */

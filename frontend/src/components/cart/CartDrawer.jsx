@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
 import { useState, useEffect } from "react";
 import "./CartDrawer.css";
 
 export default function CartDrawer({ isOpen, onClose }) {
     const { isAuthenticated } = useAuth();
+    const { showSuccess, showError } = useToast();
     const navigate = useNavigate();
 
     const { 
@@ -66,6 +68,24 @@ export default function CartDrawer({ isOpen, onClose }) {
         }
     };
 
+    const handleRemove = async (itemId) => {
+        const result = await removeFromCart(itemId);
+        if (result.success) {
+            showError('Producto eliminado del carrito');
+        } else {
+            showError(result.error || 'Error al eliminar producto');
+        }
+    };
+
+    const handleUpdateQuantity = async (itemId, quantity) => {
+        const result = await updateQuantity(itemId, quantity);
+        if (result.success) {
+            // No mostrar toast para cambios de cantidad en drawer para evitar spam
+        } else {
+            showError(result.error || 'Error al actualizar cantidad');
+        }
+    };
+
     // Cerrar con ESC
     useEffect(() => {
         const handleEsc = (e) => {
@@ -73,6 +93,18 @@ export default function CartDrawer({ isOpen, onClose }) {
         };
         window.addEventListener("keydown", handleEsc);
         return () => window.removeEventListener("keydown", handleEsc);
+    }, [isOpen]);
+
+    // Controlar scroll del body cuando el drawer está abierto
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
     }, [isOpen]);
 
     if (!shouldRender) return null;
@@ -120,7 +152,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                         <div className="cart-item-actions">
                                             <button 
                                                 className="cart-item-qty-btn"
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                                                 disabled={loading}
                                                 aria-label="Disminuir cantidad"
                                             >
@@ -129,7 +161,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                             <span className="cart-item-qty">{item.quantity}</span>
                                             <button 
                                                 className="cart-item-qty-btn"
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                                                 disabled={loading}
                                                 aria-label="Aumentar cantidad"
                                             >
@@ -138,7 +170,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                         </div>
                                         <button 
                                             className="cart-item-remove"
-                                            onClick={() => removeFromCart(item.id)}
+                                            onClick={() => handleRemove(item.id)}
                                             disabled={loading}
                                             title="Eliminar del carrito"
                                             aria-label="Eliminar producto"

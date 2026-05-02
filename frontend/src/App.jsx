@@ -10,15 +10,15 @@ function App() {
 
   return (
     <AuthProvider>
-      <CartProvider>
-        <CategoriasProvider>
-          <ProductProvider> 
+      <ProductProvider>
+        <CartProvider>
+          <CategoriasProvider>
             <ToastProvider>
               <AppRouter />
             </ToastProvider>
-          </ProductProvider>
-        </CategoriasProvider>
-      </CartProvider>
+          </CategoriasProvider>
+        </CartProvider>
+      </ProductProvider>
     </AuthProvider>
   )
 }

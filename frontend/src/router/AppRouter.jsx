@@ -48,6 +48,14 @@ export const AppRouter = () => {
                         </PrivateRoute>
                     } 
                 />
+                <Route 
+                    path="/carrito" 
+                    element={
+                        <PrivateRoute requiredRol='ROLE_CUSTOMER'>
+                            <Cart />
+                        </PrivateRoute>
+                    } 
+                />
 
                 {/* Rutas para admin */}
                 <Route 

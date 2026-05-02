@@ -1,10 +1,13 @@
 import Navbar from "../components/layout/Navbar/Navbar"
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav"
 import Carousel from "../components/ui/Carousel/Carousel"
-import { ProductCatalog } from "../components/layout/ProductCatalog"
 import Footer from "../components/layout/Footer/Footer"
 import { ProductSlider } from "../components/ui/ProductSlider/ProductSlider"
 import { useProducts } from "../hooks/useProducts"
+import { useAuth } from "../context/AuthContext"
+import { useCart } from "../context/CartContext"
+import { useToast } from "../context/ToastContext"
+import { useNavigate } from "react-router-dom"
 
 const slides = [
     {
@@ -61,14 +64,31 @@ const slides = [
 
 function Home() {
     const { productos } = useProducts();
+    const { isAuthenticated } = useAuth();
+    const { addToCart } = useCart();
+    const { showSuccess, showError } = useToast();
+    const navigate = useNavigate();
+
+    const handleAddToCart = async (productoId, productoNombre) => {
+        if (!isAuthenticated) {
+            navigate('/login');
+            return;
+        }
+        const result = await addToCart(productoId, 1);
+        if (result.success) {
+            showSuccess(`${productoNombre} agregado al carrito`);
+        } else {
+            showError(result.error || 'No se pudo agregar el producto');
+        }
+    };
     
     return (
         <>
             <Navbar />
             <CategoriasNav />
             <Carousel slides={slides} />
-            <ProductSlider title="Productos destacados" products={productos} />
-            <ProductSlider title="Ofertas" products={productos} />
+            <ProductSlider title="Productos destacados" products={productos} onAddToCart={handleAddToCart} />
+            <ProductSlider title="Ofertas" products={productos} onAddToCart={handleAddToCart} />
             <Footer />
         </>
     )
