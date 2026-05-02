@@ -1,4 +1,4 @@
-import { API_URL } from '../config/config'; // Asumiendo que tienes este config
+import { API_URL } from '../config/config';
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('token');
@@ -7,7 +7,7 @@ const getAuthHeader = () => {
 
 export const cartService = {
     async getCart() {
-        const response = await fetch(`${API_URL}/cart`, {
+        const response = await fetch(`${API_URL}/api/carrito`, {
             method: 'GET',
             headers: { ...getAuthHeader() }
         });
@@ -17,10 +17,10 @@ export const cartService = {
     },
 
     async addToCart(productId, quantity) {
-        const response = await fetch(`${API_URL}/cart/items`, {
+        const response = await fetch(`${API_URL}/api/carrito/items`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-            body: JSON.stringify({ productId, quantity })
+            body: JSON.stringify({ productoId: productId, cantidad: quantity })
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Error al agregar');
@@ -28,10 +28,10 @@ export const cartService = {
     },
 
     async updateItemQuantity(itemId, quantity) {
-        const response = await fetch(`${API_URL}/cart/items/${itemId}`, {
-            method: 'PUT',
+        const response = await fetch(`${API_URL}/api/carrito/items/${itemId}`, {
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-            body: JSON.stringify({ quantity })
+            body: JSON.stringify({ cantidad: quantity })
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Error al actualizar');
@@ -39,23 +39,24 @@ export const cartService = {
     },
 
     async removeItem(itemId) {
-        const response = await fetch(`${API_URL}/cart/items/${itemId}`, {
+        const response = await fetch(`${API_URL}/api/carrito/items/${itemId}`, {
             method: 'DELETE',
             headers: { ...getAuthHeader() }
         });
+        const data = await response.json();
         if (!response.ok) {
-            const data = await response.json();
             throw new Error(data.error || 'Error al eliminar');
         }
-        return true;
+        return data;
     },
 
     async clearCart() {
-        const response = await fetch(`${API_URL}/cart`, {
+        const response = await fetch(`${API_URL}/api/carrito`, {
             method: 'DELETE',
             headers: { ...getAuthHeader() }
         });
-        if (!response.ok) throw new Error('Error al limpiar');
-        return true;
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Error al limpiar');
+        return data;
     }
 };

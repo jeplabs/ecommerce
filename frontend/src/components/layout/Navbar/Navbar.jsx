@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
+import { useCart } from "../../../context/CartContext";
 import useClickOutside from "../../../hooks/useClickOutside";
 import LoginDropdown from "../../ui/Dropdown/LoginDropdown";
 import CartDrawer from "../../cart/CartDrawer"; // Asegúrate que la ruta sea correcta
@@ -8,6 +9,7 @@ import "./Navbar.css";
 
 export default function Navbar() {
     const { isAuthenticated, userRol, logout } = useAuth();
+    const { cartCount } = useCart();
     const navigate = useNavigate();
     
     // Estado para el Login Dropdown
@@ -90,6 +92,9 @@ export default function Navbar() {
                                 <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', fontSize: '1.2rem' }}>
                                     shopping_cart
                                 </span>
+                                {cartCount > 0 && (
+                                    <span className="cart-badge">{cartCount}</span>
+                                )}
                             </button>
                         </div>
                     ) : (
@@ -103,11 +108,14 @@ export default function Navbar() {
                                         className="btn-cart-trigger" 
                                         onClick={openCart}
                                         aria-label="Abrir carrito"
-                                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--cat-text-muted)', display: 'flex', alignItems: 'center' }}
+                                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--cat-text-muted)', display: 'flex', alignItems: 'center', position: 'relative' }}
                                     >
                                         <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>
                                             shopping_cart
                                         </span>
+                                        {cartCount > 0 && (
+                                            <span className="cart-badge">{cartCount}</span>
+                                        )}
                                     </button>
                                 </div>
                             )}

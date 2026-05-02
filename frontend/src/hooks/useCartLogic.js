@@ -1,6 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { cartService } from '../services/cartService';
-import { useAuthLogic } from './useAuthLogic'; 
+import { useAuthLogic } from './useAuthLogic';
+
+// Mapear estructura del backend a estructura del frontend
+const mapCartResponse = (response) => {
+    if (!response || !response.items) return [];
+    
+    return response.items.map(item => ({
+        id: item.id,
+        productoId: item.productoId,
+        name: item.nombreProducto,
+        sku: item.skuProducto,
+        price: parseFloat(item.precioUnitario),
+        quantity: item.cantidad,
+        qty: item.cantidad, // Alias para compatibilidad
+        subtotal: parseFloat(item.subtotal)
+    }));
+};
 
 export const useCartLogic = () => {
     const { isAuthenticated } = useAuthLogic();
@@ -23,11 +39,12 @@ export const useCartLogic = () => {
         setLoading(true);
         try {
             const data = await cartService.getCart();
-            // Ajusta según si tu backend devuelve { items: [...] } o [...]
-            setItems(data.items || data); 
+            const mappedItems = mapCartResponse(data);
+            setItems(mappedItems);
             setError(null);
         } catch (err) {
             setError(err.message);
+            setItems([]);
         } finally {
             setLoading(false);
         }
@@ -37,7 +54,8 @@ export const useCartLogic = () => {
         setLoading(true);
         try {
             const data = await cartService.addToCart(productId, quantity);
-            setItems(data.items || data);
+            const mappedItems = mapCartResponse(data);
+            setItems(mappedItems);
             setError(null);
             return { success: true };
         } catch (err) {
@@ -51,13 +69,18 @@ export const useCartLogic = () => {
     const updateQuantity = useCallback(async (itemId, quantity) => {
         if (quantity <= 0) return removeFromCart(itemId);
         
+        setLoading(true);
         try {
             const data = await cartService.updateItemQuantity(itemId, quantity);
-            setItems(data.items || data);
+            const mappedItems = mapCartResponse(data);
+            setItems(mappedItems);
+            setError(null);
             return { success: true };
         } catch (err) {
             setError(err.message);
             return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
         }
     }, []);
 
@@ -66,25 +89,39 @@ export const useCartLogic = () => {
         const previousItems = items;
         setItems(prev => prev.filter(item => item.id !== itemId));
         
+        setLoading(true);
         try {
-            await cartService.removeItem(itemId);
+            const data = await cartService.removeItem(itemId);
+            const mappedItems = mapCartResponse(data);
+            setItems(mappedItems);
+            setError(null);
             return { success: true };
         } catch (err) {
             setItems(previousItems); // Revertir
             setError(err.message);
             return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
         }
     }, [items]);
 
     const clearCart = useCallback(async () => {
+        setLoading(true);
         try {
             await cartService.clearCart();
             setItems([]);
+            setError(null);
             return { success: true };
         } catch (err) {
             setError(err.message);
             return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
         }
+    }, []);
+
+    const refreshCart = useCallback(async () => {
+        return fetchCart();
     }, []);
 
     // Cálculos derivados
@@ -103,6 +140,6 @@ export const useCartLogic = () => {
         updateQuantity,
         removeFromCart,
         clearCart,
-        refreshCart: fetchCart
+        refreshCart
     };
 };
