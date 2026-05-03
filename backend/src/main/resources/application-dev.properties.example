@@ -21,5 +21,5 @@ spring.mail.properties.mail.smtp.starttls.required=true
 spring.mail.default-encoding=UTF-8
 
 # Carrito
-api.carrito.expiracion-horas=72
-api.carrito.notificacion-horas-antes=24
+api.carrito.expiracion-minutos=12
+api.carrito.notificacion-minutos-antes=5
