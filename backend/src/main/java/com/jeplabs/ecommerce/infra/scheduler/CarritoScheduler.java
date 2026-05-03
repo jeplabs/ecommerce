@@ -29,7 +29,10 @@ public class CarritoScheduler {
 
     // Corre cada hora
     // Corre cada minuto para pruebas en dev
-    @Scheduled(fixedRateString = "PT3M")
+    @Scheduled(
+            fixedRateString = "${api.carrito.scheduler-intervalo}",
+            initialDelayString = "${api.carrito.scheduler-delay-inicial}"
+    )
     @Transactional
     public void procesarCarritos() {
         notificarCarritosProximosAExpirar();

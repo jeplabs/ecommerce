@@ -1,11 +1,13 @@
 package com.jeplabs.ecommerce.domain.carrito;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record DatosRespuestaCarrito(
         Long id,
         EstadoCarrito estado,
+        LocalDateTime expiraAt,
         List<DatosRespuestaCarritoItem> items,
         BigDecimal total,
         int totalItems
@@ -14,6 +16,7 @@ public record DatosRespuestaCarrito(
         this(
                 carrito.getId(),
                 carrito.getEstado(),
+                carrito.getExpiraAt(),
                 carrito.getItems().stream()
                         .map(DatosRespuestaCarritoItem::new)
                         .toList(),

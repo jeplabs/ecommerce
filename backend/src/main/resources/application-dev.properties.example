@@ -23,3 +23,5 @@ spring.mail.default-encoding=UTF-8
 # Carrito
 api.carrito.expiracion-minutos=12
 api.carrito.notificacion-minutos-antes=5
+api.carrito.scheduler-intervalo=PT3M
+api.carrito.scheduler-delay-inicial=PT3M
