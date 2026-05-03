@@ -9,3 +9,17 @@ spring.datasource.password=PASSWORD_POSTGRES
 # JWT
 api.security.secret=CUALQUIER_STRING_LARGO_PARA_DEV
 api.security.expiration=7200
+
+# Email
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=TU_EMAIL_GMAIL
+spring.mail.password=TU_PASSWORD_DE_APLICACION_GMAIL
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.default-encoding=UTF-8
+
+# Carrito
+api.carrito.expiracion-horas=72
+api.carrito.notificacion-horas-antes=24

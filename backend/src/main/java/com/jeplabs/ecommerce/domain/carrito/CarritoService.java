@@ -7,6 +7,7 @@ import com.jeplabs.ecommerce.domain.producto.PrecioHistorialRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ public class CarritoService {
     private final ProductoRepository productoRepositorio;
     private final PrecioHistorialRepository precioRepositorio;
     private final UsuarioRepository usuarioRepositorio;
+
+    @Value("${api.carrito.expiracion-minutos}")
+    private long expiracionMinutos;
 
     // Ver carrito activo del usuario, si no existe lo crea
     @Transactional
@@ -56,6 +60,7 @@ public class CarritoService {
                 );
 
         carrito.actualizarFecha();
+        carrito.renovarExpiracion(expiracionMinutos);  // renovar al agregar items
         return new DatosRespuestaCarrito(carrito);
     }
 
@@ -114,7 +119,11 @@ public class CarritoService {
     private Carrito obtenerOCrearCarritoActivo(Usuario usuario) {
         return carritoRepositorio
                 .findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
-                .orElseGet(() -> carritoRepositorio.save(new Carrito(usuario)));
+                .orElseGet(() -> {
+                    Carrito nuevo = new Carrito(usuario);
+                    nuevo.renovarExpiracion(expiracionMinutos);  // Se establece las horas correctas de expiracion
+                    return carritoRepositorio.save(nuevo);
+                });
     }
 
     private Carrito obtenerCarritoActivo(String email) {
