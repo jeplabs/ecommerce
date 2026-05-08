@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { ProductCard } from "../ui/Card/ProductCard";
 import { useProduct } from "../../context/ProductContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getMainProductImageUrl } from "../../utils/productImages";
 import { ProductFilters } from "../ui/ProductFilters/ProductFilters";
 import { SortSelector } from "../ui/SortSelector/SortSelector";
@@ -16,7 +16,10 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
     const { addToCart } = useCart();
     const { showSuccess, showError } = useToast();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [sortOption, setSortOption] = useState("price-asc");
+
+    const searchTerm = searchParams.get('search') || '';
 
     const handleAddProductToCart = async (productoId, nombre) => {
         if (!isAuthenticated) {
@@ -82,8 +85,16 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
             }
         }
 
+        // Filtrar por búsqueda de nombre
+        if (searchTerm.trim()) {
+            const term = searchTerm.toLowerCase().trim();
+            resultado = resultado.filter(p => 
+                p.nombre && p.nombre.toLowerCase().includes(term)
+            );
+        }
+
         setProductosFiltrados(resultado);
-    }, [productosAUsar, filtrosActivos]);
+    }, [productosAUsar, filtrosActivos, searchTerm]);
 
     const handleFilterChange = (nuevosFiltros) => {
         setFiltrosActivos(nuevosFiltros);
@@ -156,6 +167,12 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
                 </h2>
                 <SortSelector sortOption={sortOption} onChange={setSortOption} />
             </div>
+            
+            {searchTerm.trim() && (
+                <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                    Resultados para: "{searchTerm.trim()}"
+                </p>
+            )}
             
             {listaOrdenada.length === 0 ? (
                 <p className="center-message">No hay productos que coincidan con los filtros.</p>

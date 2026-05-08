@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
@@ -19,6 +19,9 @@ export default function Navbar() {
     // Estado para el Carrito Drawer
     const [isCartOpen, setIsCartOpen] = useState(false);
 
+    // Estado para búsqueda
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+
     // Hook para cerrar el login al hacer clic fuera
     const menuRef = useClickOutside(() => {
         setIsMenuOpen(false);
@@ -34,20 +37,32 @@ export default function Navbar() {
     // Handlers para el carrito
     const toggleCart = () => setIsCartOpen(!isCartOpen);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        const query = e.target.searchQuery.value;
+    // Debounced update de search params
+    const updateSearchParams = useCallback((query) => {
+        const newParams = new URLSearchParams(searchParams);
         if (query.trim()) {
-            // Actualizar search params
-            const newParams = new URLSearchParams(searchParams);
             newParams.set('search', query.trim());
-            setSearchParams(newParams);
-            
-            // Navegar al catálogo si no estamos ahí
-            if (window.location.pathname !== '/catalogo') {
-                navigate('/catalogo');
-            }
+        } else {
+            newParams.delete('search');
         }
+        setSearchParams(newParams);
+        
+        // Navegar al catálogo si no estamos ahí y hay búsqueda
+        if (query.trim() && window.location.pathname !== '/catalogo') {
+            navigate('/catalogo');
+        }
+    }, [searchParams, setSearchParams, navigate]);
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            updateSearchParams(searchTerm);
+        }, 400); // 400ms debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, updateSearchParams]);
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
     };
 
     return (
@@ -60,17 +75,18 @@ export default function Navbar() {
 
                 {/* Centro: Buscador */}
                 <div className="navbar-center">
-                    <form onSubmit={handleSearch} className="search-form">
+                    <div className="search-form">
                         <input 
                             type="text" 
-                            name="searchQuery" 
+                            value={searchTerm}
+                            onChange={handleSearchChange}
                             placeholder="Buscar productos..." 
                             className="search-input"
                         />
-                        <button type="submit" className="search-btn" aria-label="Buscar">
+                        <button type="button" className="search-btn" aria-label="Buscar" disabled>
                             🔍
                         </button>
-                    </form>
+                    </div>
                 </div>
 
                 {/* Derecha: Autenticación, Roles y Carrito */}
