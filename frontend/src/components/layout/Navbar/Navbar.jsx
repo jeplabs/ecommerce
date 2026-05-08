@@ -49,7 +49,7 @@ export default function Navbar() {
         
         // Navegar al catálogo si no estamos ahí y hay búsqueda
         if (query.trim() && window.location.pathname !== '/catalogo') {
-            navigate('/catalogo');
+            navigate(`/catalogo?search=${query.trim()}`);
         }
     }, [searchParams, setSearchParams, navigate]);
 

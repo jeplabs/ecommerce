@@ -500,7 +500,7 @@ input:focus-within .field-icon {
 .product-catalog {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 0;
   min-height: 100vh;
 }
 
