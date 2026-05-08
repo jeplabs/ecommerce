@@ -149,7 +149,7 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
                                 description={producto.descripcion} 
                                 price={producto.precioVenta} 
                                 actionLabel="Ver producto" 
-                                onAction={() => navigate(`/producto/${producto.id}`)}
+                                onAction={() => navigate(`/producto/${producto.slug || producto.id}`)}
                                 onAddToCart={() => handleAddProductToCart(producto.id, producto.nombre)}
                                 addLabel="Agregar"
                             />

@@ -26,10 +26,11 @@ export const AppRouter = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/producto/:id" element={<Producto />} />
+                {/* <Route path="/producto/:id" element={<Producto />} /> */}
+                <Route path="/producto/:slug" element={<Producto />} />
                 <Route path="/catalogo" element={<Catalogo />} />
-                <Route path="/categoria/:id" element={<CategoriaProductos />} />
-                {/* <Route path="/categoria/:slug" element={<CategoriaProductos />} /> */}
+                {/* <Route path="/categoria/:id" element={<CategoriaProductos />} /> */}
+                <Route path="/categoria/*" element={<CategoriaProductos />} />
                 
                 {/* Rutas para usuarios */}
                 <Route 

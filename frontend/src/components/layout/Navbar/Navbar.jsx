@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 import useClickOutside from "../../../hooks/useClickOutside";
@@ -8,9 +8,10 @@ import CartDrawer from "../../cart/CartDrawer"; // Asegúrate que la ruta sea co
 import "./Navbar.css";
 
 export default function Navbar() {
-    const { isAuthenticated, userRol, logout } = useAuth();
+    const { isAuthenticated, userRol, logout, token } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     
     // Estado para el Login Dropdown
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,8 +38,15 @@ export default function Navbar() {
         e.preventDefault();
         const query = e.target.searchQuery.value;
         if (query.trim()) {
-            console.log("Buscando producto:", query);
-            navigate(`/products?search=${query}`);
+            // Actualizar search params
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('search', query.trim());
+            setSearchParams(newParams);
+            
+            // Navegar al catálogo si no estamos ahí
+            if (window.location.pathname !== '/catalogo') {
+                navigate('/catalogo');
+            }
         }
     };
 

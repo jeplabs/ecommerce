@@ -73,7 +73,7 @@ export const ProductSlider = ({ title, products, onAddToCart }) => {
                 description={producto.descripcion} 
                 price={producto.precioVenta} 
                 actionLabel="Ver producto" 
-                onAction={() => navigate(`/producto/${producto.id}`)}
+                onAction={() => navigate(`/producto/${producto.slug || producto.id}`)}
                 onAddToCart={onAddToCart ? () => onAddToCart(producto.id, producto.nombre) : undefined}
                 addLabel="Agregar"
               />

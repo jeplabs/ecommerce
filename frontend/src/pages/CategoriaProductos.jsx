@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/layout/Navbar/Navbar";
 import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
 import Footer from "../components/layout/Footer/Footer";
@@ -6,49 +6,25 @@ import { ProductCatalog } from "../components/layout/ProductCatalog";
 import { useProductosByCategory } from "../hooks/useProductosByCategory";
 import { useCategorias } from "../context/CategoriasContext"; // Para mostrar el nombre de la categoría
 
-// Función auxiliar recursiva para buscar en todo el árbol
-const buscarNombreCategoria = (arbol, idBuscado) => {
-    for (const categoria of arbol) {
-        // 1. Verificar si es la categoría actual
-        if (categoria.id === parseInt(idBuscado)) {
-            return categoria.nombre;
-        }0
-        
-        // 2. Si tiene subcategorías, buscar recursivamente en ellas
-        if (categoria.subcategorias && categoria.subcategorias.length > 0) {
-            const encontrado = buscarNombreCategoria(categoria.subcategorias, idBuscado);
-            if (encontrado) return encontrado;
-        }
-    }
-    return null; // No encontrada
+const buscarCategoriaPorPath = (arbol, segmentos) => {
+    if (!segmentos || segmentos.length === 0) return null;
+    const [slugActual, ...rest] = segmentos;
+    const categoria = arbol.find(c => c.slug === slugActual || c.id?.toString() === slugActual);
+    if (!categoria) return null;
+    if (rest.length === 0) return categoria;
+    return buscarCategoriaPorPath(categoria.subcategorias || [], rest);
 };
 
-// // Función auxiliar recursiva para buscar el objeto completo por slug
-// const buscarCategoriaPorSlug = (arbol, slugBuscado) => {
-//     for (const categoria of arbol) {
-//         if (categoria.slug === slugBuscado) {
-//             return categoria;
-//         }
-//         if (categoria.subcategorias && categoria.subcategorias.length > 0) {
-//             const encontrado = buscarCategoriaPorSlug(categoria.subcategorias, slugBuscado);
-//             if (encontrado) return encontrado;
-//         }
-//     }
-//     return null;
-// };
-
 export default function CategoriaProductos() {
-    // const { slug } = useParams(); 
-    const { id } = useParams(); 
-    const { productos, loading, error, paginaActual, setPaginaActual, totalPaginas } = useProductosByCategory(id);
+    const location = useLocation();
+    const categoriaRuta = location.pathname.replace(/^\/categoria\/?/, '').replace(/\/$/, '');
+    const segmentos = categoriaRuta.split('/').filter(Boolean);
+    const slugPath = segmentos.join('/');
+    const { productos, loading, error, paginaActual, setPaginaActual, totalPaginas } = useProductosByCategory(slugPath);
     const { arbolCategorias } = useCategorias(); 
 
-    // Usamos la función recursiva en lugar de .find() simple
-    const nombreCategoria = buscarNombreCategoria(arbolCategorias, id) || "Categoría";
-
-    // // Buscar el objeto de la categoría basado en el slug
-    // const categoriaActual = buscarCategoriaPorSlug(arbolCategorias, slug);
-    // const nombreCategoria = categoriaActual ? categoriaActual.nombre : "Categoría";
+    const categoriaActual = buscarCategoriaPorPath(arbolCategorias, segmentos);
+    const nombreCategoria = categoriaActual ? categoriaActual.nombre : segmentos.length === 0 ? "Categorías" : "Categoría";
 
     if (error) {
         return (

@@ -2,21 +2,17 @@ import { useState, useEffect } from 'react';
 import { productService } from '../services/productService';
 import { useCategorias } from '../context/CategoriasContext'; // Para encontrar el ID por slug
 
-// Función auxiliar recursiva para encontrar el ID basado en el slug
-const encontrarIdPorSlug = (arbol, slugBuscado) => {
-    for (const categoria of arbol) {
-        if (categoria.slug === slugBuscado) {
-            return categoria.id;
-        }
-        if (categoria.subcategorias && categoria.subcategorias.length > 0) {
-            const encontrado = encontrarIdPorSlug(categoria.subcategorias, slugBuscado);
-            if (encontrado) return encontrado;
-        }
-    }
-    return null;
+// Función auxiliar recursiva para encontrar el ID de una categoría a partir de una ruta jerárquica
+const encontrarCategoriaPorRuta = (arbol, segmentos) => {
+    if (!segmentos || segmentos.length === 0) return null;
+    const [slugActual, ...rest] = segmentos;
+    const categoria = arbol.find(c => c.slug === slugActual || c.id?.toString() === slugActual);
+    if (!categoria) return null;
+    if (rest.length === 0) return categoria;
+    return encontrarCategoriaPorRuta(categoria.subcategorias || [], rest);
 };
 
-export const useProductosByCategory = (categoriaId) => {
+export const useProductosByCategory = (categoriaSlugPath) => {
     const [productos, setProductos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,26 +23,25 @@ export const useProductosByCategory = (categoriaId) => {
     const { arbolCategorias } = useCategorias();
 
     useEffect(() => {
-        if (!categoriaId) {
+        if (!categoriaSlugPath) {
             setProductos([]);
             setLoading(false);
             return;
         }
 
-        // if (!slug || !arbolCategorias.length) {
-        //     setProductos([]);
-        //     setLoading(false);
-        //     return;
-        // }
+        if (!arbolCategorias || arbolCategorias.length === 0) {
+            setLoading(true);
+            return;
+        }
 
-        // // 1. Traducir slug a ID
-        // const categoriaId = encontrarIdPorSlug(arbolCategorias, slug);
-
-        // if (!categoriaId) {
-        //     setError('Categoría no encontrada');
-        //     setLoading(false);
-        //     return;
-        // }
+        const segmentos = categoriaSlugPath.split('/').filter(Boolean);
+        const categoria = encontrarCategoriaPorRuta(arbolCategorias, segmentos);
+        if (!categoria) {
+            setError('Categoría no encontrada');
+            setLoading(false);
+            return;
+        }
+        const categoriaId = categoria.id;
 
         const fetchProductos = async () => {
             setLoading(true);
@@ -85,8 +80,7 @@ export const useProductosByCategory = (categoriaId) => {
         };
 
         fetchProductos();
-    // }, [slug, paginaActual, arbolCategorias]);
-    }, [categoriaId, paginaActual]); 
+    }, [categoriaSlugPath, paginaActual, arbolCategorias]); 
 
     return { productos, loading, error, paginaActual, setPaginaActual, totalPaginas };
 };

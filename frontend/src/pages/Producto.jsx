@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useProduct } from "../context/ProductContext";
 import { useCart } from "../context/CartContext";
 import { getProductImageUrls, getMainProductImageUrl } from "../utils/productImages";
@@ -13,25 +13,25 @@ import Footer from "../components/layout/Footer/Footer";
 import "./Producto.css";
 
 export default function Producto() {
-    const { id } = useParams();
+    const { slug } = useParams();
     const navigate = useNavigate();
     const { productos, loading } = useProduct();
     const { addToCart } = useCart();
     
     const [producto, setProducto] = useState(null);
     const [imagenActiva, setImagenActiva] = useState("");
-    const [tabActiva, setTabActiva] = useState("descripcion"); // 'descripcion' | 'caracteristicas'
+    const [tabActiva, setTabActiva] = useState("descripcion"); 
 
     // Cargar datos del producto
     useEffect(() => {
         if (productos && productos.length > 0) {
-            const encontrado = productos.find(p => p.id === parseInt(id));
+            const encontrado = productos.find(p => p.slug === slug || p.id === parseInt(slug));
             if (encontrado) {
                 setProducto(encontrado);
                 setImagenActiva(getMainProductImageUrl(encontrado));
             }
         }
-    }, [id, productos]);
+    }, [slug, productos]);
 
     if (loading) return <div className="loading-container">Cargando producto...</div>;
     if (!producto) return (
@@ -47,7 +47,7 @@ export default function Producto() {
         { label: "Catálogo", path: "/catalogo" },
         ...producto.categorias.map(cat => ({
             label: cat.nombre,
-            path: `/categoria/${cat.id}` // Ajusta la ruta según tu router
+            path: `/categoria/${cat.slug || cat.id}` // Ajusta la ruta según tu router
         }))
     ];
 
