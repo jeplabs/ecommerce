@@ -33,11 +33,15 @@ public class Carrito {
     private LocalDateTime creadoAt;
     private LocalDateTime actualizadoAt;
 
+    private LocalDateTime expiraAt;
+    private boolean notificacionEnviada;
+
     public Carrito(Usuario usuario) {
         this.usuario = usuario;
         this.estado = EstadoCarrito.ACTIVO;
         this.creadoAt = LocalDateTime.now();
         this.actualizadoAt = LocalDateTime.now();
+        this.notificacionEnviada = false;
     }
 
     public void marcarComoAbandonado() {
@@ -52,5 +56,19 @@ public class Carrito {
 
     public void actualizarFecha() {
         this.actualizadoAt = LocalDateTime.now();
+    }
+
+    public void renovarExpiracion(long minutos) {
+        this.expiraAt = LocalDateTime.now().plusMinutes(minutos);
+        this.notificacionEnviada = false; // resetea la notificación al renovar
+        this.actualizadoAt = LocalDateTime.now();
+    }
+
+    public void marcarNotificacionEnviada() {
+        this.notificacionEnviada = true;
+    }
+
+    public boolean estaExpirado() {
+        return LocalDateTime.now().isAfter(expiraAt);
     }
 }
