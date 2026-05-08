@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ProductCard } from "../ui/Card/ProductCard";
 import { useProduct } from "../../context/ProductContext";
 import { useNavigate } from "react-router-dom";
 import { getMainProductImageUrl } from "../../utils/productImages";
 import { ProductFilters } from "../ui/ProductFilters/ProductFilters";
+import { SortSelector } from "../ui/SortSelector/SortSelector";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
@@ -15,6 +16,7 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
     const { addToCart } = useCart();
     const { showSuccess, showError } = useToast();
     const navigate = useNavigate();
+    const [sortOption, setSortOption] = useState("price-asc");
 
     const handleAddProductToCart = async (productoId, nombre) => {
         if (!isAuthenticated) {
@@ -87,7 +89,33 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
         setFiltrosActivos(nuevosFiltros);
     };
 
-    // 3. RENDERIZADO CONDICIONAL (Después de todos los hooks)
+    const sortProducts = (productos) => {
+        if (!productos) return [];
+        const ordenados = [...productos];
+        switch (sortOption) {
+            case "price-desc":
+                return ordenados.sort((a, b) => (b.precioVenta || 0) - (a.precioVenta || 0));
+            case "name-asc":
+                return ordenados.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+            case "name-desc":
+                return ordenados.sort((a, b) => (b.nombre || "").localeCompare(a.nombre || ""));
+            case "newest":
+                return ordenados.sort((a, b) => {
+                    const fechaA = new Date(a.createdAt || a.updatedAt || 0).getTime();
+                    const fechaB = new Date(b.createdAt || b.updatedAt || 0).getTime();
+                    return fechaB - fechaA;
+                });
+            case "price-asc":
+            default:
+                return ordenados.sort((a, b) => (a.precioVenta || 0) - (b.precioVenta || 0));
+        }
+    };
+
+    // 4. Ordenamiento y renderizado final
+    const listaParaMostrar = filtrosActivos ? productosFiltrados : productosAUsar || [];
+    const listaOrdenada = useMemo(() => sortProducts(listaParaMostrar), [listaParaMostrar, sortOption]);
+
+    // 5. RENDERIZADO CONDICIONAL (Después de todos los hooks)
     if (loadingAUsar) {
         return <p className="center-message">Cargando productos...</p>;
     }
@@ -96,10 +124,6 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
     if (!productosAUsar || productosAUsar.length === 0) {
         return <p className="center-message">No hay productos disponibles en esta sección.</p>;
     }
-
-    // 4. JSX FINAL
-    // Usamos productosFiltrados para el mapa. Si no hay filtros, será igual a productosAUsar.
-    const listaParaMostrar = productosFiltrados.length > 0 ? productosFiltrados : [];
 
     return (
         <section className="product-catalog" style={{ 
@@ -126,11 +150,14 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
             minWidth: 0, // Truco CSS para permitir que el grid haga scroll o se ajuste si es necesario
             width: '100%' 
         }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
-                Productos ({listaParaMostrar.length})
-            </h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.5rem', margin: 0 }}>
+                    Productos ({listaOrdenada.length})
+                </h2>
+                <SortSelector sortOption={sortOption} onChange={setSortOption} />
+            </div>
             
-            {listaParaMostrar.length === 0 ? (
+            {listaOrdenada.length === 0 ? (
                 <p className="center-message">No hay productos que coincidan con los filtros.</p>
             ) : (
                 // Grid Responsivo Automático
@@ -139,7 +166,7 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
                     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
                     gap: '1.5rem' 
                 }}>
-                        {listaParaMostrar.map((producto) => (
+                        {listaOrdenada.map((producto) => (
                             <ProductCard 
                                 className="product-card"
                                 key={producto.id} 
