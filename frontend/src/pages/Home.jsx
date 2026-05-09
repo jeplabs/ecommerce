@@ -18,7 +18,7 @@ const slides = [
         `,
         sizes: '(max-width: 768px) 100vw, 1920px',
         alt: 'Promoción de verano',
-        link: 'categoria/1',
+        link: 'categoria/computacion/componentes-pc',
     },
     {
         src: 'https://media.spdigital.cl/file_upload/Desktop_Hero_2_Categoria_AFPS_370eb1bc.webp',
@@ -28,7 +28,7 @@ const slides = [
         `,
         sizes: '(max-width: 768px) 100vw, 1920px',
         alt: 'Productos destacados',
-        link: 'categoria/2',
+        link: 'categoria/computacion/componentes-pc',
     },
     {
         src: 'https://media.spdigital.cl/file_upload/Desktop_Hero_3_Categoria_AFPS_(1)_8475b3f5.webp',
@@ -38,7 +38,7 @@ const slides = [
         `,
         sizes: '(max-width: 768px) 100vw, 1920px',
         alt: 'Envío gratis',
-        link: 'categoria/3',
+        link: 'categoria/computacion/componentes-pc',
     },
     {
         src: 'https://media.spdigital.cl/file_upload/Desktop_Hero_4_Categoria_AFPS_4b3f5338.webp',
@@ -48,7 +48,7 @@ const slides = [
         `,
         sizes: '(max-width: 768px) 100vw, 1920px',
         alt: 'Promoción de verano',
-        link: 'categoria/4'
+        link: 'categoria/computacion/componentes-pc/tarjetas-graficas',
     },
     {
         src: 'https://media.spdigital.cl/file_upload/Desktop_Hero_4_Categoria_AFPS-1_7dbc37a4.webp',
@@ -58,7 +58,7 @@ const slides = [
         `,
         sizes: '(max-width: 768px) 100vw, 1920px',
         alt: 'Productos destacados',
-        link: 'categoria/5'
+        link: 'categoria/computacion/componentes-pc'
     }
 ];
 
