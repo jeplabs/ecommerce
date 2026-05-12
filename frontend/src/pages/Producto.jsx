@@ -70,7 +70,7 @@ export default function Producto() {
     // ];
     const breadcrumbs = [
         { label: "Inicio", path: "/" },
-        // { label: "Catálogo", path: "/catalogo" }, // Opcional
+        { label: "Catálogo", path: "/catalogo" },
     ];
 
     // Asumimos que la última categoría en producto.categorias es la más específica
@@ -104,6 +104,10 @@ export default function Producto() {
             });
         }
     }
+
+    // Página actual: el producto (sin path). Así todas las categorías del árbol son enlaces;
+    // si el último crumb fuera la categoría, Breadcrumbs la trataría como "actual" y no sería clickeable.
+    breadcrumbs.push({ label: producto.nombre });
 
     // 2. Formatear precio
     const precioFormateado = new Intl.NumberFormat('es-CL', {

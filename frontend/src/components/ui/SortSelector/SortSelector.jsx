@@ -20,6 +20,7 @@ export const SortSelector = ({ sortOption, onChange }) => {
                 onChange={(e) => onChange(e.target.value)}
                 className="sort-selector-select"
             >
+                <option value="">Selecciona una opción</option>
                 {SORT_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
                         {option.label}

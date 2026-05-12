@@ -1,200 +1,43 @@
-// import { useState, useEffect } from 'react';
-// import { extractFilterOptions } from '../../../utils/filterHelpers';
-
-// export const ProductFilters = ({ productos, onFilterChange }) => {
-//     // Estado local para los filtros seleccionados
-//     const [filtros, setFiltros] = useState({
-//         marca: [],
-//         ram: [],
-//         almacenamiento: [],
-//         precioMin: 0,
-//         precioMax: 10000
-//     });
-
-//     // Calcular opciones disponibles basado en los productos actuales
-//     const opciones = extractFilterOptions(productos);
-
-//     // Inicializar rango de precios cuando cargan los datos
-//     useEffect(() => {
-//         if (opciones.precioMax > 0) {
-//             setFiltros(prev => ({
-//                 ...prev,
-//                 precioMin: opciones.precioMin,
-//                 precioMax: opciones.precioMax
-//             }));
-//         }
-//     }, [opciones.precioMin, opciones.precioMax]);
-
-//     // Notificar al padre cada vez que cambia un filtro
-//     useEffect(() => {
-//         onFilterChange(filtros);
-//     }, [filtros, onFilterChange]);
-
-//     const handleCheckboxChange = (categoria, valor) => {
-//         setFiltros(prev => {
-//             const actual = prev[categoria];
-//             const nuevo = actual.includes(valor)
-//                 ? actual.filter(v => v !== valor) // Quitar si ya existe
-//                 : [...actual, valor]; // Agregar si no existe
-            
-//             return { ...prev, [categoria]: nuevo };
-//         });
-//     };
-
-//     const handlePriceChange = (e) => {
-//         const { name, value } = e.target;
-//         setFiltros(prev => ({ ...prev, [name]: Number(value) }));
-//     };
-
-//     const limpiarFiltros = () => {
-//         setFiltros({
-//             marca: [],
-//             ram: [],
-//             almacenamiento: [],
-//             precioMin: opciones.precioMin,
-//             precioMax: opciones.precioMax
-//         });
-//     };
-
-//     return (
-//         <aside className="product-filters" style={{ padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
-//             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-//                 <h3>Filtrar por</h3>
-//                 <button onClick={limpiarFiltros} style={{ fontSize: '0.8rem', cursor: 'pointer' }}>Limpiar</button>
-//             </div>
-
-//             {/* Filtro de Precio */}
-//             <div style={{ marginBottom: '1.5rem' }}>
-//                 <h4>Precio</h4>
-//                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-//                     <input 
-//                         type="number" 
-//                         name="precioMin" 
-//                         value={filtros.precioMin} 
-//                         onChange={handlePriceChange} 
-//                         style={{ width: '80px' }}
-//                     />
-//                     <span>-</span>
-//                     <input 
-//                         type="number" 
-//                         name="precioMax" 
-//                         value={filtros.precioMax} 
-//                         onChange={handlePriceChange} 
-//                         style={{ width: '80px' }}
-//                     />
-//                 </div>
-//             </div>
-
-//             {/* Filtro de Marca */}
-//             {opciones.marcas.length > 0 && (
-//                 <div style={{ marginBottom: '1.5rem' }}>
-//                     <h4>Marca</h4>
-//                     {opciones.marcas.map(marca => (
-//                         <label key={marca} style={{ display: 'block', marginBottom: '5px', cursor: 'pointer' }}>
-//                             <input 
-//                                 type="checkbox" 
-//                                 checked={filtros.marca.includes(marca)}
-//                                 onChange={() => handleCheckboxChange('marca', marca)}
-//                             />
-//                             {' '}{marca}
-//                         </label>
-//                     ))}
-//                 </div>
-//             )}
-
-//             {/* Filtro de RAM */}
-//             {opciones.rams.length > 0 && (
-//                 <div style={{ marginBottom: '1.5rem' }}>
-//                     <h4>Memoria RAM</h4>
-//                     {opciones.rams.map(ram => (
-//                         <label key={ram} style={{ display: 'block', marginBottom: '5px', cursor: 'pointer' }}>
-//                             <input 
-//                                 type="checkbox" 
-//                                 checked={filtros.ram.includes(ram)}
-//                                 onChange={() => handleCheckboxChange('ram', ram)}
-//                             />
-//                             {' '}{ram}
-//                         </label>
-//                     ))}
-//                 </div>
-//             )}
-
-//             {/* Filtro de Almacenamiento */}
-//             {opciones.almacenamientos.length > 0 && (
-//                 <div style={{ marginBottom: '1.5rem' }}>
-//                     <h4>Almacenamiento</h4>
-//                     {opciones.almacenamientos.map(storage => (
-//                         <label key={storage} style={{ display: 'block', marginBottom: '5px', cursor: 'pointer' }}>
-//                             <input 
-//                                 type="checkbox" 
-//                                 checked={filtros.almacenamiento.includes(storage)}
-//                                 onChange={() => handleCheckboxChange('almacenamiento', storage)}
-//                             />
-//                             {' '}{storage}
-//                         </label>
-//                     ))}
-//                 </div>
-//             )}
-//         </aside>
-//     );
-// };
-
 // src/components/ui/ProductFilters/ProductFilters.jsx
 import { useState, useEffect } from 'react';
 import { extractFilterOptions } from '../../../utils/filterHelpers';
 import './ProductFilters.css';
 
-export const ProductFilters = ({ productos, onFilterChange }) => {
-    const [filtros, setFiltros] = useState({
-        marca: [],
-        ram: [],
-        almacenamiento: [],
-        precioMin: 0,
-        precioMax: 10000
-    });
-    
+export const ProductFilters = ({ productos, filtros, onFilterChange }) => {
     const [isMobileOpen, setIsMobileOpen] = useState(false);
-    const [filtrosTemporales, setFiltrosTemporales] = useState(filtros); // Para móvil (aplicar al cerrar)
+    const [filtrosTemporales, setFiltrosTemporales] = useState(filtros);
 
     const opciones = extractFilterOptions(productos);
 
-    // Inicializar precios
     useEffect(() => {
-        if (opciones.precioMax > 0) {
-            setFiltros(prev => ({
-                ...prev,
-                precioMin: opciones.precioMin,
-                precioMax: opciones.precioMax
-            }));
-            setFiltrosTemporales(prev => ({
-                ...prev,
-                precioMin: opciones.precioMin,
-                precioMax: opciones.precioMax
-            }));
-        }
-    }, [opciones.precioMin, opciones.precioMax]);
-
-    // Notificar cambios (Solo desktop aplica inmediato, móvil al cerrar)
-    useEffect(() => {
-        onFilterChange(filtros);
-    }, [filtros, onFilterChange]);
+        setFiltrosTemporales(filtros);
+    }, [filtros]);
 
     const handleCheckboxChange = (categoria, valor, esMobile = false) => {
-        const setter = esMobile ? setFiltrosTemporales : setFiltros;
-        
-        setter(prev => {
-            const actual = prev[categoria];
+        if (esMobile) {
+            setFiltrosTemporales((prev) => {
+                const actual = prev[categoria];
+                const nuevo = actual.includes(valor)
+                    ? actual.filter((v) => v !== valor)
+                    : [...actual, valor];
+                return { ...prev, [categoria]: nuevo };
+            });
+        } else {
+            const actual = filtros[categoria];
             const nuevo = actual.includes(valor)
-                ? actual.filter(v => v !== valor)
+                ? actual.filter((v) => v !== valor)
                 : [...actual, valor];
-            return { ...prev, [categoria]: nuevo };
-        });
+            onFilterChange({ ...filtros, [categoria]: nuevo });
+        }
     };
 
     const handlePriceChange = (e, esMobile = false) => {
         const { name, value } = e.target;
-        const setter = esMobile ? setFiltrosTemporales : setFiltros;
-        setter(prev => ({ ...prev, [name]: Number(value) }));
+        if (esMobile) {
+            setFiltrosTemporales((prev) => ({ ...prev, [name]: Number(value) }));
+        } else {
+            onFilterChange({ ...filtros, [name]: Number(value) });
+        }
     };
 
     const limpiarFiltros = (esMobile = false) => {
@@ -202,23 +45,21 @@ export const ProductFilters = ({ productos, onFilterChange }) => {
             marca: [],
             ram: [],
             almacenamiento: [],
-            precioMin: opciones.precioMin,
-            precioMax: opciones.precioMax
+            precioMin: opciones.precioMin ?? 0,
+            precioMax: opciones.precioMax ?? 10000,
         };
         if (esMobile) {
             setFiltrosTemporales(limpios);
         } else {
-            setFiltros(limpios);
+            onFilterChange(limpios);
         }
     };
 
-    // Aplicar filtros móviles al cerrar o dar click en "Ver resultados"
     const aplicarFiltrosMobile = () => {
-        setFiltros(filtrosTemporales);
+        onFilterChange(filtrosTemporales);
         setIsMobileOpen(false);
     };
 
-    // Renderizado compartido de las secciones
     const renderFilterSection = (titulo, datos, clave, esMobile = false) => {
         if (!datos || datos.length === 0) return null;
         const currentFilters = esMobile ? filtrosTemporales : filtros;
@@ -240,15 +81,12 @@ export const ProductFilters = ({ productos, onFilterChange }) => {
         );
     };
 
-    const currentPriceFilters = filtrosTemporales; // Usamos los temporales para el form visual
-
     return (
         <>
-            {/* --- VERSIÓN DESKTOP (Sidebar) --- */}
             <aside className="product-filters">
                 <div className="filters-header">
                     <h3>Filtros</h3>
-                    <button onClick={() => limpiarFiltros(false)} className="btn-clear">
+                    <button type="button" onClick={() => limpiarFiltros(false)} className="btn-clear">
                         Limpiar
                     </button>
                 </div>
@@ -259,7 +97,7 @@ export const ProductFilters = ({ productos, onFilterChange }) => {
                         <input
                             type="number"
                             name="precioMin"
-                            value={currentPriceFilters.precioMin}
+                            value={filtros.precioMin}
                             onChange={(e) => handlePriceChange(e, false)}
                             placeholder="Min"
                         />
@@ -267,23 +105,23 @@ export const ProductFilters = ({ productos, onFilterChange }) => {
                         <input
                             type="number"
                             name="precioMax"
-                            value={currentPriceFilters.precioMax}
+                            value={filtros.precioMax}
                             onChange={(e) => handlePriceChange(e, false)}
                             placeholder="Max"
                         />
                     </div>
                 </div>
 
-                {renderFilterSection("Marca", opciones.marcas, "marca", false)}
-                {renderFilterSection("Memoria RAM", opciones.rams, "ram", false)}
-                {renderFilterSection("Almacenamiento", opciones.almacenamientos, "almacenamiento", false)}
+                {renderFilterSection('Marca', opciones.marcas, 'marca', false)}
+                {renderFilterSection('Memoria RAM', opciones.rams, 'ram', false)}
+                {renderFilterSection('Almacenamiento', opciones.almacenamientos, 'almacenamiento', false)}
             </aside>
 
-            {/* --- VERSIÓN MÓVIL (Botón + Drawer) --- */}
-            <button 
-                className="mobile-filter-btn" 
+            <button
+                type="button"
+                className="mobile-filter-btn"
                 onClick={() => {
-                    setFiltrosTemporales(filtros); // Sync inicial
+                    setFiltrosTemporales(filtros);
                     setIsMobileOpen(true);
                 }}
             >
@@ -301,17 +139,16 @@ export const ProductFilters = ({ productos, onFilterChange }) => {
                 Filtros
             </button>
 
-            {/* Overlay Oscuro */}
-            <div 
-                className={`filter-overlay ${isMobileOpen ? 'active' : ''}`} 
+            <div
+                className={`filter-overlay ${isMobileOpen ? 'active' : ''}`}
                 onClick={() => setIsMobileOpen(false)}
+                role="presentation"
             />
 
-            {/* Panel Deslizante (Drawer) */}
             <div className={`filter-drawer ${isMobileOpen ? 'active' : ''}`}>
                 <div className="drawer-header">
                     <h3>Filtrar Productos</h3>
-                    <button onClick={() => setIsMobileOpen(false)} className="btn-close-drawer">
+                    <button type="button" onClick={() => setIsMobileOpen(false)} className="btn-close-drawer">
                         &times;
                     </button>
                 </div>
@@ -322,27 +159,32 @@ export const ProductFilters = ({ productos, onFilterChange }) => {
                         <input
                             type="number"
                             name="precioMin"
-                            value={currentPriceFilters.precioMin}
+                            value={filtrosTemporales.precioMin}
                             onChange={(e) => handlePriceChange(e, true)}
                         />
                         <span>-</span>
                         <input
                             type="number"
                             name="precioMax"
-                            value={currentPriceFilters.precioMax}
+                            value={filtrosTemporales.precioMax}
                             onChange={(e) => handlePriceChange(e, true)}
                         />
                     </div>
                 </div>
 
-                {renderFilterSection("Marca", opciones.marcas, "marca", true)}
-                {renderFilterSection("Memoria RAM", opciones.rams, "ram", true)}
-                {renderFilterSection("Almacenamiento", opciones.almacenamientos, "almacenamiento", true)}
+                {renderFilterSection('Marca', opciones.marcas, 'marca', true)}
+                {renderFilterSection('Memoria RAM', opciones.rams, 'ram', true)}
+                {renderFilterSection('Almacenamiento', opciones.almacenamientos, 'almacenamiento', true)}
 
-                <button onClick={aplicarFiltrosMobile} className="btn-apply-mobile">
+                <button type="button" onClick={aplicarFiltrosMobile} className="btn-apply-mobile">
                     Ver {filtrosTemporales.marca.length + filtrosTemporales.ram.length > 0 ? 'Resultados' : 'Productos'}
                 </button>
-                <button onClick={() => limpiarFiltros(true)} className="btn-clear" style={{ width: '100%', marginTop: '10px', textAlign: 'center' }}>
+                <button
+                    type="button"
+                    onClick={() => limpiarFiltros(true)}
+                    className="btn-clear"
+                    style={{ width: '100%', marginTop: '10px', textAlign: 'center' }}
+                >
                     Limpiar filtros
                 </button>
             </div>

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useSearchParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useCategorias } from "../../../context/CategoriasContext";
 import "./CategoriasNav.css";
 
 const buildCategoryPath = (parentPath, categoria) => `${parentPath}/${categoria.slug || categoria.id}`;
 
-const MegaMenuColumn = ({ cat, parentPath, onCategoryClick }) => {
+const MegaMenuColumn = ({ cat, parentPath }) => {
     const hijos = cat.subcategorias || [];
     if (hijos.length === 0) return null;
 
@@ -13,31 +13,20 @@ const MegaMenuColumn = ({ cat, parentPath, onCategoryClick }) => {
 
     return (
         <div className="mega-column">
-            <Link 
-                to={currentPath} 
-                className="mega-col-title"
-                onClick={(e) => onCategoryClick && onCategoryClick(cat.id, e)}
-            >
+            <Link to={currentPath} className="mega-col-title">
                 {cat.nombre}
             </Link>
             <ul className="mega-sub-list">
                 {hijos.map((hijo) => (
                     <li key={hijo.id}>
-                        <Link 
-                            to={buildCategoryPath(currentPath, hijo)} 
-                            className="mega-sub-link"
-                            onClick={(e) => onCategoryClick && onCategoryClick(hijo.id, e)}
-                        >
+                        <Link to={buildCategoryPath(currentPath, hijo)} className="mega-sub-link">
                             {hijo.nombre}
                         </Link>
                         {hijo.subcategorias && hijo.subcategorias.length > 0 && (
                             <ul className="mega-deep-list">
                                 {hijo.subcategorias.map((nieto) => (
                                     <li key={nieto.id}>
-                                        <Link 
-                                            to={buildCategoryPath(buildCategoryPath(currentPath, hijo), nieto)}
-                                            onClick={(e) => onCategoryClick && onCategoryClick(nieto.id, e)}
-                                        >
+                                        <Link to={buildCategoryPath(buildCategoryPath(currentPath, hijo), nieto)}>
                                             {nieto.nombre}
                                         </Link>
                                     </li>
@@ -54,23 +43,6 @@ const MegaMenuColumn = ({ cat, parentPath, onCategoryClick }) => {
 const CategoriasNav = () => {
     const { arbolCategorias, loading } = useCategorias();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const location = useLocation();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const navigate = useNavigate();
-
-    const handleCategoryClick = (categoriaId, e) => {
-        if (location.pathname === '/catalogo') {
-            // Si estamos en catálogo, actualizar params para filtrar
-            e.preventDefault();
-            const newParams = new URLSearchParams(searchParams);
-            newParams.set('categoriaId', categoriaId);
-            // Limpiar otros filtros si cambiamos categoría
-            newParams.delete('search');
-            setSearchParams(newParams);
-        } else {
-            // Si no estamos en catálogo, navegar normalmente (el Link se encarga)
-        }
-    };
 
     // Controlar scroll del body cuando el drawer está abierto
     useEffect(() => {
@@ -112,11 +84,7 @@ const CategoriasNav = () => {
                     <ul className="categorias-lista">
                         {arbolCategorias.map((cat) => (
                             <li key={cat.id} className="cat-item">
-                                <Link 
-                                    to={`/categoria/${cat.slug || cat.id}`} 
-                                    className="cat-link"
-                                    onClick={(e) => handleCategoryClick(cat.id, e)}
-                                >
+                                <Link to={`/categoria/${cat.slug || cat.id}`} className="cat-link">
                                     {cat.nombre}
                                 </Link>
                                 
@@ -125,7 +93,7 @@ const CategoriasNav = () => {
                                     <div className="mega-panel">
                                         <div className="mega-panel-content">
                                             {cat.subcategorias.map((sub) => (
-                                                <MegaMenuColumn key={sub.id} cat={sub} parentPath={`/categoria/${cat.slug || cat.id}`} onCategoryClick={handleCategoryClick} />
+                                                <MegaMenuColumn key={sub.id} cat={sub} parentPath={`/categoria/${cat.slug || cat.id}`} />
                                             ))}
                                         </div>
                                     </div>
@@ -153,7 +121,7 @@ const CategoriasNav = () => {
                 <div className="drawer-content">
                     <ul className="drawer-list">
                         {arbolCategorias.map((cat) => (
-                            <DrawerItem key={cat.id} cat={cat} parentPath="/categoria" onClose={() => setIsDrawerOpen(false)} onCategoryClick={handleCategoryClick} />
+                            <DrawerItem key={cat.id} cat={cat} parentPath="/categoria" onClose={() => setIsDrawerOpen(false)} />
                         ))}
                     </ul>
                 </div>
@@ -162,15 +130,12 @@ const CategoriasNav = () => {
     );
 };
 
-const DrawerItem = ({ cat, parentPath, onClose, onCategoryClick }) => {
+const DrawerItem = ({ cat, parentPath, onClose }) => {
     const [isOpen, setIsOpen] = useState(false);
     const hijos = cat.subcategorias || [];
     const currentPath = buildCategoryPath(parentPath, cat);
 
-    const handleLinkClick = (e) => {
-        if (onCategoryClick) {
-            onCategoryClick(cat.id, e);
-        }
+    const handleLinkClick = () => {
         if (onClose) onClose();
     };
 
@@ -191,7 +156,7 @@ const DrawerItem = ({ cat, parentPath, onClose, onCategoryClick }) => {
             {hijos.length > 0 && (
                 <ul className={`drawer-sub ${isOpen ? 'open' : ''}`}>
                     {hijos.map((hijo) => (
-                        <DrawerItem key={hijo.id} cat={hijo} parentPath={currentPath} onClose={onClose} onCategoryClick={onCategoryClick} />
+                        <DrawerItem key={hijo.id} cat={hijo} parentPath={currentPath} onClose={onClose} />
                     ))}
                 </ul>
             )}
