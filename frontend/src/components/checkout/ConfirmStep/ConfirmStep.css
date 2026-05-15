@@ -1,0 +1,39 @@
+.confirm-step__block {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.confirm-step__block h3 {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+}
+
+.confirm-step__block p {
+    font-size: 0.88rem;
+    color: var(--text);
+    margin: 0.15rem 0;
+}
+
+.confirm-step__amount {
+    margin-top: 0.5rem !important;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.confirm-step__amount strong {
+    color: var(--accent);
+    font-size: 1.1rem;
+}
+
+.confirm-step__disclaimer {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 0.5rem;
+}

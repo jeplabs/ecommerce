@@ -1,0 +1,148 @@
+.profile-page {
+    min-height: calc(100vh - 80px);
+    padding: 2rem 1.5rem 3rem;
+}
+
+.profile-page__inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.profile-page__header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-page__header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.35rem;
+}
+
+.profile-page__header p {
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+.profile-page__panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.profile-page__loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+}
+
+.profile-page__error {
+    text-align: center;
+    padding: 2rem;
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Shared form controls across profile tabs */
+.profile-field {
+    margin-bottom: 1rem;
+}
+
+.profile-field label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+}
+
+.profile-field input,
+.profile-field textarea {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.92rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.profile-field input:focus,
+.profile-field textarea:focus {
+    outline: none;
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.profile-field--readonly input {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.profile-btn {
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+}
+
+.profile-btn--primary {
+    background: var(--indigo);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+.profile-btn--primary:hover:not(:disabled) {
+    background: #4f46e5;
+    transform: translateY(-1px);
+}
+
+.profile-btn--secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+}
+
+.profile-btn--secondary:hover:not(:disabled) {
+    border-color: var(--indigo);
+}
+
+.profile-btn--ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+
+.profile-btn--ghost:hover:not(:disabled) {
+    color: var(--error);
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.profile-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+    .profile-page {
+        padding: 1.25rem 1rem 2rem;
+    }
+
+    .profile-page__panel {
+        padding: 1rem;
+    }
+}

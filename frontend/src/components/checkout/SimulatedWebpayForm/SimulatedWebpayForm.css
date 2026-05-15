@@ -1,0 +1,86 @@
+.webpay-sim {
+    padding: 1.25rem;
+    background: linear-gradient(180deg, rgba(214, 36, 52, 0.08), var(--surface2));
+    border: 1px solid rgba(214, 36, 52, 0.25);
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+.webpay-sim__banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.webpay-sim__logo {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #d62434;
+}
+
+.webpay-sim__badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(214, 36, 52, 0.15);
+    color: #f87171;
+}
+
+.webpay-sim__flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.78rem;
+}
+
+.webpay-sim__step {
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--muted);
+}
+
+.webpay-sim__step--done {
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.webpay-sim__step--active {
+    background: rgba(214, 36, 52, 0.15);
+    color: #fca5a5;
+    font-weight: 600;
+}
+
+.webpay-sim__arrow {
+    color: var(--muted);
+}
+
+.webpay-sim__text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.webpay-sim__features {
+    list-style: none;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.webpay-sim__features li {
+    padding: 0.25rem 0;
+    padding-left: 1.1rem;
+    position: relative;
+}
+
+.webpay-sim__features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #d62434;
+}

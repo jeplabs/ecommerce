@@ -1,0 +1,66 @@
+.profile-tabs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.35rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 1.75rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.profile-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.profile-tabs__btn {
+    flex: 1;
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.1rem;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+}
+
+.profile-tabs__btn:hover {
+    color: var(--text);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.profile-tabs__btn--active {
+    background: var(--indigo);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+
+.profile-tabs__btn--active:hover {
+    color: #fff;
+    background: #4f46e5;
+}
+
+.profile-tabs__icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+@media (max-width: 520px) {
+    .profile-tabs__label {
+        font-size: 0.8rem;
+    }
+
+    .profile-tabs__btn {
+        padding: 0.65rem 0.75rem;
+    }
+}

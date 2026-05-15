@@ -59,12 +59,11 @@ export default function CartDrawer({ isOpen, onClose }) {
     };
 
     const handleCheckout = () => {
+        handleClose();
         if (!isAuthenticated) {
-            handleClose();
-            navigate("/login");
+            navigate("/login", { state: { from: "/checkout" } });
         } else {
-            alert("Redirigiendo a pasarela de pago...");
-            handleClose();
+            navigate("/checkout");
         }
     };
 

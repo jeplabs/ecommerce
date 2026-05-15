@@ -5,6 +5,8 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Cart from '../pages/Cart';
+import Checkout from '../pages/Checkout';
+import CheckoutSuccess from '../pages/CheckoutSuccess';
 import Producto from '../pages/Producto';
 import Catalogo from '../pages/Catalogo';
 import CategoriaProductos from '../pages/CategoriaProductos';
@@ -56,6 +58,22 @@ export const AppRouter = () => {
                             <Cart />
                         </PrivateRoute>
                     } 
+                />
+                <Route
+                    path="/checkout"
+                    element={
+                        <PrivateRoute requiredRol='ROLE_CUSTOMER'>
+                            <Checkout />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/checkout/success"
+                    element={
+                        <PrivateRoute requiredRol='ROLE_CUSTOMER'>
+                            <CheckoutSuccess />
+                        </PrivateRoute>
+                    }
                 />
 
                 {/* Rutas para admin */}

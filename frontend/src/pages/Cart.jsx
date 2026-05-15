@@ -3,10 +3,11 @@ import Navbar from "../components/layout/Navbar/Navbar";
 import Footer from "../components/layout/Footer/Footer";
 import { useCart } from "../context/CartContext";
 import { useToast } from "../context/ToastContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Cart.css";
 
 export default function Cart() {
+    const navigate = useNavigate();
     const { items, cartTotal, loading, updateQuantity, removeFromCart, clearCart, isEmpty } = useCart();
     const { showSuccess, showError } = useToast();
 
@@ -115,7 +116,12 @@ export default function Cart() {
                                     <button className="btn-clear-cart" onClick={handleClear} disabled={loading}>
                                         Vaciar carrito
                                     </button>
-                                    <button className="btn-checkout" disabled={loading}>
+                                    <button
+                                        type="button"
+                                        className="btn-checkout"
+                                        disabled={loading}
+                                        onClick={() => navigate('/checkout')}
+                                    >
                                         Proceder al pago
                                     </button>
                                 </div>
