@@ -25,3 +25,6 @@ api.carrito.expiracion-minutos=12
 api.carrito.notificacion-minutos-antes=5
 api.carrito.scheduler-intervalo=PT3M
 api.carrito.scheduler-delay-inicial=PT3M
+
+# Porcentaje IVA
+api.impuestos.iva=0.12

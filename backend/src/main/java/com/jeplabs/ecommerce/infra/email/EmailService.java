@@ -45,6 +45,33 @@ public class EmailService {
         enviar(emailDestino, asunto, contenido);
     }
 
+    @Async
+    public void enviarConfirmacionOrden(String emailDestino,
+                                        String nombreUsuario,
+                                        Long ordenId) {
+        String asunto = "Orden #" + ordenId + " recibida correctamente";
+        String contenido = """
+            <html>
+            <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2>Hola %s,</h2>
+                <p>Hemos recibido tu orden <strong>#%d</strong> correctamente.</p>
+                <p>Tu orden está en estado <strong>PENDIENTE</strong>.</p>
+                <p>Te notificaremos cuando sea confirmada.</p>
+                <br>
+                <a href="http://localhost:5173/ordenes/%d"
+                   style="background-color: #28a745; color: white;
+                          padding: 10px 20px; text-decoration: none;
+                          border-radius: 5px;">
+                    Ver mi orden
+                </a>
+                <br><br>
+                <p>¡Gracias por tu compra!</p>
+            </body>
+            </html>
+            """.formatted(nombreUsuario, ordenId, ordenId);
+        enviar(emailDestino, asunto, contenido);
+    }
+
     // Método privado reutilizable para enviar cualquier email
     private void enviar(String destino, String asunto, String contenido) {
         try {

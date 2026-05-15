@@ -126,4 +126,20 @@ public class Producto {
                 .replaceAll("-+", "-")
                 .trim();
     }
+
+    // Descuenta stock y actualiza estado automáticamente
+    public void descontarStock(Integer cantidad) {
+        if (this.stock < cantidad) {
+            throw new IllegalArgumentException(
+                    "Stock insuficiente para: " + this.nombre);
+        }
+        this.stock -= cantidad;
+        actualizarEstadoPorStock();
+    }
+
+    // Devuelve stock al cancelar una orden
+    public void devolverStock(Integer cantidad) {
+        this.stock += cantidad;
+        actualizarEstadoPorStock();
+    }
 }
