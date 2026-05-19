@@ -10,17 +10,17 @@ const ESTADO_CLASS = {
     CANCELADA: 'status--cancelled',
 };
 
-export default function OrderDetail({ orden, onClose, onCancel, cancelling }) {
+export default function OrderDetail({ orden, onClose, onCancel, cancelling, titleId }) {
     if (!orden) return null;
 
     const envio = orden.direccionEnvio;
     const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'CONFIRMADA';
 
     return (
-        <aside className="order-detail" role="dialog" aria-label={`Detalle del pedido #${orden.id}`}>
+        <div className="order-detail">
             <div className="order-detail__header">
                 <div>
-                    <h3>Pedido #{orden.id}</h3>
+                    <h3 id={titleId}>Pedido #{orden.id}</h3>
                     <p className="order-detail__date">{formatDateTime(orden.creadoAt)}</p>
                 </div>
                 <button type="button" className="order-detail__close" onClick={onClose} aria-label="Cerrar detalle">
@@ -94,6 +94,6 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling }) {
                     {cancelling ? 'Cancelando…' : 'Cancelar pedido'}
                 </button>
             )}
-        </aside>
+        </div>
     );
 }

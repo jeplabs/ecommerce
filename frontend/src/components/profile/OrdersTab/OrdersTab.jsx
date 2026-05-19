@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useProfile } from '../../../context/ProfileContext';
 import { useToast } from '../../../context/ToastContext';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '../../../utils/formatters';
-import OrderDetail from '../OrderDetail/OrderDetail';
+import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import './OrdersTab.css';
 
 const ESTADO_CLASS = {
@@ -36,6 +36,8 @@ export default function OrdersTab() {
 
     const [cancelling, setCancelling] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [loadingDetailId, setLoadingDetailId] = useState(null);
 
     useEffect(() => {
         if (!loaded) {
@@ -44,12 +46,29 @@ export default function OrdersTab() {
         }
     }, [loaded, fetchOrdenes]);
 
-    const handleSelectOrder = async (id) => {
-        if (ordenSeleccionada?.id === id) {
-            cerrarDetalle();
+    const closeDetailModal = () => {
+        setDetailModalOpen(false);
+        setLoadingDetailId(null);
+        cerrarDetalle();
+    };
+
+    const handleDetailClick = async (id) => {
+        if (detailModalOpen && ordenSeleccionada?.id === id && !detailLoading) {
+            closeDetailModal();
             return;
         }
-        await cargarDetalle(id);
+
+        setDetailModalOpen(true);
+        setLoadingDetailId(id);
+        const res = await cargarDetalle(id);
+        setLoadingDetailId(null);
+
+        if (!res?.success) {
+            setDetailModalOpen(false);
+            if (res?.error) {
+                showError(res.error);
+            }
+        }
     };
 
     const handleCancel = async (id) => {
@@ -76,7 +95,7 @@ export default function OrdersTab() {
 
             {error && <p className="orders-tab__error" role="alert">{error}</p>}
 
-            <div className={`orders-tab__layout ${ordenSeleccionada ? 'orders-tab__layout--split' : ''}`}>
+            <div className="orders-tab__layout">
                 <div className="orders-tab__table-wrap">
                     {loading ? (
                         <p className="orders-tab__loading">Cargando pedidos…</p>
@@ -86,35 +105,62 @@ export default function OrdersTab() {
                         </div>
                     ) : (
                         <>
-                            <div className="orders-table" role="table" aria-label="Lista de pedidos">
-                                <OrdersTableHeader />
-                                {lista.map((orden) => (
-                                    <button
-                                        key={orden.id}
-                                        type="button"
-                                        className={`orders-table__row ${ordenSeleccionada?.id === orden.id ? 'orders-table__row--selected' : ''}`}
-                                        onClick={() => handleSelectOrder(orden.id)}
-                                        role="row"
-                                    >
-                                        <span className="orders-table__cell orders-table__cell--id" data-label="Pedido">
-                                            #{orden.id}
-                                        </span>
-                                        <span className="orders-table__cell" data-label="Fecha">
-                                            {formatDateTime(orden.creadoAt)}
-                                        </span>
-                                        <span className="orders-table__cell" data-label="Estado">
-                                            <span className={`orders-table__status ${ESTADO_CLASS[orden.estado] || ''}`}>
-                                                {formatEstadoOrden(orden.estado)}
-                                            </span>
-                                        </span>
-                                        <span className="orders-table__cell orders-table__cell--total" data-label="Total">
-                                            {formatCurrency(orden.total)}
-                                        </span>
-                                        <span className="orders-table__cell orders-table__cell--action" aria-hidden="true">
-                                            {detailLoading && ordenSeleccionada?.id === orden.id ? '…' : '→'}
-                                        </span>
-                                    </button>
-                                ))}
+                            <div className="orders-table-scroll">
+                                <table className="orders-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Pedido</th>
+                                            <th scope="col">Fecha</th>
+                                            <th scope="col">Estado</th>
+                                            <th scope="col" className="orders-table__col-total">Total</th>
+                                            <th scope="col" className="orders-table__col-action">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {lista.map((orden) => {
+                                            const isRowLoading = loadingDetailId === orden.id && detailLoading;
+                                            const isRowActive =
+                                                ordenSeleccionada?.id === orden.id ||
+                                                (isRowLoading && detailModalOpen);
+
+                                            return (
+                                                <tr
+                                                    key={orden.id}
+                                                    className={`orders-table__row ${isRowActive ? 'orders-table__row--selected' : ''}`}
+                                                >
+                                                    <td className="orders-table__cell-id" data-label="Pedido">
+                                                        #{orden.id}
+                                                    </td>
+                                                    <td className="orders-table__cell-date" data-label="Fecha">
+                                                        {formatDateTime(orden.creadoAt)}
+                                                    </td>
+                                                    <td className="orders-table__cell-status" data-label="Estado">
+                                                        <span className={`orders-table__status ${ESTADO_CLASS[orden.estado] || ''}`}>
+                                                            {formatEstadoOrden(orden.estado)}
+                                                        </span>
+                                                    </td>
+                                                    <td className="orders-table__cell-total" data-label="Total">
+                                                        {formatCurrency(orden.total)}
+                                                    </td>
+                                                    <td className="orders-table__cell-action" data-label="Acción">
+                                                        <button
+                                                            type="button"
+                                                            className="orders-table__detail-btn"
+                                                            onClick={() => handleDetailClick(orden.id)}
+                                                            disabled={isRowLoading}
+                                                        >
+                                                            {isRowLoading
+                                                                ? 'Cargando…'
+                                                                : detailModalOpen && ordenSeleccionada?.id === orden.id
+                                                                    ? 'Cerrar detalle'
+                                                                    : 'Ver detalle'}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
 
                             {totalPages > 1 && (
@@ -141,28 +187,16 @@ export default function OrdersTab() {
                         </>
                     )}
                 </div>
-
-                {ordenSeleccionada && (
-                    <OrderDetail
-                        orden={ordenSeleccionada}
-                        onClose={cerrarDetalle}
-                        onCancel={handleCancel}
-                        cancelling={cancelling}
-                    />
-                )}
             </div>
-        </section>
-    );
-}
 
-function OrdersTableHeader() {
-    return (
-        <div className="orders-table__header" role="row">
-            <span className="orders-table__cell" role="columnheader">Pedido</span>
-            <span className="orders-table__cell" role="columnheader">Fecha</span>
-            <span className="orders-table__cell" role="columnheader">Estado</span>
-            <span className="orders-table__cell" role="columnheader">Total</span>
-            <span className="orders-table__cell orders-table__cell--action" role="columnheader" aria-hidden="true" />
-        </div>
+            <OrderDetailModal
+                isOpen={detailModalOpen}
+                loading={detailLoading}
+                orden={ordenSeleccionada}
+                onClose={closeDetailModal}
+                onCancel={handleCancel}
+                cancelling={cancelling}
+            />
+        </section>
     );
 }

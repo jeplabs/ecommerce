@@ -52,6 +52,7 @@ export const useOrdenesLogic = () => {
     const cargarDetalle = useCallback(
         async (ordenId) => {
             setDetailLoading(true);
+            setOrdenSeleccionada(null);
             setError(null);
             try {
                 const data = await ordenService.obtenerOrden(ordenId);

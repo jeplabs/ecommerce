@@ -1,0 +1,82 @@
+.order-detail-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10040;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.order-detail-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: rgba(7, 11, 22, 0.75);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    max-width: none;
+    width: 100%;
+    height: 100%;
+    transition: background 0.2s ease;
+}
+
+.order-detail-modal__backdrop:hover {
+    background: rgba(7, 11, 22, 0.82);
+}
+
+.order-detail-modal__backdrop:focus-visible {
+    outline: 2px solid var(--indigo);
+    outline-offset: -2px;
+}
+
+.order-detail-modal__panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    max-height: min(90vh, 720px);
+    overflow-y: auto;
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+    outline: none;
+}
+
+.order-detail-modal__panel:focus-visible {
+    box-shadow:
+        0 24px 64px rgba(0, 0, 0, 0.45),
+        0 0 0 2px var(--indigo);
+}
+
+.order-detail-modal__loading {
+    margin: 0;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: var(--muted);
+    background: var(--surface2);
+    border-radius: 16px;
+}
+
+/* Contenido: sin segundo scroll anidado cuando está dentro del modal */
+.order-detail-modal__panel .order-detail {
+    max-height: none;
+    overflow: visible;
+    margin: 0;
+}
+
+@media (max-width: 480px) {
+    .order-detail-modal {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .order-detail-modal__panel {
+        max-width: none;
+        max-height: 92vh;
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+    }
+}

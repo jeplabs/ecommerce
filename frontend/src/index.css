@@ -435,7 +435,11 @@ input:focus-within .field-icon {
 }
 
 /* ANIMATIONS */
-@keyframes panelIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+/*
+ * Solo opacidad: si body conserva transform (p. ej. translateY(0) con animation-fill-mode: both),
+ * los descendientes con position:fixed quedan anclados al body y el scroll rompe modales/overlays.
+ */
+@keyframes panelIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeUp  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
 
