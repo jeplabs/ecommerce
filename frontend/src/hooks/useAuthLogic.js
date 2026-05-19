@@ -117,7 +117,7 @@ export const useAuthLogic = () => {
             if (!user?.token) {
                 return { success: false, error: 'No hay sesión' };
             }
-            await authService.setUsuarioEstado(id, false, user.token);
+            await authService.setUsuarioEstado(id, false);
             return { success: true, message: 'Usuario desactivado exitosamente' };
         } catch (error) {
             return { success: false, error: error.message };
@@ -129,7 +129,7 @@ export const useAuthLogic = () => {
             if (!user?.token) {
                 return { success: false, error: 'No hay sesión' };
             }
-            await authService.setUsuarioEstado(id, true, user.token);
+            await authService.setUsuarioEstado(id, true);
             return { success: true, message: 'Usuario activado exitosamente' };
         } catch (error) {
             return { success: false, error: error.message };

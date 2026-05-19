@@ -1,61 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar/Navbar';
-import { API_URL } from '../../config/config';
 import AdminUsersTable from '../../components/admin/AdminUsersTable/AdminUsersTable';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useAdminUsersList } from '../../hooks/useAdminUsersList';
 import './UsersList.css';
 
 export default function UsersList() {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
+    const { users, setUsers, loading, error } = useAdminUsersList();
     const { desactivarUsuario, activarUsuario } = useAuth();
     const { showSuccess, showError } = useToast();
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/login', { replace: true });
-            return;
-        }
-
-        const fetchUsers = async () => {
-            setLoading(true);
-            setError(null);
-
-            try {
-                const response = await fetch(`${API_URL}/api/auth/usuarios`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        localStorage.removeItem('token');
-                        navigate('/login', { replace: true });
-                        return;
-                    }
-                    throw new Error('Error al obtener usuarios');
-                }
-
-                const data = await response.json();
-                setUsers(data);
-            } catch (err) {
-                console.error('Error al obtener usuarios', err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUsers();
-    }, [navigate]);
 
     const handleActivarUsuario = async (userId) => {
         const resultado = await activarUsuario(userId);

@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar/Navbar';
-import { authService } from '../../services/authService';
-import { useToast } from '../../context/ToastContext';
+import { useAdminUser } from '../../hooks/useAdminUser';
 import './UserEdit.css';
 
 const ROLES = [
@@ -12,51 +10,11 @@ const ROLES = [
 
 export default function UserEdit() {
     const { id } = useParams();
-    const navigate = useNavigate();
-    const { showSuccess, showError } = useToast();
-    const [user, setUser] = useState(null);
-    const [rol, setRol] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/login', { replace: true });
-            return;
-        }
-
-        const load = async () => {
-            try {
-                const data = await authService.getUsuarioById(id, token);
-                setUser(data);
-                setRol(data.rol || '');
-            } catch (e) {
-                showError(e.message);
-                navigate('/admin/users', { replace: true });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        load();
-    }, [id, navigate, showError]);
+    const { user, rol, setRol, loading, saving, updateRol } = useAdminUser(id);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
-        if (!token || !user) return;
-
-        setSaving(true);
-        try {
-            const updated = await authService.updateUsuarioRol(user.id, rol, token);
-            setUser(updated);
-            showSuccess('Rol actualizado');
-        } catch (err) {
-            showError(err.message);
-        } finally {
-            setSaving(false);
-        }
+        await updateRol(rol);
     };
 
     if (loading) {
@@ -81,7 +39,8 @@ export default function UserEdit() {
                 </Link>
                 <h1>Editar usuario</h1>
                 <p className="admin-user-edit__lead">
-                    {user.nombre} {user.apellido} · <span className="admin-user-edit__mono">{user.email}</span>
+                    {user.nombre} {user.apellido} ·{' '}
+                    <span className="admin-user-edit__mono">{user.email}</span>
                 </p>
 
                 <div className="admin-user-edit__card">
