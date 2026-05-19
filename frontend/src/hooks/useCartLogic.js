@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { cartService } from '../services/cartService';
-import { useAuthLogic } from './useAuthLogic';
+import { useAuth } from '../context/AuthContext';
 import { useProduct } from '../context/ProductContext';
 import { getMainProductImageUrl } from '../utils/productImages';
 
@@ -29,7 +29,7 @@ const mapCartResponse = (response, productos) => {
 };
 
 export const useCartLogic = () => {
-    const { isAuthenticated } = useAuthLogic();
+    const { isAuthenticated } = useAuth();
     const { productos } = useProduct();
     
     const [items, setItems] = useState([]);

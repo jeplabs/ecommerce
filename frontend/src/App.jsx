@@ -5,7 +5,6 @@ import { ProductProvider } from './context/ProductContext'
 import { CategoriasProvider } from './context/CategoriasContext'
 import { ToastProvider } from './context/ToastContext'
 import { CartProvider } from './context/CartContext'
-
 function App() {
 
   return (

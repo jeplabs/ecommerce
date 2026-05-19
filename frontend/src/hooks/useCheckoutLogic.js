@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { direccionService } from '../services/direccionService';
 import { ordenService } from '../services/ordenService';
 import { paymentService, PAYMENT_METHODS } from '../services/paymentService';
-import { isAuthError } from '../utils/apiHelpers';
+import { redirectUnauthorized } from '../utils/apiHelpers';
 
 const STEPS = ['envio', 'pago', 'confirmar'];
 
@@ -30,14 +30,10 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
     const currentStep = STEPS[step];
 
     const handleAuthError = useCallback(
-        (status) => {
-            if (isAuthError(status)) {
-                localStorage.removeItem('token');
-                navigate('/login', { replace: true, state: { from: '/checkout' } });
-                return true;
-            }
-            return false;
-        },
+        (status) =>
+            redirectUnauthorized(status, navigate, {
+                state: { from: '/checkout' },
+            }),
         [navigate]
     );
 

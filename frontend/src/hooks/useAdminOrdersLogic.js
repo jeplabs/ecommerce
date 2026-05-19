@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ordenService } from '../services/ordenService';
-import { isAuthError } from '../utils/apiHelpers';
+import { redirectUnauthorized } from '../utils/apiHelpers';
 import { useToast } from '../context/ToastContext';
 
 const PAGE_SIZE = 10;
@@ -27,14 +27,7 @@ export function useAdminOrdersLogic() {
     const [detailLoading, setDetailLoading] = useState(false);
 
     const handleAuthError = useCallback(
-        (status) => {
-            if (isAuthError(status)) {
-                localStorage.removeItem('token');
-                navigate('/login', { replace: true });
-                return true;
-            }
-            return false;
-        },
+        (status) => redirectUnauthorized(status, navigate),
         [navigate]
     );
 

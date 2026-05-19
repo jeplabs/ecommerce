@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
+import { clearAuthStorage, subscribeSessionInvalidated, invalidateClientSession } from '../auth/authSessionSync';
+import { getJwtExpiryMs } from '../utils/jwtExpiry';
 
 /**
  * Estado y acciones de autenticación (login, registro, logout, activar/desactivar usuario).
@@ -21,6 +23,58 @@ export const useAuthLogic = () => {
         }
         setLoading(false);
     }, []);
+
+    useEffect(() => {
+        return subscribeSessionInvalidated(() => {
+            setIsAuthenticated(false);
+            setUser(null);
+            setUserRol(null);
+        });
+    }, []);
+
+    useEffect(() => {
+        const onStorage = (e) => {
+            if (e.key !== 'token') return;
+            const token = localStorage.getItem('token');
+            const rol = localStorage.getItem('rol');
+            if (!token) {
+                setIsAuthenticated(false);
+                setUser(null);
+                setUserRol(null);
+            } else {
+                setUser({ token, rol });
+                setIsAuthenticated(true);
+                setUserRol(rol);
+            }
+        };
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
+    }, []);
+
+    /**
+     * Cierra sesión en cliente cuando el JWT indica caducidad (`exp`), alineado con el backend.
+     * Si el token no es JWT con `exp`, no programa nada (solo 401 u otras rutas).
+     */
+    useEffect(() => {
+        if (!isAuthenticated || !user?.token) return undefined;
+
+        const expMs = getJwtExpiryMs(user.token);
+        if (expMs == null) return undefined;
+
+        const msUntilExp = expMs - Date.now();
+
+        const onExpire = () => {
+            invalidateClientSession({ reason: 'jwt_expired' });
+        };
+
+        if (msUntilExp <= 0) {
+            onExpire();
+            return undefined;
+        }
+
+        const id = window.setTimeout(onExpire, msUntilExp);
+        return () => window.clearTimeout(id);
+    }, [isAuthenticated, user?.token]);
 
     const login = useCallback(async (email, password) => {
         try {
@@ -105,11 +159,10 @@ export const useAuthLogic = () => {
     }, []);
 
     const logout = useCallback(() => {
+        clearAuthStorage();
         setIsAuthenticated(false);
         setUser(null);
         setUserRol(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('rol');
     }, []);
 
     const desactivarUsuario = useCallback(async (id) => {

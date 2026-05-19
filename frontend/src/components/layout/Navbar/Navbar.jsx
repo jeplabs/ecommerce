@@ -8,7 +8,7 @@ import CartDrawer from "../../cart/CartDrawer"; // Asegúrate que la ruta sea co
 import "./Navbar.css";
 
 export default function Navbar() {
-    const { isAuthenticated, userRol, logout, token } = useAuth();
+    const { isAuthenticated, userRol, logout } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();

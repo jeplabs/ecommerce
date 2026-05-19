@@ -1,5 +1,5 @@
 import { API_URL } from '../config/config';
-//import { getAuthHeaders, parseListResponse, isAuthError } from '../utils/apiHelpers';
+import { notifyUnauthorizedIfNeeded } from '../utils/apiHelpers';
 
 // Helper para headers (igual que tu función original)
 const getAuthHeaders = (isJson = true) => {
@@ -68,10 +68,8 @@ export const productService = {
         });
 
         if (res.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('rol');
-            window.location.href = '/login';
-            return null;
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
         }
         if (!res.ok) return null;
         
@@ -83,10 +81,8 @@ export const productService = {
     getById: async (id) => {
         const res = await fetch(`${API_URL}/api/productos/${id}`, { headers: getAuthHeaders(false) });
         if (res.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('rol');
-            window.location.href = '/login';
-            return null;
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
         }
         if (!res.ok) throw new Error('Producto no encontrado');
         return await res.json();
@@ -96,10 +92,8 @@ export const productService = {
     getByIdAdmin: async (id) => {
         const res = await fetch(`${API_URL}/api/productos/admin/${id}`, { headers: getAuthHeaders(false) });
         if (res.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('rol');
-            window.location.href = '/login';
-            return null;
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
         }
         if (!res.ok) {
             const errorText = await res.text().catch(() => '');
@@ -116,7 +110,10 @@ export const productService = {
             body: JSON.stringify(producto),
         });
 
-        if (res.status === 401) throw new Error('Sesión expirada');
+        if (res.status === 401) {
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
+        }
         if (!res.ok) {
             const errorData = await res.json();
             throw new Error(errorData.error || 'No se pudo crear el producto');
@@ -145,7 +142,10 @@ export const productService = {
                 headers,
                 body: JSON.stringify(datosActualizar),
             });
-            if (res.status === 401) throw new Error('Sesión expirada');
+            if (res.status === 401) {
+                notifyUnauthorizedIfNeeded(401);
+                throw new Error('Sesión expirada');
+            }
             if (!res.ok) {
                 const errorText = await res.text();
                 throw new Error(errorText);
@@ -174,9 +174,7 @@ export const productService = {
         });
 
         if (res.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('rol');
-            window.location.href = '/login';
+            notifyUnauthorizedIfNeeded(401);
             throw new Error('Sesión expirada');
         }
         if (!res.ok) {
@@ -198,7 +196,10 @@ export const productService = {
             body: JSON.stringify({ estado: estadoBackend }),
         });
 
-        if (res.status === 401) throw new Error('Sesión expirada');
+        if (res.status === 401) {
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
+        }
         if (!res.ok) {
             const errorText = await res.text();
             throw new Error(errorText);
@@ -214,7 +215,10 @@ export const productService = {
             body: JSON.stringify({ imagenesUrl }),
         });
 
-        if (res.status === 401) throw new Error('Sesión expirada');
+        if (res.status === 401) {
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
+        }
         if (!res.ok) {
             const errorText = await res.text();
             throw new Error(errorText);
@@ -227,7 +231,10 @@ export const productService = {
         const res = await fetch(`${API_URL}/api/productos/${productId}/imagenes`, {
             headers: getAuthHeaders(false),
         });
-        if (res.status === 401) throw new Error('Sesión expirada');
+        if (res.status === 401) {
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
+        }
         if (!res.ok) {
             const errorText = await res.text().catch(() => '');
             throw new Error(errorText || 'No se pudo obtener imágenes');
@@ -241,7 +248,10 @@ export const productService = {
             method: 'DELETE',
             headers: getAuthHeaders(false),
         });
-        if (res.status === 401) throw new Error('Sesión expirada');
+        if (res.status === 401) {
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
+        }
         if (!res.ok) {
             const errorText = await res.text();
             throw new Error(errorText || 'Error al eliminar imagen');
@@ -255,7 +265,10 @@ export const productService = {
             method: 'PATCH',
             headers: getAuthHeaders(false), // El endpoint no suele requerir body si solo usa path params
         });
-        if (res.status === 401) throw new Error('Sesión expirada');
+        if (res.status === 401) {
+            notifyUnauthorizedIfNeeded(401);
+            throw new Error('Sesión expirada');
+        }
         if (!res.ok) {
             const errorText = await res.text();
             throw new Error(errorText || 'Error al cambiar imagen principal');

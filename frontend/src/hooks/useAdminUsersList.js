@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
-import { isAuthError } from '../utils/apiHelpers';
+import { redirectUnauthorized } from '../utils/apiHelpers';
 
 const getToken = () => localStorage.getItem('token');
 
@@ -16,14 +16,7 @@ export function useAdminUsersList() {
     const [error, setError] = useState(null);
 
     const handleAuthError = useCallback(
-        (status) => {
-            if (isAuthError(status)) {
-                localStorage.removeItem('token');
-                navigate('/login', { replace: true });
-                return true;
-            }
-            return false;
-        },
+        (status) => redirectUnauthorized(status, navigate),
         [navigate]
     );
 

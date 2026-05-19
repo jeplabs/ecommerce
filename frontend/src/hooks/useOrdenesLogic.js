@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ordenService } from '../services/ordenService';
-import { isAuthError } from '../utils/apiHelpers';
+import { redirectUnauthorized } from '../utils/apiHelpers';
 
 const PAGE_SIZE = 10;
 
@@ -17,14 +17,7 @@ export const useOrdenesLogic = () => {
     const [error, setError] = useState(null);
 
     const handleAuthError = useCallback(
-        (status) => {
-            if (isAuthError(status)) {
-                localStorage.removeItem('token');
-                navigate('/login', { replace: true });
-                return true;
-            }
-            return false;
-        },
+        (status) => redirectUnauthorized(status, navigate),
         [navigate]
     );
 

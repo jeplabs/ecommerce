@@ -1,4 +1,5 @@
 import { API_URL } from '../config/config';
+import { notifyUnauthorizedIfNeeded } from '../utils/apiHelpers';
 
 const getAuthHeaders = (isJson = true) => {
     const token = localStorage.getItem('token');
@@ -29,6 +30,7 @@ export const categoriasService = {
         });
 
         if (res.status === 401) {
+            notifyUnauthorizedIfNeeded(401);
             throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
         }
 

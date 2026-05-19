@@ -1,5 +1,5 @@
 import { API_URL } from '../config/config';
-import { getAuthHeaders } from '../utils/apiHelpers';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '../utils/apiHelpers';
 
 const getToken = () => localStorage.getItem('token');
 
@@ -8,6 +8,7 @@ const handleResponse = async (response) => {
 
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
+        notifyUnauthorizedIfNeeded(response.status);
         const err = new Error(data.message || data.error || 'Error en la solicitud');
         err.status = response.status;
         err.data = data;

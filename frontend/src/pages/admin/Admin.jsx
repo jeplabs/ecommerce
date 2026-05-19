@@ -3,6 +3,7 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from "../../components/layout/Navbar/Navbar";
 import { API_URL } from "../../config/config";
+import { redirectUnauthorized } from "../../utils/apiHelpers";
 
 export default function Admin() {
 
@@ -41,9 +42,7 @@ export default function Admin() {
                     });
 
                     if (!response.ok) {
-                        if (response.status === 401) {
-                            localStorage.removeItem('token');
-                            navigate('/login', { replace: true });
+                        if (redirectUnauthorized(response.status, navigate)) {
                             return;
                         }
                         throw new Error('Error al obtener usuarios');

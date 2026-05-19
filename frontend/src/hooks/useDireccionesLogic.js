@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { direccionService } from '../services/direccionService';
-import { isAuthError } from '../utils/apiHelpers';
+import { redirectUnauthorized } from '../utils/apiHelpers';
 
 export const useDireccionesLogic = (enabled = true) => {
     const navigate = useNavigate();
@@ -11,14 +11,7 @@ export const useDireccionesLogic = (enabled = true) => {
     const [error, setError] = useState(null);
 
     const handleAuthError = useCallback(
-        (status) => {
-            if (isAuthError(status)) {
-                localStorage.removeItem('token');
-                navigate('/login', { replace: true });
-                return true;
-            }
-            return false;
-        },
+        (status) => redirectUnauthorized(status, navigate),
         [navigate]
     );
 

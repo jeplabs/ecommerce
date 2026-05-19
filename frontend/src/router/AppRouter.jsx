@@ -18,6 +18,7 @@ import UsersList from '../pages/admin/UsersList';
 import UserEdit from '../pages/admin/UserEdit';
 import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
 import PrivateRoute from './PrivateRoute';
+import AuthSessionListeners from '../components/auth/AuthSessionListeners';
 
 export const AppRouter = () => {
     const { userRol } = useAuth();
@@ -25,6 +26,7 @@ export const AppRouter = () => {
     return (
 
         <Router>
+            <AuthSessionListeners />
             <Routes>
                 {/* Rutas publicas */}
                 <Route path="/" element={<Home />} />

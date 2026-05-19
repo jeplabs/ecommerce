@@ -1,4 +1,5 @@
 import { API_URL } from '../config/config';
+import { notifyUnauthorizedIfNeeded } from '../utils/apiHelpers';
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('token');
@@ -12,6 +13,7 @@ export const cartService = {
             headers: { ...getAuthHeader() }
         });
         const data = await response.json();
+        notifyUnauthorizedIfNeeded(response.status);
         if (!response.ok) throw new Error(data.error || 'Error al obtener carrito');
         return data;
     },
@@ -23,6 +25,7 @@ export const cartService = {
             body: JSON.stringify({ productoId: productId, cantidad: quantity })
         });
         const data = await response.json();
+        notifyUnauthorizedIfNeeded(response.status);
         if (!response.ok) throw new Error(data.error || 'Error al agregar');
         return data;
     },
@@ -34,6 +37,7 @@ export const cartService = {
             body: JSON.stringify({ cantidad: quantity })
         });
         const data = await response.json();
+        notifyUnauthorizedIfNeeded(response.status);
         if (!response.ok) throw new Error(data.error || 'Error al actualizar');
         return data;
     },
@@ -44,6 +48,7 @@ export const cartService = {
             headers: { ...getAuthHeader() }
         });
         const data = await response.json();
+        notifyUnauthorizedIfNeeded(response.status);
         if (!response.ok) {
             throw new Error(data.error || 'Error al eliminar');
         }
@@ -56,6 +61,7 @@ export const cartService = {
             headers: { ...getAuthHeader() }
         });
         const data = await response.json();
+        notifyUnauthorizedIfNeeded(response.status);
         if (!response.ok) throw new Error(data.error || 'Error al limpiar');
         return data;
     }
