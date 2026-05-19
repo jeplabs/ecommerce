@@ -1,0 +1,42 @@
+.admin-users-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 3rem;
+    box-sizing: border-box;
+}
+
+.admin-users-page__header {
+    margin-bottom: 1.5rem;
+}
+
+.admin-users-page__back {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+}
+
+.admin-users-page__back:hover {
+    text-decoration: underline;
+}
+
+.admin-users-page h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    text-align: left;
+    margin: 0 0 0.35rem 0;
+}
+
+.admin-users-page__lead {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+@media (max-width: 480px) {
+    .admin-users-page {
+        padding: 1rem 1rem 2rem;
+    }
+}

@@ -1,0 +1,463 @@
+.admin-users-table {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.admin-users-table__toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.06));
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-users-table__title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.35rem;
+    margin: 0 0 0.2rem 0;
+    color: var(--text);
+}
+
+.admin-users-table__subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.admin-users-table__scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-users-table__grid {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    font-size: 0.88rem;
+}
+
+.admin-users-table__grid thead {
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.admin-users-table__grid th {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.admin-users-table__col-numeric {
+    width: 5.5rem;
+    text-align: center;
+}
+
+.admin-users-table__grid th.admin-users-table__col-numeric {
+    text-align: center;
+}
+
+.admin-users-table__col-user {
+    min-width: 9.5rem;
+}
+
+.admin-users-table__col-email {
+    min-width: 7rem;
+}
+
+.admin-users-table__col-role {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.admin-users-table__col-actions {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.admin-users-table__grid th.admin-users-table__col-actions {
+    text-align: center;
+}
+
+.admin-users-table__grid td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-users-table__row:last-child td {
+    border-bottom: none;
+}
+
+.admin-users-table__row:hover td {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.admin-users-table__cell-user {
+    overflow: visible;
+}
+
+.admin-users-table__user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.admin-users-table__avatar {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.admin-users-table__user-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.admin-users-table__name {
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.admin-users-table__id {
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.admin-users-table__cell-email {
+    word-break: break-word;
+}
+
+.admin-users-table__badge {
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.25;
+    vertical-align: middle;
+}
+
+.admin-users-table__cell-role {
+    white-space: nowrap;
+}
+
+.admin-users-table__badge--admin {
+    background: rgba(168, 85, 247, 0.2);
+    color: #c084fc;
+}
+
+.admin-users-table__badge--customer {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--accent);
+}
+
+.admin-users-table__status-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.admin-users-table__pill {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.admin-users-table__pill--ok {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.admin-users-table__pill--off {
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--muted);
+}
+
+.admin-users-table__pill--warn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+.admin-users-table__cell-numeric {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-users-table__cell-actions {
+    text-align: center;
+    overflow: visible;
+}
+
+.admin-users-table__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+/* Escritorio: mismos anchos para que “Editar” y “Desactivar/Activar” no se desalineen */
+@media (min-width: 1101px) {
+    .admin-users-table__cell-actions .admin-users-table__btn {
+        min-width: 9rem;
+        flex: 1 1 auto;
+        max-width: 10.5rem;
+    }
+}
+
+.admin-users-table__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    max-width: none;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.admin-users-table__btn--secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: var(--border2);
+}
+
+.admin-users-table__btn--secondary:hover {
+    border-color: var(--indigo);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.admin-users-table__btn--primary {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+.admin-users-table__btn--primary:hover {
+    background: rgba(34, 197, 94, 0.3);
+}
+
+.admin-users-table__btn--danger {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.admin-users-table__btn--danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.admin-users-table__state {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    border-radius: 16px;
+    border: 1px dashed var(--border2);
+}
+
+.admin-users-table__state--loading {
+    color: var(--muted);
+}
+
+.admin-users-table__state--error {
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+.admin-users-table__state--empty {
+    color: var(--muted);
+}
+
+/* ——— Ventanas estrechas / tablet ancha / mitad de monitor: tarjetas (sin scroll horizontal) ——— */
+@media (max-width: 1100px) {
+    /* Huecos entre usuarios = fondo de la página (sin franja del panel) */
+    .admin-users-table {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .admin-users-table__toolbar {
+        background-color: var(--surface);
+        background-image: linear-gradient(
+            135deg,
+            rgba(99, 102, 241, 0.08),
+            rgba(168, 85, 247, 0.06)
+        );
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        margin-bottom: 1rem;
+    }
+
+    .admin-users-table__scroll {
+        overflow-x: visible;
+        background: transparent;
+    }
+
+    .admin-users-table__grid {
+        min-width: 0;
+        display: block;
+    }
+
+    .admin-users-table__grid thead {
+        display: none;
+    }
+
+    .admin-users-table__grid tbody {
+        display: block;
+    }
+
+    .admin-users-table__row {
+        display: block;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface2);
+        overflow: hidden;
+    }
+
+    .admin-users-table__row:hover td {
+        background: transparent;
+    }
+
+    .admin-users-table__grid td {
+        display: grid;
+        grid-template-columns: minmax(6.5rem, 32%) 1fr;
+        gap: 0.5rem 0.75rem;
+        align-items: center;
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        overflow: visible;
+    }
+
+    .admin-users-table__grid td:last-child {
+        border-bottom: none;
+        padding-bottom: 0.85rem;
+    }
+
+    .admin-users-table__grid td::before {
+        content: attr(data-label);
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+        color: var(--muted);
+        line-height: 1.3;
+    }
+
+    .admin-users-table__actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        max-width: min(100%, 15rem);
+        margin-inline: auto;
+    }
+
+    .admin-users-table__btn {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .admin-users-table__cell-actions > .admin-users-table__actions {
+        justify-self: center;
+        width: 100%;
+        max-width: min(100%, 15rem);
+    }
+
+    /* Tablet: botones en fila, alineados a la izquierda (como el resto de la tarjeta) */
+    @media (min-width: 641px) {
+        .admin-users-table__actions {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: stretch;
+            width: 100%;
+            max-width: none;
+            margin-inline: 0;
+            gap: 0.45rem;
+        }
+
+        .admin-users-table__btn {
+            flex: 1 1 auto;
+            min-width: 6.75rem;
+            width: auto;
+            max-width: none;
+        }
+
+        .admin-users-table__cell-actions > .admin-users-table__actions {
+            justify-self: stretch;
+            max-width: none;
+        }
+    }
+
+    .admin-users-table__cell-numeric {
+        text-align: left;
+    }
+
+    /* El contenido de la 2.ª columna del grid no debe estirarse (badges como “Activo”) */
+    .admin-users-table__grid td > * {
+        justify-self: start;
+        min-width: 0;
+    }
+
+    .admin-users-table__cell-user > .admin-users-table__user {
+        justify-self: stretch;
+        width: 100%;
+    }
+
+    .admin-users-table__cell-role {
+        white-space: normal;
+    }
+
+    .admin-users-table__cell-role > .admin-users-table__badge {
+        width: fit-content;
+        max-width: 100%;
+    }
+}

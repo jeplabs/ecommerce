@@ -1,0 +1,135 @@
+.admin-user-edit {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 3rem;
+    box-sizing: border-box;
+}
+
+.admin-user-edit__back {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+}
+
+.admin-user-edit__back:hover {
+    text-decoration: underline;
+}
+
+.admin-user-edit h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.4rem, 4vw, 1.85rem);
+    margin: 0 0 0.5rem 0;
+}
+
+.admin-user-edit__lead {
+    margin: 0 0 1.5rem 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.admin-user-edit__mono {
+    font-family: ui-monospace, monospace;
+    font-size: 0.88em;
+    word-break: break-all;
+}
+
+.admin-user-edit__loading {
+    text-align: center;
+    color: var(--muted);
+    padding: 2rem;
+}
+
+.admin-user-edit__card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.admin-user-edit__meta {
+    display: grid;
+    gap: 1rem;
+    margin: 0 0 1.5rem 0;
+    padding: 0 0 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-user-edit__meta > div {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.admin-user-edit__meta dt {
+    margin: 0;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.admin-user-edit__meta dd {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+@media (min-width: 480px) {
+    .admin-user-edit__meta {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.admin-user-edit__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.admin-user-edit__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.admin-user-edit__select {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+
+.admin-user-edit__submit {
+    margin-top: 0.35rem;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    color: #fff;
+    transition: opacity 0.2s, transform 0.15s;
+    margin: 1rem auto 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+.admin-user-edit__submit:hover:not(:disabled) {
+    opacity: 0.92;
+}
+
+.admin-user-edit__submit:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

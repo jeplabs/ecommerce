@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from "../../components/layout/Navbar/Navbar";
-import { API_URL } from "../../config/config";
-import UsersTable from "../../components/admin/UsersTable";
-import { useAuth } from "../../context/AuthContext";
+import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../../components/layout/Navbar/Navbar';
+import { API_URL } from '../../config/config';
+import AdminUsersTable from '../../components/admin/AdminUsersTable/AdminUsersTable';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import './UsersList.css';
 
 export default function UsersList() {
     const [users, setUsers] = useState([]);
@@ -11,6 +13,7 @@ export default function UsersList() {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const { desactivarUsuario, activarUsuario } = useAuth();
+    const { showSuccess, showError } = useToast();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -28,7 +31,7 @@ export default function UsersList() {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
 
@@ -43,7 +46,6 @@ export default function UsersList() {
 
                 const data = await response.json();
                 setUsers(data);
-
             } catch (err) {
                 console.error('Error al obtener usuarios', err);
                 setError(err.message);
@@ -55,51 +57,56 @@ export default function UsersList() {
         fetchUsers();
     }, [navigate]);
 
-    // --- NUEVAS FUNCIONES WRAPPER ---
-    // Estas funciones ejecutan la acción Y LUEGO actualizan la lista visualmente
     const handleActivarUsuario = async (userId) => {
         const resultado = await activarUsuario(userId);
-        
+
         if (resultado.success) {
-            // Actualizamos el estado local inmediatamente sin recargar toda la página
-            setUsers(prevUsers => 
-                prevUsers.map(user => 
+            setUsers((prevUsers) =>
+                prevUsers.map((user) =>
                     user.id === userId ? { ...user, activo: true } : user
                 )
             );
+            showSuccess('Usuario activado');
         } else {
-            alert(`Error: ${resultado.error}`);
+            showError(resultado.error || 'No se pudo activar');
         }
     };
 
     const handleDesactivarUsuario = async (userId) => {
-
         const resultado = await desactivarUsuario(userId);
-        
+
         if (resultado.success) {
-            // Actualizamos el estado local inmediatamente
-            setUsers(prevUsers => 
-                prevUsers.map(user => 
+            setUsers((prevUsers) =>
+                prevUsers.map((user) =>
                     user.id === userId ? { ...user, activo: false } : user
                 )
             );
+            showSuccess('Usuario desactivado');
         } else {
-            alert(`Error: ${resultado.error}`);
+            showError(resultado.error || 'No se pudo desactivar');
         }
     };
-    // -------------------------------
 
     return (
         <>
             <Navbar />
-            <main className="admin-container">
-                <h1>Gestión de Usuarios</h1>
+            <main className="admin-users-page">
+                <header className="admin-users-page__header">
+                    <div>
+                        <Link to="/admin" className="admin-users-page__back">
+                            ← Volver al panel
+                        </Link>
+                        <h1>Gestión de usuarios</h1>
+                        <p className="admin-users-page__lead">
+                            Altas, estado de cuenta y roles del sistema
+                        </p>
+                    </div>
+                </header>
 
-                {/* Pasamos las NUEVAS funciones wrapper en lugar de las del contexto directo */}
-                <UsersTable 
-                    users={users} 
-                    loading={loading} 
-                    error={error} 
+                <AdminUsersTable
+                    users={users}
+                    loading={loading}
+                    error={error}
                     desactivarUsuario={handleDesactivarUsuario}
                     activarUsuario={handleActivarUsuario}
                 />

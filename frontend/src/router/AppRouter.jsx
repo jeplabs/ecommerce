@@ -15,6 +15,7 @@ import ProductList from '../pages/admin/ProductList';
 import ProductNew from '../pages/admin/ProductNew';
 import ProductEdit from '../pages/admin/ProductEdit';
 import UsersList from '../pages/admin/UsersList';
+import UserEdit from '../pages/admin/UserEdit';
 import PrivateRoute from './PrivateRoute';
 
 export const AppRouter = () => {
@@ -114,6 +115,14 @@ export const AppRouter = () => {
                     element={
                         <PrivateRoute requiredRol='ROLE_ADMIN'>
                             <UsersList />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/admin/users/:id/edit"
+                    element={
+                        <PrivateRoute requiredRol='ROLE_ADMIN'>
+                            <UserEdit />
                         </PrivateRoute>
                     }
                 />

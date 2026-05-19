@@ -51,4 +51,37 @@ export const authService = {
         }
         return data;
     },
+
+    async getUsuarioById(id, token) {
+        const response = await fetch(`${API_URL}/api/auth/usuarios/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'No se pudo cargar el usuario');
+        }
+        return data;
+    },
+
+    async updateUsuarioRol(id, rol, token) {
+        const response = await fetch(`${API_URL}/api/auth/usuarios/${id}/rol`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ rol }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'No se pudo actualizar el rol');
+        }
+        return data;
+    },
 };
