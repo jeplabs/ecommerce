@@ -8,7 +8,12 @@ import { SortSelector } from "../ui/SortSelector/SortSelector";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
-import { extractFilterOptions } from "../../utils/filterHelpers";
+import {
+    extractFilterFacets,
+    applyProductFilters,
+    createDefaultFiltros,
+    mergeFiltrosWithFacets,
+} from "../../utils/productFilterFacets";
 import {
     getPersistedSortParam,
     getEffectiveSortOrder,
@@ -16,6 +21,7 @@ import {
     buildCatalogSearchParams,
     isFiltrosDefault,
 } from "../../utils/catalogQueryParams";
+import "./ProductCatalog.css";
 
 export const ProductCatalog = ({ productosExternos = null, loadingExterno = false }) => {
     const { productos: productosContexto, loading: loadingContexto } = useProduct();
@@ -33,19 +39,16 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
     const searchTerm = searchParams.get("search") || "";
 
     const productosAUsar = productosExternos !== null ? productosExternos : productosContexto;
-    const loadingAUsar = loadingExterno !== false ? loadingExterno : loadingContexto;
+    const loadingAUsar = productosExternos !== null ? loadingExterno : loadingContexto;
 
-    const opciones = useMemo(() => extractFilterOptions(productosAUsar || []), [productosAUsar]);
+    const opciones = useMemo(
+        () => extractFilterFacets(productosAUsar || []),
+        [productosAUsar]
+    );
 
     const defaultFiltros = useMemo(
-        () => ({
-            marca: [],
-            ram: [],
-            almacenamiento: [],
-            precioMin: opciones.precioMin ?? 0,
-            precioMax: opciones.precioMax ?? 10000,
-        }),
-        [opciones.precioMin, opciones.precioMax]
+        () => createDefaultFiltros(opciones),
+        [opciones]
     );
 
     const filtrosActivos = useMemo(
@@ -54,13 +57,14 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
     );
 
     const filtrosParaUi = useMemo(
-        () => filtrosActivos ?? defaultFiltros,
-        [filtrosActivos, defaultFiltros]
+        () => mergeFiltrosWithFacets(filtrosActivos ?? defaultFiltros, opciones),
+        [filtrosActivos, defaultFiltros, opciones]
     );
 
     const handleFilterChange = useCallback(
         (nextFiltros) => {
-            const forUrl = isFiltrosDefault(nextFiltros, opciones) ? null : nextFiltros;
+            const merged = mergeFiltrosWithFacets(nextFiltros, opciones);
+            const forUrl = isFiltrosDefault(merged, opciones) ? null : merged;
             const params = buildCatalogSearchParams(searchParams, {
                 filtros: forUrl,
                 sort: getPersistedSortParam(searchParams),
@@ -98,49 +102,10 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
         }
     };
 
-    const productosFiltrados = useMemo(() => {
-        if (!productosAUsar) return [];
-
-        let resultado = [...productosAUsar];
-
-        if (filtrosActivos) {
-            const { marca, ram, almacenamiento, precioMin, precioMax } = filtrosActivos;
-
-            resultado = resultado.filter(
-                (p) => p.precioVenta >= precioMin && p.precioVenta <= precioMax
-            );
-
-            if (marca && marca.length > 0) {
-                resultado = resultado.filter((p) => {
-                    const pMarca = p.specs?.Marca || p.marca;
-                    return pMarca && marca.includes(pMarca);
-                });
-            }
-
-            if (ram && ram.length > 0) {
-                resultado = resultado.filter((p) => {
-                    const pRam = p.specs?.RAM?.toString().replace(/\s/g, "");
-                    return pRam && ram.includes(pRam);
-                });
-            }
-
-            if (almacenamiento && almacenamiento.length > 0) {
-                resultado = resultado.filter((p) => {
-                    const pStorage = p.specs?.Almacenamiento?.toString().replace(/\s/g, "");
-                    return pStorage && almacenamiento.includes(pStorage);
-                });
-            }
-        }
-
-        if (searchTerm.trim()) {
-            const term = searchTerm.toLowerCase().trim();
-            resultado = resultado.filter(
-                (p) => p.nombre && p.nombre.toLowerCase().includes(term)
-            );
-        }
-
-        return resultado;
-    }, [productosAUsar, filtrosActivos, searchTerm]);
+    const productosFiltrados = useMemo(
+        () => applyProductFilters(productosAUsar, filtrosActivos, searchTerm),
+        [productosAUsar, filtrosActivos, searchTerm]
+    );
 
     const sortProducts = (productos) => {
         if (!productos) return [];
@@ -178,91 +143,57 @@ export const ProductCatalog = ({ productosExternos = null, loadingExterno = fals
     }
 
     return (
-        <section
-            className="product-catalog"
-            style={{
-                display: "flex",
-                gap: "2rem",
-                alignItems: "flex-start",
-            }}
-        >
-            <div
-                style={{
-                    width: "250px",
-                    flexShrink: 0,
-                    minWidth: "250px",
-                }}
-            >
-                <ProductFilters
-                    productos={productosAUsar}
-                    filtros={filtrosParaUi}
-                    onFilterChange={handleFilterChange}
-                />
-            </div>
-
-            <div
-                style={{
-                    flexGrow: 1,
-                    minWidth: 0,
-                    width: "100%",
-                }}
-            >
-                <div
-                    style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: "1rem",
-                        marginBottom: "1rem",
-                    }}
-                >
-                    <h2 style={{ fontSize: "1.5rem", margin: 0 }}>
-                        Productos ({listaOrdenada.length})
-                    </h2>
-                    <SortSelector sortOption={sortSelectValue} onChange={handleSortChange} />
+        <section className="product-catalog" aria-label="Catálogo de productos">
+            <div className="catalog-container">
+                <div className="catalog-sidebar">
+                    <ProductFilters
+                        productos={productosAUsar}
+                        filtros={filtrosParaUi}
+                        onFilterChange={handleFilterChange}
+                    />
                 </div>
 
-                {searchTerm.trim() && (
-                    <p
-                        style={{
-                            fontSize: "1rem",
-                            color: "var(--text-secondary)",
-                            marginBottom: "1rem",
-                        }}
-                    >
-                        Resultados para: "{searchTerm.trim()}"
-                    </p>
-                )}
+                <div className="catalog-content">
+                    <header className="catalog-toolbar">
+                        <h2 className="catalog-title">
+                            Productos ({listaOrdenada.length})
+                        </h2>
+                        <SortSelector sortOption={sortSelectValue} onChange={handleSortChange} />
+                    </header>
 
-                {listaOrdenada.length === 0 ? (
-                    <p className="center-message">No hay productos que coincidan con los filtros.</p>
-                ) : (
-                    <div
-                        className="admin-product-grid"
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-                            gap: "1.5rem",
-                        }}
-                    >
-                        {listaOrdenada.map((producto) => (
-                            <ProductCard
-                                className="product-card"
-                                key={producto.id}
-                                imageSrc={getMainProductImageUrl(producto)}
-                                altText={producto.altText}
-                                title={producto.nombre}
-                                description={producto.descripcion}
-                                price={producto.precioVenta}
-                                actionLabel="Ver producto"
-                                onAction={() => navigate(`/producto/${producto.slug || producto.id}`)}
-                                onAddToCart={() => handleAddProductToCart(producto.id, producto.nombre)}
-                                addLabel="Agregar"
-                            />
-                        ))}
-                    </div>
-                )}
+                    {searchTerm.trim() && (
+                        <p className="catalog-search-hint">
+                            Resultados para: &ldquo;{searchTerm.trim()}&rdquo;
+                        </p>
+                    )}
+
+                    {listaOrdenada.length === 0 ? (
+                        <p className="center-message">No hay productos que coincidan con los filtros.</p>
+                    ) : (
+                        <ul className="catalog-product-grid">
+                            {listaOrdenada.map((producto) => (
+                                <li key={producto.id} className="catalog-product-grid__item">
+                                    <ProductCard
+                                        className="product-card"
+                                        imageSrc={getMainProductImageUrl(producto)}
+                                        altText={producto.altText}
+                                        title={producto.nombre}
+                                        description={producto.descripcion}
+                                        price={producto.precioVenta}
+                                        actionLabel="Ver producto"
+                                        onAction={() =>
+                                            navigate(`/producto/${producto.slug || producto.id}`)
+                                        }
+                                        onAddToCart={() =>
+                                            handleAddProductToCart(producto.id, producto.nombre)
+                                        }
+                                        addLabel="Agregar"
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
         </section>
     );

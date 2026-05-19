@@ -1,92 +1,115 @@
 .product-catalog {
-    /* padding: 1rem; */
     width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
-/* Desktop: Layout Flex (Sidebar + Productos) */
 .catalog-container {
     display: flex;
-    gap: 2rem;
+    gap: 1.75rem;
     align-items: flex-start;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .catalog-sidebar {
-    width: 250px;
+    width: 260px;
     flex-shrink: 0;
-    min-width: 250px;
+    min-width: 0;
 }
 
 .catalog-content {
-    flex-grow: 1;
-    min-width: 0; /* Permite que el contenido se encoja si es necesario */
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.catalog-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .catalog-title {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #1e293b;
+    margin: 0;
+    font-size: 1.35rem;
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    color: var(--text);
 }
 
-/* Grid de Productos */
-.admin-product-grid {
+.catalog-search-hint {
+    margin: 0 0 1rem 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+.catalog-product-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    gap: 1.5rem;
-    /* Desktop: Columnas automáticas de mínimo 220px */
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }
 
-/* TABLET (Max 1024px) */
-@media (max-width: 1024px) {
-    .catalog-container {
+@media (min-width: 1025px) {
+    .catalog-product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 1.5rem;
     }
-    
-    .admin-product-grid {
-        /* Tablet: Un poco más pequeños */
-        grid-template-columns: repeat(auto-fill, minmax(180px, 2fr));
-        gap: 1rem;
+}
+
+.catalog-product-grid__item {
+    min-width: 0;
+}
+
+/* Tablet: sidebar a la izquierda */
+@media (max-width: 1024px) {
+    .catalog-container {
+        gap: 1.25rem;
     }
 }
 
-/* MÓVIL (Max 768px) */
+/* Móvil: una columna; sidebar no ocupa ancho (filtros vía drawer) */
 @media (max-width: 768px) {
     .product-catalog {
-        padding: 0.5rem;
+        padding: 0;
     }
 
-    /* CAMBIO CLAVE: En móvil, el contenedor ya NO es flex row.
-       Es block, así que el sidebar (oculto) no afecta el ancho */
     .catalog-container {
-        display: block; 
+        display: block;
+        width: 100%;
+        max-width: 100%;
     }
 
     .catalog-sidebar {
-        display: none; /* Se oculta completamente, se usa el botón flotante */
+        display: none;
+        width: 0;
+        height: 0;
+        overflow: hidden;
     }
 
     .catalog-content {
         width: 100%;
-        min-width: auto;
+        max-width: 100%;
     }
 
     .catalog-title {
-        font-size: 1.25rem;
-        text-align: center;
-        margin-top: 1rem;
+        font-size: 1.2rem;
     }
 
-    /* CAMBIO CLAVE: Grilla para móvil */
-    .admin-product-grid {
-        grid-template-columns: 1fr; 
-        gap: 0.75rem; /* Gap más pequeño para aprovechar espacio */
-    }
-    
-    /* Ajuste opcional para tarjetas muy pequeñas en móviles muy antiguos */
-    @media (max-width: 360px) {
-        .admin-product-grid {
-            grid-template-columns: 1fr; /* 1 sola columna en pantallas diminutas */
-        }
+    .catalog-product-grid {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
     }
 }

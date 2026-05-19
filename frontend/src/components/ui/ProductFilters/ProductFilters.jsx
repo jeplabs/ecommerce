@@ -1,193 +1,161 @@
-// src/components/ui/ProductFilters/ProductFilters.jsx
-import { useState, useEffect } from 'react';
-import { extractFilterOptions } from '../../../utils/filterHelpers';
+import { useMemo } from 'react';
+import { createPortal } from 'react-dom';
+import {
+    extractFilterFacets,
+    countActiveFilters,
+    mergeFiltrosWithFacets,
+} from '../../../utils/productFilterFacets';
+import { useProductFilterForm } from '../../../hooks/useProductFilterForm';
+import ProductFiltersPanel from './ProductFiltersPanel';
 import './ProductFilters.css';
 
-export const ProductFilters = ({ productos, filtros, onFilterChange }) => {
-    const [isMobileOpen, setIsMobileOpen] = useState(false);
-    const [filtrosTemporales, setFiltrosTemporales] = useState(filtros);
+function buildFacetSections(opciones) {
+    return (opciones.facetKeys || []).map((key) => ({
+        key,
+        options: opciones.specFacets[key] || [],
+    }));
+}
 
-    const opciones = extractFilterOptions(productos);
+/**
+ * Filtros de catálogo / categoría: facetas dinámicas desde specs de los productos visibles.
+ */
+export function ProductFilters({ productos, filtros, onFilterChange }) {
+    const opciones = useMemo(() => extractFilterFacets(productos), [productos]);
+    const facetSections = useMemo(() => buildFacetSections(opciones), [opciones]);
 
-    useEffect(() => {
-        setFiltrosTemporales(filtros);
-    }, [filtros]);
+    const filtrosMerged = useMemo(
+        () => mergeFiltrosWithFacets(filtros, opciones),
+        [filtros, opciones]
+    );
 
-    const handleCheckboxChange = (categoria, valor, esMobile = false) => {
-        if (esMobile) {
-            setFiltrosTemporales((prev) => {
-                const actual = prev[categoria];
-                const nuevo = actual.includes(valor)
-                    ? actual.filter((v) => v !== valor)
-                    : [...actual, valor];
-                return { ...prev, [categoria]: nuevo };
-            });
-        } else {
-            const actual = filtros[categoria];
-            const nuevo = actual.includes(valor)
-                ? actual.filter((v) => v !== valor)
-                : [...actual, valor];
-            onFilterChange({ ...filtros, [categoria]: nuevo });
-        }
+    const {
+        isDrawerOpen,
+        openDrawer,
+        closeDrawer,
+        draftFiltros,
+        toggleSpec,
+        setPrice,
+        clearFiltros,
+        applyDraft,
+    } = useProductFilterForm({ filtros: filtrosMerged, opciones, onFilterChange });
+
+    const activeCount = countActiveFilters(filtrosMerged, opciones);
+
+    const desktopHandlers = {
+        onSpecToggle: (key, value) => toggleSpec(key, value, { draft: false }),
+        onPriceChange: (name, value) => setPrice(name, value, { draft: false }),
+        onClear: () => clearFiltros({ draft: false }),
     };
 
-    const handlePriceChange = (e, esMobile = false) => {
-        const { name, value } = e.target;
-        if (esMobile) {
-            setFiltrosTemporales((prev) => ({ ...prev, [name]: Number(value) }));
-        } else {
-            onFilterChange({ ...filtros, [name]: Number(value) });
-        }
+    const mobileHandlers = {
+        onSpecToggle: (key, value) => toggleSpec(key, value, { draft: true }),
+        onPriceChange: (name, value) => setPrice(name, value, { draft: true }),
+        onClear: () => clearFiltros({ draft: true }),
     };
 
-    const limpiarFiltros = (esMobile = false) => {
-        const limpios = {
-            marca: [],
-            ram: [],
-            almacenamiento: [],
-            precioMin: opciones.precioMin ?? 0,
-            precioMax: opciones.precioMax ?? 10000,
-        };
-        if (esMobile) {
-            setFiltrosTemporales(limpios);
-        } else {
-            onFilterChange(limpios);
-        }
-    };
-
-    const aplicarFiltrosMobile = () => {
-        onFilterChange(filtrosTemporales);
-        setIsMobileOpen(false);
-    };
-
-    const renderFilterSection = (titulo, datos, clave, esMobile = false) => {
-        if (!datos || datos.length === 0) return null;
-        const currentFilters = esMobile ? filtrosTemporales : filtros;
-
-        return (
-            <div className="filter-section">
-                <h4>{titulo}</h4>
-                {datos.map((item) => (
-                    <label key={item} className="checkbox-label">
-                        <input
-                            type="checkbox"
-                            checked={currentFilters[clave].includes(item)}
-                            onChange={() => handleCheckboxChange(clave, item, esMobile)}
-                        />
-                        {item}
-                    </label>
-                ))}
-            </div>
-        );
+    const panelProps = {
+        facetSections,
+        precioMinBound: opciones.precioMin,
+        precioMaxBound: opciones.precioMax,
     };
 
     return (
         <>
-            <aside className="product-filters">
-                <div className="filters-header">
-                    <h3>Filtros</h3>
-                    <button type="button" onClick={() => limpiarFiltros(false)} className="btn-clear">
-                        Limpiar
-                    </button>
-                </div>
-
-                <div className="filter-section">
-                    <h4>Precio</h4>
-                    <div className="price-inputs">
-                        <input
-                            type="number"
-                            name="precioMin"
-                            value={filtros.precioMin}
-                            onChange={(e) => handlePriceChange(e, false)}
-                            placeholder="Min"
-                        />
-                        <span>-</span>
-                        <input
-                            type="number"
-                            name="precioMax"
-                            value={filtros.precioMax}
-                            onChange={(e) => handlePriceChange(e, false)}
-                            placeholder="Max"
-                        />
-                    </div>
-                </div>
-
-                {renderFilterSection('Marca', opciones.marcas, 'marca', false)}
-                {renderFilterSection('Memoria RAM', opciones.rams, 'ram', false)}
-                {renderFilterSection('Almacenamiento', opciones.almacenamientos, 'almacenamiento', false)}
+            <aside className="product-filters" aria-label="Filtros de productos">
+                <ProductFiltersPanel
+                    {...panelProps}
+                    filtros={filtrosMerged}
+                    {...desktopHandlers}
+                    idPrefix="filter-desktop"
+                />
             </aside>
 
-            <button
-                type="button"
-                className="mobile-filter-btn"
-                onClick={() => {
-                    setFiltrosTemporales(filtros);
-                    setIsMobileOpen(true);
-                }}
-            >
-                <svg className="icon-filter" viewBox="0 0 24 24">
-                    <line x1="4" y1="21" x2="4" y2="14"></line>
-                    <line x1="4" y1="10" x2="4" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12" y2="3"></line>
-                    <line x1="20" y1="21" x2="20" y2="16"></line>
-                    <line x1="20" y1="12" x2="20" y2="3"></line>
-                    <line x1="1" y1="14" x2="7" y2="14"></line>
-                    <line x1="9" y1="8" x2="15" y2="8"></line>
-                    <line x1="17" y1="16" x2="23" y2="16"></line>
-                </svg>
-                Filtros
-            </button>
-
-            <div
-                className={`filter-overlay ${isMobileOpen ? 'active' : ''}`}
-                onClick={() => setIsMobileOpen(false)}
-                role="presentation"
-            />
-
-            <div className={`filter-drawer ${isMobileOpen ? 'active' : ''}`}>
-                <div className="drawer-header">
-                    <h3>Filtrar Productos</h3>
-                    <button type="button" onClick={() => setIsMobileOpen(false)} className="btn-close-drawer">
-                        &times;
+            {createPortal(
+                <>
+                    <button
+                        type="button"
+                        className="product-filters__fab"
+                        onClick={openDrawer}
+                        aria-expanded={isDrawerOpen}
+                        aria-controls="product-filters-drawer"
+                    >
+                        <svg className="product-filters__fab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <line x1="4" y1="21" x2="4" y2="14" />
+                            <line x1="4" y1="10" x2="4" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12" y2="3" />
+                            <line x1="20" y1="21" x2="20" y2="16" />
+                            <line x1="20" y1="12" x2="20" y2="3" />
+                            <line x1="1" y1="14" x2="7" y2="14" />
+                            <line x1="9" y1="8" x2="15" y2="8" />
+                            <line x1="17" y1="16" x2="23" y2="16" />
+                        </svg>
+                        Filtros
+                        {activeCount > 0 && (
+                            <span className="product-filters__fab-badge" aria-label={`${activeCount} filtros activos`}>
+                                {activeCount}
+                            </span>
+                        )}
                     </button>
-                </div>
 
-                <div className="filter-section">
-                    <h4>Precio</h4>
-                    <div className="price-inputs">
-                        <input
-                            type="number"
-                            name="precioMin"
-                            value={filtrosTemporales.precioMin}
-                            onChange={(e) => handlePriceChange(e, true)}
-                        />
-                        <span>-</span>
-                        <input
-                            type="number"
-                            name="precioMax"
-                            value={filtrosTemporales.precioMax}
-                            onChange={(e) => handlePriceChange(e, true)}
-                        />
-                    </div>
-                </div>
+                    <button
+                        type="button"
+                        className={`product-filters__overlay ${isDrawerOpen ? 'product-filters__overlay--open' : ''}`}
+                        aria-label="Cerrar filtros"
+                        onClick={closeDrawer}
+                        tabIndex={isDrawerOpen ? 0 : -1}
+                    />
 
-                {renderFilterSection('Marca', opciones.marcas, 'marca', true)}
-                {renderFilterSection('Memoria RAM', opciones.rams, 'ram', true)}
-                {renderFilterSection('Almacenamiento', opciones.almacenamientos, 'almacenamiento', true)}
+                    <aside
+                        id="product-filters-drawer"
+                        className={`product-filters__drawer ${isDrawerOpen ? 'product-filters__drawer--open' : ''}`}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="product-filters-drawer-title"
+                        aria-hidden={!isDrawerOpen}
+                    >
+                        <header className="product-filters__drawer-header">
+                            <h2 id="product-filters-drawer-title">Filtrar productos</h2>
+                            <button
+                                type="button"
+                                className="product-filters__drawer-close"
+                                onClick={closeDrawer}
+                                aria-label="Cerrar panel de filtros"
+                            >
+                                ×
+                            </button>
+                        </header>
 
-                <button type="button" onClick={aplicarFiltrosMobile} className="btn-apply-mobile">
-                    Ver {filtrosTemporales.marca.length + filtrosTemporales.ram.length > 0 ? 'Resultados' : 'Productos'}
-                </button>
-                <button
-                    type="button"
-                    onClick={() => limpiarFiltros(true)}
-                    className="btn-clear"
-                    style={{ width: '100%', marginTop: '10px', textAlign: 'center' }}
-                >
-                    Limpiar filtros
-                </button>
-            </div>
+                        <div className="product-filters__drawer-body">
+                            <ProductFiltersPanel
+                                {...panelProps}
+                                filtros={draftFiltros}
+                                {...mobileHandlers}
+                                showClear={false}
+                                idPrefix="filter-mobile"
+                            />
+                        </div>
+
+                        <footer className="product-filters__drawer-footer">
+                            <button
+                                type="button"
+                                className="product-filters__apply"
+                                onClick={applyDraft}
+                            >
+                                Ver resultados
+                            </button>
+                            <button
+                                type="button"
+                                className="product-filters__clear-full"
+                                onClick={() => clearFiltros({ draft: true })}
+                            >
+                                Limpiar filtros
+                            </button>
+                        </footer>
+                    </aside>
+                </>,
+                document.body
+            )}
         </>
     );
-};
+}
