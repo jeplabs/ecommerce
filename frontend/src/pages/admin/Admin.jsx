@@ -93,7 +93,10 @@ export default function Admin() {
                 <button className='btn-submit' onClick={() => navigate('/admin/products')}>
                     Productos
                 </button>
-                
+                <button className='btn-submit' onClick={() => navigate('/admin/orders')}>
+                    Pedidos
+                </button>
+
                 <button 
                     onClick={logout}
                     className='btn-submit'

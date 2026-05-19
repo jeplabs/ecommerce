@@ -51,4 +51,37 @@ export const ordenService = {
         });
         return handleResponse(response);
     },
+
+    /** Admin: página de todas las órdenes; {@code estado} opcional (enum). */
+    async listarOrdenesAdmin({ page = 0, size = 10, estado } = {}) {
+        const params = new URLSearchParams({
+            page: String(page),
+            size: String(size),
+        });
+        if (estado) {
+            params.set('estado', estado);
+        }
+        const response = await fetch(`${API_URL}/api/ordenes/admin?${params}`, {
+            method: 'GET',
+            headers: getAuthHeaders(getToken()),
+        });
+        return handleResponse(response);
+    },
+
+    async obtenerOrdenAdmin(id) {
+        const response = await fetch(`${API_URL}/api/ordenes/admin/${id}`, {
+            method: 'GET',
+            headers: getAuthHeaders(getToken()),
+        });
+        return handleResponse(response);
+    },
+
+    async actualizarEstadoOrdenAdmin(id, estado) {
+        const response = await fetch(`${API_URL}/api/ordenes/admin/${id}/estado`, {
+            method: 'PATCH',
+            headers: getAuthHeaders(getToken()),
+            body: JSON.stringify({ estado }),
+        });
+        return handleResponse(response);
+    },
 };

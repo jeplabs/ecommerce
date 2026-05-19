@@ -1,0 +1,111 @@
+.admin-orders-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 3rem;
+    box-sizing: border-box;
+}
+
+.admin-orders-page__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.admin-orders-page__back {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+}
+
+.admin-orders-page__back:hover {
+    text-decoration: underline;
+}
+
+.admin-orders-page h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    text-align: left;
+    margin: 0 0 0.35rem 0;
+}
+
+.admin-orders-page__lead {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+.admin-orders-page__filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: min(100%, 14rem);
+}
+
+.admin-orders-page__filter-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.admin-orders-page__filter-select {
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.admin-orders-page__count {
+    margin: 0 0 1rem 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.admin-orders-page__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.admin-orders-page__page-btn {
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.admin-orders-page__page-btn:hover:not(:disabled) {
+    border-color: var(--indigo);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.admin-orders-page__page-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+    .admin-orders-page {
+        padding: 1rem 1rem 2rem;
+    }
+}

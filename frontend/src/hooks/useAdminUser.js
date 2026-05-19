@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { isAuthError } from '../utils/apiHelpers';
@@ -13,8 +13,6 @@ const getToken = () => localStorage.getItem('token');
 export function useAdminUser(userId) {
     const navigate = useNavigate();
     const { showSuccess, showError } = useToast();
-    const showErrorRef = useRef(showError);
-    showErrorRef.current = showError;
     const [user, setUser] = useState(null);
     const [rol, setRol] = useState('');
     const [loading, setLoading] = useState(true);
@@ -58,7 +56,7 @@ export function useAdminUser(userId) {
                 if (handleAuthError(e.status)) {
                     return;
                 }
-                showErrorRef.current(e.message);
+                showError(e.message);
                 navigate('/admin/users', { replace: true });
             } finally {
                 if (!cancelled) {
@@ -70,7 +68,7 @@ export function useAdminUser(userId) {
         return () => {
             cancelled = true;
         };
-    }, [userId, navigate, handleAuthError]);
+    }, [userId, navigate, handleAuthError, showError]);
 
     const updateRol = useCallback(
         async (nextRol) => {
