@@ -3,6 +3,9 @@ package com.jeplabs.ecommerce.domain.orden;
 import com.jeplabs.ecommerce.domain.carrito.*;
 import com.jeplabs.ecommerce.domain.direccion.Direccion;
 import com.jeplabs.ecommerce.domain.direccion.DireccionRepository;
+import com.jeplabs.ecommerce.domain.envio.EnvioCalculator;
+import com.jeplabs.ecommerce.domain.envio.ServicioEnvio;
+import com.jeplabs.ecommerce.domain.envio.ServicioEnvioRepository;
 import com.jeplabs.ecommerce.domain.producto.Producto;
 import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
 import com.jeplabs.ecommerce.domain.producto.EstadoProducto;
@@ -34,6 +37,8 @@ public class OrdenService {
     private final UsuarioRepository usuarioRepositorio;
     private final IvaCalculator ivaCalculator;
     private final EmailService emailService;
+    private final ServicioEnvioRepository servicioEnvioRepositorio;
+    private final EnvioCalculator envioCalculator;
 
     // Cliente lista sus propias órdenes
     public Page<DatosRespuestaOrden> listarMisOrdenes(String email, Pageable pageable) {
@@ -89,12 +94,28 @@ public class OrdenService {
                     "La dirección seleccionada no está disponible");
         }
 
+        // Buscar servicio de envío
+        ServicioEnvio servicioEnvio = servicioEnvioRepositorio
+                .findById(datos.servicioEnvioId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Servicio de envío no encontrado"));
+
+        if (!servicioEnvio.isActivo()) {
+            throw new IllegalArgumentException(
+                    "El servicio de envío seleccionado no está disponible");
+        }
+
         try {
             // Verificar stock y preparar items con Optimistic Locking
             List<OrdenItem> ordenItems = new ArrayList<>();
             BigDecimal subtotal = BigDecimal.ZERO;
 
-            Orden orden = new Orden(usuario, direccion, datos.notas(),
+            // Calcular costo de envío
+            BigDecimal costoEnvio = envioCalculator.calcularCostoEnvio(
+                    subtotal, servicioEnvio, datos.formaPago());
+
+            Orden orden = new Orden(usuario, direccion, servicioEnvio,
+                    datos.formaPago(), costoEnvio, datos.notas(),
                     BigDecimal.ZERO, BigDecimal.ZERO);
             ordenRepositorio.save(orden);
 
@@ -136,11 +157,19 @@ public class OrdenService {
                 subtotal = subtotal.add(ordenItem.getSubtotal());
             }
 
-            // Calcular IVA total del subtotal
-            BigDecimal ivaTotal = ivaCalculator.calcularIvaTotal(subtotal);
+            // A partir de aquí se calculan los totales, hasta la linea orden.getItems().addAll(ordenItems)
+            // Recalcular costo de envío con subtotal real
+            costoEnvio = envioCalculator.calcularCostoEnvio(
+                    subtotal, servicioEnvio, datos.formaPago());
+
+            // Extraer IVA de productos y del costo de envío por separado
+            BigDecimal ivaProductos = ivaCalculator.calcularIvaTotal(subtotal);
+            BigDecimal ivaEnvio     = ivaCalculator.extraerIva(costoEnvio);
+            BigDecimal ivaTotal     = ivaProductos.add(ivaEnvio);
 
             // Actualizar totales de la orden
-            orden.actualizarTotales(subtotal, ivaTotal);
+            orden.actualizarTotales(subtotal, ivaTotal, costoEnvio);
+
             itemRepositorio.saveAll(ordenItems);
             orden.getItems().addAll(ordenItems);
 

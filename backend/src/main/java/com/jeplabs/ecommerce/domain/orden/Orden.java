@@ -1,6 +1,7 @@
 package com.jeplabs.ecommerce.domain.orden;
 
 import com.jeplabs.ecommerce.domain.direccion.Direccion;
+import com.jeplabs.ecommerce.domain.envio.ServicioEnvio;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +31,17 @@ public class Orden {
     @JoinColumn(name = "direccion_id")
     private Direccion direccion; // nullable, referencia informativa
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "servicio_envio_id")
+    private ServicioEnvio servicioEnvio;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "forma_pago")
+    private FormaPago formaPago;
+
+    @Column(name = "costo_envio", precision = 10, scale = 2)
+    private BigDecimal costoEnvio;
+
     @Enumerated(EnumType.STRING)
     private EstadoOrden estado;
 
@@ -55,10 +67,14 @@ public class Orden {
     private LocalDateTime creadoAt;
     private LocalDateTime actualizadoAt;
 
-    public Orden(Usuario usuario, Direccion direccion, String notas,
+    public Orden(Usuario usuario, Direccion direccion, ServicioEnvio servicioEnvio, FormaPago formaPago,
+                 BigDecimal costoEnvio, String notas,
                  BigDecimal subtotal, BigDecimal iva) {
         this.usuario = usuario;
         this.direccion = direccion;
+        this.servicioEnvio = servicioEnvio;
+        this.formaPago = formaPago;
+        this.costoEnvio = costoEnvio;
         this.estado = EstadoOrden.PENDIENTE;
 
         // Copia de datos de dirección al momento de la orden
@@ -73,7 +89,8 @@ public class Orden {
 
         this.subtotal     = subtotal;
         this.iva          = iva;
-        this.total        = subtotal; // total = subtotal porque IVA ya está incluido
+        this.total        = subtotal.add(costoEnvio); // total = subtotal porque IVA ya está incluido
+                                                      // agrega el costo del envío.
         this.notas        = notas;
         this.creadoAt     = LocalDateTime.now();
         this.actualizadoAt = LocalDateTime.now();
@@ -97,10 +114,11 @@ public class Orden {
         this.actualizadoAt = LocalDateTime.now();
     }
 
-    public void actualizarTotales(BigDecimal subtotal, BigDecimal iva) {
+    public void actualizarTotales(BigDecimal subtotal, BigDecimal iva, BigDecimal costoEnvio) {
         this.subtotal = subtotal;
         this.iva = iva;
-        this.total = subtotal; // total = subtotal porque IVA ya está incluido
+        this.costoEnvio = costoEnvio;
+        this.total = subtotal.add(costoEnvio); // total = subtotal porque IVA ya está incluido
         this.actualizadoAt = LocalDateTime.now();
     }
 }

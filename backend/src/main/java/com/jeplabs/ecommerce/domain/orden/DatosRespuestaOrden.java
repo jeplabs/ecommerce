@@ -9,9 +9,12 @@ public record DatosRespuestaOrden(
         EstadoOrden estado,
         Long direccionId, // null si la dirección fue eliminada
         DatosRespuestaDireccionOrden direccionEnvio,
+        String servicioEnvio,       //  nombre del servicio
+        FormaPago formaPago,        // forma de pago
         List<DatosRespuestaOrdenItem> items,
         BigDecimal subtotal,
         BigDecimal iva,
+        BigDecimal costoEnvio,      // costo de envío
         BigDecimal total,
         String notas,
         LocalDateTime creadoAt,
@@ -23,11 +26,14 @@ public record DatosRespuestaOrden(
                 orden.getEstado(),
                 orden.getDireccion() != null ? orden.getDireccion().getId() : null,
                 new DatosRespuestaDireccionOrden(orden),
+                orden.getServicioEnvio() != null ? orden.getServicioEnvio().getNombre() : null,
+                orden.getFormaPago(),
                 orden.getItems().stream()
                         .map(DatosRespuestaOrdenItem::new)
                         .toList(),
                 orden.getSubtotal(),
                 orden.getIva(),
+                orden.getCostoEnvio(),
                 orden.getTotal(),
                 orden.getNotas(),
                 orden.getCreadoAt(),

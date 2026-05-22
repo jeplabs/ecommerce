@@ -28,3 +28,6 @@ api.carrito.scheduler-delay-inicial=PT3M
 
 # Porcentaje IVA
 api.impuestos.iva=0.12
+
+# Servicios de envio
+api.envio.monto-minimo-gratis=500.00
