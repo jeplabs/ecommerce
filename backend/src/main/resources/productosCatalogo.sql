@@ -13,7 +13,7 @@
 -- Se fuerzan los IDs para mantener la consistencia con los datos exportados.
 INSERT INTO productos (id, sku, nombre, slug, descripcion, specs, stock, estado, created_at, updated_at)
 VALUES 
-(2, 'SKU: U7LNL321TBWPS_3PSXCTO2N1', 'Notebook Dell Ultrabook Pro Plus14 2in1 Intel Ultra 7 268V 32GB 1TB 14"TouchW11P', 'notebook-dell-ultrabook-pro-plus14-2in1-intel-ultra-7-268v-32gb-1tb-14touchw11p', 
+(1, 'U7LNL321TBWPS_3PSXCTO2N1', 'Notebook Dell Ultrabook Pro Plus14 2in1 Intel Ultra 7 268V 32GB 1TB 14"TouchW11P', 'notebook-dell-ultrabook-pro-plus14-2in1-intel-ultra-7-268v-32gb-1tb-14touchw11p', 
 'Descubre la potencia y versatilidad del Dell Ultrabook Pro Plus 14 2 en 1, un dispositivo diseñado para satisfacer las necesidades de los profesionales modernos. Equipado con un procesador Intel® Core™ Ultra 7 268V, este ultrabook cuenta con 8 núcleos que ofrecen un rendimiento excepcional, alcanzando frecuencias de hasta 5 GHz en modo turbo. Con su arquitectura avanzada, podrás realizar múltiples tareas sin esfuerzo, desde la edición de videos hasta la programación, todo con una fluidez impresionante.
 
 La memoria RAM de 32 GB LPDDR5X a 8533 MHz garantiza que puedas ejecutar aplicaciones pesadas y mantener múltiples pestañas abiertas sin comprometer la velocidad. Además, su unidad SSD de 1 TB proporciona un amplio espacio de almacenamiento y tiempos de carga ultrarrápidos, permitiéndote acceder a tus archivos y aplicaciones en un instante.
@@ -30,7 +30,7 @@ Con una garantía de 1 año, el Dell Ultrabook Pro Plus 14 2 en 1 es la elecció
 '{"RAM": "32 GB LPDDR5X (8533 MHz)", "Audio": "2 altavoces 2.5W, doble micrófono", "Marca": "Dell", "Pantalla": "14.0\" LED (1920x1200) táctil / 60 Hz", "Procesador": "Pro Plus 14 2 in 1", "Cámara Web": "Cámara frontal Quad HD 5.2MP IR", "Almacenamiento": "SSD 1TB", "Frecuencia CPU": "2.2 GHz", "Tarjeta Gráfica": "Intel Arc Graphics 140V (Integrada)"}', 
 10, 'DISPONIBLE', '2026-04-02 15:00:58.31554', '2026-04-02 16:51:04.808774'),
 
-(3, 'A14LPLA', 'Notebook Gamer HP Victus Ryzen 7 8845HS RAM 16GB SSD 1TB 15.6" RTX4050 6GB W11H', 'notebook-gamer-hp-victus-ryzen-7-8845hs-ram-16gb-ssd-1tb-156-rtx4050-6gb-w11h', 
+(2, 'A14LPLA', 'Notebook Gamer HP Victus Ryzen 7 8845HS RAM 16GB SSD 1TB 15.6" RTX4050 6GB W11H', 'notebook-gamer-hp-victus-ryzen-7-8845hs-ram-16gb-ssd-1tb-156-rtx4050-6gb-w11h', 
 'La Notebook Gamer HP Victus 15-FB2019LA es la elección perfecta para los entusiastas de los videojuegos que buscan un rendimiento excepcional y una experiencia visual envolvente. Equipado con un potente procesador AMD Ryzen™ 7 8845HS, que cuenta con 8 núcleos y 16 hilos, esta laptop ofrece una frecuencia base de 3.8 GHz y puede alcanzar hasta 5.1 GHz en modo turbo, garantizando un rendimiento fluido incluso en las tareas más exigentes.
 
 La memoria RAM de 16 GB DDR5 a 5600 MHz permite una multitarea sin interrupciones, mientras que el almacenamiento SSD de 1 TB proporciona un acceso rápido a tus juegos y aplicaciones, reduciendo los tiempos de carga y mejorando la eficiencia general del sistema. Con una pantalla de 15.6 pulgadas y resolución Full HD (1920 x 1080), disfrutarás de gráficos nítidos y colores vibrantes, gracias a su tecnología IPS y un brillo de 300 nits.
@@ -47,7 +47,7 @@ La Notebook Gamer HP Victus 15-FB2019LA no solo es una máquina potente, sino qu
 '{"RAM": "16GB", "Procesador": "Ryzen 7", "Almacenamiento": "1TB", "Sistema Operativo": "Windows 11 Home", "Tamaño de pantalla ": "15.6"}', 
 20, 'DISPONIBLE', '2026-04-03 18:09:20.526203', '2026-04-03 18:09:20.526203'),
 
-(4, 'C2NM9LT', 'Notebook Workstation HP ZBook X G1i Ultra 7 255HX RAM32GB SSD1TB 16" W11P', 'notebook-workstation-hp-zbook-x-g1i-ultra-7-255hx-ram32gb-ssd1tb-16-w11p', 
+(3, 'C2NM9LT', 'Notebook Workstation HP ZBook X G1i Ultra 7 255HX RAM32GB SSD1TB 16" W11P', 'notebook-workstation-hp-zbook-x-g1i-ultra-7-255hx-ram32gb-ssd1tb-16-w11p', 
 'La Notebook Workstation HP ZBook X G1i es una potente herramienta diseñada para profesionales que requieren un rendimiento excepcional en sus tareas diarias. Con un procesador Intel® Core™ Ultra 7 255HX, que cuenta con 20 núcleos (8 de rendimiento y 12 de eficiencia), esta workstation es capaz de manejar múltiples aplicaciones y procesos simultáneamente, garantizando una experiencia fluida y eficiente. Su frecuencia base de 2.3 GHz puede alcanzar hasta 5.2 GHz en modo turbo, lo que la convierte en una opción ideal para trabajos que demandan alta capacidad de procesamiento.
 
 Equipado con 32 GB de RAM DDR5 a 5600 MT/s, el HP ZBook X G1i asegura un rendimiento ágil y rápido, permitiendo a los usuarios ejecutar aplicaciones pesadas y realizar multitasking sin inconvenientes. Además, su almacenamiento SSD de 1 TB proporciona una velocidad de lectura y escritura de 500 MB/s, lo que se traduce en tiempos de carga reducidos y un acceso rápido a los datos.
@@ -68,35 +68,35 @@ Con un peso de aproximadamente 2.04 kg y dimensiones compactas de 359 x 230 x 23
 -- Se asume que la tabla es 'producto_imagenes' y tiene una columna 'principal' (boolean).
 INSERT INTO producto_imagenes (id, producto_id, url, principal)
 VALUES 
-(3, 2, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/2uao9ivfd3uzw8b8q433ffrmh929?_a=BACCd2Ev', true),
-(4, 2, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/2uao9ivfd3uzw8b8q433ffrmh929?_a=BACCd2Ev', false),
-(5, 2, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/2uao9ivfd3uzw8b8q433ffrmh929?_a=BACCd2Ev', false),
-(6, 3, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/ij1yd3s3dmjwa5ozwfes75m8dhd0?_a=BACCd2Ev', true),
-(7, 3, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/eaw9r90ikafg2713fqlbq8szgj6u?_a=BACCd2Ev', false),
-(8, 3, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/rbjveemb2kkfqzlfvd8tp6mhbywa?_a=BACCd2Ev', false),
-(9, 4, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/gh10i3duy6896vl51ij5ws5zcn34?_a=BACCd2Ev', true),
-(10, 4, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/jb8clvuqhcfzx0qch47hkvas16q5?_a=BACCd2Ev', false),
-(11, 4, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/lvlmnj20eoryz8ivohztt3ynyjko?_a=BACCd2Ev', false);
+(1, 1, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/2uao9ivfd3uzw8b8q433ffrmh929?_a=BACCd2Ev', true),
+(2, 1, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/2uao9ivfd3uzw8b8q433ffrmh929?_a=BACCd2Ev', false),
+(3, 1, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/2uao9ivfd3uzw8b8q433ffrmh929?_a=BACCd2Ev', false),
+(4, 2, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/ij1yd3s3dmjwa5ozwfes75m8dhd0?_a=BACCd2Ev', true),
+(5, 2, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/eaw9r90ikafg2713fqlbq8szgj6u?_a=BACCd2Ev', false),
+(6, 2, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/rbjveemb2kkfqzlfvd8tp6mhbywa?_a=BACCd2Ev', false),
+(7, 3, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/gh10i3duy6896vl51ij5ws5zcn34?_a=BACCd2Ev', true),
+(8, 3, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/jb8clvuqhcfzx0qch47hkvas16q5?_a=BACCd2Ev', false),
+(9, 3, 'https://res.cloudinary.com/djx6viedj/image/upload/t_trimmed_square_2048/lvlmnj20eoryz8ivohztt3ynyjko?_a=BACCd2Ev', false);
 
 -- 4. INSERCIÓN DE PRECIOS VIGENTES
 -- Se inserta SOLO el precio actual (fecha_fin NULL) para evitar historial innecesario en el seed.
 -- Si tu tabla se llama 'precio_historial' pero usas la fila con fecha_fin NULL como precio activo:
 INSERT INTO precio_historial (producto_id, precio_venta, precio_costo, moneda, fecha_inicio, fecha_fin)
 VALUES 
-(2, 1900.00, 1900.00, 'USD', NOW(), NULL),
-(3, 999.00, 999.00, 'USD', NOW(), NULL),
-(4, 2199.00, 2199.00, 'USD', NOW(), NULL);
+(1, 1900.00, 1900.00, 'USD', NOW(), NULL),
+(2, 999.00, 999.00, 'USD', NOW(), NULL),
+(3, 2199.00, 2199.00, 'USD', NOW(), NULL);
 
 -- 5. ASOCIACIÓN DE CATEGORÍAS
 -- Vincula los productos con sus categorías respectivas.
 INSERT INTO producto_categorias (producto_id, categoria_id)
 VALUES 
 -- Producto 2 (Dell)
-(2, 1), (2, 7), (2, 26),
+(1, 1), (1, 7), (1, 26),
 -- Producto 3 (HP Victus)
-(3, 1), (3, 7), (3, 25),
+(2, 1), (2, 7), (2, 25),
 -- Producto 4 (HP ZBook)
-(4, 1), (4, 7), (4, 27);
+(3, 1), (3, 7), (3, 27);
 
 -- 6. REINICIO DE SECUENCIAS
 -- CRÍTICO: Ajusta las secuencias para que el próximo ID automático sea el correcto.
