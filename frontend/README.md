@@ -52,6 +52,12 @@ rm -rf node_modules package-lock.json
 pnpm install
 ```
 
+En caso de *ERR_PNPM_IGNORED_BUILDS* por EsBuild, aprobar dependencias ejecutando:
+```bash
+pnpm approve-builds
+# Seleccionar con barra espaciadora + enter
+```
+
 ## 3. Ejecutar el frontend:
 
 ```bash
