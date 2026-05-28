@@ -12,7 +12,7 @@
 }
 
 .product-detail-page {
-    background-color: var(--pd-bg);
+    /* background-color: var(--pd-bg); */
     color: var(--pd-text-main);
     font-family: 'Inter', system-ui, sans-serif;
     padding: 2rem 1rem;

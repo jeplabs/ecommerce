@@ -41,14 +41,24 @@ export default function ProductTabs({ producto }) {
                     <div className="tab-content fade-in" role="tabpanel">
                         <h3>Especificaciones Técnicas</h3>
                         {specsArray.length > 0 ? (
-                            <div className="specs-grid">
-                                {specsArray.map(([key, value]) => (
-                                    <div key={key} className="spec-row">
-                                        <span className="spec-key">{key}</span>
-                                        <span className="spec-value">{value}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            // <div className="specs-grid">
+                            //     {specsArray.map(([key, value]) => (
+                            //         <div key={key} className="spec-row">
+                            //             <span className="spec-key">{key}</span>
+                            //             <span className="spec-value">{value}</span>
+                            //         </div>
+                            //     ))}
+                            // </div>
+                            <table className="specs-table">
+                                <tbody>
+                                    {specsArray.map(([key, value]) => (
+                                        <tr key={key}>
+                                            <td className="spec-key">{key}</td>
+                                            <td className="spec-value">{value}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         ) : (
                             <p>No hay especificaciones técnicas disponibles.</p>
                         )}

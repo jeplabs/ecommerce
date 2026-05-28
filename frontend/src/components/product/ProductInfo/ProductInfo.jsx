@@ -48,7 +48,14 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart })
             <div className="pd-price">{precioFormateado}</div>
 
             <div className="pd-short-desc">
-                <p>{producto.descripcion.substring(0, 150)}...</p>
+                <h4>Características Técnicas: </h4>
+                {producto.specs && Object.entries(producto.specs).map(([key, value]) => (
+                    <ul key={key} className="">
+                        <span className="">- {key}: </span>
+                        <span className="">{value}</span>
+                    </ul>
+                ))}
+                {/* <p>{producto.descripcion.substring(0, 150)}...</p> */}
             </div>
 
             <div className="pd-actions">

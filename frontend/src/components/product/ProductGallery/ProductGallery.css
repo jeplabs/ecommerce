@@ -10,7 +10,7 @@
 
 .main-image-wrapper {
     position: relative;
-    background: var(--pd-card-bg);
+    /* background: var(--pd-card-bg); */
     border-radius: 12px;
     /* overflow: hidden; */
     aspect-ratio: 4/3;

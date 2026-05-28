@@ -58,6 +58,17 @@
     gap: 1.5rem;
 }
 
+.specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.specs-table td {
+    padding: 0.5rem;
+    border: 1px solid var(--pd-border);
+}
+
 .spec-row {
     display: flex;
     flex-direction: column;
