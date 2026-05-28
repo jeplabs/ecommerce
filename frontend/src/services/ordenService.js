@@ -44,11 +44,16 @@ export const ordenService = {
         return handleResponse(response);
     },
 
-    async crearOrden({ direccionId, notas }) {
+    async crearOrden({ direccionId, servicioEnvioId, formaPago, notas }) {
         const response = await fetch(`${API_URL}/api/ordenes`, {
             method: 'POST',
             headers: getAuthHeaders(getToken()),
-            body: JSON.stringify({ direccionId, notas: notas || null }),
+            body: JSON.stringify({
+                direccionId,
+                servicioEnvioId,
+                formaPago,
+                notas: notas || null,
+            }),
         });
         return handleResponse(response);
     },

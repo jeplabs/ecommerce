@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { useCart } from './CartContext';
+import { EnvioOpcionesProvider } from './EnvioOpcionesContext';
 import { useCheckoutLogic } from '../hooks/useCheckoutLogic';
 
 const CheckoutContext = createContext();
@@ -12,7 +13,7 @@ export const useCheckout = () => {
     return context;
 };
 
-export const CheckoutProvider = ({ children }) => {
+function CheckoutProviderInner({ children }) {
     const { items, cartTotal, isEmpty, refreshCart, loading: cartLoading } = useCart();
     const checkout = useCheckoutLogic({
         cartItems: items,
@@ -32,4 +33,10 @@ export const CheckoutProvider = ({ children }) => {
             {children}
         </CheckoutContext.Provider>
     );
-};
+}
+
+export const CheckoutProvider = ({ children }) => (
+    <EnvioOpcionesProvider>
+        <CheckoutProviderInner>{children}</CheckoutProviderInner>
+    </EnvioOpcionesProvider>
+);

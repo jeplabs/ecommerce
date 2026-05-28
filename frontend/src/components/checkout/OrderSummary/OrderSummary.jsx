@@ -1,7 +1,16 @@
 import { formatCurrency } from '../../../utils/formatters';
 import './OrderSummary.css';
 
-export default function OrderSummary({ items, total, compact = false }) {
+export default function OrderSummary({
+    items,
+    subtotal,
+    shippingCost = 0,
+    total,
+    envioGratis = false,
+    compact = false,
+}) {
+    const displayTotal = total ?? subtotal + shippingCost;
+
     return (
         <aside className={`order-summary ${compact ? 'order-summary--compact' : ''}`}>
             <h3 className="order-summary__title">Resumen del pedido</h3>
@@ -25,9 +34,26 @@ export default function OrderSummary({ items, total, compact = false }) {
                 ))}
             </ul>
 
+            <dl className="order-summary__breakdown">
+                <div className="order-summary__row">
+                    <dt>Subtotal</dt>
+                    <dd>{formatCurrency(subtotal)}</dd>
+                </div>
+                <div className="order-summary__row">
+                    <dt>Envío</dt>
+                    <dd>
+                        {envioGratis ? (
+                            <span className="order-summary__free">Gratis</span>
+                        ) : (
+                            formatCurrency(shippingCost)
+                        )}
+                    </dd>
+                </div>
+            </dl>
+
             <div className="order-summary__total">
                 <span>Total</span>
-                <strong>{formatCurrency(total)}</strong>
+                <strong>{formatCurrency(displayTotal)}</strong>
             </div>
 
             <p className="order-summary__note">Precios con IVA incluido</p>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCheckout } from '../../../context/CheckoutContext';
+import ShippingServiceSelector from '../ShippingServiceSelector/ShippingServiceSelector';
 import './ShippingStep.css';
 
 export default function ShippingStep() {
@@ -75,6 +76,8 @@ export default function ShippingStep() {
                     maxLength={500}
                 />
             </div>
+
+            <ShippingServiceSelector />
 
             <Link to="/profile" className="shipping-step__link">
                 Gestionar direcciones en mi perfil

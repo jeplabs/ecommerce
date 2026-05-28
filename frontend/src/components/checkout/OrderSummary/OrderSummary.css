@@ -65,12 +65,45 @@
     white-space: nowrap;
 }
 
+.order-summary__breakdown {
+    margin: 0 0 0.5rem;
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--border);
+}
+
+.order-summary__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    margin-bottom: 0.35rem;
+}
+
+.order-summary__row:last-child {
+    margin-bottom: 0;
+}
+
+.order-summary__row dt {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.order-summary__row dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.order-summary__free {
+    color: #22c55e;
+}
+
 .order-summary__total {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-top: 0.75rem;
     font-size: 1.05rem;
+    border-top: 1px solid var(--border);
 }
 
 .order-summary__total strong {

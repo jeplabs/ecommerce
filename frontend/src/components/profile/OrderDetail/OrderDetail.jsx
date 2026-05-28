@@ -1,3 +1,4 @@
+import OrderShippingSummary from '../../orders/OrderShippingSummary/OrderShippingSummary';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '../../../utils/formatters';
 import './OrderDetail.css';
 
@@ -13,8 +14,8 @@ const ESTADO_CLASS = {
 export default function OrderDetail({ orden, onClose, onCancel, cancelling, titleId }) {
     if (!orden) return null;
 
-    const envio = orden.direccionEnvio;
     const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'CONFIRMADA';
+    const costoEnvio = Number(orden.costoEnvio ?? 0);
 
     return (
         <div className="order-detail">
@@ -32,17 +33,7 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
                 {formatEstadoOrden(orden.estado)}
             </span>
 
-            {envio && (
-                <div className="order-detail__section">
-                    <h4>Dirección de envío</h4>
-                    <p><strong>{envio.alias}</strong></p>
-                    <p>{envio.calle}</p>
-                    <p>{envio.ciudad}, {envio.estado} {envio.codigoPostal}</p>
-                    <p>{envio.pais}</p>
-                    {envio.telefono && <p>Tel: {envio.telefono}</p>}
-                    {envio.referencias && <p className="order-detail__refs">{envio.referencias}</p>}
-                </div>
-            )}
+            <OrderShippingSummary orden={orden} />
 
             <div className="order-detail__section">
                 <h4>Productos</h4>
@@ -64,9 +55,17 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
 
             <div className="order-detail__totals">
                 <div className="order-detail__total-row">
-                    <span>Subtotal</span>
+                    <span>Subtotal productos</span>
                     <span>{formatCurrency(orden.subtotal)}</span>
                 </div>
+                {orden.servicioEnvio != null && (
+                    <div className="order-detail__total-row">
+                        <span>Envío ({orden.servicioEnvio})</span>
+                        <span>
+                            {costoEnvio === 0 ? 'Gratis' : formatCurrency(costoEnvio)}
+                        </span>
+                    </div>
+                )}
                 <div className="order-detail__total-row">
                     <span>IVA</span>
                     <span>{formatCurrency(orden.iva)}</span>

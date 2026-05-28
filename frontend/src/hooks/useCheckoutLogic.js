@@ -1,18 +1,34 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { direccionService } from '../services/direccionService';
 import { ordenService } from '../services/ordenService';
 import { paymentService, PAYMENT_METHODS } from '../services/paymentService';
 import { redirectUnauthorized } from '../utils/apiHelpers';
+import { useEnvioOpcionesContext } from '../context/EnvioOpcionesContext';
+import {
+    isPickupService,
+    paymentMethodToFormaPago,
+    resolveShippingCost,
+} from '../utils/envioHelpers';
 
 const STEPS = ['envio', 'pago', 'confirmar'];
 
 export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty }) => {
     const navigate = useNavigate();
+    const {
+        opciones: envioOpciones,
+        servicios,
+        loading: loadingEnvioOpciones,
+        error: envioOpcionesError,
+        refetch: refetchEnvioOpciones,
+        pickupServices,
+        deliveryServices,
+    } = useEnvioOpcionesContext();
 
     const [step, setStep] = useState(0);
     const [direcciones, setDirecciones] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS.STRIPE);
     const [cardData, setCardData] = useState({
         cardholder: '',
@@ -28,6 +44,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
     const [paymentResult, setPaymentResult] = useState(null);
 
     const currentStep = STEPS[step];
+    const formaPago = paymentMethodToFormaPago(paymentMethod);
 
     const handleAuthError = useCallback(
         (status) =>
@@ -71,9 +88,56 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
         }
     }, [isEmpty, navigate]);
 
+    useEffect(() => {
+        if (loadingEnvioOpciones || servicios.length === 0) return;
+
+        const stillValid = servicios.some((s) => s.id === selectedServicioEnvioId);
+        if (stillValid) return;
+
+        const preferPickup = pickupServices[0];
+        const preferDelivery = deliveryServices[0];
+        const defaultId = preferPickup?.id ?? preferDelivery?.id ?? servicios[0]?.id ?? null;
+        setSelectedServicioEnvioId(defaultId);
+    }, [
+        loadingEnvioOpciones,
+        servicios,
+        pickupServices,
+        deliveryServices,
+        selectedServicioEnvioId,
+    ]);
+
     const selectedAddress = direcciones.find((d) => d.id === selectedAddressId) || null;
 
-    const canContinueShipping = Boolean(selectedAddressId) && !loadingAddresses;
+    const selectedServicio = useMemo(
+        () => servicios.find((s) => s.id === selectedServicioEnvioId) || null,
+        [servicios, selectedServicioEnvioId]
+    );
+
+    const isPickupSelected = useMemo(
+        () => isPickupService(selectedServicio),
+        [selectedServicio]
+    );
+
+    const shippingCost = useMemo(
+        () =>
+            resolveShippingCost({
+                opciones: envioOpciones,
+                servicio: selectedServicio,
+                formaPago,
+            }),
+        [envioOpciones, selectedServicio, formaPago]
+    );
+
+    const orderTotal = useMemo(() => cartTotal + shippingCost, [cartTotal, shippingCost]);
+
+    const canContinueShipping =
+        Boolean(selectedAddressId) &&
+        Boolean(selectedServicioEnvioId) &&
+        !loadingAddresses &&
+        !loadingEnvioOpciones &&
+        !envioOpcionesError &&
+        servicios.length > 0;
+
     const canContinuePayment =
         paymentMethod === PAYMENT_METHODS.WEBPAY ||
         (paymentMethod === PAYMENT_METHODS.STRIPE &&
@@ -101,8 +165,8 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
     }, []);
 
     const completeCheckout = useCallback(async () => {
-        if (!selectedAddressId || isEmpty) {
-            setError('Selecciona una dirección de envío');
+        if (!selectedAddressId || !selectedServicioEnvioId || isEmpty) {
+            setError('Completa dirección y forma de entrega');
             return { success: false };
         }
 
@@ -114,7 +178,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
         try {
             const payment = await paymentService.processPayment({
                 method: paymentMethod,
-                amount: cartTotal,
+                amount: orderTotal,
                 orderReference,
                 cardData: paymentMethod === PAYMENT_METHODS.STRIPE ? cardData : undefined,
             });
@@ -128,6 +192,8 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
 
             const orden = await ordenService.crearOrden({
                 direccionId: selectedAddressId,
+                servicioEnvioId: selectedServicioEnvioId,
+                formaPago,
                 notas: notas.trim() || null,
             });
 
@@ -150,10 +216,12 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
         }
     }, [
         selectedAddressId,
+        selectedServicioEnvioId,
         isEmpty,
         paymentMethod,
-        cartTotal,
+        orderTotal,
         cardData,
+        formaPago,
         notas,
         refreshCart,
         handleAuthError,
@@ -167,6 +235,19 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
         selectedAddressId,
         setSelectedAddressId,
         selectedAddress,
+        selectedServicioEnvioId,
+        setSelectedServicioEnvioId,
+        selectedServicio,
+        isPickupSelected,
+        envioOpciones,
+        loadingEnvioOpciones,
+        envioOpcionesError,
+        refetchEnvioOpciones,
+        pickupServices,
+        deliveryServices,
+        shippingCost,
+        orderTotal,
+        formaPago,
         paymentMethod,
         setPaymentMethod,
         cardData,

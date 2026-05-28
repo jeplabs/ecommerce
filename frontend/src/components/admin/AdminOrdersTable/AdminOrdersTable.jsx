@@ -26,7 +26,6 @@ function AdminOrderRow({ orden, onSaveEstado, updating, onVerDetalle }) {
     const opciones = getOpcionesEstadoAdmin(orden.estado);
     const puedeCambiar = opciones.length > 1;
     const dirty = selectedEstado !== orden.estado;
-    const envio = orden.direccionEnvio;
     const itemsCount = orden.items?.length ?? 0;
 
     return (
@@ -36,10 +35,6 @@ function AdminOrderRow({ orden, onSaveEstado, updating, onVerDetalle }) {
             </td>
             <td className="admin-orders-table__cell-date" data-label="Fecha">
                 {formatDateTime(orden.creadoAt)}
-            </td>
-            <td className="admin-orders-table__cell-city" data-label="Envío">
-                {envio?.ciudad || '—'}
-                {envio?.pais ? `, ${envio.pais}` : ''}
             </td>
             <td className="admin-orders-table__cell-items" data-label="Ítems">
                 {itemsCount}
@@ -144,7 +139,6 @@ export default function AdminOrdersTable({
                         <tr>
                             <th scope="col">Pedido</th>
                             <th scope="col">Fecha</th>
-                            <th scope="col">Envío</th>
                             <th scope="col" className="admin-orders-table__col-narrow">
                                 Ítems
                             </th>

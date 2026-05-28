@@ -31,6 +31,17 @@
     font-size: 1.1rem;
 }
 
+.confirm-step__free {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.confirm-step__pickup-hint,
+.confirm-step__contact {
+    font-size: 0.82rem !important;
+    color: var(--muted) !important;
+}
+
 .confirm-step__disclaimer {
     font-size: 0.78rem;
     color: var(--muted);
