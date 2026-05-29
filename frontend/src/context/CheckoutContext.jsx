@@ -14,11 +14,10 @@ export const useCheckout = () => {
 };
 
 function CheckoutProviderInner({ children }) {
-    const { items, cartTotal, isEmpty, refreshCart, loading: cartLoading } = useCart();
+    const { items, cartTotal, isEmpty, loading: cartLoading } = useCart();
     const checkout = useCheckoutLogic({
         cartItems: items,
         cartTotal,
-        refreshCart,
         isEmpty,
     });
 

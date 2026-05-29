@@ -13,7 +13,7 @@ import {
 
 const STEPS = ['envio', 'pago', 'confirmar'];
 
-export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty }) => {
+export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
     const navigate = useNavigate();
     const {
         opciones: envioOpciones,
@@ -83,10 +83,11 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
     }, [isEmpty, fetchDirecciones]);
 
     useEffect(() => {
+        if (processing) return;
         if (isEmpty) {
             navigate('/cart', { replace: true });
         }
-    }, [isEmpty, navigate]);
+    }, [isEmpty, navigate, processing]);
 
     useEffect(() => {
         if (loadingEnvioOpciones || servicios.length === 0) return;
@@ -197,8 +198,6 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
                 notas: notas.trim() || null,
             });
 
-            await refreshCart();
-
             return {
                 success: true,
                 orden,
@@ -223,7 +222,6 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, refreshCart, isEmpty })
         cardData,
         formaPago,
         notas,
-        refreshCart,
         handleAuthError,
     ]);
 
