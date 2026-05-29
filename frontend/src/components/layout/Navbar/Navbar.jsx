@@ -4,14 +4,21 @@ import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 import useClickOutside from "../../../hooks/useClickOutside";
 import LoginDropdown from "../../ui/Dropdown/LoginDropdown";
-import CartDrawer from "../../cart/CartDrawer"; // Asegúrate que la ruta sea correcta
+import CartDrawer from "../../cart/CartDrawer";
 import "./Navbar.css";
+
+/** Rutas donde el buscador sincroniza ?search= con la URL del catálogo. */
+function isCatalogSearchPath(pathname) {
+    return pathname === '/catalogo' || pathname.startsWith('/categoria');
+}
 
 export default function Navbar() {
     const { isAuthenticated, userRol, logout } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
+    const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
+    const isCatalogSearch = isCatalogSearchPath(location.pathname);
     
     // Estado para el Login Dropdown
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,29 +44,53 @@ export default function Navbar() {
     // Handlers para el carrito
     const toggleCart = () => setIsCartOpen(!isCartOpen);
 
-    // Debounced update de search params
-    const updateSearchParams = useCallback((query) => {
-        const newParams = new URLSearchParams(searchParams);
-        if (query.trim()) {
-            newParams.set('search', query.trim());
-        } else {
-            newParams.delete('search');
-        }
-        setSearchParams(newParams);
-        
-        // Navegar al catálogo si no estamos ahí y hay búsqueda
-        if (query.trim() && window.location.pathname !== '/catalogo') {
-            navigate(`/catalogo?search=${query.trim()}`);
-        }
-    }, [searchParams, setSearchParams, navigate]);
-
+    // Sincronizar input con la URL en catálogo; al salir, vaciar para no disparar búsqueda fantasma
     useEffect(() => {
+        if (isCatalogSearch) {
+            setSearchTerm(searchParams.get('search') || '');
+        } else {
+            setSearchTerm('');
+        }
+    }, [isCatalogSearch, searchParams]);
+
+    const updateSearchParams = useCallback(
+        (query) => {
+            const trimmed = query.trim();
+            const newParams = new URLSearchParams(searchParams);
+            if (trimmed) {
+                newParams.set('search', trimmed);
+            } else {
+                newParams.delete('search');
+            }
+            setSearchParams(newParams, { replace: true });
+        },
+        [searchParams, setSearchParams]
+    );
+
+    // Búsqueda desde otras rutas (p. ej. ficha de producto) → catálogo, sin tocar la URL actual
+    useEffect(() => {
+        if (isCatalogSearch || !searchTerm.trim()) {
+            return undefined;
+        }
+
         const timeoutId = setTimeout(() => {
-            updateSearchParams(searchTerm);
-        }, 400); // 400ms debounce
+            navigate(`/catalogo?search=${encodeURIComponent(searchTerm.trim())}`);
+        }, 400);
 
         return () => clearTimeout(timeoutId);
-    }, [searchTerm, updateSearchParams]);
+    }, [searchTerm, isCatalogSearch, navigate]);
+
+    useEffect(() => {
+        if (!isCatalogSearch) {
+            return undefined;
+        }
+
+        const timeoutId = setTimeout(() => {
+            updateSearchParams(searchTerm);
+        }, 400);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, updateSearchParams, isCatalogSearch]);
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);

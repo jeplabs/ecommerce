@@ -129,8 +129,12 @@ export default function AddressesTab() {
                             </p>
                             <p className="address-card__line">{dir.pais}</p>
                             <p className="address-card__line address-card__phone">📞 {dir.telefono}</p>
-                            {dir.referencias && (
+                            <br></br>
+                            <h4>Referencias</h4>
+                            {dir.referencias && dir.referencias.length > 0 ? (
                                 <p className="address-card__refs">{dir.referencias}</p>
+                            ) : (
+                                <p className="address-card__refs">No hay referencias guardadas.</p>
                             )}
 
                             <div className="address-card__actions">
