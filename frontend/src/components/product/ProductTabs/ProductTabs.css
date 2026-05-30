@@ -8,7 +8,7 @@
 
 .pd-tabs-header {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     border-bottom: 1px solid var(--pd-border);
     margin-bottom: 2rem;
 }
@@ -27,6 +27,10 @@
 
 .tab-btn.active {
     color: var(--pd-accent);
+}
+
+.tab-btn:focus {
+    outline: none;
 }
 
 .tab-btn.active::after {
@@ -98,4 +102,20 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+    .pd-tabs-section {
+        padding: 1.5rem;
+    }
+
+    .pd-tabs-header {
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+        font-size: 0.95rem;
+        padding-bottom: 0.75rem;
+    }
 }
