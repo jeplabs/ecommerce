@@ -37,7 +37,9 @@
     }
 
     .checkout-content__nav {
-        flex-direction: column-reverse;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
     }
 
     .checkout-btn {
