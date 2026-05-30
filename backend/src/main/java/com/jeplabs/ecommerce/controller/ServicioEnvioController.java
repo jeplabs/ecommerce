@@ -23,7 +23,8 @@ public class ServicioEnvioController {
         return ResponseEntity.ok(service.listarOpcionesEnvio(subtotal));
     }
 
-    // Admin - crear servicio
+    // Admin - crear servicio -  Estos endpoints de admin no se implementaran en el frontend
+    // seran administrados directamente por el proveedor del servicio de la aplicacion
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaServicioEnvio> crear(
