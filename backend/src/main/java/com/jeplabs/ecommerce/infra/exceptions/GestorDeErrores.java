@@ -94,4 +94,47 @@ public class GestorDeErrores {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Error al ejecutar la consulta en la base de datos"));
     }
+
+    // Handlers específicos para cada excepción con el código HTTP correcto
+    @ExceptionHandler(CarritoVacioException.class)
+    public ResponseEntity<Map<String, String>> manejarCarritoVacio(
+            CarritoVacioException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CarritoNoEncontradoException.class)
+    public ResponseEntity<Map<String, String>> manejarCarritoNoEncontrado(
+            CarritoNoEncontradoException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(OrdenNoEncontradaException.class)
+    public ResponseEntity<Map<String, String>> manejarOrdenNoEncontrada(
+            OrdenNoEncontradaException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND) // ← 404
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ProductoNoDisponibleException.class)
+    public ResponseEntity<Map<String, String>> manejarProductoNoDisponible(
+            ProductoNoDisponibleException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(StockInsuficienteException.class)
+    public ResponseEntity<Map<String, String>> manejarStockInsuficiente(
+            StockInsuficienteException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(EstadoInvalidoException.class)
+    public ResponseEntity<Map<String, String>> manejarEstadoInvalido(
+            EstadoInvalidoException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
 }

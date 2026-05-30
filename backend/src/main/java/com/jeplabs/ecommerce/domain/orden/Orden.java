@@ -3,6 +3,7 @@ package com.jeplabs.ecommerce.domain.orden;
 import com.jeplabs.ecommerce.domain.direccion.Direccion;
 import com.jeplabs.ecommerce.domain.envio.ServicioEnvio;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
+import com.jeplabs.ecommerce.infra.exceptions.EstadoInvalidoException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -98,8 +99,8 @@ public class Orden {
 
     public void cambiarEstado(EstadoOrden nuevoEstado) {
         if (!this.estado.puedeTransicionarA(nuevoEstado)) {
-            throw new IllegalArgumentException(
-                    "No se puede cambiar de " + this.estado + " a " + nuevoEstado);
+            throw new EstadoInvalidoException(
+                    this.estado.name(), nuevoEstado.name());
         }
         this.estado = nuevoEstado;
         this.actualizadoAt = LocalDateTime.now();
@@ -107,8 +108,8 @@ public class Orden {
 
     public void cancelar() {
         if (!this.estado.esCancelable()) {
-            throw new IllegalArgumentException(
-                    "Solo se pueden cancelar órdenes en estado PENDIENTE o CONFIRMADA");
+            throw new EstadoInvalidoException(
+                    this.estado.name(), EstadoOrden.CANCELADA.name());
         }
         this.estado = EstadoOrden.CANCELADA;
         this.actualizadoAt = LocalDateTime.now();

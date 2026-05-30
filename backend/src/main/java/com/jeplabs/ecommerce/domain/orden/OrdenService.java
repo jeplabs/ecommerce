@@ -12,6 +12,11 @@ import com.jeplabs.ecommerce.domain.producto.EstadoProducto;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import com.jeplabs.ecommerce.infra.email.EmailService;
+import com.jeplabs.ecommerce.infra.exceptions.CarritoNoEncontradoException;
+import com.jeplabs.ecommerce.infra.exceptions.CarritoVacioException;
+import com.jeplabs.ecommerce.infra.exceptions.OrdenNoEncontradaException;
+import com.jeplabs.ecommerce.infra.exceptions.ProductoNoDisponibleException;
+import com.jeplabs.ecommerce.infra.exceptions.StockInsuficienteException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,8 +58,7 @@ public class OrdenService {
         Usuario usuario = buscarUsuario(email);
         return new DatosRespuestaOrden(
                 ordenRepositorio.findByIdAndUsuarioId(ordenId, usuario.getId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "Orden no encontrada con ID: " + ordenId))
+                        .orElseThrow(() -> new OrdenNoEncontradaException(ordenId)) // ← específica
         );
     }
 
@@ -66,7 +70,11 @@ public class OrdenService {
 
     // Admin ve cualquier orden
     public DatosRespuestaOrden buscarPorId(Long ordenId) {
-        return new DatosRespuestaOrden(buscarOrden(ordenId));
+
+        return new DatosRespuestaOrden(
+                ordenRepositorio.findById(ordenId)
+                        .orElseThrow(() -> new OrdenNoEncontradaException(ordenId)) // ← específica
+        );
     }
 
     @Transactional
@@ -76,11 +84,10 @@ public class OrdenService {
         // Verificar que tiene carrito activo con items
         Carrito carrito = carritoRepositorio
                 .findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No tienes un carrito activo"));
+                .orElseThrow(CarritoNoEncontradoException::new);
 
         if (carrito.getItems().isEmpty()) {
-            throw new IllegalArgumentException("Tu carrito está vacío");
+            throw new CarritoVacioException();
         }
 
         // Verificar que la dirección existe y pertenece al usuario
@@ -110,12 +117,12 @@ public class OrdenService {
             List<OrdenItem> ordenItems = new ArrayList<>();
             BigDecimal subtotal = BigDecimal.ZERO;
 
-            // Calcular costo de envío
+            // Datos forma de pago
             BigDecimal costoEnvio = envioCalculator.calcularCostoEnvio(
                     subtotal, servicioEnvio, datos.formaPago());
 
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    datos.formaPago(), costoEnvio, datos.notas(),
+                    datos.formaPago(), BigDecimal.ZERO, datos.notas(),
                     BigDecimal.ZERO, BigDecimal.ZERO);
             ordenRepositorio.save(orden);
 
@@ -127,16 +134,13 @@ public class OrdenService {
 
                 // Verificar que el producto sigue disponible
                 if (!producto.getEstado().esComprable()) {
-                    throw new IllegalArgumentException(
-                            "El producto " + producto.getNombre() +
-                                    " ya no está disponible");
+                    throw new ProductoNoDisponibleException(producto.getNombre());
                 }
 
                 // Verificar stock suficiente
                 if (producto.getStock() < carritoItem.getCantidad()) {
-                    throw new IllegalArgumentException(
-                            "Stock insuficiente para: " + producto.getNombre() +
-                                    ". Stock disponible: " + producto.getStock());
+                    throw new StockInsuficienteException( // ← específica
+                            producto.getNombre(), producto.getStock());
                 }
 
                 // Calcular desglose de IVA por item
@@ -185,8 +189,8 @@ public class OrdenService {
                     orden.getId()
             );
 
-            return new DatosRespuestaOrden(ordenRepositorio.findById(orden.getId()).orElseThrow());
-
+            // return new DatosRespuestaOrden(ordenRepositorio.findById(orden.getId()).orElseThrow());
+            return new DatosRespuestaOrden(orden);
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new IllegalArgumentException(
                     "Uno o más productos fueron modificados durante el proceso. " +
@@ -239,7 +243,6 @@ public class OrdenService {
 
     private Orden buscarOrden(Long id) {
         return ordenRepositorio.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Orden no encontrada con ID: " + id));
+                .orElseThrow(() -> new OrdenNoEncontradaException(id));
     }
 }
