@@ -1,11 +1,12 @@
 import { API_URL } from '../config/config';
-import { getAuthHeaders } from '../utils/apiHelpers';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '../utils/apiHelpers';
 
 const getToken = () => localStorage.getItem('token');
 
 const handleResponse = async (response) => {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
+        notifyUnauthorizedIfNeeded(response.status);
         const err = new Error(data.message || data.error || 'Error al cargar opciones de envío');
         err.status = response.status;
         err.data = data;
@@ -15,7 +16,7 @@ const handleResponse = async (response) => {
 };
 
 /**
- * Opciones de envío públicas (costos según subtotal del carrito).
+ * Opciones de envío para checkout (requiere JWT de cliente).
  * @param {number} subtotal
  */
 export const envioService = {
@@ -23,9 +24,9 @@ export const envioService = {
         const params = new URLSearchParams({
             subtotal: String(Math.max(0, Number(subtotal) || 0)),
         });
-        const token = getToken();
         const response = await fetch(`${API_URL}/api/envio/opciones?${params}`, {
-            headers: getAuthHeaders(token, false),
+            method: 'GET',
+            headers: getAuthHeaders(getToken()),
         });
         return handleResponse(response);
     },
