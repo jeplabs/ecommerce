@@ -1,18 +1,23 @@
 import { useCheckout } from '../../../context/CheckoutContext';
 import { PAYMENT_METHODS } from '../../../services/paymentService';
+import { FORMA_PAGO_ENVIO } from '../../../utils/envioHelpers';
 import { formatCurrency } from '../../../utils/formatters';
+import { formatFormaPagoEnvio } from '../../../utils/ordenDisplayHelpers';
 import './ConfirmStep.css';
 
 export default function ConfirmStep() {
     const {
         selectedAddress,
         selectedServicio,
+        selectedServicioCostos,
         isPickupSelected,
         paymentMethod,
         cartTotal,
-        shippingCost,
+        shippingCostDisplay,
+        shippingCostInTotal,
         orderTotal,
         envioOpciones,
+        formaPagoEnvio,
         notas,
         cardData,
     } = useCheckout();
@@ -21,6 +26,10 @@ export default function ConfirmStep() {
         paymentMethod === PAYMENT_METHODS.STRIPE
             ? `Tarjeta ·••• ${(cardData.cardNumber || '').replace(/\s/g, '').slice(-4) || '****'}`
             : 'Webpay Plus (Transbank)';
+
+    const envioGratis = Boolean(envioOpciones?.envioGratis);
+    const envioContraEntrega = formaPagoEnvio === FORMA_PAGO_ENVIO.CONTRA_ENTREGA;
+    const { tarifa = 0, recargo = 0 } = selectedServicioCostos || {};
 
     if (!selectedAddress) {
         return <p className="checkout-step__loading">Cargando datos…</p>;
@@ -34,14 +43,48 @@ export default function ConfirmStep() {
             <div className="confirm-step__block">
                 <h3>Entrega</h3>
                 {selectedServicio && (
-                    <p>
-                        <strong>{selectedServicio.nombre}</strong>
-                        {envioOpciones?.envioGratis ? (
-                            <> · <span className="confirm-step__free">Envío gratis</span></>
+                    <>
+                        <p>
+                            <strong>{selectedServicio.nombre}</strong>
+                        </p>
+                        <p className="confirm-step__envio-payment">
+                            Pago del envío: {formatFormaPagoEnvio(formaPagoEnvio)}
+                        </p>
+                        {envioGratis ? (
+                            <p className="confirm-step__free">
+                                Envío gratis
+                                {(tarifa > 0 || recargo > 0) && (
+                                    <>
+                                        {' '}
+                                        <span className="confirm-step__struck">
+                                            (
+                                            {formatCurrency(tarifa + recargo)}
+                                            )
+                                        </span>
+                                    </>
+                                )}
+                            </p>
+                        ) : envioContraEntrega ? (
+                            <dl className="confirm-step__envio-breakdown">
+                                <div>
+                                    <dt>Tarifa de envío</dt>
+                                    <dd>{formatCurrency(tarifa)}</dd>
+                                </div>
+                                {recargo > 0 && (
+                                    <div>
+                                        <dt>Recargo contra entrega</dt>
+                                        <dd>{formatCurrency(recargo)}</dd>
+                                    </div>
+                                )}
+                                <div>
+                                    <dt>Total envío al recibir</dt>
+                                    <dd>{formatCurrency(shippingCostDisplay)}</dd>
+                                </div>
+                            </dl>
                         ) : (
-                            <> · {formatCurrency(shippingCost)}</>
+                            <p>Envío en línea: {formatCurrency(shippingCostInTotal)}</p>
                         )}
-                    </p>
+                    </>
                 )}
                 {isPickupSelected ? (
                     <p className="confirm-step__pickup-hint">Retiro en tienda</p>
@@ -64,17 +107,24 @@ export default function ConfirmStep() {
             </div>
 
             <div className="confirm-step__block">
-                <h3>Pago</h3>
+                <h3>Pago de productos</h3>
                 <p>{paymentLabel}</p>
                 <p className="confirm-step__amount">
-                    Subtotal: {formatCurrency(cartTotal)}
-                    {!envioOpciones?.envioGratis && shippingCost > 0 && (
-                        <> · Envío: {formatCurrency(shippingCost)}</>
-                    )}
+                    Subtotal productos: {formatCurrency(cartTotal)}
                 </p>
+                {!envioGratis && !envioContraEntrega && shippingCostInTotal > 0 && (
+                    <p className="confirm-step__amount">
+                        Envío (en línea): {formatCurrency(shippingCostInTotal)}
+                    </p>
+                )}
                 <p className="confirm-step__amount">
-                    Total a pagar: <strong>{formatCurrency(orderTotal)}</strong>
+                    Total a pagar ahora: <strong>{formatCurrency(orderTotal)}</strong>
                 </p>
+                {!envioGratis && envioContraEntrega && shippingCostDisplay > 0 && (
+                    <p className="confirm-step__contra-note">
+                        El envío ({formatCurrency(shippingCostDisplay)}) se paga al recibir el pedido.
+                    </p>
+                )}
             </div>
 
             {notas.trim() && (

@@ -1,17 +1,34 @@
 import { useCheckout } from '../../../context/CheckoutContext';
 import { formatCurrency } from '../../../utils/formatters';
-import { isPickupService } from '../../../utils/envioHelpers';
+import { FORMA_PAGO_ENVIO, getServicioCostos, isPickupService } from '../../../utils/envioHelpers';
 import './ShippingServiceSelector.css';
 
-function ServiceOption({ servicio, selectedId, envioGratis, formaPago, onSelect }) {
+function CostLine({ label, amount, envioGratis }) {
+    return (
+        <div className="shipping-service-selector__cost-line">
+            <span className="shipping-service-selector__cost-label">{label}</span>
+            <span className="shipping-service-selector__cost-value">
+                {envioGratis ? (
+                    <>
+                        <span className="shipping-service-selector__cost-struck">
+                            {formatCurrency(amount)}
+                        </span>
+                        <span className="shipping-service-selector__cost-free">Gratis</span>
+                    </>
+                ) : (
+                    formatCurrency(amount)
+                )}
+            </span>
+        </div>
+    );
+}
+
+function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSelect }) {
     const isSelected = selectedId === servicio.id;
     const isPickup = isPickupService(servicio);
-    const price =
-        envioGratis
-            ? 0
-            : formaPago === 'CONTRA_ENTREGA'
-              ? Number(servicio.costoContraEntrega ?? 0)
-              : Number(servicio.costoEnLinea ?? servicio.tarifa ?? 0);
+    const { tarifa, recargo, enLinea, contraEntrega } = getServicioCostos(servicio);
+    const activeTotal =
+        formaPagoEnvio === FORMA_PAGO_ENVIO.CONTRA_ENTREGA ? contraEntrega : enLinea;
 
     return (
         <li>
@@ -39,22 +56,50 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPago, onSelect 
                 <div className="shipping-service-selector__body">
                     <div className="shipping-service-selector__name-row">
                         <strong>{servicio.nombre}</strong>
-                        <span
-                            className={`shipping-service-selector__price ${envioGratis ? 'shipping-service-selector__price--free' : ''}`}
-                        >
-                            {envioGratis ? 'Gratis' : formatCurrency(price)}
-                        </span>
+                        {isSelected && !envioGratis && (
+                            <span className="shipping-service-selector__active-total">
+                                {formaPagoEnvio === FORMA_PAGO_ENVIO.CONTRA_ENTREGA
+                                    ? 'Contra entrega: '
+                                    : 'En línea: '}
+                                {formatCurrency(activeTotal)}
+                            </span>
+                        )}
+                        {isSelected && envioGratis && (
+                            <span className="shipping-service-selector__price shipping-service-selector__price--free">
+                                Gratis
+                            </span>
+                        )}
                     </div>
                     {servicio.descripcion && (
                         <p className="shipping-service-selector__desc">{servicio.descripcion}</p>
                     )}
+                    <div className="shipping-service-selector__costs">
+                        <CostLine label="Tarifa de envío" amount={tarifa} envioGratis={envioGratis} />
+                        {recargo > 0 && (
+                            <CostLine
+                                label="Recargo contra entrega"
+                                amount={recargo}
+                                envioGratis={envioGratis}
+                            />
+                        )}
+                        <CostLine
+                            label="Total en línea"
+                            amount={enLinea}
+                            envioGratis={envioGratis}
+                        />
+                        <CostLine
+                            label="Total contra entrega"
+                            amount={contraEntrega}
+                            envioGratis={envioGratis}
+                        />
+                    </div>
                 </div>
             </label>
         </li>
     );
 }
 
-function ServiceGroup({ label, servicios, selectedId, envioGratis, formaPago, onSelect }) {
+function ServiceGroup({ label, servicios, selectedId, envioGratis, formaPagoEnvio, onSelect }) {
     if (!servicios.length) return null;
 
     return (
@@ -67,7 +112,7 @@ function ServiceGroup({ label, servicios, selectedId, envioGratis, formaPago, on
                         servicio={s}
                         selectedId={selectedId}
                         envioGratis={envioGratis}
-                        formaPago={formaPago}
+                        formaPagoEnvio={formaPagoEnvio}
                         onSelect={onSelect}
                     />
                 ))}
@@ -90,7 +135,7 @@ export default function ShippingServiceSelector() {
         refetchEnvioOpciones,
         pickupServices,
         deliveryServices,
-        formaPago,
+        formaPagoEnvio,
     } = useCheckout();
 
     if (loadingEnvioOpciones) {
@@ -151,7 +196,7 @@ export default function ShippingServiceSelector() {
 
             {envioGratis && (
                 <p className="shipping-service-selector__banner" role="status">
-                    ¡Envío gratis en este pedido!
+                    ¡Envío gratis en este pedido! Los valores tachados muestran el costo habitual.
                 </p>
             )}
 
@@ -166,7 +211,7 @@ export default function ShippingServiceSelector() {
                 servicios={pickupServices}
                 selectedId={selectedServicioEnvioId}
                 envioGratis={envioGratis}
-                formaPago={formaPago}
+                formaPagoEnvio={formaPagoEnvio}
                 onSelect={setSelectedServicioEnvioId}
             />
 
@@ -175,7 +220,7 @@ export default function ShippingServiceSelector() {
                 servicios={deliveryServices}
                 selectedId={selectedServicioEnvioId}
                 envioGratis={envioGratis}
-                formaPago={formaPago}
+                formaPagoEnvio={formaPagoEnvio}
                 onSelect={setSelectedServicioEnvioId}
             />
 

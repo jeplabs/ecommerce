@@ -6,9 +6,11 @@ import { paymentService, PAYMENT_METHODS } from '../services/paymentService';
 import { redirectUnauthorized } from '../utils/apiHelpers';
 import { useEnvioOpcionesContext } from '../context/EnvioOpcionesContext';
 import {
+    FORMA_PAGO_ENVIO,
     isPickupService,
-    paymentMethodToFormaPago,
     resolveShippingCost,
+    resolveShippingCostInTotal,
+    getServicioCostos,
 } from '../utils/envioHelpers';
 
 const STEPS = ['envio', 'pago', 'confirmar'];
@@ -29,6 +31,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
     const [direcciones, setDirecciones] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState(null);
+    const [formaPagoEnvio, setFormaPagoEnvio] = useState(FORMA_PAGO_ENVIO.EN_LINEA);
     const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS.STRIPE);
     const [cardData, setCardData] = useState({
         cardholder: '',
@@ -44,7 +47,6 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
     const [paymentResult, setPaymentResult] = useState(null);
 
     const currentStep = STEPS[step];
-    const formaPago = paymentMethodToFormaPago(paymentMethod);
 
     const handleAuthError = useCallback(
         (status) =>
@@ -119,17 +121,35 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         [selectedServicio]
     );
 
-    const shippingCost = useMemo(
+    const selectedServicioCostos = useMemo(
+        () => getServicioCostos(selectedServicio),
+        [selectedServicio]
+    );
+
+    const shippingCostDisplay = useMemo(
         () =>
             resolveShippingCost({
                 opciones: envioOpciones,
                 servicio: selectedServicio,
-                formaPago,
+                formaPago: formaPagoEnvio,
             }),
-        [envioOpciones, selectedServicio, formaPago]
+        [envioOpciones, selectedServicio, formaPagoEnvio]
     );
 
-    const orderTotal = useMemo(() => cartTotal + shippingCost, [cartTotal, shippingCost]);
+    const shippingCostInTotal = useMemo(
+        () =>
+            resolveShippingCostInTotal({
+                opciones: envioOpciones,
+                servicio: selectedServicio,
+                formaPagoEnvio,
+            }),
+        [envioOpciones, selectedServicio, formaPagoEnvio]
+    );
+
+    const orderTotal = useMemo(
+        () => cartTotal + shippingCostInTotal,
+        [cartTotal, shippingCostInTotal]
+    );
 
     const canContinueShipping =
         Boolean(selectedAddressId) &&
@@ -194,7 +214,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
             const orden = await ordenService.crearOrden({
                 direccionId: selectedAddressId,
                 servicioEnvioId: selectedServicioEnvioId,
-                formaPago,
+                formaPago: formaPagoEnvio,
                 notas: notas.trim() || null,
             });
 
@@ -220,7 +240,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         paymentMethod,
         orderTotal,
         cardData,
-        formaPago,
+        formaPagoEnvio,
         notas,
         handleAuthError,
     ]);
@@ -236,6 +256,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         selectedServicioEnvioId,
         setSelectedServicioEnvioId,
         selectedServicio,
+        selectedServicioCostos,
         isPickupSelected,
         envioOpciones,
         loadingEnvioOpciones,
@@ -243,9 +264,12 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         refetchEnvioOpciones,
         pickupServices,
         deliveryServices,
-        shippingCost,
+        shippingCostDisplay,
+        shippingCostInTotal,
         orderTotal,
-        formaPago,
+        formaPagoEnvio,
+        setFormaPagoEnvio,
+        FORMA_PAGO_ENVIO,
         paymentMethod,
         setPaymentMethod,
         cardData,

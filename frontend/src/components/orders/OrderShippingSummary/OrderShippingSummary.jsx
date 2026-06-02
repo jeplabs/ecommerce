@@ -1,8 +1,9 @@
 import { formatCurrency } from '../../../utils/formatters';
 import {
-    formatFormaPago,
+    formatFormaPagoEnvio,
     isPickupFromServicioNombre,
 } from '../../../utils/ordenDisplayHelpers';
+import { FORMA_PAGO_ENVIO } from '../../../utils/envioHelpers';
 import './OrderShippingSummary.css';
 
 /**
@@ -15,6 +16,7 @@ export default function OrderShippingSummary({ orden, className = '' }) {
     const direccion = orden.direccionEnvio;
     const costoEnvio = Number(orden.costoEnvio ?? 0);
     const envioGratis = costoEnvio === 0 && orden.servicioEnvio;
+    const envioContraEntrega = orden.formaPago === FORMA_PAGO_ENVIO.CONTRA_ENTREGA;
 
     return (
         <div className={`order-shipping-summary ${className}`.trim()}>
@@ -27,6 +29,10 @@ export default function OrderShippingSummary({ orden, className = '' }) {
                 </p>
                 <dl className="order-shipping-summary__meta">
                     <div className="order-shipping-summary__meta-row">
+                        <dt>Pago del envío</dt>
+                        <dd>{formatFormaPagoEnvio(orden.formaPago)}</dd>
+                    </div>
+                    <div className="order-shipping-summary__meta-row">
                         <dt>Costo de envío</dt>
                         <dd className={envioGratis ? 'order-shipping-summary__free' : ''}>
                             {orden.servicioEnvio
@@ -36,10 +42,14 @@ export default function OrderShippingSummary({ orden, className = '' }) {
                                 : '—'}
                         </dd>
                     </div>
-                    <div className="order-shipping-summary__meta-row">
-                        <dt>Forma de pago</dt>
-                        <dd>{formatFormaPago(orden.formaPago)}</dd>
-                    </div>
+                    {envioContraEntrega && !envioGratis && costoEnvio > 0 && (
+                        <div className="order-shipping-summary__meta-row">
+                            <dt> </dt>
+                            <dd className="order-shipping-summary__contra-note">
+                                Incluye tarifa y recargo contra entrega · se paga al recibir
+                            </dd>
+                        </div>
+                    )}
                 </dl>
                 {pickup && (
                     <p className="order-shipping-summary__pickup-note">

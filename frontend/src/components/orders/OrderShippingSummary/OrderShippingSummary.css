@@ -56,6 +56,14 @@
     color: #22c55e;
 }
 
+.order-shipping-summary__contra-note {
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    color: var(--muted) !important;
+    line-height: 1.35;
+    max-width: 14rem;
+}
+
 .order-shipping-summary__pickup-note {
     margin: 0.5rem 0 0;
     font-size: 0.82rem;

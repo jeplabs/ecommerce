@@ -18,9 +18,12 @@ export default function CheckoutContent() {
         currentStep,
         cartItems,
         cartTotal,
-        shippingCost,
+        shippingCostDisplay,
+        shippingCostInTotal,
         orderTotal,
         envioOpciones,
+        formaPagoEnvio,
+        selectedServicioCostos,
         cartLoading,
         isEmpty,
         error,
@@ -116,9 +119,12 @@ export default function CheckoutContent() {
                 <OrderSummary
                     items={cartItems}
                     subtotal={cartTotal}
-                    shippingCost={shippingCost}
+                    shippingCostDisplay={shippingCostDisplay}
+                    shippingCostInTotal={shippingCostInTotal}
                     total={orderTotal}
                     envioGratis={envioOpciones?.envioGratis}
+                    formaPagoEnvio={formaPagoEnvio}
+                    servicioCostos={selectedServicioCostos}
                 />
             </div>
         </div>

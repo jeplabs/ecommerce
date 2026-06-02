@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCheckout } from '../../../context/CheckoutContext';
 import ShippingServiceSelector from '../ShippingServiceSelector/ShippingServiceSelector';
+import ShippingPaymentSelector from '../ShippingPaymentSelector/ShippingPaymentSelector';
 import './ShippingStep.css';
 
 export default function ShippingStep() {
@@ -76,6 +77,8 @@ export default function ShippingStep() {
                     maxLength={500}
                 />
             </div>
+
+            <ShippingPaymentSelector />
 
             <ShippingServiceSelector />
 

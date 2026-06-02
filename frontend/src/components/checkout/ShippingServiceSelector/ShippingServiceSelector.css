@@ -122,6 +122,51 @@
     font-size: 0.95rem;
 }
 
+.shipping-service-selector__costs {
+    margin-top: 0.55rem;
+    padding-top: 0.55rem;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.shipping-service-selector__cost-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 0.78rem;
+}
+
+.shipping-service-selector__cost-label {
+    color: var(--muted);
+}
+
+.shipping-service-selector__cost-value {
+    font-weight: 600;
+    text-align: right;
+}
+
+.shipping-service-selector__cost-struck {
+    text-decoration: line-through;
+    color: var(--muted);
+    font-weight: 500;
+    margin-right: 0.35rem;
+}
+
+.shipping-service-selector__cost-free {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.shipping-service-selector__active-total {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--indigo);
+    white-space: nowrap;
+}
+
 .shipping-service-selector__price {
     font-size: 0.9rem;
     font-weight: 600;
