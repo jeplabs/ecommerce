@@ -1,0 +1,2 @@
+/** Bloques compuestos (Navbar, ProductCatalog, CheckoutSummary) */
+export {};

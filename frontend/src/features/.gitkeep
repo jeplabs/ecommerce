@@ -1,0 +1,2 @@
+/** Acciones de usuario (login, add-to-cart, checkout) */
+export {};
