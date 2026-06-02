@@ -6,23 +6,27 @@ import { useCategorias } from '../../context/CategoriasContext';
 import { useToast } from '../../context/ToastContext';
 import Navbar from "../../components/layout/Navbar/Navbar";
 import { ProductForm } from "../../components/admin/ProductForm";
-
+import {
+    getImageUrl,
+    getInitialPrincipalBackendId,
+    resolvePrincipalBackendId,
+} from '../../utils/productImageAdmin';
 
 export default function ProductEdit() {
     const navigate = useNavigate();
     const { id } = useParams();
     const { arbolCategorias } = useCategorias();
-    const { 
-        getProductById, 
+    const {
+        getProductById,
         getProductByIdAdmin,
-        updateProduct, 
-        updateProductStatus, 
-        addProductImages, 
+        updateProduct,
+        updateProductStatus,
+        addProductImages,
         deleteProductImage,
         changeMainImage,
         getProductImages,
         reloadProducts,
-        loading
+        loading,
     } = useProduct();
     const { showSuccess, showError } = useToast();
     const [productData, setProductData] = useState(null);
@@ -31,34 +35,28 @@ export default function ProductEdit() {
     useEffect(() => {
         const loadProduct = async () => {
             try {
-                // En vista admin necesitamos el endpoint admin para traer imágenes con ID/principal
-                // (necesario para borrar imágenes y cambiar la principal).
-                //
-                // Pero si el endpoint admin no incluye campos de detalle (p. ej. descripcion/specs),
-                // hacemos fallback al endpoint público y combinamos.
                 const [adminRes, publicRes] = await Promise.allSettled([
                     getProductByIdAdmin(id),
-                    getProductById(id)
+                    getProductById(id),
                 ]);
 
                 const adminProduct = adminRes.status === 'fulfilled' ? adminRes.value : null;
                 const publicProduct = publicRes.status === 'fulfilled' ? publicRes.value : null;
 
-                // Preferimos el público para campos de detalle si existe; usamos admin para imágenes con IDs.
                 const baseProduct = publicProduct || adminProduct;
                 const imagesMeta = baseProduct ? await getProductImages(id) : [];
                 const product = baseProduct
                     ? {
-                        ...baseProduct,
-                        // Para edición: usamos imágenes con ID/url/principal desde /{id}/imagenes
-                        images: Array.isArray(imagesMeta) ? imagesMeta : [],
-                        // Asegurar que descripcion venga del público si el admin no la trae
-                        descripcion: baseProduct.descripcion ?? publicProduct?.descripcion ?? adminProduct?.descripcion
-                    }
+                          ...baseProduct,
+                          images: Array.isArray(imagesMeta) ? imagesMeta : [],
+                          descripcion:
+                              baseProduct.descripcion ??
+                              publicProduct?.descripcion ??
+                              adminProduct?.descripcion,
+                      }
                     : null;
-                // console.log('ProductEdit product', product);
-                if (product) {
 
+                if (product) {
                     let catId = '';
                     let subcatId = '';
                     let subSubcatId = '';
@@ -68,25 +66,20 @@ export default function ProductEdit() {
                         subcatId = product.categorias[1].id?.toString() || '';
                         subSubcatId = product.categorias[2].id?.toString() || '';
                     }
-                    
-                    const rawImages = product.images ?? [];
-                    
-                    // Transformar los datos del backend para que sean compatibles con el formulario
+
                     const transformedProduct = {
                         ...product,
-                        price: String(product.precioVenta ?? ''), // Confirmar cadena para input
+                        price: String(product.precioVenta ?? ''),
                         descripcion: product.descripcion || '',
                         estado: product.estado || 'disponible',
-                        images: rawImages,
+                        images: product.images ?? [],
                         categoria: catId?.toString() || '',
                         subcategoria: subcatId?.toString() || '',
-                        subsubcategoria: subSubcatId?.toString() || '', // Asumimos que no hay subsubcategoría en este ejemplo
-                        moneda: product.moneda || 'USD'
+                        subsubcategoria: subSubcatId?.toString() || '',
+                        moneda: product.moneda || 'USD',
                     };
-                    //console.log('ProductEdit transformedProduct:', transformedProduct);
                     setProductData(transformedProduct);
                 } else {
-                    console.log('ProductEdit getProductById retornó null');
                     setError('Producto no encontrado');
                 }
             } catch (err) {
@@ -100,27 +93,18 @@ export default function ProductEdit() {
         }
     }, [id]);
 
-
-    const handleUpdate = async (finalData) => {
-        console.debug('ProductEdit handleUpdate payload', finalData);
-        console.log('🔍 DEBUG ENVÍO:', {
-            imagenesAEliminarIds: finalData.imagenesAEliminarIds,
-            imagenPrincipalId: finalData.imagenPrincipalId, // <--- ¿Llega valor aquí?
-            imagenesUrl: finalData.imagenesUrl
-        });
+    const handleUpdate = async (finalData, formImages = []) => {
         try {
             const productId = Number.isFinite(Number(id)) ? Number(id) : id;
+            const initialPrincipalId = getInitialPrincipalBackendId(productData?.images);
 
-            // Forzar siempre la llamada a updateProductStatus para depuración
             const estadoNuevo = finalData.estado || productData.estado;
-            //console.log('[ProductEdit] Llamando updateProductStatus con:', estadoNuevo);
             const resEstado = await updateProductStatus(productId, estadoNuevo);
             if (!resEstado.success) {
                 showError(`Error al actualizar el estado: ${resEstado.message}`);
                 return;
             }
 
-            // Actualizar otros datos (sin el campo estado)
             const { estado, ...rest } = finalData;
             const result = await updateProduct(productId, rest);
             if (!result.success) {
@@ -128,100 +112,102 @@ export default function ProductEdit() {
                 return;
             }
 
-            // Manejar cambios de imágenes si fue en edición
-            // if (productData && finalData.imagenesUrl) {
-            //     const urlsOriginales = productData.images || [];
-            //     const urlsNuevas = finalData.imagenesUrl || [];
-            //     const urlsEliminadas = urlsOriginales.filter(url => !urlsNuevas.includes(url));
-            //     const urlsAgregadas = urlsNuevas.filter(url => !urlsOriginales.includes(url));
-            //     if (urlsEliminadas.length > 0 || urlsAgregadas.length > 0) {
-            //         console.debug('ProductEdit imagen cambios - eliminadas:', urlsEliminadas, 'agregadas:', urlsAgregadas);
-            //     }
-            //     if (urlsAgregadas.length > 0) {
-            //         const addImagesResult = await addProductImages(id, urlsAgregadas);
-            //         if (!addImagesResult.success) {
-            //             console.error('ProductEdit error agregando imágenes:', addImagesResult.message);
-            //         } else {
-            //             console.debug('ProductEdit imágenes agregadas exitosamente');
-            //         }
-            //     }
-            //     TODO: Eliminar imágenes que fueron quitadas
-            // }
-
-            // 1. Eliminar imágenes (El formulario envía los IDs explícitos a borrar)
-            if (finalData.imagenesAEliminarIds && finalData.imagenesAEliminarIds.length > 0) {
+            if (finalData.imagenesAEliminarIds?.length > 0) {
                 const uniqueDeleteIds = Array.from(
                     new Set(finalData.imagenesAEliminarIds.filter((x) => x != null))
                 );
-                console.debug('Eliminando imágenes IDs:', uniqueDeleteIds);
-                
+
                 const failedDeletes = [];
                 for (const imgId of uniqueDeleteIds) {
                     const res = await deleteProductImage(productId, imgId);
                     if (!res.success) {
-                        console.error(`Error al eliminar imagen ${imgId}:`, res.message);
                         const msg = String(res.message || '');
-                        // Si el backend dice "no encontrada", lo tratamos como idempotente:
-                        // pudo haberse eliminado ya por un intento previo o por duplicación de IDs.
                         if (!msg.includes('Imagen no encontrada')) {
                             failedDeletes.push({ imgId, message: msg });
                         }
                     }
                 }
                 if (failedDeletes.length > 0) {
-                    showError(`No se pudieron eliminar ${failedDeletes.length} imagen(es). ${failedDeletes[0].message || ''}`.trim());
+                    showError(
+                        `No se pudieron eliminar ${failedDeletes.length} imagen(es). ${failedDeletes[0].message || ''}`.trim()
+                    );
                     return;
                 }
                 showSuccess(`${uniqueDeleteIds.length} imagen(es) eliminada(s)`);
             }
 
+            let addedImagesData = [];
 
-            // 3. Agregar nuevas imágenes (Solo las URLs nuevas que vienen en imagenesUrl)
-            // Nota: El formulario envía TODAS las URLs actuales en imagenesUrl.
-            // Necesitamos filtrar solo las que NO estaban antes para no duplicar llamadas.
-            if (finalData.imagenesUrl && finalData.imagenesUrl.length > 0) {
+            if (finalData.imagenesUrl?.length > 0) {
                 const urlsOriginales = (productData.images || [])
-                    .map((img) => {
-                        if (typeof img === 'string') return img;
-                        return img?.url || img?.imagenUrl || img?.urlImagen || null;
-                    })
+                    .map(getImageUrl)
                     .filter(Boolean);
-                // Filtramos solo las URLs que son nuevas
+
                 const urlsNuevas = finalData.imagenesUrl.filter(
-                    url => !urlsOriginales.includes(url)
+                    (url) => !urlsOriginales.includes(url)
                 );
 
                 if (urlsNuevas.length > 0) {
-                    console.debug('Agregando nuevas URLs:', urlsNuevas);
                     const addImagesResult = await addProductImages(productId, urlsNuevas);
+
                     if (!addImagesResult.success) {
-                        console.error('Error agregando imágenes:', addImagesResult.message);
                         showError(`Error al agregar imágenes: ${addImagesResult.message}`);
                         return;
-                    } else {
-                        showSuccess(`${urlsNuevas.length} imagen(es) agregada(s)`);
                     }
+
+                    addedImagesData = Array.isArray(addImagesResult.data)
+                        ? addImagesResult.data
+                        : [];
+                    showSuccess(`${urlsNuevas.length} imagen(es) agregada(s)`);
                 }
             }
 
-            // 2. Cambiar imagen principal (Si el usuario seleccionó una nueva)
-            if (finalData.imagenPrincipalId) {
-                console.debug('Cambiando imagen principal a ID:', finalData.imagenPrincipalId);
-                const res = await changeMainImage(productId, finalData.imagenPrincipalId);
+            let backendPrincipalId = resolvePrincipalBackendId(
+                formImages,
+                finalData.imagenPrincipalId,
+                addedImagesData
+            );
+
+            const principalFormImg =
+                formImages.find((img) => img.id === finalData.imagenPrincipalId) ||
+                formImages.find((img) => img.principal);
+
+            if (backendPrincipalId == null && principalFormImg?.url) {
+                const refreshed = await getProductImages(productId);
+                const match = (Array.isArray(refreshed) ? refreshed : []).find(
+                    (img) => getImageUrl(img) === principalFormImg.url
+                );
+                if (match?.id != null) {
+                    backendPrincipalId = Number(match.id);
+                }
+            }
+
+            if (
+                backendPrincipalId != null &&
+                backendPrincipalId !== initialPrincipalId
+            ) {
+                const res = await changeMainImage(productId, backendPrincipalId);
                 if (!res.success) {
-                    console.error('Error al cambiar imagen principal:', res.message);
                     showError(`Error al definir imagen principal: ${res.message}`);
                     return;
                 }
+            } else if (
+                principalFormImg &&
+                !principalFormImg.persisted &&
+                initialPrincipalId !== null
+            ) {
+                showError(
+                    'No se pudo asignar la imagen principal. Guarda las imágenes nuevas e inténtalo de nuevo.'
+                );
+                return;
             }
-            
-            // Asegurar que los listados admin queden actualizados antes de volver
+
             await reloadProducts();
 
-            showSuccess('Estado y producto actualizados exitosamente');
+            showSuccess('Producto actualizado exitosamente');
             navigate('/admin/products');
-        } catch (error) {
-            showError(`Error al actualizar el producto: ${error.message}`);
+        } catch (err) {
+            showError(`Error al actualizar el producto: ${err.message}`);
         }
     };
 

@@ -223,7 +223,8 @@ export const productService = {
             const errorText = await res.text();
             throw new Error(errorText);
         }
-        return true;
+        //return true;
+        return await res.json();
     },
 
     // 9b. Listar imágenes (incluye id/url/principal)

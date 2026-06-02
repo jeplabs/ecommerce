@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-//import { useToast } from '../../context/ToastContext';
+import {
+    createClientImageId,
+    normalizeApiImageToForm,
+} from '../../utils/productImageAdmin';
 
 export const ProductForm = ({ 
     initialData = null, 
@@ -226,39 +229,17 @@ export const ProductForm = ({
 
             // Si el producto editado tiene imágenes que son URLs (strings), las cargamos
             if (initialData.images && initialData.images.length > 0) {
-                const loadedImages = initialData.images.map((img, index) => {
-                    const normalized =
-                        typeof img === 'string'
-                            ? { url: img, principal: false }
-                            : img;
+                const loadedImages = initialData.images.map((img, index) =>
+                    normalizeApiImageToForm(img, index)
+                );
+                const principalImg =
+                    loadedImages.find((i) => i.principal) || loadedImages[0];
+                if (principalImg) {
+                    setImagenPrincipalId(principalImg.id);
+                }
+                setFormData((prev) => ({ ...prev, images: loadedImages }));
 
-                    const resolvedUrl =
-                        normalized?.url ??
-                        normalized?.imagenUrl ??
-                        normalized?.urlImagen ??
-                        normalized?.src ??
-                        (typeof img === 'string' ? img : '');
-                    
-                    if (normalized?.principal && normalized?.id != null) {
-                        setImagenPrincipalId(normalized.id); // Guardamos el ID real de la principal actual
-                    }
-
-                    return {
-                        id: normalized?.id ?? index,
-                        backendId: normalized?.id ?? null,
-                        type: 'url',
-                        url: resolvedUrl,
-                        file: null,
-                        preview: resolvedUrl,
-                        principal: normalized?.principal || false,
-                        // "persisted" solo si vino como objeto con ID desde backend
-                        persisted: normalized?.id != null && typeof img !== 'string'
-                    };
-                });
-                setFormData(prev => ({ ...prev, images: loadedImages }));
-                
-                // Si hay URLs, cambiamos el modo automáticamente (opcional)
-                if (loadedImages.some(i => i.type === 'url')) {
+                if (loadedImages.some((i) => i.type === 'url')) {
                     setImageMode('url');
                 }
             }
@@ -366,13 +347,13 @@ export const ProductForm = ({
         }
 
         const newImage = {
-            id: Date.now(),
+            id: createClientImageId(),
             backendId: null,
             type: 'url',
-            url: urlInput,
-            preview: urlInput,
+            url: urlInput.trim(),
+            preview: urlInput.trim(),
             persisted: false,
-            principal: false
+            principal: false,
         };
 
         // setFormData(prev => ({
@@ -399,14 +380,29 @@ export const ProductForm = ({
     };
 
     const removeImage = (idToRemove) => {
-        const isConfirmed = window.confirm("¿Estás seguro de que deseas eliminar esta imagen?");
-        if (!isConfirmed) return; 
-        
-        setFormData(prev => {
-            // Buscamos la imagen antes de filtrarla para ver si es original
-            const imagenAEliminar = prev.images.find(img => img.id === idToRemove);
-            
-            // Solo si la imagen existe en BD (tiene ID persistido) la marcamos para eliminar en backend
+        const isConfirmed = window.confirm('¿Estás seguro de que deseas eliminar esta imagen?');
+        if (!isConfirmed) return;
+
+        const imagenPrev = formData.images.find((img) => img.id === idToRemove);
+        if (imagenPrev?.persisted && imagenPrev.principal) {
+            const otrasPersistidas = formData.images.filter(
+                (img) => img.id !== idToRemove && img.persisted
+            );
+            if (otrasPersistidas.length === 0) {
+                window.alert(
+                    'No puedes eliminar la única imagen guardada. Agrega otra y márcala como principal primero.'
+                );
+                return;
+            }
+            window.alert(
+                'Esta imagen es la principal en el servidor. Marca otra como principal (★) antes de eliminarla.'
+            );
+            return;
+        }
+
+        setFormData((prev) => {
+            const imagenAEliminar = prev.images.find((img) => img.id === idToRemove);
+
             if (imagenAEliminar?.persisted && imagenAEliminar.backendId != null) {
                 //setImagenesAEliminarIds(prevIds => [...prevIds, imagenAEliminar.backendId]);
                 setImagenesAEliminarIds(prevIds => {
@@ -449,22 +445,14 @@ export const ProductForm = ({
         //         images: "Debe seleccionar al menos una imagen del producto" 
         // }));
             if (imagenAEliminar?.principal && newImages.length > 0) {
-                // ¡CORRECCIÓN! No mutamos. Creamos un array nuevo con objetos nuevos.
-                const imagesUpdated = newImages.map((img, index) => {
-                    if (index === 0) {
-                        // Esta será la nueva principal. Creamos un OBJETO NUEVO.
-                        return {
-                            ...img,
-                            principal: true
-                        };
-                    }
-                    // El resto se mantiene igual (pero son referencias seguras aquí)
-                    return img;
-                });
+                const imagesUpdated = newImages.map((img, index) => ({
+                    ...img,
+                    principal: index === 0,
+                }));
 
                 // Actualizamos el ID de referencia
                 const nuevaPrincipal = imagesUpdated[0];
-                setImagenPrincipalId(nuevaPrincipal.backendId || nuevaPrincipal.id);
+                setImagenPrincipalId(nuevaPrincipal.id);
 
                 return {
                     ...prev,
@@ -485,31 +473,15 @@ export const ProductForm = ({
         });
     };
 
-    const handleSetPrincipal = (targetId) => {
-    setFormData(prev => ({
-        ...prev,
-        images: prev.images.map(img => {
-            // Identificamos por backendId si existe, sino por id temporal
-            const isMatch = img.backendId ? img.backendId === targetId : img.id === targetId;
-            return {
+    const handleSetPrincipal = (clientId) => {
+        setFormData((prev) => ({
+            ...prev,
+            images: prev.images.map((img) => ({
                 ...img,
-                principal: isMatch // True solo para la seleccionada, False para el resto
-            };
-        })
-    }));
-    
-    // Actualizamos el ID de referencia para el envío al backend
-    setImagenPrincipalId(targetId);
-
-    // setImagenPrincipalId(backendId);
-    // // Actualizamos visualmente el estado local para mostrar el borde/marca inmediatamente
-    // setFormData(prev => ({
-    //     ...prev,
-    //     images: prev.images.map(img => ({
-    //         ...img,
-    //         principal: img.backendId === backendId
-    //     }))
-    // }));
+                principal: img.id === clientId,
+            })),
+        }));
+        setImagenPrincipalId(clientId);
     };
 
     // Lógica para características dinámicas
@@ -643,15 +615,6 @@ export const ProductForm = ({
         // Ejecutar validación antes de proceder
         if (!validateForm()) return;
 
-        // --- AGREGA ESTO PARA VER LA VERDAD ---
-        console.log('🔍 DEBUG SUBMIT:');
-        console.log('1. imagenPrincipalId (estado):', imagenPrincipalId);
-        console.log('2. formData.images.length:', formData.images.length);
-        console.log('3. Primera imagen en formData:', formData.images[0]);
-        console.log('4. ¿La primera imagen tiene principal=true?', formData.images[0]?.principal);
-        // ---------------------------------------
-
-
         const filesToUpload = formData.images.filter(img => img.type === 'file').map(img => img.file);
         const urlsToSave = formData.images.filter(img => img.type === 'url').map(img => img.url);
 
@@ -695,31 +658,14 @@ export const ProductForm = ({
             if (group.subsubcategoria) allCategoryIds.add(Number(group.subsubcategoria));
         });
 
-        let imagenesAEliminar = [];
-        
-        if (isEditing && initialData && initialData.images) {
-            // 1. Obtener URLs originales que tenía el producto
-            const urlsOriginales = initialData.images.map(img => typeof img === 'string' ? img : img.url);
-            
-            // 2. Obtener URLs que quedan actualmente en el formulario
-            const urlsActuales = formData.images
-                .filter(img => img.type === 'url')
-                .map(img => img.url);
-            
-            // 3. Calcular la diferencia: Las que están en Originales pero NO en Actuales
-            imagenesAEliminar = urlsOriginales.filter(url => !urlsActuales.includes(url));
-        }
+        const principalImg =
+            formData.images.find((img) => img.id === imagenPrincipalId) ||
+            formData.images.find((img) => img.principal);
 
-        let finalImagenPrincipalId = imagenPrincipalId;
+        let finalImagenPrincipalId = principalImg?.id ?? imagenPrincipalId;
 
-        // SEGURIDAD: Si no hay imagen principal seleccionada pero hay imágenes,
-        // forzamos que la primera sea la principal para el envío.
         if (!finalImagenPrincipalId && formData.images.length > 0) {
-            const primeraImagen = formData.images[0];
-            finalImagenPrincipalId = primeraImagen.backendId || primeraImagen.id;
-            
-            // Actualizamos el estado local también para consistencia visual
-            setImagenPrincipalId(finalImagenPrincipalId);
+            finalImagenPrincipalId = formData.images[0].id;
         }
 
         const finalData = {
@@ -745,7 +691,8 @@ export const ProductForm = ({
         };
 
         //console.debug('ProductForm submit finalData', finalData);
-        onSubmit(finalData);
+        //onSubmit(finalData);
+        onSubmit(finalData, formData.images);
     };
 
     // Helper para encontrar nodos en el árbol
@@ -1410,10 +1357,10 @@ export const ProductForm = ({
                                 </button>
 
                                 {/* --- NUEVO BOTÓN: ESTABLECER PRINCIPAL --- */}
-                                {!img.principal && img.persisted && (
+                                {!img.principal && (
                                     <button
                                         type="button"
-                                        onClick={() => handleSetPrincipal(img.backendId || img.id)}
+                                        onClick={() => handleSetPrincipal(img.id)}
                                         title="Marcar como principal"
                                         style={{
                                             position: 'absolute',

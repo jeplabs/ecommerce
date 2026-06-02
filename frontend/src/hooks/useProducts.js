@@ -90,9 +90,11 @@ export const useProducts = () => {
     
     const addProductImages = async (id, urls) => {
         try {
-            await productService.addImages(id, urls);
+            //await productService.addImages(id, urls);
+            const data = await productService.addImages(id, urls);
             await reloadProducts();
-            return { success: true };
+            //return { success: true };
+            return { success: true, data };
         } catch (error) {
             return { success: false, message: error.message };
         }
