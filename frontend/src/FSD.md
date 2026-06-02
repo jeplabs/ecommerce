@@ -90,9 +90,15 @@ const form = useForm<LoginFormValues>({
 - `@/*` → `src/*`
 - `@/entities/*`, `@/features/*`, `@/widgets/*`, `@/shared/*`, `@/app/*`
 
+## Migración de servicios (en curso)
+
+| Servicio legacy | Nueva ubicación | Estado |
+|-----------------|-----------------|--------|
+| `services/authService.js` | `entities/user/api/authApi.ts` | Hecho — `authService.js` re-exporta la API tipada |
+
 ## Próximos pasos de migración sugeridos
 
-1. **Servicios** (`src/services/*.js`) → `entities/*/api` o `shared/api` con `parseApi`.
+1. **Servicios** restantes (`envio`, `direccion`, `cart`, `orden`, `product`, …) → `entities/*/api` con `parseApi`.
 2. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → reemplazar por `@/entities/shipping` y `@/entities/order`.
 3. **Contextos** → `app/providers` + hooks en `features/*/model`.
 4. **Componentes** → mover a `widgets/` o `features/` según responsabilidad.
