@@ -137,4 +137,13 @@ public class GestorDeErrores {
         return ResponseEntity.badRequest()
                 .body(Map.of("error", ex.getMessage()));
     }
+
+    // Para que Spring convierta AccessDeniedException en 403 Forbidden, en vez de 500 Internal Server Error.
+    // se usa para Test OrdenControllerTest.
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> manejarAccesoDenegado(
+            org.springframework.security.access.AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("error", "Acceso denegado: no tienes permisos para realizar esta acción"));
+    }
 }
