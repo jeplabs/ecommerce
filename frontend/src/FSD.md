@@ -101,10 +101,11 @@ const form = useForm<LoginFormValues>({
 | `services/ordenService.js` | `entities/order/api/orderApi.ts` | Hecho — `ordenService.js` re-exporta la API tipada |
 | `services/productService.js` | `entities/product/api/productApi.ts` | Hecho — `productService.js` re-exporta la API tipada |
 | `services/categoriasService.js` | `entities/category/api/categoryApi.ts` | Hecho — `categoriasService.js` re-exporta la API tipada |
+| `services/profileService.js` | `entities/user/api/profileApi.ts` | Hecho — `profileService.js` re-exporta la API tipada |
 
 ## Próximos pasos de migración sugeridos
 
-1. **Servicios** restantes (`profile`, `payment` simulado) → `entities/*/api` con `parseApi`.
+1. **`paymentService`** (simulado, solo frontend) — opcional mover a `features/checkout` o `shared`.
 2. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → reemplazar por `@/entities/shipping` y `@/entities/order`.
 3. **Contextos** → `app/providers` + hooks en `features/*/model`.
 4. **Componentes** → mover a `widgets/` o `features/` según responsabilidad.

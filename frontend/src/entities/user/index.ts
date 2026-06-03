@@ -25,6 +25,7 @@ export {
     updateUserRoleRequestSchema,
     mapRegisterFormToRequest,
     mapLoginFormToRequest,
+    mapUpdateProfileFormToRequest,
 } from './model/types';
 
 export {
@@ -47,4 +48,8 @@ export {
     getUsuarioById,
     updateUsuarioRol,
     type RegisterResult,
+    profileApi,
+    profileService,
+    getPerfil,
+    updatePerfil,
 } from './api';

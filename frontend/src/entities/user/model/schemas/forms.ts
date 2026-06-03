@@ -41,6 +41,15 @@ export const updateUserRoleRequestSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export type RegisterFormValues = z.infer<typeof registerFormSchema>;
 export type UpdateProfileFormValues = z.infer<typeof updateProfileFormSchema>;
+export type UpdateProfileRequest = UpdateProfileFormValues;
+
+export function mapUpdateProfileFormToRequest(values: UpdateProfileFormValues): UpdateProfileRequest {
+    return {
+        nombre: values.nombre.trim(),
+        apellido: values.apellido.trim(),
+        pais: values.pais.trim(),
+    };
+}
 export type UpdateUserStatusRequest = z.infer<typeof updateUserStatusRequestSchema>;
 export type UpdateUserRoleRequest = z.infer<typeof updateUserRoleRequestSchema>;
 

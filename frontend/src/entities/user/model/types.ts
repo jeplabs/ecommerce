@@ -5,6 +5,7 @@ export type {
     LoginFormValues,
     RegisterFormValues,
     UpdateProfileFormValues,
+    UpdateProfileRequest,
     UpdateUserStatusRequest,
     UpdateUserRoleRequest,
 } from './schemas/forms';
@@ -22,6 +23,7 @@ export {
     updateUserRoleRequestSchema,
     mapRegisterFormToRequest,
     mapLoginFormToRequest,
+    mapUpdateProfileFormToRequest,
 } from './schemas/forms';
 
 /** Estado de sesión en el cliente (view model). */
