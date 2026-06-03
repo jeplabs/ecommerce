@@ -24,3 +24,5 @@ export {
     mapShippingOptionsToView,
     partitionShippingServices,
 } from './model/mappers';
+
+export { shippingApi, envioService, getOpciones } from './api';

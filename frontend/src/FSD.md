@@ -95,6 +95,7 @@ const form = useForm<LoginFormValues>({
 | Servicio legacy | Nueva ubicación | Estado |
 |-----------------|-----------------|--------|
 | `services/authService.js` | `entities/user/api/authApi.ts` | Hecho — `authService.js` re-exporta la API tipada |
+| `services/envioService.js` | `entities/shipping/api/shippingApi.ts` | Hecho — `envioService.js` re-exporta la API tipada |
 
 ## Próximos pasos de migración sugeridos
 
