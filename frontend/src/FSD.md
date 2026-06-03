@@ -102,10 +102,20 @@ const form = useForm<LoginFormValues>({
 | `services/productService.js` | `entities/product/api/productApi.ts` | Hecho — `productService.js` re-exporta la API tipada |
 | `services/categoriasService.js` | `entities/category/api/categoryApi.ts` | Hecho — `categoriasService.js` re-exporta la API tipada |
 | `services/profileService.js` | `entities/user/api/profileApi.ts` | Hecho — `profileService.js` re-exporta la API tipada |
+| `services/paymentService.js` | `features/checkout/api/paymentApi.ts` | Hecho — pasarela simulada (sin backend); `paymentService.js` re-exporta |
+
+## Features (implementadas)
+
+```
+features/
+└── checkout/
+    ├── api/paymentApi.ts      # processPayment simulado (Stripe / Webpay demo)
+    └── model/schemas/payment.ts
+```
 
 ## Próximos pasos de migración sugeridos
 
-1. **`paymentService`** (simulado, solo frontend) — opcional mover a `features/checkout` o `shared`.
+1. **Capa de servicios legacy** — migración HTTP completada; los `services/*.js` son fachadas.
 2. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → reemplazar por `@/entities/shipping` y `@/entities/order`.
 3. **Contextos** → `app/providers` + hooks en `features/*/model`.
 4. **Componentes** → mover a `widgets/` o `features/` según responsabilidad.
@@ -113,7 +123,7 @@ const form = useForm<LoginFormValues>({
 ## Notas del dominio actual
 
 - **Orden**: crear orden envía `{ direccionId, servicioEnvioId, formaPago, notas }`; ítems vienen del carrito en servidor.
-- **Pago simulado** (Stripe/Webpay) es solo frontend; `FormaPago` en backend = envío en línea vs contra entrega.
+- **Pago simulado** (Stripe/Webpay) vive en `features/checkout` — no crea cargo real; `FormaPago` en backend = envío en línea vs contra entrega.
 - **Producto admin**: `DatosRespuestaProductoAdmin` no incluye `descripcion`/`categorias`; combinar con endpoint público si hace falta en edición.
 - **Usuario**: perfil no incluye direcciones; usar entity `address` por separado.
 - **Direcciones — pendiente backend**: `PATCH /api/direcciones/{id}` acepta `referencias` en `DatosActualizarDireccion`, pero `Direccion.actualizar()` no asigna ese campo (crear sí). El frontend ya envía `referencias` en el PATCH vía `mapAddressFormToUpdateRequest`.
