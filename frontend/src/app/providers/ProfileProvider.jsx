@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from 'react';
-import { useProfileLogic } from '@/hooks/useProfileLogic';
-import { useDireccionesLogic } from '@/hooks/useDireccionesLogic';
-import { useOrdenesLogic } from '@/hooks/useOrdenesLogic';
+import { useProfileLogic } from '@/entities/user/model/useProfileLogic';
+import { useDireccionesLogic } from '@/entities/address/model/useDireccionesLogic';
+import { useOrdenesLogic } from '@/entities/order/model/useOrdenesLogic';
 
 const ProfileContext = createContext();
 

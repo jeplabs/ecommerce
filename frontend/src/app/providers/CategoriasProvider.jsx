@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { useCategorias as useCategoriasHook } from '@/hooks/useCategorias';
+import { useCategorias as useCategoriasHook } from '@/entities/category/model/useCategorias';
 
 const CategoriasContext = createContext();
 

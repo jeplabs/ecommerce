@@ -11,3 +11,5 @@ export {
     localDateTimeSchema,
     nullableStringSchema,
 } from './lib/zod-helpers';
+
+export { default as useClickOutside } from './lib/useClickOutside';

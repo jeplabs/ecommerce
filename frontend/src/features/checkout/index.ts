@@ -19,3 +19,6 @@ export {
     type PaymentFailureResult,
     type StripeCardFormValues,
 } from './model/schemas/payment';
+
+export { useCheckoutLogic } from './model/useCheckoutLogic';
+export { useCheckoutSuccessRecommendations } from './model/useCheckoutSuccessRecommendations';

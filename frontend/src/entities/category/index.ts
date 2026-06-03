@@ -4,3 +4,5 @@ export { createCategoryRequestSchema } from './model/schemas/forms';
 export { mapCategoryApiToTree } from './model/types';
 
 export { categoryApi, categoriasService } from './api';
+
+export { useCategorias } from './model/useCategorias';

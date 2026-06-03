@@ -48,3 +48,5 @@ export {
     actualizarEstadoOrdenAdmin,
     type ListOrdersAdminParams,
 } from './api';
+
+export { useOrdenesLogic } from './model/useOrdenesLogic';

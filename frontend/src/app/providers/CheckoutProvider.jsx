@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { useCart } from '@/app/providers/CartProvider';
 import { EnvioOpcionesProvider } from '@/app/providers/EnvioOpcionesProvider';
-import { useCheckoutLogic } from '@/hooks/useCheckoutLogic';
+import { useCheckoutLogic } from '@/features/checkout/model/useCheckoutLogic';
 
 const CheckoutContext = createContext();
 

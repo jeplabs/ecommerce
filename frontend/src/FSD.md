@@ -108,9 +108,12 @@ const form = useForm<LoginFormValues>({
 
 ```
 features/
+├── auth/model/           # useAuthLogic
+├── catalog/model/        # useProductosByCategory, useProductFilterForm
+├── admin/model/          # useAdminOrdersLogic, useAdminUser, useAdminUsersList
 └── checkout/
-    ├── api/paymentApi.ts      # processPayment simulado (Stripe / Webpay demo)
-    └── model/schemas/payment.ts
+    ├── api/paymentApi.ts
+    └── model/            # payment schemas + useCheckoutLogic
 ```
 
 ## Providers (`app/providers`)
@@ -128,8 +131,6 @@ features/
 
 Los archivos en `src/context/*` re-exportan desde `@/app/providers` (compatibilidad).
 
-La lógica sigue en `src/hooks/*`; en una fase posterior puede moverse a `features/*/model`.
-
 ```jsx
 // App.jsx
 import { AppProviders } from '@/app/providers';
@@ -139,11 +140,32 @@ import { AppProviders } from '@/app/providers';
 </AppProviders>
 ```
 
+## Hooks (migrados)
+
+| Hook legacy | Ubicación FSD |
+|-------------|---------------|
+| `useAuthLogic` | `features/auth/model` |
+| `useCheckoutLogic`, `useCheckoutSuccessRecommendations` | `features/checkout/model` |
+| `useProductosByCategory`, `useProductFilterForm` | `features/catalog/model` |
+| `useAdminOrdersLogic`, `useAdminUser`, `useAdminUsersList` | `features/admin/model` |
+| `useCartLogic` | `entities/cart/model` |
+| `useProducts` | `entities/product/model` |
+| `useCategorias` | `entities/category/model` |
+| `useProfileLogic` | `entities/user/model` |
+| `useDireccionesLogic` | `entities/address/model` |
+| `useOrdenesLogic` | `entities/order/model` |
+| `useEnvioOpciones` | `entities/shipping/model` |
+| `useClickOutside` | `shared/lib` |
+
+`src/hooks/*` re-exporta las rutas nuevas (compatibilidad).
+
+Los hooks en `model/*.js` importados desde `index.ts` requieren `allowJs: true` en `tsconfig` (migración gradual). El aviso rojo del IDE (`TS7016`) desaparece con eso; al pasar cada hook a `.ts` se puede tipar el retorno.
+
 ## Próximos pasos de migración sugeridos
 
-1. **Hooks** → `features/*/model` o `entities/*/model` según dominio (`useAuthLogic` → `features/auth`, etc.).
-2. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → `@/entities/shipping` y `@/entities/order`.
-3. **Componentes** → `widgets/` o `features/` según responsabilidad.
+1. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → `@/entities/shipping` y `@/entities/order`.
+2. **Componentes** → `widgets/` o `features/` según responsabilidad.
+3. Ir actualizando imports de `@/hooks/...` a rutas FSD directas.
 
 ## Notas del dominio actual
 

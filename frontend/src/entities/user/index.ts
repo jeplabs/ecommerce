@@ -53,3 +53,5 @@ export {
     getPerfil,
     updatePerfil,
 } from './api';
+
+export { useProfileLogic } from './model/useProfileLogic';

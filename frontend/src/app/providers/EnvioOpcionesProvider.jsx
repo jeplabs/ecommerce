@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { useCart } from '@/app/providers/CartProvider';
-import { useEnvioOpciones } from '@/hooks/useEnvioOpciones';
+import { useEnvioOpciones } from '@/entities/shipping/model/useEnvioOpciones';
 
 const EnvioOpcionesContext = createContext(null);
 

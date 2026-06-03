@@ -28,3 +28,5 @@ export {
     removeItem,
     clearCart,
 } from './api';
+
+export { useCartLogic } from './model/useCartLogic';

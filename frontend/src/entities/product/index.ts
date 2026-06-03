@@ -36,6 +36,8 @@ export {
     getProductMainImageUrl,
 } from './model/mappers';
 
+export { useProducts } from './model/useProducts';
+
 export {
     productApi,
     productService,

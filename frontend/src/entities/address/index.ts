@@ -27,3 +27,5 @@ export {
     cambiarPrincipal,
     eliminar,
 } from './api';
+
+export { useDireccionesLogic } from './model/useDireccionesLogic';
