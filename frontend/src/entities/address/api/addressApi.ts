@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { API_URL } from '@/config/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/utils/apiHelpers';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { addressApiSchema, type AddressApi } from '../model/schemas/api';
 import type { CreateAddressRequest, UpdateAddressRequest } from '../model/schemas/forms';

@@ -2,11 +2,24 @@ import type { FormaPago } from '@/entities/order';
 import type { ShippingOptionsApi, ShippingServiceApi } from './schemas/api';
 import type { ShippingOptionsView, ShippingServiceCosts, ShippingServiceView } from './types';
 
-export function isPickupService(servicio: Pick<ShippingServiceApi, 'nombre'>): boolean {
+const EMPTY_SHIPPING_COSTS: ShippingServiceCosts = {
+    tarifa: 0,
+    recargo: 0,
+    enLinea: 0,
+    contraEntrega: 0,
+};
+
+export function isPickupService(
+    servicio: Pick<ShippingServiceApi, 'nombre'> | null | undefined
+): boolean {
+    if (!servicio?.nombre) return false;
     return servicio.nombre.toLowerCase().includes('retiro');
 }
 
-export function getShippingServiceCosts(servicio: ShippingServiceApi): ShippingServiceCosts {
+export function getShippingServiceCosts(
+    servicio: ShippingServiceApi | null | undefined
+): ShippingServiceCosts {
+    if (!servicio) return EMPTY_SHIPPING_COSTS;
     const tarifa = servicio.tarifa;
     const recargo = servicio.recargoContraEntrega;
     return {
@@ -16,6 +29,9 @@ export function getShippingServiceCosts(servicio: ShippingServiceApi): ShippingS
         contraEntrega: servicio.costoContraEntrega,
     };
 }
+
+/** Alias legacy (`envioHelpers.getServicioCostos`). */
+export const getServicioCostos = getShippingServiceCosts;
 
 export function resolveShippingCost(
     opciones: Pick<ShippingOptionsApi, 'envioGratis'>,

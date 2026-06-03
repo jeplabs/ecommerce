@@ -22,3 +22,5 @@ export {
 
 export { useCheckoutLogic } from './model/useCheckoutLogic';
 export { useCheckoutSuccessRecommendations } from './model/useCheckoutSuccessRecommendations';
+
+export { pickPostCheckoutProducts } from './lib/checkout-recommendations';

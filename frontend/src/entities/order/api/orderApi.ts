@@ -1,5 +1,5 @@
 import { API_URL } from '@/config/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/utils/apiHelpers';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { orderApiSchema, type OrderApi, type OrderStatus } from '../model/schemas/api';
 import { orderPageSchema, type OrderPage } from '../model/types';

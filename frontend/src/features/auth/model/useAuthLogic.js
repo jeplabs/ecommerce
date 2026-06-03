@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authService } from '@/entities/user';
 import { clearAuthStorage, subscribeSessionInvalidated, invalidateClientSession } from '@/auth/authSessionSync';
-import { getJwtExpiryMs } from '@/utils/jwtExpiry';
+import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
 
 /**
  * Estado y acciones de autenticación (login, registro, logout, activar/desactivar usuario).

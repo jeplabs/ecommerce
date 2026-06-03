@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { API_URL } from '@/config/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/utils/apiHelpers';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { getErrorMessage, parseApi } from '@/shared';
 import { categoryApiSchema, type CategoryApi } from '../model/schemas/api';
 import type { CreateCategoryRequest } from '../model/schemas/forms';

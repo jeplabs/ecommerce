@@ -161,11 +161,29 @@ import { AppProviders } from '@/app/providers';
 
 Los hooks en `model/*.js` importados desde `index.ts` requieren `allowJs: true` en `tsconfig` (migración gradual). El aviso rojo del IDE (`TS7016`) desaparece con eso; al pasar cada hook a `.ts` se puede tipar el retorno.
 
+## Utils y helpers (migrados)
+
+| Legacy (`src/utils/`) | Ubicación FSD |
+|----------------------|---------------|
+| `apiHelpers.js` | `shared/lib/http-session` |
+| `formatters.js` | `shared/lib/format` (+ `formatEstadoOrden` desde `entities/order`) |
+| `jwtExpiry.js` | `shared/lib/jwt-expiry` |
+| `envioHelpers.js` | `entities/shipping` (+ `FORMA_PAGO_ENVIO` en `entities/order`) |
+| `ordenDisplayHelpers.js` | `entities/order` (`formatFormaPagoEnvio`, etc.) |
+| `ordenEstados.js` | `entities/order/model/constants` |
+| `productImages.js` | `entities/product/model/product-images` |
+| `productFilterFacets.js` | `features/catalog/lib/filter-facets` |
+| `catalogQueryParams.js` | `features/catalog/lib/catalog-query-params` |
+| `checkoutRecommendations.js` | `features/checkout/lib/checkout-recommendations` |
+| `productImageAdmin.js` | `features/admin/lib/product-image-admin` |
+| `filterHelpers.js` | re-export de `filter-facets` (deprecated) |
+
+`src/utils/*` re-exporta las rutas nuevas (compatibilidad). APIs y hooks ya importan `@/shared` / entities / features.
+
 ## Próximos pasos de migración sugeridos
 
-1. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → `@/entities/shipping` y `@/entities/order`.
-2. **Componentes** → `widgets/` o `features/` según responsabilidad.
-3. Ir actualizando imports de `@/hooks/...` a rutas FSD directas.
+1. **Componentes** → `widgets/` o `features/` según responsabilidad.
+2. Ir actualizando imports de `@/hooks/...` y `@/utils/...` a rutas FSD directas en JSX legacy.
 
 ## Notas del dominio actual
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPerfil, updatePerfil } from '@/entities/user';
-import { redirectUnauthorized } from '@/utils/apiHelpers';
+import { redirectUnauthorized } from '@/shared/lib/http-session';
 
 export const useProfileLogic = () => {
     const navigate = useNavigate();

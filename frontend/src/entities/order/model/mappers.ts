@@ -34,6 +34,9 @@ export function formatFormaPago(formaPago: OrderApi['formaPago']): string {
     return FORMA_PAGO_LABELS[formaPago] ?? formaPago;
 }
 
+/** Alias semántico para UI de checkout y detalle de orden. */
+export const formatFormaPagoEnvio = formatFormaPago;
+
 export function isPickupFromServicioNombre(nombre: string | null | undefined): boolean {
     if (!nombre) return false;
     return nombre.toLowerCase().includes('retiro');

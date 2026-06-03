@@ -1,5 +1,4 @@
 /**
- * @deprecated Preferir `extractFilterFacets` desde `productFilterFacets.js`.
- * Se mantiene por compatibilidad con imports antiguos.
+ * @deprecated Preferir `extractFilterFacets` desde `@/features/catalog`.
  */
-export { extractFilterFacets as extractFilterOptions } from './productFilterFacets';
+export { extractFilterFacets as extractFilterOptions } from '@/features/catalog/lib/filter-facets';

@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { direccionService } from '@/entities/address';
 import { ordenService } from '@/entities/order';
 import { paymentService, PAYMENT_METHODS } from '@/features/checkout';
-import { redirectUnauthorized } from '@/utils/apiHelpers';
-import { useEnvioOpcionesContext } from '@/app/providers/EnvioOpcionesProvider';
+import { redirectUnauthorized } from '@/shared/lib/http-session';
+import { FORMA_PAGO_ENVIO } from '@/entities/order';
 import {
-    FORMA_PAGO_ENVIO,
     isPickupService,
     resolveShippingCost,
     resolveShippingCostInTotal,
     getServicioCostos,
-} from '@/utils/envioHelpers';
+} from '@/entities/shipping';
+import { useEnvioOpcionesContext } from '@/app/providers/EnvioOpcionesProvider';
 
 const STEPS = ['envio', 'pago', 'confirmar'];
 
@@ -128,21 +128,21 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
 
     const shippingCostDisplay = useMemo(
         () =>
-            resolveShippingCost({
-                opciones: envioOpciones,
-                servicio: selectedServicio,
-                formaPago: formaPagoEnvio,
-            }),
+            resolveShippingCost(
+                envioOpciones ?? { envioGratis: false },
+                selectedServicio,
+                formaPagoEnvio
+            ),
         [envioOpciones, selectedServicio, formaPagoEnvio]
     );
 
     const shippingCostInTotal = useMemo(
         () =>
-            resolveShippingCostInTotal({
-                opciones: envioOpciones,
-                servicio: selectedServicio,
-                formaPagoEnvio,
-            }),
+            resolveShippingCostInTotal(
+                envioOpciones ?? { envioGratis: false },
+                selectedServicio,
+                formaPagoEnvio
+            ),
         [envioOpciones, selectedServicio, formaPagoEnvio]
     );
 

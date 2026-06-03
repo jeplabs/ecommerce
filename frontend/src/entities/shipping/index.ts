@@ -18,6 +18,7 @@ export {
 export {
     isPickupService,
     getShippingServiceCosts,
+    getServicioCostos,
     resolveShippingCost,
     resolveShippingCostInTotal,
     mapShippingServiceToView,

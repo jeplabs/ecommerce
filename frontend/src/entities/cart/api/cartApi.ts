@@ -1,5 +1,5 @@
 import { API_URL } from '@/config/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/utils/apiHelpers';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { cartApiSchema, type CartApi } from '../model/schemas/api';
 import type { AddCartItemRequest, UpdateCartItemQuantityRequest } from '../model/schemas/forms';

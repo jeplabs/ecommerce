@@ -3,7 +3,7 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from "../../components/layout/Navbar/Navbar";
 import { API_URL } from "../../config/config";
-import { redirectUnauthorized } from "../../utils/apiHelpers";
+import { redirectUnauthorized } from '@/shared/lib/http-session';
 
 export default function Admin() {
 

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ordenService } from '@/entities/order';
-import { redirectUnauthorized } from '@/utils/apiHelpers';
+import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { useToast } from '@/app/providers/ToastProvider';
 
 const PAGE_SIZE = 10;

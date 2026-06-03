@@ -28,9 +28,17 @@ export {
 } from './model/types';
 
 export {
+    FORMA_PAGO_ENVIO,
+    ADMIN_ESTADOS_SIGUIENTES,
+    getOpcionesEstadoAdmin,
+    ORDEN_ESTADOS_FILTRO,
+} from './model/constants';
+
+export {
     mapOrderApiToSummaryCard,
     formatOrderStatus,
     formatFormaPago,
+    formatFormaPagoEnvio,
     isPickupFromServicioNombre,
     ORDER_STATUS_LABELS,
     FORMA_PAGO_LABELS,

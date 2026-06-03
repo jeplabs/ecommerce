@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useProduct } from '@/app/providers/ProductProvider';
-import { pickPostCheckoutProducts } from '@/utils/checkoutRecommendations';
+import { pickPostCheckoutProducts } from '@/features/checkout/lib/checkout-recommendations';
 
 const DEFAULT_LIMIT = 12;
 

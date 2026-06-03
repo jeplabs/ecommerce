@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createDefaultFiltros, mergeFiltrosWithFacets } from '@/utils/productFilterFacets';
+import { createDefaultFiltros, mergeFiltrosWithFacets } from '@/features/catalog/lib/filter-facets';
 
 /**
  * Estado del formulario de filtros (desktop inmediato, móvil con borrador + drawer).

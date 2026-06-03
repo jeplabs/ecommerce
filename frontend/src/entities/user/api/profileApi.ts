@@ -1,5 +1,5 @@
 import { API_URL } from '@/config/config';
-import { getAuthHeaders, isAuthError, notifyUnauthorizedIfNeeded } from '@/utils/apiHelpers';
+import { getAuthHeaders, isAuthError, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { userApiSchema, type UserApi } from '../model/schemas/api';
 import type { UpdateProfileFormValues } from '../model/schemas/forms';
