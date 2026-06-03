@@ -127,7 +127,6 @@ export async function actualizarEstadoOrdenAdmin(
     return handleOrderJson(response, 'Error al actualizar el estado de la orden');
 }
 
-/** Fachada compatible con el antiguo `ordenService`. */
 export const orderApi = {
     listarMisOrdenes,
     obtenerOrden,
@@ -137,5 +136,3 @@ export const orderApi = {
     obtenerOrdenAdmin,
     actualizarEstadoOrdenAdmin,
 };
-
-export const ordenService = orderApi;

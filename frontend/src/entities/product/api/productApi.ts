@@ -362,7 +362,6 @@ export async function setMainImage(
     return parseApi(productImageApiSchema, raw);
 }
 
-/** Fachada compatible con el antiguo `productService`. */
 export const productApi = {
     getByCategory,
     getAll,
@@ -378,5 +377,3 @@ export const productApi = {
     deleteImage,
     setMainImage,
 };
-
-export const productService = productApi;

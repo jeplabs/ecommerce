@@ -36,9 +36,6 @@ export async function getOpciones(subtotal = 0): Promise<ShippingOptionsApi> {
     return parseApi(shippingOptionsApiSchema, raw);
 }
 
-/** Fachada compatible con el antiguo `envioService`. */
 export const shippingApi = {
     getOpciones,
 };
-
-export const envioService = shippingApi;

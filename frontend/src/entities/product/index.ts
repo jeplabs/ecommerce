@@ -42,7 +42,6 @@ export { useProducts } from './model/useProducts';
 
 export {
     productApi,
-    productService,
     getByCategory,
     getAll,
     getAdmin,

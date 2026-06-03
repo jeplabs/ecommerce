@@ -1,6 +1,5 @@
 export {
     productApi,
-    productService,
     getByCategory,
     getAll,
     getAdmin,

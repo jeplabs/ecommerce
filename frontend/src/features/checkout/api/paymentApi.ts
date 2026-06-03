@@ -95,10 +95,7 @@ export async function processPayment(params: ProcessPaymentInput): Promise<Payme
     return { success: false, error: 'Método de pago no soportado' };
 }
 
-/** Fachada compatible con el antiguo `paymentService`. */
 export const paymentApi = {
     PAYMENT_METHODS,
     processPayment,
 };
-
-export const paymentService = paymentApi;

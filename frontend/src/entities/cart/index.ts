@@ -20,7 +20,6 @@ export { mapCartApiToSummary, mapCartItemApiToLineView, isCartEmpty } from './mo
 
 export {
     cartApi,
-    cartService,
     getCart,
     addToCart,
     addCartItem,

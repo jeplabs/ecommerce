@@ -1,6 +1,5 @@
 export {
     cartApi,
-    cartService,
     getCart,
     addToCart,
     addCartItem,

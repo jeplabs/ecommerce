@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { direccionService } from '@/entities/address';
-import { ordenService } from '@/entities/order';
-import { paymentService, PAYMENT_METHODS } from '@/features/checkout';
+import { addressApi } from '@/entities/address';
+import { orderApi } from '@/entities/order';
+import { paymentApi, PAYMENT_METHODS } from '@/features/checkout';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { FORMA_PAGO_ENVIO } from '@/entities/order';
 import {
@@ -60,7 +60,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         setLoadingAddresses(true);
         setError(null);
         try {
-            const data = await direccionService.listar();
+            const data = await addressApi.listar();
             const activas = (Array.isArray(data) ? data : []).filter((d) => d.activo !== false);
             setDirecciones(activas);
 
@@ -197,7 +197,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         const orderReference = `CHK-${Date.now()}`;
 
         try {
-            const payment = await paymentService.processPayment({
+            const payment = await paymentApi.processPayment({
                 method: paymentMethod,
                 amount: orderTotal,
                 orderReference,
@@ -211,7 +211,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
 
             setPaymentResult(payment);
 
-            const orden = await ordenService.crearOrden({
+            const orden = await orderApi.crearOrden({
                 direccionId: selectedAddressId,
                 servicioEnvioId: selectedServicioEnvioId,
                 formaPago: formaPagoEnvio,

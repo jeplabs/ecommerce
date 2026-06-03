@@ -46,7 +46,6 @@ export {
 
 export {
     orderApi,
-    ordenService,
     listarMisOrdenes,
     obtenerOrden,
     cancelarOrden,

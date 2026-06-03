@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '@/entities/user';
+import { authApi } from '@/entities/user';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { useToast } from '@/app/providers/ToastProvider';
 
@@ -40,7 +40,7 @@ export function useAdminUser(userId) {
         (async () => {
             setLoading(true);
             try {
-                const data = await authService.getUsuarioById(userId);
+                const data = await authApi.getUsuarioById(userId);
                 if (cancelled) return;
                 setUser(data);
                 setRol(data.rol || '');
@@ -71,7 +71,7 @@ export function useAdminUser(userId) {
 
             setSaving(true);
             try {
-                const updated = await authService.updateUsuarioRol(user.id, nextRol);
+                const updated = await authApi.updateUsuarioRol(user.id, nextRol);
                 setUser(updated);
                 setRol(updated.rol || '');
                 showSuccess('Rol actualizado');

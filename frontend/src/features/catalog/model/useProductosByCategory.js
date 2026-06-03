@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { productService } from '@/entities/product';
+import { productApi } from '@/entities/product';
 import { useCategorias } from '@/app/providers/CategoriasProvider';
 
 // Función auxiliar recursiva para encontrar el ID de una categoría a partir de una ruta jerárquica
@@ -52,7 +52,7 @@ export const useProductosByCategory = (categoriaSlugPath) => {
                 
                 // Ajusta 'page' y 'limit' según lo que espere tu backend
                 // Si tu backend no devuelve metadatos de paginación, quizás solo recibas un array
-                const data = await productService.getByCategory(categoriaId, paginaParaBackend, 10);
+                const data = await productApi.getByCategory(categoriaId, paginaParaBackend, 10);
 
                 if (data?.content && Array.isArray(data.content)) {
                     setProductos(data.content);

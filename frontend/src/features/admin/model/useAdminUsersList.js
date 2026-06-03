@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '@/entities/user';
+import { authApi } from '@/entities/user';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 
 const getToken = () => localStorage.getItem('token');
@@ -30,7 +30,7 @@ export function useAdminUsersList() {
         setError(null);
 
         try {
-            const data = await authService.listUsuarios();
+            const data = await authApi.listUsuarios();
             setUsers(data);
         } catch (err) {
             if (handleAuthError(err.status)) {

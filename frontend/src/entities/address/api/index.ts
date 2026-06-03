@@ -1,6 +1,5 @@
 export {
     addressApi,
-    direccionService,
     listar,
     crear,
     actualizar,

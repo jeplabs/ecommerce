@@ -50,10 +50,7 @@ export async function create(categoriaDatos: CreateCategoryRequest): Promise<Cat
     return parseApi(categoryApiSchema, raw);
 }
 
-/** Fachada compatible con el antiguo `categoriasService`. */
 export const categoryApi = {
     getAll,
     create,
 };
-
-export const categoriasService = categoryApi;

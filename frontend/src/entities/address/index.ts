@@ -20,7 +20,6 @@ export { mapAddressApiToCard, formatAddressOneLine } from './model/mappers';
 
 export {
     addressApi,
-    direccionService,
     listar,
     crear,
     actualizar,

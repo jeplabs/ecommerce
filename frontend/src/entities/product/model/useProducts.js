@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { productService } from '@/entities/product';
+import { productApi } from '@/entities/product';
 import { useAuth } from '@/app/providers/AuthProvider';
 
 export const useProducts = () => {
@@ -16,14 +16,14 @@ export const useProducts = () => {
         setLoading(true);
         try {
             // 1. Cargar Públicos
-            const listaPublica = await productService.getAll();
+            const listaPublica = await productApi.getAll();
             setProductos(listaPublica);
 
             // 2. Cargar Admin (si corresponde)
             if (userRol === 'ROLE_ADMIN') {
                 const [ocultos, descontinuados] = await Promise.all([
-                    productService.getAdmin('OCULTO'),
-                    productService.getAdmin('DESCONTINUADO')
+                    productApi.getAdmin('OCULTO'),
+                    productApi.getAdmin('DESCONTINUADO')
                 ]);
                 if (ocultos) setProductosOcultos(ocultos);
                 if (descontinuados) setProductosDescontinuados(descontinuados);
@@ -46,7 +46,7 @@ export const useProducts = () => {
 
     const createProduct = async (producto) => {
         try {
-            const nuevo = await productService.create(producto);
+            const nuevo = await productApi.create(producto);
             setProductos(prev => [...prev, nuevo]);
             return nuevo;
         } catch (error) {
@@ -57,7 +57,7 @@ export const useProducts = () => {
 
     const updateProduct = async (id, data) => {
         try {
-            await productService.update(id, data);
+            await productApi.update(id, data);
             // Recargar para tener datos frescos (o actualizar manualmente el estado)
             await reloadProducts(); 
             return { success: true };
@@ -69,7 +69,7 @@ export const useProducts = () => {
 
     const deleteProduct = async (id) => {
         try {
-            await productService.delete(id);
+            await productApi.delete(id);
             await reloadProducts();
             return { success: true };
         } catch (error) {
@@ -80,7 +80,7 @@ export const useProducts = () => {
 
     const updateProductStatus = async (id, estado) => {
         try {
-            await productService.updateStatus(id, estado);
+            await productApi.updateStatus(id, estado);
             await reloadProducts();
             return { success: true };
         } catch (error) {
@@ -90,8 +90,8 @@ export const useProducts = () => {
     
     const addProductImages = async (id, urls) => {
         try {
-            //await productService.addImages(id, urls);
-            const data = await productService.addImages(id, urls);
+            //await productApi.addImages(id, urls);
+            const data = await productApi.addImages(id, urls);
             await reloadProducts();
             //return { success: true };
             return { success: true, data };
@@ -102,7 +102,7 @@ export const useProducts = () => {
 
     const deleteProductImage = async (productId, imageId) => {
         try {
-            await productService.deleteImage(productId, imageId);
+            await productApi.deleteImage(productId, imageId);
             // Opcional: Recargar productos si quieres reflejar el cambio en la lista global inmediatamente
             // Pero en un formulario de edición, usualmente actualizas el estado local del formulario
             return { success: true };
@@ -114,7 +114,7 @@ export const useProducts = () => {
 
     const changeMainImage = async (productId, imageId) => {
         try {
-            await productService.setMainImage(productId, imageId);
+            await productApi.setMainImage(productId, imageId);
             return { success: true };
         } catch (error) {
             console.error('Error al cambiar imagen principal:', error);
@@ -123,16 +123,16 @@ export const useProducts = () => {
     };
 
     const getProductImages = async (productId) => {
-        return await productService.getImages(productId);
+        return await productApi.getImages(productId);
     };
 
     // Hooks específicos para obtener un solo producto (útiles en páginas de detalle)
     const getProductById = async (id) => {
-        return await productService.getById(id);
+        return await productApi.getById(id);
     };
 
     const getProductByIdAdmin = async (id) => {
-        return await productService.getByIdAdmin(id);
+        return await productApi.getByIdAdmin(id);
     };
 
     return {

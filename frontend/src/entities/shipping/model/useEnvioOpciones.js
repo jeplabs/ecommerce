@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { envioService, partitionShippingServices } from '@/entities/shipping';
+import { shippingApi, partitionShippingServices } from '@/entities/shipping';
 
 const EMPTY_OPCIONES = {
     envioGratis: false,
@@ -20,7 +20,7 @@ export function useEnvioOpciones(subtotal) {
         setLoading(true);
         setError(null);
         try {
-            const data = await envioService.getOpciones(subtotal);
+            const data = await shippingApi.getOpciones(subtotal);
             setOpciones({
                 envioGratis: Boolean(data.envioGratis),
                 costoEnvio: data.costoEnvio ?? null,

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { direccionService } from '@/entities/address';
+import { addressApi } from '@/entities/address';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 
 export const useDireccionesLogic = (enabled = true) => {
@@ -21,7 +21,7 @@ export const useDireccionesLogic = (enabled = true) => {
         setLoading(true);
         setError(null);
         try {
-            const data = await direccionService.listar();
+            const data = await addressApi.listar();
             setDirecciones(Array.isArray(data) ? data : []);
         } catch (err) {
             if (handleAuthError(err.status)) return;
@@ -43,7 +43,7 @@ export const useDireccionesLogic = (enabled = true) => {
             setSaving(true);
             setError(null);
             try {
-                const nueva = await direccionService.crear(datos);
+                const nueva = await addressApi.crear(datos);
                 await fetchDirecciones();
                 return { success: true, data: nueva };
             } catch (err) {
@@ -63,7 +63,7 @@ export const useDireccionesLogic = (enabled = true) => {
             setSaving(true);
             setError(null);
             try {
-                await direccionService.actualizar(id, datos);
+                await addressApi.actualizar(id, datos);
                 await fetchDirecciones();
                 return { success: true };
             } catch (err) {
@@ -82,7 +82,7 @@ export const useDireccionesLogic = (enabled = true) => {
         async (id) => {
             setSaving(true);
             try {
-                await direccionService.cambiarPrincipal(id);
+                await addressApi.cambiarPrincipal(id);
                 await fetchDirecciones();
                 return { success: true };
             } catch (err) {
@@ -101,7 +101,7 @@ export const useDireccionesLogic = (enabled = true) => {
         async (id) => {
             setSaving(true);
             try {
-                await direccionService.eliminar(id);
+                await addressApi.eliminar(id);
                 await fetchDirecciones();
                 return { success: true };
             } catch (err) {

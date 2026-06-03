@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { categoriasService } from '@/entities/category';
+import { categoryApi } from '@/entities/category';
 
 export const useCategorias = () => {
     const [arbolCategorias, setArbolCategorias] = useState([]);
@@ -9,7 +9,7 @@ export const useCategorias = () => {
         const fetchCategorias = async () => {
             setLoading(true);
             try {
-                const data = await categoriasService.getAll();
+                const data = await categoryApi.getAll();
                 setArbolCategorias(data);
             } catch (error) {
                 console.error('Error general al cargar datos:', error);
@@ -23,7 +23,7 @@ export const useCategorias = () => {
     const createCategory = async (categoriaDatos) => {
         setLoading(true);
         try {
-            const nuevaCategoria = await categoriasService.create(categoriaDatos);
+            const nuevaCategoria = await categoryApi.create(categoriaDatos);
             // Actualizar estado localmente sin recargar
             setArbolCategorias((prev) => [...prev, nuevaCategoria]);
             return nuevaCategoria;

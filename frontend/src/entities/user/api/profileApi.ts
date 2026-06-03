@@ -43,11 +43,8 @@ export async function updatePerfil(datos: UpdateProfileFormValues): Promise<User
     return handleUserJson(response, 'Error al actualizar el perfil');
 }
 
-/** Fachada compatible con el antiguo `profileService`. */
 export const profileApi = {
     getPerfil,
     updatePerfil,
     isAuthError,
 };
-
-export const profileService = profileApi;

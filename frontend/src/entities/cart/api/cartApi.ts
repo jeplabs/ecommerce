@@ -84,7 +84,6 @@ export async function clearCart(): Promise<CartApi> {
     return handleCartJson(response, 'Error al limpiar');
 }
 
-/** Fachada compatible con el antiguo `cartService`. */
 export const cartApi = {
     getCart,
     addToCart,
@@ -92,5 +91,3 @@ export const cartApi = {
     removeItem,
     clearCart,
 };
-
-export const cartService = cartApi;

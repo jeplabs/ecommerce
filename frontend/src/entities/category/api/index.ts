@@ -1,1 +1,1 @@
-export { categoryApi, categoriasService, getAll, create } from './categoryApi';
+export { categoryApi, getAll, create } from './categoryApi';

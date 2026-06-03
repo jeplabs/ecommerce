@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ordenService } from '@/entities/order';
+import { orderApi } from '@/entities/order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 
 const PAGE_SIZE = 10;
@@ -26,7 +26,7 @@ export const useOrdenesLogic = () => {
             setLoading(true);
             setError(null);
             try {
-                const data = await ordenService.listarMisOrdenes(pageNum, PAGE_SIZE);
+                const data = await orderApi.listarMisOrdenes(pageNum, PAGE_SIZE);
                 setOrdenes(data.content || []);
                 setPage(data.number ?? pageNum);
                 setTotalPages(data.totalPages ?? 0);
@@ -48,7 +48,7 @@ export const useOrdenesLogic = () => {
             setOrdenSeleccionada(null);
             setError(null);
             try {
-                const data = await ordenService.obtenerOrden(ordenId);
+                const data = await orderApi.obtenerOrden(ordenId);
                 setOrdenSeleccionada(data);
                 return { success: true, data };
             } catch (err) {
@@ -71,7 +71,7 @@ export const useOrdenesLogic = () => {
     const cancelarOrden = useCallback(
         async (ordenId) => {
             try {
-                const data = await ordenService.cancelarOrden(ordenId);
+                const data = await orderApi.cancelarOrden(ordenId);
                 setOrdenSeleccionada(data);
                 await fetchOrdenes(page);
                 return { success: true };

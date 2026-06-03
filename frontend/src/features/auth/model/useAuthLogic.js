@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { authService } from '@/entities/user';
+import { authApi } from '@/entities/user';
 import { clearAuthStorage, subscribeSessionInvalidated, invalidateClientSession } from '@/auth/authSessionSync';
 import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
 
@@ -78,7 +78,7 @@ export const useAuthLogic = () => {
 
     const login = useCallback(async (email, password) => {
         try {
-            const data = await authService.login(email, password);
+            const data = await authApi.login(email, password);
 
             setIsAuthenticated(true);
             setUser({ token: data.token, rol: data.rol });
@@ -100,7 +100,7 @@ export const useAuthLogic = () => {
 
     const register = useCallback(async (userData) => {
         try {
-            const { ok, data } = await authService.register(userData);
+            const { ok, data } = await authApi.register(userData);
 
             if (!ok) {
                 const erroresPorCampo = {};
@@ -170,7 +170,7 @@ export const useAuthLogic = () => {
             if (!user?.token) {
                 return { success: false, error: 'No hay sesión' };
             }
-            await authService.setUsuarioEstado(id, false);
+            await authApi.setUsuarioEstado(id, false);
             return { success: true, message: 'Usuario desactivado exitosamente' };
         } catch (error) {
             return { success: false, error: error.message };
@@ -182,7 +182,7 @@ export const useAuthLogic = () => {
             if (!user?.token) {
                 return { success: false, error: 'No hay sesión' };
             }
-            await authService.setUsuarioEstado(id, true);
+            await authApi.setUsuarioEstado(id, true);
             return { success: true, message: 'Usuario activado exitosamente' };
         } catch (error) {
             return { success: false, error: error.message };

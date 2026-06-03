@@ -90,19 +90,30 @@ const form = useForm<LoginFormValues>({
 - `@/*` → `src/*`
 - `@/entities/*`, `@/features/*`, `@/widgets/*`, `@/shared/*`, `@/app/*`
 
-## Migración de servicios (en curso)
+## APIs de datos (ex `services/`)
 
-| Servicio legacy | Nueva ubicación | Estado |
-|-----------------|-----------------|--------|
-| `services/authService.js` | `entities/user/api/authApi.ts` | Hecho — `authService.js` re-exporta la API tipada |
-| `services/envioService.js` | `entities/shipping/api/shippingApi.ts` | Hecho — `envioService.js` re-exporta la API tipada |
-| `services/direccionService.js` | `entities/address/api/addressApi.ts` | Hecho — `direccionService.js` re-exporta la API tipada |
-| `services/cartService.js` | `entities/cart/api/cartApi.ts` | Hecho — `cartService.js` re-exporta la API tipada |
-| `services/ordenService.js` | `entities/order/api/orderApi.ts` | Hecho — `ordenService.js` re-exporta la API tipada |
-| `services/productService.js` | `entities/product/api/productApi.ts` | Hecho — `productService.js` re-exporta la API tipada |
-| `services/categoriasService.js` | `entities/category/api/categoryApi.ts` | Hecho — `categoriasService.js` re-exporta la API tipada |
-| `services/profileService.js` | `entities/user/api/profileApi.ts` | Hecho — `profileService.js` re-exporta la API tipada |
-| `services/paymentService.js` | `features/checkout/api/paymentApi.ts` | Hecho — pasarela simulada (sin backend); `paymentService.js` re-exporta |
+Implementación en `entities/*/api/*Api.ts` y `features/checkout/api/paymentApi.ts`. Importar el objeto **`xxxApi`** desde el barrel de la capa:
+
+```ts
+import { authApi, getPerfil } from '@/entities/user';
+import { cartApi } from '@/entities/cart';
+import { orderApi } from '@/entities/order';
+import { paymentApi, PAYMENT_METHODS } from '@/features/checkout';
+```
+
+| Legacy (`services/*.js`) | API FSD |
+|--------------------------|---------|
+| `authService` | `entities/user` → `authApi` |
+| `profileService` | `entities/user` → `profileApi` / `getPerfil`, `updatePerfil` |
+| `cartService` | `entities/cart` → `cartApi` |
+| `productService` | `entities/product` → `productApi` |
+| `categoriasService` | `entities/category` → `categoryApi` |
+| `direccionService` | `entities/address` → `addressApi` |
+| `ordenService` | `entities/order` → `orderApi` |
+| `envioService` | `entities/shipping` → `shippingApi` |
+| `paymentService` | `features/checkout` → `paymentApi` (simulado) |
+
+La carpeta **`src/services/`** fue eliminada.
 
 ## Features (implementadas)
 
@@ -129,7 +140,7 @@ features/
 | `CheckoutContext` | `CheckoutProvider` | Página `/checkout` |
 | `EnvioOpcionesContext` | `EnvioOpcionesProvider` | Dentro de `CheckoutProvider` |
 
-Los archivos en `src/context/*` re-exportan desde `@/app/providers` (compatibilidad).
+La carpeta **`src/context/`** fue eliminada; solo existe `app/providers/`.
 
 ```jsx
 // App.jsx
@@ -203,8 +214,6 @@ Barrels: `@/widgets`, `@/shared/ui`, `@/features/{auth,checkout,profile,admin,ca
 
 Todo el código importa hooks y providers desde **`@/app/providers`** (barrel en `app/providers/index.js`).
 
-`src/context/*` solo re-exporta con `@deprecated` para compatibilidad puntual; no quedan imports activos a `context/` en `pages`, `widgets`, `features` ni `shared`.
-
 ```js
 import { useAuth, useCart, useToast } from '@/app/providers';
 import { CheckoutProvider } from '@/app/providers';
@@ -226,7 +235,7 @@ Las **pages** y UI activa importan hooks y constantes desde barrels FSD, no desd
 ## Próximos pasos de migración sugeridos
 
 1. Mover capas finas de `pages/` a composiciones en `widgets/` si conviene.
-2. Opcional: eliminar `src/context/*` (mismos re-exports que `@/app/providers`).
+2. Tipar hooks `model/*.js` → `.ts` y reducir `allowJs` cuando sea posible.
 
 ## Notas del dominio actual
 

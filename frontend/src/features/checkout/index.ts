@@ -1,6 +1,5 @@
 export {
     paymentApi,
-    paymentService,
     processPayment,
     PAYMENT_METHODS,
     type PaymentMethod,

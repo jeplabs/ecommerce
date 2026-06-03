@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { cartService } from '@/entities/cart';
+import { cartApi } from '@/entities/cart';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useProduct } from '@/app/providers/ProductProvider';
 import { getProductMainImageUrl } from '@/entities/product';
@@ -57,7 +57,7 @@ export const useCartLogic = () => {
     const fetchCart = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await cartService.getCart();
+            const data = await cartApi.getCart();
             const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
@@ -72,7 +72,7 @@ export const useCartLogic = () => {
     const addToCart = useCallback(async (productId, quantity = 1) => {
         setLoading(true);
         try {
-            const data = await cartService.addToCart(productId, quantity);
+            const data = await cartApi.addToCart(productId, quantity);
             const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
@@ -90,7 +90,7 @@ export const useCartLogic = () => {
         
         setLoading(true);
         try {
-            const data = await cartService.updateItemQuantity(itemId, quantity);
+            const data = await cartApi.updateItemQuantity(itemId, quantity);
             const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
@@ -110,7 +110,7 @@ export const useCartLogic = () => {
         
         setLoading(true);
         try {
-            const data = await cartService.removeItem(itemId);
+            const data = await cartApi.removeItem(itemId);
             const mappedItems = mapCartResponse(data, productos);
             setItems(mappedItems);
             setError(null);
@@ -127,7 +127,7 @@ export const useCartLogic = () => {
     const clearCart = useCallback(async () => {
         setLoading(true);
         try {
-            await cartService.clearCart();
+            await cartApi.clearCart();
             setItems([]);
             setError(null);
             return { success: true };

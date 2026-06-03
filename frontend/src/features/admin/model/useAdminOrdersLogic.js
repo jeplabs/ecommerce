@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ordenService } from '@/entities/order';
+import { orderApi } from '@/entities/order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { useToast } from '@/app/providers/ToastProvider';
 
@@ -46,7 +46,7 @@ export function useAdminOrdersLogic() {
             setLoading(true);
             setError(null);
             try {
-                const data = await ordenService.listarOrdenesAdmin({
+                const data = await orderApi.listarOrdenesAdmin({
                     page: pageNum,
                     size: PAGE_SIZE,
                     estado: estadoFiltro || undefined,
@@ -85,7 +85,7 @@ export function useAdminOrdersLogic() {
         async (ordenId, nuevoEstado) => {
             setUpdatingId(ordenId);
             try {
-                const updated = await ordenService.actualizarEstadoOrdenAdmin(ordenId, nuevoEstado);
+                const updated = await orderApi.actualizarEstadoOrdenAdmin(ordenId, nuevoEstado);
                 setOrdenes((prev) => prev.map((o) => (o.id === ordenId ? updated : o)));
                 if (ordenDetalle?.id === ordenId) {
                     setOrdenDetalle(updated);
@@ -111,7 +111,7 @@ export function useAdminOrdersLogic() {
             setOrdenDetalle(null);
             setDetailLoading(true);
             try {
-                const data = await ordenService.obtenerOrdenAdmin(ordenId);
+                const data = await orderApi.obtenerOrdenAdmin(ordenId);
                 setOrdenDetalle(data);
                 return { success: true, data };
             } catch (err) {

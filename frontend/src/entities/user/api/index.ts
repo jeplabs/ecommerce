@@ -1,6 +1,5 @@
 export {
     authApi,
-    authService,
     login,
     loginWithForm,
     register,
@@ -13,7 +12,6 @@ export {
 
 export {
     profileApi,
-    profileService,
     getPerfil,
     updatePerfil,
 } from './profileApi';

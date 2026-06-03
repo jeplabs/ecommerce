@@ -122,9 +122,6 @@ export async function updateUsuarioRol(id: number, rol: UserRole): Promise<UserA
     return handleAuthenticatedJson(response, userApiSchema);
 }
 
-/**
- * Fachada compatible con el antiguo `authService` (mismos nombres de métodos).
- */
 export const authApi = {
     login,
     register,
@@ -133,5 +130,3 @@ export const authApi = {
     getUsuarioById,
     updateUsuarioRol,
 };
-
-export const authService = authApi;

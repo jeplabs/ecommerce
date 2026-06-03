@@ -93,7 +93,6 @@ export async function eliminar(id: number): Promise<null> {
     return handleVoid(response, 'Error al eliminar la dirección');
 }
 
-/** Fachada compatible con el antiguo `direccionService`. */
 export const addressApi = {
     listar,
     crear,
@@ -101,5 +100,3 @@ export const addressApi = {
     cambiarPrincipal,
     eliminar,
 };
-
-export const direccionService = addressApi;

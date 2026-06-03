@@ -39,7 +39,6 @@ export {
 
 export {
     authApi,
-    authService,
     login,
     loginWithForm,
     register,
@@ -49,7 +48,6 @@ export {
     updateUsuarioRol,
     type RegisterResult,
     profileApi,
-    profileService,
     getPerfil,
     updatePerfil,
 } from './api';
