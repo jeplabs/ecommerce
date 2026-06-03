@@ -56,55 +56,95 @@ export default function Cart() {
                         </div>
                     ) : (
                         <>
-                            <div className="cart-table">
-                                <div className="cart-table__header">
-                                    <span>Producto</span>
-                                    <span>Cantidad</span>
-                                    <span>Subtotal</span>
-                                    <span>Acción</span>
+                            <div className="cart-table" role="table" aria-label="Productos en el carrito">
+                                <div className="cart-table__header" role="row">
+                                    <span role="columnheader">Producto</span>
+                                    <span role="columnheader">Cantidad</span>
+                                    <span role="columnheader">Subtotal</span>
+                                    <span role="columnheader">Acción</span>
                                 </div>
-                                {items.map((item) => (
-                                    <div key={item.id} className="cart-table__row">
-                                        <div className="cart-item__info">
-                                            {item.imageUrl ? (
-                                                <img src={item.imageUrl} alt={item.altText || item.name} className="cart-item__thumb" />
-                                            ) : (
-                                                <div className="cart-item__thumb-placeholder">Sin imagen</div>
-                                            )}
-                                            <div className="cart-item__meta">
-                                                <p className="cart-item__name">{item.name}</p>
-                                                <p className="cart-item__price">${item.price.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</p>
+                                {items.map((item) => {
+                                    const subtotalFormatted = (item.price * item.quantity).toLocaleString(
+                                        'es-ES',
+                                        { minimumFractionDigits: 2 }
+                                    );
+                                    return (
+                                        <article key={item.id} className="cart-table__row" role="row">
+                                            <div className="cart-item__info" role="cell">
+                                                {item.imageUrl ? (
+                                                    <img
+                                                        src={item.imageUrl}
+                                                        alt={item.altText || item.name}
+                                                        className="cart-item__thumb"
+                                                    />
+                                                ) : (
+                                                    <div className="cart-item__thumb-placeholder">Sin imagen</div>
+                                                )}
+                                                <div className="cart-item__meta">
+                                                    <p className="cart-item__name">{item.name}</p>
+                                                    <p className="cart-item__price">
+                                                        ${item.price.toLocaleString('es-ES', {
+                                                            minimumFractionDigits: 2,
+                                                        })}{' '}
+                                                        <span className="cart-item__price-unit">c/u</span>
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="cart-item__qty">
-                                            <button
-                                                className="qty-btn"
-                                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                                                disabled={loading || item.quantity <= 1}
+                                            <div
+                                                className="cart-item__qty"
+                                                role="cell"
+                                                data-label="Cantidad"
                                             >
-                                                −
-                                            </button>
-                                            <span>{item.quantity}</span>
-                                            <button
-                                                className="qty-btn"
-                                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                                                disabled={loading}
+                                                <button
+                                                    type="button"
+                                                    className="qty-btn"
+                                                    aria-label="Disminuir cantidad"
+                                                    onClick={() =>
+                                                        handleQuantityChange(item.id, item.quantity - 1)
+                                                    }
+                                                    disabled={loading || item.quantity <= 1}
+                                                >
+                                                    −
+                                                </button>
+                                                <span className="cart-item__qty-value" aria-live="polite">
+                                                    {item.quantity}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    className="qty-btn"
+                                                    aria-label="Aumentar cantidad"
+                                                    onClick={() =>
+                                                        handleQuantityChange(item.id, item.quantity + 1)
+                                                    }
+                                                    disabled={loading}
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                            <div
+                                                className="cart-item__subtotal"
+                                                role="cell"
+                                                data-label="Subtotal"
                                             >
-                                                +
-                                            </button>
-                                        </div>
-                                        <div className="cart-item__subtotal">
-                                            ${ (item.price * item.quantity).toLocaleString('es-ES', { minimumFractionDigits: 2 }) }
-                                        </div>
-                                        <button
-                                            className="btn-remove-item"
-                                            onClick={() => handleRemove(item.id)}
-                                            disabled={loading}
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                ))}
+                                                ${subtotalFormatted}
+                                            </div>
+                                            <div
+                                                className="cart-item__actions"
+                                                role="cell"
+                                                data-label="Acción"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    className="btn-remove-item"
+                                                    onClick={() => handleRemove(item.id)}
+                                                    disabled={loading}
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        </article>
+                                    );
+                                })}
                             </div>
 
                             <div className="cart-summary">
