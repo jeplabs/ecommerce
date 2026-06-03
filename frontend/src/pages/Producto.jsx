@@ -3,14 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProduct } from "../context/ProductContext";
 import { useCategorias } from "../context/CategoriasContext";
 import { useCart } from "../context/CartContext";
-import { getProductImageUrls, getMainProductImageUrl } from "../utils/productImages";
-import Navbar from "../components/layout/Navbar/Navbar";
-import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav";
-import Breadcrumbs from "../components/ui/Breadcrumbs/Breadcrumbs";
-import ProductGallery from "../components/product/ProductGallery/ProductGallery";
-import ProductInfo from "../components/product/ProductInfo/ProductInfo";
-import ProductTabs from "../components/product/ProductTabs/ProductTabs";
-import Footer from "../components/layout/Footer/Footer";
+import { getProductImageUrls, getMainProductImageUrl } from '@/entities/product';
+import Navbar from '@/widgets/layout/Navbar/Navbar';
+import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav';
+import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
+import ProductGallery from '@/widgets/product-detail/ProductGallery/ProductGallery';
+import ProductInfo from '@/widgets/product-detail/ProductInfo/ProductInfo';
+import ProductTabs from '@/widgets/product-detail/ProductTabs/ProductTabs';
+import Footer from '@/widgets/layout/Footer/Footer';
 import "./Producto.css";
 
 // Función auxiliar para encontrar la ruta completa de una categoría dado su ID o Slug

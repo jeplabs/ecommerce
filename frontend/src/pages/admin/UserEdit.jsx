@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import Navbar from '../../components/layout/Navbar/Navbar';
+import Navbar from '@/widgets/layout/Navbar/Navbar';
 import { useAdminUser } from '../../hooks/useAdminUser';
 import './UserEdit.css';
 

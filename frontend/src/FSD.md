@@ -180,10 +180,29 @@ Los hooks en `model/*.js` importados desde `index.ts` requieren `allowJs: true` 
 
 `src/utils/*` re-exporta las rutas nuevas (compatibilidad). APIs y hooks ya importan `@/shared` / entities / features.
 
+## Componentes (migrados)
+
+| Legacy (`src/components/`) | Ubicación FSD |
+|---------------------------|---------------|
+| `layout/Navbar`, `Footer`, `CategoriasNav`, `ProductCatalog` | `widgets/layout/` |
+| `cart/CartDrawer` | `widgets/cart/` |
+| `product/*` (galería, info, tabs) | `widgets/product-detail/` |
+| `ui/Toast`, `Breadcrumbs`, `Carousel`, `Card`, `Dropdown`, `Form`, `SortSelector`, `ProductSlider` | `shared/ui/` |
+| `ui/ProductFilters` | `features/catalog/ui/` |
+| `auth/*` | `features/auth/ui/` |
+| `checkout/*` | `features/checkout/ui/` |
+| `profile/*` | `features/profile/ui/` |
+| `admin/*` | `features/admin/ui/` |
+| `orders/OrderShippingSummary` | `features/order/ui/` |
+
+Barrels: `@/widgets`, `@/shared/ui`, `@/features/{auth,checkout,profile,admin,catalog,order}` (vía `index` de cada feature).
+
+`src/components/` quedó vacío (eliminado). Las **pages** y **app** importan rutas FSD (`@/widgets/...`, etc.).
+
 ## Próximos pasos de migración sugeridos
 
-1. **Componentes** → `widgets/` o `features/` según responsabilidad.
-2. Ir actualizando imports de `@/hooks/...` y `@/utils/...` a rutas FSD directas en JSX legacy.
+1. Ir sustituyendo `@/context/*` por `@/app/providers` donde quede.
+2. Mover páneas finas de `pages/` a composiciones en `widgets/` si conviene.
 
 ## Notas del dominio actual
 

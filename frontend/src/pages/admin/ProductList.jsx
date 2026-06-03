@@ -1,9 +1,9 @@
-import Navbar from "../../components/layout/Navbar/Navbar";
+import Navbar from '@/widgets/layout/Navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { useProduct } from "../../context/ProductContext";
 import { useCategorias } from "../../context/CategoriasContext";
 import { useToast } from "../../context/ToastContext";
-import { CategoryForm } from "../../components/admin/CategoryForm";
+import { CategoryForm } from '@/features/admin/ui/CategoryForm';
 
 export default function ProductList() {
     const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import Navbar from "../components/layout/Navbar/Navbar";
-import Footer from "../components/layout/Footer/Footer";
+import Navbar from '@/widgets/layout/Navbar/Navbar';
+import Footer from '@/widgets/layout/Footer/Footer';
 import { useCart } from "../context/CartContext";
 import { useToast } from "../context/ToastContext";
 import { Link, useNavigate } from "react-router-dom";

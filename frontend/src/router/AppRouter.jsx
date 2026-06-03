@@ -18,7 +18,7 @@ import UsersList from '../pages/admin/UsersList';
 import UserEdit from '../pages/admin/UserEdit';
 import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
 import PrivateRoute from './PrivateRoute';
-import AuthSessionListeners from '../components/auth/AuthSessionListeners';
+import { AuthSessionListeners } from '@/features/auth';
 
 export const AppRouter = () => {
     const { userRol } = useAuth();

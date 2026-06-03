@@ -1,8 +1,8 @@
-import Navbar from "../components/layout/Navbar/Navbar"
-import CategoriasNav from "../components/layout/CategoriasNav/CategoriasNav"
-import Carousel from "../components/ui/Carousel/Carousel"
-import Footer from "../components/layout/Footer/Footer"
-import { ProductSlider } from "../components/ui/ProductSlider/ProductSlider"
+import Navbar from '@/widgets/layout/Navbar/Navbar'
+import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav'
+import Carousel from '@/shared/ui/Carousel/Carousel'
+import Footer from '@/widgets/layout/Footer/Footer'
+import { ProductSlider } from '@/shared/ui/ProductSlider/ProductSlider'
 import { useProducts } from "../hooks/useProducts"
 import { useAuth } from "../context/AuthContext"
 import { useCart } from "../context/CartContext"

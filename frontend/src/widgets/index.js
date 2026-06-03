@@ -1,0 +1,8 @@
+export { default as Navbar } from './layout/Navbar/Navbar';
+export { default as Footer } from './layout/Footer/Footer';
+export { default as CategoriasNav } from './layout/CategoriasNav/CategoriasNav';
+export { ProductCatalog } from './layout/ProductCatalog';
+export { default as CartDrawer } from './cart/CartDrawer';
+export { default as ProductGallery } from './product-detail/ProductGallery/ProductGallery';
+export { default as ProductInfo } from './product-detail/ProductInfo/ProductInfo';
+export { default as ProductTabs } from './product-detail/ProductTabs/ProductTabs';

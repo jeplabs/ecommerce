@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import Navbar from "../../components/layout/Navbar/Navbar";
+import Navbar from '@/widgets/layout/Navbar/Navbar';
 import { API_URL } from "../../config/config";
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 

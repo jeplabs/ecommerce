@@ -1,6 +1,6 @@
-import Navbar from "../components/layout/Navbar/Navbar"
-import LoginForm from "../components/ui/Form/LoginForm"
-import Footer from "../components/layout/Footer/Footer"
+import Navbar from '@/widgets/layout/Navbar/Navbar'
+import LoginForm from '@/shared/ui/Form/LoginForm'
+import Footer from '@/widgets/layout/Footer/Footer'
 
 function Login() {
 

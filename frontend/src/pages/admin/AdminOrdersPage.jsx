@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import Navbar from '../../components/layout/Navbar/Navbar';
-import AdminOrdersTable from '../../components/admin/AdminOrdersTable/AdminOrdersTable';
-import OrderDetailModal from '../../components/profile/OrderDetailModal/OrderDetailModal';
+import Navbar from '@/widgets/layout/Navbar/Navbar';
+import AdminOrdersTable from '@/features/admin/ui/AdminOrdersTable/AdminOrdersTable';
+import OrderDetailModal from '@/features/profile/ui/OrderDetailModal/OrderDetailModal';
 import { useAdminOrdersLogic } from '../../hooks/useAdminOrdersLogic';
 import { ORDEN_ESTADOS_FILTRO } from '../../utils/ordenEstados';
 import './AdminOrdersPage.css';
