@@ -53,20 +53,14 @@ export const useProductosByCategory = (categoriaSlugPath) => {
                 // Ajusta 'page' y 'limit' según lo que espere tu backend
                 // Si tu backend no devuelve metadatos de paginación, quizás solo recibas un array
                 const data = await productService.getByCategory(categoriaId, paginaParaBackend, 10);
-                // console.log('🔍 DATOS CRUDOS DE LA API:', data);
 
-                // 1. Los productos están en data.content
-                // 2. La paginación está en data.page
-                if (data.content && Array.isArray(data.content)) {
+                if (data?.content && Array.isArray(data.content)) {
                     setProductos(data.content);
-                    setTotalPaginas(data.page?.totalPages || 1);
-                } 
-                // Fallback por si la API cambia o devuelve array directo
-                else if (Array.isArray(data)) {
+                    setTotalPaginas(data.totalPages ?? data.page?.totalPages ?? 1);
+                } else if (Array.isArray(data)) {
                     setProductos(data);
                     setTotalPaginas(1);
-                }
-                else {
+                } else {
                     console.warn('Estructura de respuesta inesperada:', data);
                     setProductos([]);
                     setTotalPaginas(1);

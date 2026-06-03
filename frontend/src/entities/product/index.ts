@@ -35,3 +35,22 @@ export {
     mapProductApiToDetail,
     getProductMainImageUrl,
 } from './model/mappers';
+
+export {
+    productApi,
+    productService,
+    getByCategory,
+    getAll,
+    getAdmin,
+    getById,
+    getByIdAdmin,
+    create,
+    update,
+    deleteProduct,
+    updateStatus,
+    addImages,
+    getImages,
+    deleteImage,
+    setMainImage,
+    type UpdateProductPayload,
+} from './api';
