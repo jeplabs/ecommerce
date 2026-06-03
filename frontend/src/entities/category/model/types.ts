@@ -1,6 +1,8 @@
 import type { CategoryApi } from './schemas/api';
 
 export type { CategoryApi } from './schemas/api';
+export type { CreateCategoryRequest } from './schemas/forms';
+export { createCategoryRequestSchema } from './schemas/forms';
 
 export type CategoryTreeNode = {
     id: number;
