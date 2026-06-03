@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import AdminOrdersTable from '@/features/admin/ui/AdminOrdersTable/AdminOrdersTable';
 import OrderDetailModal from '@/features/profile/ui/OrderDetailModal/OrderDetailModal';
-import { useAdminOrdersLogic } from '../../hooks/useAdminOrdersLogic';
-import { ORDEN_ESTADOS_FILTRO } from '../../utils/ordenEstados';
+import { useAdminOrdersLogic } from '@/features/admin';
+import { ORDEN_ESTADOS_FILTRO } from '@/entities/order';
 import './AdminOrdersPage.css';
 
 export default function AdminOrdersPage() {

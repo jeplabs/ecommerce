@@ -5,7 +5,7 @@ import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
 import { ProductCatalog } from '@/widgets/layout/ProductCatalog';
 import Footer from '@/widgets/layout/Footer/Footer';
-import { useProductosByCategory } from "../hooks/useProductosByCategory";
+import { useProductosByCategory } from '@/features/catalog';
 
 import "./CategoriaProductos.css"
 

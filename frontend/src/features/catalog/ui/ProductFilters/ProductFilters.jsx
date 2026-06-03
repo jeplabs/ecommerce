@@ -5,7 +5,7 @@ import {
     countActiveFilters,
     mergeFiltrosWithFacets,
 } from '@/features/catalog/lib/filter-facets';
-import { useProductFilterForm } from '@/hooks/useProductFilterForm';
+import { useProductFilterForm } from '@/features/catalog';
 import ProductFiltersPanel from './ProductFiltersPanel';
 import './ProductFilters.css';
 

@@ -4,7 +4,7 @@ import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav'
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs'
 import { ProductCatalog } from '@/widgets/layout/ProductCatalog'
 import Footer from '@/widgets/layout/Footer/Footer'
-import { useProductosByCategory } from "../hooks/useProductosByCategory"
+import { useProductosByCategory } from '@/features/catalog';
 
 import { useLocation } from "react-router-dom";
 import "./Catalogo.css"

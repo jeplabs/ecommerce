@@ -4,7 +4,7 @@ import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav'
 import Carousel from '@/shared/ui/Carousel/Carousel'
 import Footer from '@/widgets/layout/Footer/Footer'
 import { ProductSlider } from '@/shared/ui/ProductSlider/ProductSlider'
-import { useProducts } from "../hooks/useProducts"
+import { useProducts } from '@/entities/product';
 
 
 

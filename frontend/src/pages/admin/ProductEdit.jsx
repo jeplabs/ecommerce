@@ -11,7 +11,7 @@ import {
     getImageUrl,
     getInitialPrincipalBackendId,
     resolvePrincipalBackendId,
-} from '../../utils/productImageAdmin';
+} from '@/features/admin';
 
 export default function ProductEdit() {
     const navigate = useNavigate();

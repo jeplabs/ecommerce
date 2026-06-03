@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
-import { useAdminUser } from '../../hooks/useAdminUser';
+import { useAdminUser } from '@/features/admin';
 import './UserEdit.css';
 
 const ROLES = [

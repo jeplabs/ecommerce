@@ -157,7 +157,7 @@ import { AppProviders } from '@/app/providers';
 | `useEnvioOpciones` | `entities/shipping/model` |
 | `useClickOutside` | `shared/lib` |
 
-`src/hooks/*` re-exporta las rutas nuevas (compatibilidad).
+Los hooks viven en `entities/*/model`, `features/*/model` o `shared/lib`. Importar desde el barrel de cada capa (`@/entities/product`, `@/features/checkout`, etc.).
 
 Los hooks en `model/*.js` importados desde `index.ts` requieren `allowJs: true` en `tsconfig` (migración gradual). El aviso rojo del IDE (`TS7016`) desaparece con eso; al pasar cada hook a `.ts` se puede tipar el retorno.
 
@@ -176,9 +176,9 @@ Los hooks en `model/*.js` importados desde `index.ts` requieren `allowJs: true` 
 | `catalogQueryParams.js` | `features/catalog/lib/catalog-query-params` |
 | `checkoutRecommendations.js` | `features/checkout/lib/checkout-recommendations` |
 | `productImageAdmin.js` | `features/admin/lib/product-image-admin` |
-| `filterHelpers.js` | re-export de `filter-facets` (deprecated) |
+| `filterHelpers.js` | sustituido por `features/catalog/lib/filter-facets` |
 
-`src/utils/*` re-exporta las rutas nuevas (compatibilidad). APIs y hooks ya importan `@/shared` / entities / features.
+Las carpetas legacy `src/hooks/` y `src/utils/` fueron **eliminadas** (enero 2026); el código usa solo rutas FSD.
 
 ## Componentes (migrados)
 
@@ -210,10 +210,23 @@ import { useAuth, useCart, useToast } from '@/app/providers';
 import { CheckoutProvider } from '@/app/providers';
 ```
 
+## Hooks y utils en pages (migrado)
+
+Las **pages** y UI activa importan hooks y constantes desde barrels FSD, no desde rutas relativas a `hooks/` o `utils/`:
+
+| Antes | Ahora |
+|-------|--------|
+| `../hooks/useProducts` | `@/entities/product` |
+| `../hooks/useProductosByCategory` | `@/features/catalog` |
+| `../../hooks/useAdmin*` | `@/features/admin` |
+| `../../utils/ordenEstados` | `@/entities/order` |
+| `../../utils/productImageAdmin` | `@/features/admin` |
+| `@/hooks/useProductFilterForm` | `@/features/catalog` |
+
 ## Próximos pasos de migración sugeridos
 
-1. Sustituir imports relativos de `@/hooks/*` y `@/utils/*` por barrels FSD.
-2. Mover capas finas de `pages/` a composiciones en `widgets/` si conviene.
+1. Mover capas finas de `pages/` a composiciones en `widgets/` si conviene.
+2. Opcional: eliminar `src/context/*` (mismos re-exports que `@/app/providers`).
 
 ## Notas del dominio actual
 

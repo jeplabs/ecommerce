@@ -4,7 +4,7 @@ import Navbar from '@/widgets/layout/Navbar/Navbar';
 import AdminUsersTable from '@/features/admin/ui/AdminUsersTable/AdminUsersTable';
 
 
-import { useAdminUsersList } from '../../hooks/useAdminUsersList';
+import { useAdminUsersList } from '@/features/admin';
 import './UsersList.css';
 
 export default function UsersList() {
