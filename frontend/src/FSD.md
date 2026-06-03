@@ -61,7 +61,7 @@ entities/
 | `Long id`                  | `z.number().int().positive()`            |
 | `BigDecimal`               | `moneySchema` (`z.coerce.number()`)      |
 | `LocalDateTime`            | `localDateTimeSchema` (string ISO)       |
-| Spring `Page<T>`           | `createSpringPageSchema(itemSchema)`     |
+| Spring `Page<T>`           | `createSpringPageSchema(itemSchema)` — normaliza VIA_DTO (`page.size`, …) y formato plano |
 
 ### Uso en servicios (ejemplo migración gradual)
 
@@ -98,10 +98,11 @@ const form = useForm<LoginFormValues>({
 | `services/envioService.js` | `entities/shipping/api/shippingApi.ts` | Hecho — `envioService.js` re-exporta la API tipada |
 | `services/direccionService.js` | `entities/address/api/addressApi.ts` | Hecho — `direccionService.js` re-exporta la API tipada |
 | `services/cartService.js` | `entities/cart/api/cartApi.ts` | Hecho — `cartService.js` re-exporta la API tipada |
+| `services/ordenService.js` | `entities/order/api/orderApi.ts` | Hecho — `ordenService.js` re-exporta la API tipada |
 
 ## Próximos pasos de migración sugeridos
 
-1. **Servicios** restantes (`orden`, `product`, `profile`, …) → `entities/*/api` con `parseApi`.
+1. **Servicios** restantes (`product`, `profile`, `categoria`, …) → `entities/*/api` con `parseApi`.
 2. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → reemplazar por `@/entities/shipping` y `@/entities/order`.
 3. **Contextos** → `app/providers` + hooks en `features/*/model`.
 4. **Componentes** → mover a `widgets/` o `features/` según responsabilidad.
