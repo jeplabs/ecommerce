@@ -113,12 +113,37 @@ features/
     └── model/schemas/payment.ts
 ```
 
+## Providers (`app/providers`)
+
+| Context legacy | Provider en `app/providers` | Ámbito |
+|----------------|----------------------------|--------|
+| `AuthContext` | `AuthProvider` | Global (`AppProviders`) |
+| `ProductContext` | `ProductProvider` | Global |
+| `CartContext` | `CartProvider` | Global |
+| `CategoriasContext` | `CategoriasProvider` | Global |
+| `ToastContext` | `ToastProvider` | Global |
+| `ProfileContext` | `ProfileProvider` | Página `/profile` |
+| `CheckoutContext` | `CheckoutProvider` | Página `/checkout` |
+| `EnvioOpcionesContext` | `EnvioOpcionesProvider` | Dentro de `CheckoutProvider` |
+
+Los archivos en `src/context/*` re-exportan desde `@/app/providers` (compatibilidad).
+
+La lógica sigue en `src/hooks/*`; en una fase posterior puede moverse a `features/*/model`.
+
+```jsx
+// App.jsx
+import { AppProviders } from '@/app/providers';
+
+<AppProviders>
+  <AppRouter />
+</AppProviders>
+```
+
 ## Próximos pasos de migración sugeridos
 
-1. **Capa de servicios legacy** — migración HTTP completada; los `services/*.js` son fachadas.
-2. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → reemplazar por `@/entities/shipping` y `@/entities/order`.
-3. **Contextos** → `app/providers` + hooks en `features/*/model`.
-4. **Componentes** → mover a `widgets/` o `features/` según responsabilidad.
+1. **Hooks** → `features/*/model` o `entities/*/model` según dominio (`useAuthLogic` → `features/auth`, etc.).
+2. **Utils de dominio** (`envioHelpers.js`, `ordenDisplayHelpers.js`) → `@/entities/shipping` y `@/entities/order`.
+3. **Componentes** → `widgets/` o `features/` según responsabilidad.
 
 ## Notas del dominio actual
 

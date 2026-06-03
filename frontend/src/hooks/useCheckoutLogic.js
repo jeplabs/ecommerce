@@ -4,7 +4,7 @@ import { direccionService } from '../services/direccionService';
 import { ordenService } from '../services/ordenService';
 import { paymentService, PAYMENT_METHODS } from '../services/paymentService';
 import { redirectUnauthorized } from '../utils/apiHelpers';
-import { useEnvioOpcionesContext } from '../context/EnvioOpcionesContext';
+import { useEnvioOpcionesContext } from '@/app/providers/EnvioOpcionesProvider';
 import {
     FORMA_PAGO_ENVIO,
     isPickupService,

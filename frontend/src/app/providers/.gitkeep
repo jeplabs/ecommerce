@@ -1,2 +1,0 @@
-/** Providers globales (Auth, Cart, Toast) — migración desde src/context */
-export {};

@@ -1,7 +1,7 @@
 .cart-page {
     min-height: calc(100vh - 120px);
-    background: #070b16;
-    color: #f8fafc;
+    /* background: #070b16; */
+    /* color: #f8fafc; */
     padding: 2rem 1.5rem;
 }
 
@@ -150,6 +150,7 @@
 
 .btn-remove-item {
     background: transparent;
+    background: rgba(239,68,68,0.15);
     border: 1px solid rgba(239,68,68,0.2);
     color: #ef4444;
     padding: 0.65rem 1rem;
@@ -175,7 +176,7 @@
 
 .cart-summary > div {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 0.5rem;
 }
 
@@ -212,6 +213,12 @@
 
 .btn-checkout:hover:not(:disabled) {
     background: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+    .cart-page {
+        padding: 1rem;
+    }
 }
 
 @media (max-width: 1024px) {
