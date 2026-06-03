@@ -17,3 +17,14 @@ export {
 } from './model/types';
 
 export { mapCartApiToSummary, mapCartItemApiToLineView, isCartEmpty } from './model/mappers';
+
+export {
+    cartApi,
+    cartService,
+    getCart,
+    addToCart,
+    addCartItem,
+    updateItemQuantity,
+    removeItem,
+    clearCart,
+} from './api';
