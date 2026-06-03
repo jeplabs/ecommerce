@@ -96,6 +96,7 @@ const form = useForm<LoginFormValues>({
 |-----------------|-----------------|--------|
 | `services/authService.js` | `entities/user/api/authApi.ts` | Hecho — `authService.js` re-exporta la API tipada |
 | `services/envioService.js` | `entities/shipping/api/shippingApi.ts` | Hecho — `envioService.js` re-exporta la API tipada |
+| `services/direccionService.js` | `entities/address/api/addressApi.ts` | Hecho — `direccionService.js` re-exporta la API tipada |
 
 ## Próximos pasos de migración sugeridos
 
@@ -110,3 +111,4 @@ const form = useForm<LoginFormValues>({
 - **Pago simulado** (Stripe/Webpay) es solo frontend; `FormaPago` en backend = envío en línea vs contra entrega.
 - **Producto admin**: `DatosRespuestaProductoAdmin` no incluye `descripcion`/`categorias`; combinar con endpoint público si hace falta en edición.
 - **Usuario**: perfil no incluye direcciones; usar entity `address` por separado.
+- **Direcciones — pendiente backend**: `PATCH /api/direcciones/{id}` acepta `referencias` en `DatosActualizarDireccion`, pero `Direccion.actualizar()` no asigna ese campo (crear sí). El frontend ya envía `referencias` en el PATCH vía `mapAddressFormToUpdateRequest`.

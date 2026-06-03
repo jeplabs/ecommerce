@@ -49,4 +49,18 @@ export function mapAddressFormToCreateRequest(values: AddressFormValues): Create
     };
 }
 
+/** PATCH completo desde el formulario de edición (incluye `referencias` en el body). */
+export function mapAddressFormToUpdateRequest(values: AddressFormValues): UpdateAddressRequest {
+    return {
+        alias: values.alias.trim(),
+        direccion: values.direccion.trim(),
+        ciudad: values.ciudad.trim(),
+        estado: values.estado.trim(),
+        codigoPostal: values.codigoPostal?.trim() || undefined,
+        pais: values.pais.trim(),
+        telefono: values.telefono.trim(),
+        referencias: values.referencias?.trim() ?? '',
+    };
+}
+
 export type { AddressApi };

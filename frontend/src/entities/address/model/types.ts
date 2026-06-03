@@ -13,6 +13,7 @@ export {
     updateAddressRequestSchema,
     addressFormSchema,
     mapAddressFormToCreateRequest,
+    mapAddressFormToUpdateRequest,
 } from './schemas/forms';
 
 export type AddressCardView = {

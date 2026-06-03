@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useProfile } from '../../../context/ProfileContext';
 import { useToast } from '../../../context/ToastContext';
+import {
+    mapAddressFormToCreateRequest,
+    mapAddressFormToUpdateRequest,
+} from '@/entities/address';
 import AddressForm from '../AddressForm/AddressForm';
 import './AddressesTab.css';
 
@@ -24,7 +28,7 @@ export default function AddressesTab() {
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     const handleCreate = async (form) => {
-        const result = await crearDireccion(form);
+        const result = await crearDireccion(mapAddressFormToCreateRequest(form));
         if (result.success) {
             showSuccess('Dirección agregada');
             setShowForm(false);
@@ -33,8 +37,10 @@ export default function AddressesTab() {
     };
 
     const handleUpdate = async (form) => {
-        const { principal, ...datos } = form;
-        const result = await actualizarDireccion(editingAddress.id, datos);
+        const result = await actualizarDireccion(
+            editingAddress.id,
+            mapAddressFormToUpdateRequest(form)
+        );
         if (result.success) {
             showSuccess('Dirección actualizada');
             setEditingAddress(null);
