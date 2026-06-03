@@ -1,7 +1,8 @@
+import { useAuth, useCart, useToast } from '@/app/providers';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/context/CartContext';
-import { useToast } from '@/context/ToastContext';
+
+
+
 import { useCheckoutSuccessRecommendations } from '@/features/checkout';
 import { ProductSlider } from '@/shared/ui/ProductSlider/ProductSlider';
 import './CheckoutSuccessRecommendations.css';

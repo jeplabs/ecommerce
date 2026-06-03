@@ -1,6 +1,7 @@
+import { useAuth } from '@/app/providers';
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+
 import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
 import './SessionExpiryWarning.css';
 

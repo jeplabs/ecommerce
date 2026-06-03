@@ -1,6 +1,7 @@
+import { useCategorias } from '@/app/providers';
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useCategorias } from '@/context/CategoriasContext';
+
 import "./CategoriasNav.css";
 
 const buildCategoryPath = (parentPath, categoria) => `${parentPath}/${categoria.slug || categoria.id}`;

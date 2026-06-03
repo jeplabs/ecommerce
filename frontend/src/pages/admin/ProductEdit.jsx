@@ -1,9 +1,10 @@
+import { useProduct, useCategorias, useToast } from '@/app/providers';
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useProduct } from '../../context/ProductContext';
-import { useCategorias } from '../../context/CategoriasContext';
-import { useToast } from '../../context/ToastContext';
+
+
+
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import { ProductForm } from '@/features/admin/ui/ProductForm';
 import {

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/context/CartContext';
+import { useAuth, useCart } from '@/app/providers';
 import useClickOutside from '@/shared/lib/useClickOutside';
 import LoginDropdown from '@/shared/ui/Dropdown/LoginDropdown';
 import CartDrawer from '@/widgets/cart/CartDrawer';

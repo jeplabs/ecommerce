@@ -1,6 +1,7 @@
+import { useProfile, useToast } from '@/app/providers';
 import { useEffect, useState } from 'react';
-import { useProfile } from '@/context/ProfileContext';
-import { useToast } from '@/context/ToastContext';
+
+
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import './OrdersTab.css';

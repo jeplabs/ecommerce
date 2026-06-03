@@ -1,5 +1,6 @@
+import { useCheckout } from '@/app/providers';
 import { Link } from 'react-router-dom';
-import { useCheckout } from '@/context/CheckoutContext';
+
 import ShippingServiceSelector from '../ShippingServiceSelector/ShippingServiceSelector';
 import ShippingPaymentSelector from '../ShippingPaymentSelector/ShippingPaymentSelector';
 import './ShippingStep.css';

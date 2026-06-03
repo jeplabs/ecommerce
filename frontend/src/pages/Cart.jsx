@@ -1,8 +1,9 @@
+import { useCart, useToast } from '@/app/providers';
 import { useMemo } from "react";
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import Footer from '@/widgets/layout/Footer/Footer';
-import { useCart } from "../context/CartContext";
-import { useToast } from "../context/ToastContext";
+
+
 import { Link, useNavigate } from "react-router-dom";
 import "./Cart.css";
 

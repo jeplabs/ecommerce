@@ -1,7 +1,8 @@
+import { useProfile, useAuth, useToast } from '@/app/providers';
 import { useState } from 'react';
-import { useProfile } from '@/context/ProfileContext';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/context/ToastContext';
+
+
+
 import { getInitials } from '@/shared/lib/format';
 import './ProfileDataTab.css';
 

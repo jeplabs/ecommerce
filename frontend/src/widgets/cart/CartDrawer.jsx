@@ -1,7 +1,8 @@
+import { useAuth, useCart, useToast } from '@/app/providers';
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/context/CartContext';
-import { useToast } from '@/context/ToastContext';
+
+
+
 import { useState, useEffect } from "react";
 import "./CartDrawer.css";
 

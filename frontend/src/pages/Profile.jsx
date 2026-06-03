@@ -1,7 +1,8 @@
+import { ProfileProvider } from '@/app/providers';
 import { useLocation } from 'react-router-dom';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import Footer from '@/widgets/layout/Footer/Footer';
-import { ProfileProvider } from '../context/ProfileContext';
+
 import ProfileContent from '@/features/profile/ui/ProfileContent/ProfileContent';
 import './Profile.css';
 

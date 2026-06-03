@@ -1,4 +1,5 @@
-import { useCheckout } from '@/context/CheckoutContext';
+import { useCheckout } from '@/app/providers';
+
 import { formatCurrency } from '@/shared/lib/format';
 import { FORMA_PAGO_ENVIO } from '@/entities/order';
 import { getServicioCostos, isPickupService } from '@/entities/shipping';

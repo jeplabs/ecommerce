@@ -1,5 +1,5 @@
+import { useAuth } from '@/app/providers';
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 export const PrivateRoute = ({ children, requiredRol }) => {
     const { isAuthenticated, userRol, loading } = useAuth();

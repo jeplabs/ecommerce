@@ -1,4 +1,5 @@
-import { useCheckout } from '@/context/CheckoutContext';
+import { useCheckout } from '@/app/providers';
+
 import { PAYMENT_METHODS } from '@/features/checkout';
 import SimulatedStripeForm from '../SimulatedStripeForm/SimulatedStripeForm';
 import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';

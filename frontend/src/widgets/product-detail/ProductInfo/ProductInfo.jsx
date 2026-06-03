@@ -1,8 +1,8 @@
+import { useAuth, useToast } from '@/app/providers';
 import "./ProductInfo.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/context/ToastContext';
+
 
 export default function ProductInfo({ producto, precioFormateado, onAddToCart }) {
     const disponible = producto.stock > 0;

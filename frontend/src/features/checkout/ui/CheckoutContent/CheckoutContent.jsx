@@ -1,6 +1,7 @@
+import { useCheckout, useToast } from '@/app/providers';
 import { useNavigate } from 'react-router-dom';
-import { useCheckout } from '@/context/CheckoutContext';
-import { useToast } from '@/context/ToastContext';
+
+
 import CheckoutSteps from '../CheckoutSteps/CheckoutSteps';
 import ShippingStep from '../ShippingStep/ShippingStep';
 import PaymentStep from '../PaymentStep/PaymentStep';

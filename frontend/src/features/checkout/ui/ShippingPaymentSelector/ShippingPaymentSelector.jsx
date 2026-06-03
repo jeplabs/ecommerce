@@ -1,4 +1,5 @@
-import { useCheckout } from '@/context/CheckoutContext';
+import { useCheckout } from '@/app/providers';
+
 import { FORMA_PAGO_ENVIO } from '@/entities/order';
 import './ShippingPaymentSelector.css';
 

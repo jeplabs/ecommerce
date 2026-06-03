@@ -1,7 +1,8 @@
+import { CheckoutProvider } from '@/app/providers';
 import { Link } from 'react-router-dom';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import Footer from '@/widgets/layout/Footer/Footer';
-import { CheckoutProvider } from '../context/CheckoutContext';
+
 import CheckoutContent from '@/features/checkout/ui/CheckoutContent/CheckoutContent';
 import './Checkout.css';
 

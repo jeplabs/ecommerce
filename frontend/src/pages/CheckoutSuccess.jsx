@@ -1,6 +1,7 @@
+import { useCart } from '@/app/providers';
 import { useEffect } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import Footer from '@/widgets/layout/Footer/Footer';
 import CheckoutSuccessHeader from '@/features/checkout/ui/success/CheckoutSuccessHeader/CheckoutSuccessHeader';

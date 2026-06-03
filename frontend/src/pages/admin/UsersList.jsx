@@ -1,8 +1,9 @@
+import { useAuth, useToast } from '@/app/providers';
 import { Link } from 'react-router-dom';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import AdminUsersTable from '@/features/admin/ui/AdminUsersTable/AdminUsersTable';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+
+
 import { useAdminUsersList } from '../../hooks/useAdminUsersList';
 import './UsersList.css';
 

@@ -199,10 +199,21 @@ Barrels: `@/widgets`, `@/shared/ui`, `@/features/{auth,checkout,profile,admin,ca
 
 `src/components/` quedó vacío (eliminado). Las **pages** y **app** importan rutas FSD (`@/widgets/...`, etc.).
 
+## Context → providers (migrado)
+
+Todo el código importa hooks y providers desde **`@/app/providers`** (barrel en `app/providers/index.js`).
+
+`src/context/*` solo re-exporta con `@deprecated` para compatibilidad puntual; no quedan imports activos a `context/` en `pages`, `widgets`, `features` ni `shared`.
+
+```js
+import { useAuth, useCart, useToast } from '@/app/providers';
+import { CheckoutProvider } from '@/app/providers';
+```
+
 ## Próximos pasos de migración sugeridos
 
-1. Ir sustituyendo `@/context/*` por `@/app/providers` donde quede.
-2. Mover páneas finas de `pages/` a composiciones en `widgets/` si conviene.
+1. Sustituir imports relativos de `@/hooks/*` y `@/utils/*` por barrels FSD.
+2. Mover capas finas de `pages/` a composiciones en `widgets/` si conviene.
 
 ## Notas del dominio actual
 

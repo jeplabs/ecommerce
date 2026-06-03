@@ -1,4 +1,5 @@
-import { useProfile } from '@/context/ProfileContext';
+import { useProfile } from '@/app/providers';
+
 import ProfileTabs from '../ProfileTabs/ProfileTabs';
 import ProfileDataTab from '../ProfileDataTab/ProfileDataTab';
 import AddressesTab from '../AddressesTab/AddressesTab';

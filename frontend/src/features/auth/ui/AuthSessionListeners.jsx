@@ -1,5 +1,6 @@
+import { useToast } from '@/app/providers';
 import { useEffect, useRef } from 'react';
-import { useToast } from '@/context/ToastContext';
+
 import { subscribeSessionInvalidated } from '@/auth/authSessionSync';
 import SessionExpiryWarning from './SessionExpiryWarning';
 

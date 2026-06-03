@@ -1,8 +1,9 @@
+import { useProduct, useCategorias, useCart } from '@/app/providers';
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useProduct } from "../context/ProductContext";
-import { useCategorias } from "../context/CategoriasContext";
-import { useCart } from "../context/CartContext";
+
+
+
 import { getProductImageUrls, getMainProductImageUrl } from '@/entities/product';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav';

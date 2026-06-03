@@ -1,13 +1,14 @@
+import { useProduct, useAuth, useCart, useToast } from '@/app/providers';
 import { useMemo, useCallback } from "react";
 import { ProductCard } from '@/shared/ui/Card/ProductCard';
-import { useProduct } from '@/context/ProductContext';
+
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getMainProductImageUrl } from '@/entities/product';
 import { ProductFilters } from '@/features/catalog/ui/ProductFilters/ProductFilters';
 import { SortSelector } from '@/shared/ui/SortSelector/SortSelector';
-import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/context/CartContext';
-import { useToast } from '@/context/ToastContext';
+
+
+
 import {
     extractFilterFacets,
     applyProductFilters,

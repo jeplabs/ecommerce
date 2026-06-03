@@ -11,7 +11,7 @@ import {
     resolveShippingCostInTotal,
     getServicioCostos,
 } from '@/entities/shipping';
-import { useEnvioOpcionesContext } from '@/app/providers/EnvioOpcionesProvider';
+import { useEnvioOpcionesContext } from '@/app/providers';
 
 const STEPS = ['envio', 'pago', 'confirmar'];
 

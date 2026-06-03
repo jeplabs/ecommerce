@@ -1,5 +1,6 @@
+import { useAuth } from '@/app/providers';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';

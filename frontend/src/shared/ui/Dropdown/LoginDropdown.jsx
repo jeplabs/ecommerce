@@ -1,6 +1,7 @@
+import { useAuth } from '@/app/providers';
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from '@/context/AuthContext';
+
 import "./LoginDropdown.css";
 
 export default function LoginDropdown({ onClose }) {

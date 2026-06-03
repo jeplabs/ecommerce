@@ -1,4 +1,5 @@
-import { useCheckout } from '@/context/CheckoutContext';
+import { useCheckout } from '@/app/providers';
+
 import './SimulatedStripeForm.css';
 
 const formatCardNumber = (value) => {
