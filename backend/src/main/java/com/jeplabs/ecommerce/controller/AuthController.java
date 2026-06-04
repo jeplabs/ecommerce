@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 // @Tag agrupa todos los endpoints de este controller bajo "Autenticación" en Swagger UI
 @Tag(name = "Autenticación", description = "Registro, login y gestión de usuarios (admin)")
@@ -29,6 +30,7 @@ public class AuthController {
     private final AutenticacionService service;
     private final AuthenticationManager authManager;
     private final TokenService tokenService;
+    private final PasswordResetService passwordResetService;
 
     // @Operation describe el propósito del endpoint en Swagger UI
     // summary → título corto que aparece en la lista de endpoints
@@ -138,5 +140,25 @@ public class AuthController {
             Authentication authentication) {
         String emailAdmin = authentication.getName();
         return ResponseEntity.ok(service.actualizarEstado(id, datos, emailAdmin));
+    }
+
+    // Solicitar restablecimiento - público
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> solicitarReset(
+            @RequestBody @Valid DatosSolicitarReset datos) {
+        passwordResetService.solicitarReset(datos);
+        // Siempre devuelve el mismo mensaje por seguridad
+        // no revelamos si el email existe o no
+        return ResponseEntity.ok(Map.of("mensaje",
+                "Si el email está registrado recibirás un enlace para restablecer tu contraseña"));
+    }
+
+    // Restablecer contraseña con token - público
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetearPassword(
+            @RequestBody @Valid DatosResetPassword datos) {
+        passwordResetService.resetearPassword(datos);
+        return ResponseEntity.ok(Map.of("mensaje",
+                "Contraseña actualizada correctamente"));
     }
 }

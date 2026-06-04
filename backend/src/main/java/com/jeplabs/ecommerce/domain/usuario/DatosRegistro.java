@@ -34,4 +34,4 @@ public record DatosRegistro(
 
         @NotBlank(message = "Debes confirmar la contraseña")
         String confirmarPassword
-) {}
+) implements ConConfirmacionPassword {}

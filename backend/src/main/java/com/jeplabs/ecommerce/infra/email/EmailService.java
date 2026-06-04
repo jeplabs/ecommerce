@@ -112,4 +112,32 @@ public class EmailService {
                 </html>
                 """.formatted(nombreUsuario, horasRestantes);
     }
+
+    @Async
+    public void enviarEmailRestablecimientoPassword(String emailDestino,
+                                                    String nombreUsuario,
+                                                    String token) {
+        String asunto = "Restablecimiento de contraseña";
+        String enlace = "http://localhost:5173/reset-password?token=" + token;
+        String contenido = """
+            <html>
+            <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2>Hola %s,</h2>
+                <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+                <p>Este enlace expirará en <strong>30 minutos</strong>.</p>
+                <br>
+                <a href="%s"
+                   style="background-color: #007bff; color: white;
+                          padding: 10px 20px; text-decoration: none;
+                          border-radius: 5px;">
+                    Restablecer contraseña
+                </a>
+                <br><br>
+                <p>Si no solicitaste este cambio, ignora este email.</p>
+                <p>Tu contraseña permanecerá sin cambios.</p>
+            </body>
+            </html>
+            """.formatted(nombreUsuario, enlace);
+        enviar(emailDestino, asunto, contenido);
+    }
 }

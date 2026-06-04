@@ -10,6 +10,9 @@ spring.datasource.password=PASSWORD_POSTGRES
 api.security.secret=CUALQUIER_STRING_LARGO_PARA_DEV
 api.security.expiration=7200
 
+# Tiempo de expiración del token de restablecimiento de contraseña en minutos
+api.security.reset-token-expiracion-minutos=30
+
 # Email
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587

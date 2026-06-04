@@ -104,6 +104,11 @@ public class Usuario implements UserDetails {
         this.activo = false;
     }
 
+    // Metodo para actualizar password
+    public void actualizarPassword(String nuevoPasswordHash) {
+        this.password = nuevoPasswordHash;
+    }
+
     // UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
