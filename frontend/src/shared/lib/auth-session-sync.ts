@@ -6,7 +6,7 @@
 
 export const AUTH_SESSION_INVALIDATED = 'ecommerce:auth-session-invalidated';
 
-export function clearAuthStorage() {
+export function clearAuthStorage(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
     localStorage.removeItem('user');
@@ -15,10 +15,10 @@ export function clearAuthStorage() {
 /**
  * Borra credenciales locales y notifica a la app si había sesión activa.
  * Llamadas repetidas tras un primer vaciado no vuelven a emitir el evento (evita toasts duplicados).
- *
- * @param {Record<string, unknown>} [detail]
  */
-export function invalidateClientSession(detail = {}) {
+export function invalidateClientSession(
+    detail: Record<string, unknown> = {}
+): void {
     const hadToken = !!localStorage.getItem('token');
     clearAuthStorage();
     if (!hadToken) return;
@@ -30,12 +30,13 @@ export function invalidateClientSession(detail = {}) {
 }
 
 /**
- * @param {(detail: Record<string, unknown>) => void} handler
- * @returns {() => void} unsubscribe
+ * @returns unsubscribe
  */
-export function subscribeSessionInvalidated(handler) {
-    const listener = (event) => {
-        handler(event.detail || {});
+export function subscribeSessionInvalidated(
+    handler: (detail: Record<string, unknown>) => void
+): () => void {
+    const listener = (event: Event) => {
+        handler((event as CustomEvent<Record<string, unknown>>).detail || {});
     };
     window.addEventListener(AUTH_SESSION_INVALIDATED, listener);
     return () => window.removeEventListener(AUTH_SESSION_INVALIDATED, listener);

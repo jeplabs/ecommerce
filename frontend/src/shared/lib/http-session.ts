@@ -1,4 +1,4 @@
-import { invalidateClientSession } from '@/auth/authSessionSync';
+import { invalidateClientSession } from './auth-session-sync';
 import type { NavigateFunction } from 'react-router-dom';
 
 export function getAuthHeaders(

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { API_URL } from '@/config/config';
+import { API_URL } from '@/shared/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { getErrorMessage, parseApi } from '@/shared';
 import { categoryApiSchema, type CategoryApi } from '../model/schemas/api';

@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authApi } from '@/entities/user';
-import { clearAuthStorage, subscribeSessionInvalidated, invalidateClientSession } from '@/auth/authSessionSync';
+import {
+    clearAuthStorage,
+    subscribeSessionInvalidated,
+    invalidateClientSession,
+} from '@/shared/lib/auth-session-sync';
 import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
 
 /**

@@ -253,10 +253,29 @@ La carpeta legacy `src/router/` fue **eliminada**; el router vive solo en `app/r
 
 Ruta canónica en la SPA: **`/cart`**. **`/carrito`** redirige a `/cart` (p. ej. enlace del email de carrito abandonado en el backend). La API REST sigue en `/api/carrito`.
 
+## Config y sesión cliente (migrado)
+
+| Antes | Ubicación FSD |
+|--------|---------------|
+| `src/config/config.js` | `shared/config/env.ts` → import `@/shared/config` |
+| `src/auth/authSessionSync.js` | `shared/lib/auth-session-sync.ts` |
+
+`auth-session-sync` vive en **shared** (no en `features/auth`) porque `shared/lib/http-session` lo usa: en FSD, `shared` no puede importar `features`.
+
+Carpetas legacy `src/config/` y `src/auth/` eliminadas.
+
 ## Próximos pasos de migración sugeridos
 
-1. Extraer contenido pesado de pages a widgets (`HomePage`, `CatalogPage`, etc.) si se quiere pages de una línea.
+1. Extraer contenido pesado de pages a widgets (`HomePage`, `CatalogPage`, etc.) si se quiere pages de una línea — ver sección *Pages vs widgets* abajo.
 2. Tipar hooks `model/*.js` → `.ts` y reducir `allowJs` cuando sea posible.
+
+### Pages vs widgets (cuándo compensa)
+
+No es solo un archivo intermedio: la **page** queda acoplada al router (`/`, `/catalogo`); el **widget** es el bloque de pantalla reutilizable y testeable sin rutas.
+
+- **Page delgada**: `AppRouter` importa `pages/Home` → reexporta `<HomePage />`. Cambiar layout de ruta no obliga a tocar el widget.
+- **Widget**: agrupa markup, CSS, hooks y subcomponentes de *una pantalla* (p. ej. hero + sliders en home). Otra ruta podría montar el mismo widget con otro layout.
+- **Cuándo omitirlo**: pages ya pequeñas (Login que solo monta un form de `features/auth`) no ganan mucho; priorizar Home, Catálogo, Cart, Checkout, admin.
 
 ## Notas del dominio actual
 

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 
 
-import { API_URL } from "../../config/config";
+import { API_URL } from '@/shared/config';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 
 export default function Admin() {

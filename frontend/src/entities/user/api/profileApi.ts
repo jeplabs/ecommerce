@@ -1,4 +1,4 @@
-import { API_URL } from '@/config/config';
+import { API_URL } from '@/shared/config';
 import { getAuthHeaders, isAuthError, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { userApiSchema, type UserApi } from '../model/schemas/api';

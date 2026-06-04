@@ -1,9 +1,5 @@
 /** Declaraciones mínimas para módulos JS legacy durante la migración a TS. */
 
-declare module '@/config/config' {
-    export const API_URL: string;
-}
-
 declare module '@/shared/lib/http-session' {
     export function getAuthHeaders(
         token: string | null,
