@@ -1,9 +1,6 @@
 import { useAuth, useCart, useToast } from '@/app/providers';
-import Navbar from '@/widgets/layout/Navbar/Navbar'
-import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav'
-import Carousel from '@/shared/ui/Carousel/Carousel'
-import Footer from '@/widgets/layout/Footer/Footer'
-import { ProductSlider } from '@/shared/ui/ProductSlider/ProductSlider'
+import Carousel from '@/shared/ui/Carousel/Carousel';
+import { ProductSlider } from '@/shared/ui/ProductSlider/ProductSlider';
 import { useProducts } from '@/entities/product';
 
 
@@ -85,14 +82,11 @@ function Home() {
     
     return (
         <>
-            <Navbar />
-            <CategoriasNav />
             <Carousel slides={slides} />
             <ProductSlider title="Productos destacados" products={productos} onAddToCart={handleAddToCart} />
             <ProductSlider title="Ofertas" products={productos} onAddToCart={handleAddToCart} />
-            <Footer />
         </>
-    )
+    );
 }
 
 export default Home

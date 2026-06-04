@@ -1,10 +1,7 @@
 import { useCategorias } from '@/app/providers';
 import { useLocation } from "react-router-dom";
-import Navbar from '@/widgets/layout/Navbar/Navbar';
-import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
 import { ProductCatalog } from '@/widgets/layout/ProductCatalog';
-import Footer from '@/widgets/layout/Footer/Footer';
 import { useProductosByCategory } from '@/features/catalog';
 
 import "./CategoriaProductos.css"
@@ -60,21 +57,14 @@ export default function CategoriaProductos() {
 
     if (error) {
         return (
-            <>
-                <Navbar />
-                <div className="container">
-                    <p>Error al cargar los productos: {error}</p>
-                </div>
-                <Footer />
-            </>
+            <div className="container">
+                <p>Error al cargar los productos: {error}</p>
+            </div>
         );
     }
 
     return (
-        <>
-            <Navbar />
-            <CategoriasNav />
-            <div className="container">
+        <div className="container">
                 <div className="container-header">
                     <h1>{nombreCategoria || 'Categoría'}</h1>
                     <Breadcrumbs items={breadcrumbs} className="container-breadcrumbs" />
@@ -107,8 +97,6 @@ export default function CategoriaProductos() {
                         </button>
                     </div>
                 )}
-            </div>
-            <Footer />
-        </>
+        </div>
     );
 }

@@ -1,6 +1,6 @@
 import { useAuth, useToast } from '@/app/providers';
 import { Link } from 'react-router-dom';
-import Navbar from '@/widgets/layout/Navbar/Navbar';
+
 import AdminUsersTable from '@/features/admin/ui/AdminUsersTable/AdminUsersTable';
 
 
@@ -43,9 +43,7 @@ export default function UsersList() {
     };
 
     return (
-        <>
-            <Navbar />
-            <main className="admin-users-page">
+        <main className="admin-users-page">
                 <header className="admin-users-page__header">
                     <div>
                         <Link to="/admin" className="admin-users-page__back">
@@ -66,6 +64,5 @@ export default function UsersList() {
                     activarUsuario={handleActivarUsuario}
                 />
             </main>
-        </>
     );
 }

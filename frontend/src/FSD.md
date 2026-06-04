@@ -232,9 +232,30 @@ Las **pages** y UI activa importan hooks y constantes desde barrels FSD, no desd
 | `../../utils/productImageAdmin` | `@/features/admin` |
 | `@/hooks/useProductFilterForm` | `@/features/catalog` |
 
+## Router y layouts (migrado)
+
+| Antes | Ubicación FSD |
+|--------|---------------|
+| `src/router/AppRouter.jsx` | `app/router/AppRouter.jsx` |
+| `src/router/PrivateRoute.jsx` | `app/router/PrivateRoute.jsx` |
+| Navbar + CategoriasNav + Footer en cada page | `widgets/layout/ShopLayout` (`<Outlet />`) |
+| Solo Navbar en admin | `widgets/layout/AdminLayout` |
+
+Rutas anidadas en `AppRouter`:
+
+- **ShopLayout** con `showCategoriasNav`: `/`, `/catalogo`, `/categoria/*`, `/producto/:slug`
+- **ShopLayout** sin categorías: login, registro, perfil, carrito, checkout
+- **AdminLayout**: `/admin/*`
+
+Las **pages** solo renderizan el contenido central; el shell lo define el layout.
+
+La carpeta legacy `src/router/` fue **eliminada**; el router vive solo en `app/router/`.
+
+Ruta canónica en la SPA: **`/cart`**. **`/carrito`** redirige a `/cart` (p. ej. enlace del email de carrito abandonado en el backend). La API REST sigue en `/api/carrito`.
+
 ## Próximos pasos de migración sugeridos
 
-1. Mover capas finas de `pages/` a composiciones en `widgets/` si conviene.
+1. Extraer contenido pesado de pages a widgets (`HomePage`, `CatalogPage`, etc.) si se quiere pages de una línea.
 2. Tipar hooks `model/*.js` → `.ts` y reducir `allowJs` cuando sea posible.
 
 ## Notas del dominio actual

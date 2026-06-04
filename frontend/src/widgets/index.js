@@ -1,3 +1,5 @@
+export { default as ShopLayout } from './layout/ShopLayout/ShopLayout';
+export { default as AdminLayout } from './layout/AdminLayout/AdminLayout';
 export { default as Navbar } from './layout/Navbar/Navbar';
 export { default as Footer } from './layout/Footer/Footer';
 export { default as CategoriasNav } from './layout/CategoriasNav/CategoriasNav';

@@ -2,8 +2,6 @@ import { useCart } from '@/app/providers';
 import { useEffect } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 
-import Navbar from '@/widgets/layout/Navbar/Navbar';
-import Footer from '@/widgets/layout/Footer/Footer';
 import CheckoutSuccessHeader from '@/features/checkout/ui/success/CheckoutSuccessHeader/CheckoutSuccessHeader';
 import OrderConfirmationSummary from '@/features/checkout/ui/success/OrderConfirmationSummary/OrderConfirmationSummary';
 import CheckoutSuccessActions from '@/features/checkout/ui/success/CheckoutSuccessActions/CheckoutSuccessActions';
@@ -24,9 +22,7 @@ export default function CheckoutSuccess() {
     }
 
     return (
-        <>
-            <Navbar />
-            <main className="checkout-success-page">
+        <main className="checkout-success-page">
                 <div className="checkout-success-page__inner">
                     <CheckoutSuccessHeader orderId={orden.id} />
 
@@ -37,8 +33,6 @@ export default function CheckoutSuccess() {
 
                     <CheckoutSuccessRecommendations orden={orden} />
                 </div>
-            </main>
-            <Footer />
-        </>
+        </main>
     );
 }

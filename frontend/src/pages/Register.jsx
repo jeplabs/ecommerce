@@ -1,28 +1,17 @@
-import { useNavigate } from "react-router-dom"
-import Navbar from '@/widgets/layout/Navbar/Navbar'
-import RegisterForm from '@/shared/ui/Form/RegisterForm'
-import Footer from '@/widgets/layout/Footer/Footer'
+import { useNavigate } from 'react-router-dom';
+import RegisterForm from '@/shared/ui/Form/RegisterForm';
 
-function Register() {
+export default function Register() {
     const navigate = useNavigate();
 
-    // Redireccionar a la página de login después de un registro exitoso
     const onRegisterSuccess = () => {
-        navigate("/login");
-    }
+        navigate('/login');
+    };
 
     return (
-        <>
-            <Navbar />
-            <br />
-            <br />
+        <div className="auth-page">
             <h1>Registrarse</h1>
             <RegisterForm onRegisterSuccess={onRegisterSuccess} />
-            <br />
-            <br />
-            <Footer />
-        </>
-    )
+        </div>
+    );
 }
-
-export default Register

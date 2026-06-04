@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Navbar from '@/widgets/layout/Navbar/Navbar';
+
 import AdminOrdersTable from '@/features/admin/ui/AdminOrdersTable/AdminOrdersTable';
 import OrderDetailModal from '@/features/profile/ui/OrderDetailModal/OrderDetailModal';
 import { useAdminOrdersLogic } from '@/features/admin';
@@ -38,8 +38,7 @@ export default function AdminOrdersPage() {
 
     return (
         <>
-            <Navbar />
-            <main className="admin-orders-page">
+        <main className="admin-orders-page">
                 <header className="admin-orders-page__header">
                     <div>
                         <Link to="/admin" className="admin-orders-page__back">

@@ -1,21 +1,10 @@
-import Navbar from '@/widgets/layout/Navbar/Navbar'
-import LoginForm from '@/shared/ui/Form/LoginForm'
-import Footer from '@/widgets/layout/Footer/Footer'
+import LoginForm from '@/shared/ui/Form/LoginForm';
 
-function Login() {
-
+export default function Login() {
     return (
-        <>
-            <Navbar />
-            <br />
-            <br />
+        <div className="auth-page">
             <h1>Iniciar sesión</h1>
-            <LoginForm />        
-            <br />
-            <br />
-            <Footer />
-        </>
-    )
+            <LoginForm />
+        </div>
+    );
 }
-
-export default Login

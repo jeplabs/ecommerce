@@ -192,7 +192,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                         </div>
                         
                         <div className="cart-actions">
-                            <Link to="/carrito" className="btn-cart-secondary" onClick={handleClose}>
+                            <Link to="/cart" className="btn-cart-secondary" onClick={handleClose}>
                                 Ver carrito completo
                             </Link>
                             <button className="btn-cart-primary" onClick={handleCheckout} disabled={loading}>

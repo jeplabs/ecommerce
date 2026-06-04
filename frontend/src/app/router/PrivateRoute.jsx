@@ -1,7 +1,7 @@
 import { useAuth } from '@/app/providers';
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from 'react-router-dom';
 
-export const PrivateRoute = ({ children, requiredRol }) => {
+export function PrivateRoute({ children, requiredRol }) {
     const { isAuthenticated, userRol, loading } = useAuth();
     const location = useLocation();
 
@@ -19,11 +19,12 @@ export const PrivateRoute = ({ children, requiredRol }) => {
 
     if (userRol === 'ROLE_ADMIN') {
         return <Navigate to="/admin" replace />;
-    } else if (userRol === 'ROLE_CUSTOMER') {
+    }
+    if (userRol === 'ROLE_CUSTOMER') {
         return <Navigate to="/profile" replace />;
     }
 
     return <Navigate to="/" replace />;
-};
+}
 
 export default PrivateRoute;

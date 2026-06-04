@@ -1,13 +1,6 @@
-import { useCategorias } from '@/app/providers';
-import Navbar from '@/widgets/layout/Navbar/Navbar'
-import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav'
-import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs'
-import { ProductCatalog } from '@/widgets/layout/ProductCatalog'
-import Footer from '@/widgets/layout/Footer/Footer'
-import { useProductosByCategory } from '@/features/catalog';
-
-import { useLocation } from "react-router-dom";
-import "./Catalogo.css"
+import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
+import { ProductCatalog } from '@/widgets/layout/ProductCatalog';
+import './Catalogo.css';
 
 export default function Catalogo() {
 
@@ -17,17 +10,12 @@ export default function Catalogo() {
     ];
 
     return (
-        <>
-            <Navbar />
-            <CategoriasNav />
-            <div className="container">
-                <div className="container-header">
-                    <h1>Catalogo</h1>
-                    <Breadcrumbs items={breadcrumbs} className="container-breadcrumbs" />
-                </div>
-            <ProductCatalog/>
+        <div className="container">
+            <div className="container-header">
+                <h1>Catalogo</h1>
+                <Breadcrumbs items={breadcrumbs} className="container-breadcrumbs" />
             </div>
-            <Footer />
-        </>
+            <ProductCatalog />
+        </div>
     );
 }

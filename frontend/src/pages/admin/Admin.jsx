@@ -2,7 +2,7 @@ import { useAuth } from '@/app/providers';
 import { useState, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 
-import Navbar from '@/widgets/layout/Navbar/Navbar';
+
 import { API_URL } from "../../config/config";
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 
@@ -70,7 +70,7 @@ export default function Admin() {
         
         // Manejo de UI mientras carga o hay error
         if (loading && usuarios.length === 0) {
-            return <><Navbar /><p className='loading'>Cargando...</p></>;
+            return <p className='loading'>Cargando...</p>;
         }
 
         if (error) {
@@ -82,9 +82,7 @@ export default function Admin() {
         // };
 
     return (
-        <>
-            <Navbar />
-            <main className="admin-container">
+        <main className="admin-container">
                 <h1>Admin</h1>
                 
                 <button className='btn-submit' onClick={() => navigate('/admin/users')}>
@@ -104,6 +102,5 @@ export default function Admin() {
                     Cerrar sesión
                 </button>
             </main>
-        </>
     );
 }

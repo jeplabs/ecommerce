@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 
 
-import Navbar from '@/widgets/layout/Navbar/Navbar';
+
 import { ProductForm } from '@/features/admin/ui/ProductForm';
 import {
     getImageUrl,
@@ -218,34 +218,26 @@ export default function ProductEdit() {
 
     if (error) {
         return (
-            <>
-                <Navbar />
-                <main className="product-edit-container">
+        <main className="product-edit-container">
                     <h1>Error al cargar producto</h1>
                     <p className="error">{error}</p>
                     <button onClick={() => navigate('/admin/products')} className="btn-secondary">
                         Volver a la lista
                     </button>
                 </main>
-            </>
         );
     }
 
     if (loading || !productData) {
         return (
-            <>
-                <Navbar />
-                <main className="product-edit-container">
+        <main className="product-edit-container">
                     <div className="loading-indicator">Cargando producto...</div>
                 </main>
-            </>
         );
     }
 
     return (
-        <>
-            <Navbar />
-            <main className="product-edit-container">
+        <main className="product-edit-container">
                 <h1>Editar Producto</h1>
                 <ProductForm
                     initialData={productData}
@@ -255,6 +247,5 @@ export default function ProductEdit() {
                     arbolCategorias={arbolCategorias}
                 />
             </main>
-        </>
     );
 }

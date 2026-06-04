@@ -1,10 +1,6 @@
 import { useCart, useToast } from '@/app/providers';
 import { useMemo } from "react";
-import Navbar from '@/widgets/layout/Navbar/Navbar';
-import Footer from '@/widgets/layout/Footer/Footer';
-
-
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from 'react-router-dom';
 import "./Cart.css";
 
 export default function Cart() {
@@ -44,9 +40,7 @@ export default function Cart() {
     }, [cartTotal]);
 
     return (
-        <>
-            <Navbar />
-            <main className="cart-page">
+        <main className="cart-page">
                 <section className="cart-page__content">
                     <h1>Mi Carrito</h1>
 
@@ -170,8 +164,6 @@ export default function Cart() {
                         </>
                     )}
                 </section>
-            </main>
-            <Footer />
-        </>
+        </main>
     );
 }

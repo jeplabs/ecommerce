@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 
-import Navbar from '@/widgets/layout/Navbar/Navbar';
+
 import { ProductForm } from '@/features/admin/ui/ProductForm';
 
 export default function ProductNew() {
@@ -30,16 +30,15 @@ export default function ProductNew() {
     };
 
     return (
-        <>
-            <Navbar />
+        <main className="product-new-container">
             <h1>Crear Producto</h1>
-            {error && <p className='error'>{error}</p>}
-            <ProductForm 
-                onSubmit={handleCreate} 
+            {error && <p className="error">{error}</p>}
+            <ProductForm
+                onSubmit={handleCreate}
                 isSubmitting={loading}
                 arbolCategorias={arbolCategorias}
                 onCancel={handleCancel}
             />
-        </>
+        </main>
     );
 }

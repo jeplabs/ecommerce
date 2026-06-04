@@ -5,14 +5,11 @@ import { useParams, useNavigate } from "react-router-dom";
 
 
 import { getProductImageUrls, getMainProductImageUrl } from '@/entities/product';
-import Navbar from '@/widgets/layout/Navbar/Navbar';
-import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
 import ProductGallery from '@/widgets/product-detail/ProductGallery/ProductGallery';
 import ProductInfo from '@/widgets/product-detail/ProductInfo/ProductInfo';
 import ProductTabs from '@/widgets/product-detail/ProductTabs/ProductTabs';
-import Footer from '@/widgets/layout/Footer/Footer';
-import "./Producto.css";
+import './Producto.css';
 
 // Función auxiliar para encontrar la ruta completa de una categoría dado su ID o Slug
 const encontrarRutaCategoria = (arbol, targetId, currentPath = []) => {
@@ -120,24 +117,19 @@ export default function Producto() {
     const specsArray = producto.specs ? Object.entries(producto.specs) : [];
 
     return (
-        <>
-            <Navbar />
-            <CategoriasNav />
-            <main className="product-detail-page">
-                <div className="pd-container">
-                    <Breadcrumbs items={breadcrumbs} />
-                    <div className="pd-main-grid">
-                        <ProductGallery producto={producto} />
-                        <ProductInfo 
-                            producto={producto} 
-                            precioFormateado={precioFormateado} 
-                            onAddToCart={addToCart}
-                        />
-                    </div>
-                    <ProductTabs producto={producto} />
+        <main className="product-detail-page">
+            <div className="pd-container">
+                <Breadcrumbs items={breadcrumbs} />
+                <div className="pd-main-grid">
+                    <ProductGallery producto={producto} />
+                    <ProductInfo
+                        producto={producto}
+                        precioFormateado={precioFormateado}
+                        onAddToCart={addToCart}
+                    />
                 </div>
-            </main>
-            <Footer />
-        </>
+                <ProductTabs producto={producto} />
+            </div>
+        </main>
     );
 }

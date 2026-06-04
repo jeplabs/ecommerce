@@ -1,5 +1,5 @@
 import { useProduct, useCategorias, useToast } from '@/app/providers';
-import Navbar from '@/widgets/layout/Navbar/Navbar';
+
 import { useNavigate } from 'react-router-dom';
 
 
@@ -39,9 +39,7 @@ export default function ProductList() {
     };
     
     return (
-        <>
-            <Navbar />
-            <main className="products-container">
+        <main className="products-container">
                 <h1>Admin: Productos y Categorías</h1>
                 
                 {loading && <div className="loading-indicator">Cargando datos...</div>}
@@ -295,6 +293,5 @@ export default function ProductList() {
                 </section>
 
             </main>
-        </>
     );
 }

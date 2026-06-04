@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import Navbar from '@/widgets/layout/Navbar/Navbar';
+
 import { useAdminUser } from '@/features/admin';
 import './UserEdit.css';
 
@@ -19,21 +19,16 @@ export default function UserEdit() {
 
     if (loading) {
         return (
-            <>
-                <Navbar />
-                <main className="admin-user-edit">
+        <main className="admin-user-edit">
                     <p className="admin-user-edit__loading">Cargando usuario…</p>
                 </main>
-            </>
         );
     }
 
     if (!user) return null;
 
     return (
-        <>
-            <Navbar />
-            <main className="admin-user-edit">
+        <main className="admin-user-edit">
                 <Link to="/admin/users" className="admin-user-edit__back">
                     ← Volver a usuarios
                 </Link>
@@ -88,6 +83,5 @@ export default function UserEdit() {
                     </form>
                 </div>
             </main>
-        </>
     );
 }
