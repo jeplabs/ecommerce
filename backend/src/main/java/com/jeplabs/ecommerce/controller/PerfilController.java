@@ -1,6 +1,7 @@
 package com.jeplabs.ecommerce.controller;
 
 import com.jeplabs.ecommerce.domain.usuario.AutenticacionService;
+import com.jeplabs.ecommerce.domain.usuario.DatosActualizarPassword;
 import com.jeplabs.ecommerce.domain.usuario.DatosActualizarPerfil;
 import com.jeplabs.ecommerce.domain.usuario.DatosRespuestaUsuario;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 // @Tag agrupa todos los endpoints de este controller bajo "Perfil" en Swagger UI
 @Tag(name = "Perfil", description = "Datos del usuario autenticado. Requiere token JWT.")
@@ -52,5 +55,14 @@ public class PerfilController {
             @RequestBody @Valid DatosActualizarPerfil datos) {
         String email = authentication.getName();
         return ResponseEntity.ok(service.actualizarPerfil(email, datos));
+    }
+
+    // Endpoint para actualizar contraseña, requiere el password actual para mayor seguridad
+    @PatchMapping("/perfil/password")
+    public ResponseEntity<Map<String, String>> actualizarPassword(
+            Authentication authentication,
+            @RequestBody @Valid DatosActualizarPassword datos) {
+        service.actualizarPassword(authentication.getName(), datos);
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada correctamente"));
     }
 }

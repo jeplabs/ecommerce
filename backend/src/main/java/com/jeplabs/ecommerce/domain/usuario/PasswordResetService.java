@@ -50,13 +50,11 @@ public class PasswordResetService {
 
     @Transactional
     public void resetearPassword(DatosResetPassword datos) {
-        System.out.println("Token recibido: '" + datos.token() + "'");
         PasswordResetToken resetToken = tokenRepositorio
                 .findByToken(datos.token())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Token inválido o inexistente"));
 
-        System.out.println("Token encontrado en BD: " + (resetToken != null));
         if (!resetToken.esValido()) {
             throw new IllegalArgumentException(
                     "El token ha expirado o ya fue utilizado");

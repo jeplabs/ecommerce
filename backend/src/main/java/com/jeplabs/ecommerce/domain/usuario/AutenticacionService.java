@@ -117,4 +117,25 @@ public class AutenticacionService {
 
         return new DatosRespuestaUsuario(usuario);
     }
+
+    // Verifica la contraseña actual antes de cambiarla.
+    // Si no coincide lanza excepción con mensaje genérico para no dar pistas.
+    @Transactional
+    public void actualizarPassword(String email, DatosActualizarPassword datos) {
+        Usuario usuario = repositorio.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Verificar que la contraseña actual es correcta
+        if (!passwordEncoder.matches(datos.passwordActual(), usuario.getPassword())) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+        }
+
+        // Verificar que la nueva contraseña es diferente a la actual
+        if (passwordEncoder.matches(datos.password(), usuario.getPassword())) {
+            throw new IllegalArgumentException(
+                    "La nueva contraseña debe ser diferente a la actual");
+        }
+
+        usuario.actualizarPassword(passwordEncoder.encode(datos.password()));
+    }
 }
