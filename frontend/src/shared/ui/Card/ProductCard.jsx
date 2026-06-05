@@ -6,13 +6,15 @@ export const ProductCard = ({ className = '', imageSrc, altText, title, descript
     const displayedTitle = title?.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
 
     return (
-        <article className={`product-card ${className}`.trim()}>
+        <article className={`product-card ${className}`.trim()} >
             <figure className="card-preview">
                 <img 
                     src={imageSrc} 
                     alt={altText || title} 
                     className="product-image"
                     loading="lazy"
+                    onClick={onAction}
+                    aria-label={`Ver detalles de ${title}`}
                 />
                 {price && (
                     <span className="product-price-tag">${price}</span>
