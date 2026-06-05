@@ -264,18 +264,43 @@ Ruta canónica en la SPA: **`/cart`**. **`/carrito`** redirige a `/cart` (p. ej.
 
 Carpetas legacy `src/config/` y `src/auth/` eliminadas.
 
+## Pages (FSD — composición por ruta)
+
+Cada ruta tiene un **slice** en `pages/<nombre>/`:
+
+```
+pages/home/
+  ui/HomePage.tsx    ← compone widgets; lee router si aplica
+  index.ts           ← API pública del slice
+```
+
+**Reglas:**
+
+- La **page** importa widgets (y features puntuales), arma la vista y concentra `useParams` / `useLocation` / `Navigate` / providers de ruta.
+- Los **widgets** (`*View`, `HomeContent`) no usan `useParams` ni `useLocation`; reciben props (`slug`, `slugPath`, `onNavigate`, …).
+- **Navbar / Footer** siguen en `ShopLayout` / `AdminLayout` (app), no se repiten en cada page.
+
+| Page slice | Compone | Router en page |
+|------------|---------|----------------|
+| `pages/home` | `HomeContent` | `navigate` si no autenticado al agregar al carrito |
+| `pages/catalog` | `CatalogView` | — |
+| `pages/category` | `CategoryProductsView` | `useLocation` → `slugPath`, `segmentos` |
+| `pages/product` | `ProductDetailView` + `<main>` | `useParams().slug` |
+| `pages/cart` | `CartView` + `<main>` | `navigate` → checkout |
+| `pages/checkout` | header + `CheckoutProvider` + `CheckoutContent` | — |
+| `pages/checkout-success` | `CheckoutSuccessView` | `location.state`, `Navigate` |
+| `pages/profile` | header + `ProfileProvider` + `ProfileContent` | `location.state.tab` |
+| `pages/login`, `register` | forms (`shared` / `features`) | `navigate` en register |
+| `pages/admin/*` | `Admin*View` | `useParams`, `navigate` según ruta |
+
+Widgets renombrados: `*Page` → `*View` / `HomeContent`. Helpers: `widgets/catalog/lib/category-tree.js`.
+
+Router: `import { HomePage } from '@/pages/home'` (barrel `@/pages` opcional).
+
 ## Próximos pasos de migración sugeridos
 
-1. Extraer contenido pesado de pages a widgets (`HomePage`, `CatalogPage`, etc.) si se quiere pages de una línea — ver sección *Pages vs widgets* abajo.
-2. Tipar hooks `model/*.js` → `.ts` y reducir `allowJs` cuando sea posible.
-
-### Pages vs widgets (cuándo compensa)
-
-No es solo un archivo intermedio: la **page** queda acoplada al router (`/`, `/catalogo`); el **widget** es el bloque de pantalla reutilizable y testeable sin rutas.
-
-- **Page delgada**: `AppRouter` importa `pages/Home` → reexporta `<HomePage />`. Cambiar layout de ruta no obliga a tocar el widget.
-- **Widget**: agrupa markup, CSS, hooks y subcomponentes de *una pantalla* (p. ej. hero + sliders en home). Otra ruta podría montar el mismo widget con otro layout.
-- **Cuándo omitirlo**: pages ya pequeñas (Login que solo monta un form de `features/auth`) no ganan mucho; priorizar Home, Catálogo, Cart, Checkout, admin.
+1. Tipar hooks `model/*.js` → `.ts` y reducir `allowJs` cuando sea posible.
+2. Estilos globales (`index.css`, `App.css`) → `app/styles/` si se quiere cerrar el bootstrap bajo `app/`.
 
 ## Notas del dominio actual
 

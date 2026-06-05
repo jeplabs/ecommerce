@@ -1,0 +1,17 @@
+export { HomePage } from './home';
+export { CatalogPage } from './catalog';
+export { CategoryPage } from './category';
+export { ProductPage } from './product';
+export { CartPage } from './cart';
+export { CheckoutPage } from './checkout';
+export { CheckoutSuccessPage } from './checkout-success';
+export { ProfilePage } from './profile';
+export { LoginPage } from './login';
+export { RegisterPage } from './register';
+export { AdminDashboardPage } from './admin/dashboard';
+export { AdminProductsPage } from './admin/products';
+export { AdminProductNewPage } from './admin/product-new';
+export { AdminProductEditPage } from './admin/product-edit';
+export { AdminUsersPage } from './admin/users';
+export { AdminUserEditPage } from './admin/user-edit';
+export { AdminOrdersPage } from './admin/orders';
