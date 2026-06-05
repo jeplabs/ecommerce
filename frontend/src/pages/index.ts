@@ -8,6 +8,7 @@ export { CheckoutSuccessPage } from './checkout-success';
 export { ProfilePage } from './profile';
 export { LoginPage } from './login';
 export { RegisterPage } from './register';
+export { ResetPasswordPage } from './reset-password';
 export { AdminDashboardPage } from './admin/dashboard';
 export { AdminProductsPage } from './admin/products';
 export { AdminProductNewPage } from './admin/product-new';

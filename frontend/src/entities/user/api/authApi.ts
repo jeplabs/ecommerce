@@ -122,6 +122,44 @@ export async function updateUsuarioRol(id: number, rol: UserRole): Promise<UserA
     return handleAuthenticatedJson(response, userApiSchema);
 }
 
+/** {@code POST /api/auth/forgot-password} */
+export async function forgotPassword(email: string): Promise<{ mensaje: string }> {
+    const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+    });
+
+    const raw = await readJson(response);
+
+    if (!response.ok) {
+        throw new Error(getErrorMessage(raw, 'Error al solicitar recuperación de contraseña'));
+    }
+
+    return raw as { mensaje: string };
+}
+
+/** {@code POST /api/auth/reset-password} */
+export async function resetPassword(
+    token: string,
+    password: string,
+    confirmarPassword: string
+): Promise<{ mensaje: string }> {
+    const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password, confirmarPassword }),
+    });
+
+    const raw = await readJson(response);
+
+    if (!response.ok) {
+        throw new Error(getErrorMessage(raw, 'Error al restablecer contraseña'));
+    }
+
+    return raw as { mensaje: string };
+}
+
 export const authApi = {
     login,
     register,
@@ -129,4 +167,6 @@ export const authApi = {
     setUsuarioEstado,
     getUsuarioById,
     updateUsuarioRol,
+    forgotPassword,
+    resetPassword,
 };

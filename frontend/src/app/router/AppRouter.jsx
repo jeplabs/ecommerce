@@ -7,6 +7,7 @@ import PrivateRoute from './PrivateRoute';
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { RegisterPage } from '@/pages/register';
+import { ResetPasswordPage } from '@/pages/reset-password';
 import { ProfilePage } from '@/pages/profile';
 import { CartPage } from '@/pages/cart';
 import { CheckoutPage } from '@/pages/checkout';
@@ -39,6 +40,7 @@ export function AppRouter() {
                 <Route element={<ShopLayout showCategoriasNav={false} />}>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route
                         path="/profile"
                         element={

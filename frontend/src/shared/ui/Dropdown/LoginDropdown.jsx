@@ -1,11 +1,12 @@
 import { useAuth } from '@/app/providers';
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
+import ForgotPasswordForm from '@/shared/ui/Form/ForgotPasswordForm';
 import "./LoginDropdown.css";
 
 export default function LoginDropdown({ onClose }) {
     const { login } = useAuth();
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
 
     const [formData, setFormData] = useState({
         email: '',
@@ -45,6 +46,23 @@ export default function LoginDropdown({ onClose }) {
         }
     };
 
+    const handleForgotPasswordSuccess = () => {
+        setShowForgotPassword(false);
+        setFormData({ email: '', password: '' });
+        setError(null);
+    };
+
+    if (showForgotPassword) {
+        return (
+            <div className="dropdown-menu">
+                <ForgotPasswordForm
+                    onBack={() => setShowForgotPassword(false)}
+                    onSuccess={handleForgotPasswordSuccess}
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="dropdown-menu">
             <div className="dropdown-header">
@@ -72,6 +90,18 @@ export default function LoginDropdown({ onClose }) {
                 />
 
                 {error && <span className="dropdown-error">{error}</span>}
+
+                <p className="form-sub">
+                    <a
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setShowForgotPassword(true);
+                        }}
+                    >
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </p>
 
                 <button 
                     type="submit" 
