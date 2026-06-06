@@ -1,4 +1,12 @@
-export const HOME_HERO_SLIDES = [
+export type HomeHeroSlide = {
+    src: string;
+    srcSet: string;
+    sizes: string;
+    alt: string;
+    link: string;
+};
+
+export const HOME_HERO_SLIDES: HomeHeroSlide[] = [
     {
         src: 'https://media.spdigital.cl/file_upload/Desktop_Hero_1_AFPS_(2)_060a5067.webp',
         srcSet: `

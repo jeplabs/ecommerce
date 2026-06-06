@@ -1,22 +1,26 @@
-/**
- * Busca una categoría en el árbol por segmentos de slug (ruta /categoria/a/b).
- */
-export function findCategoryByPath(arbol, segmentos) {
-    if (!segmentos || segmentos.length === 0) return null;
-    const [slugActual, ...rest] = segmentos;
-    const categoria = arbol.find(
-        (c) => c.slug === slugActual || c.id?.toString() === slugActual
-    );
-    if (!categoria) return null;
-    if (rest.length === 0) return categoria;
-    return findCategoryByPath(categoria.subcategorias || [], rest);
-}
+import type { CategoryApi } from '@/entities/category';
+import { findCategoryByPath } from '@/features/catalog/lib/category-path';
+
+export type CategoryBreadcrumbItem = {
+    label: string;
+    path: string | null;
+};
+
+export type CategoryBreadcrumbsResult = {
+    breadcrumbs: CategoryBreadcrumbItem[];
+    categoriaActual: CategoryApi | null;
+};
+
+export { findCategoryByPath };
 
 /**
  * Breadcrumbs para página de categoría (Inicio → Catálogo → … → actual).
  */
-export function buildCategoryBreadcrumbs(arbolCategorias, segmentos) {
-    const breadcrumbs = [
+export function buildCategoryBreadcrumbs(
+    arbolCategorias: CategoryApi[],
+    segmentos: string[]
+): CategoryBreadcrumbsResult {
+    const breadcrumbs: CategoryBreadcrumbItem[] = [
         { label: 'Inicio', path: '/' },
         { label: 'Catálogo', path: '/catalogo' },
     ];
@@ -46,7 +50,11 @@ export function buildCategoryBreadcrumbs(arbolCategorias, segmentos) {
 /**
  * Ruta completa padre → hijo para breadcrumbs de detalle de producto.
  */
-export function findCategoryPathInTree(arbol, targetId, currentPath = []) {
+export function findCategoryPathInTree(
+    arbol: CategoryApi[],
+    targetId: number | string,
+    currentPath: CategoryApi[] = []
+): CategoryApi[] | null {
     for (const cat of arbol) {
         if (cat.id === targetId || cat.slug === targetId) {
             return [...currentPath, cat];

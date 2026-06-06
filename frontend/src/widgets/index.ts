@@ -23,3 +23,13 @@ export { default as AdminProductEditView } from './admin/AdminProductEditView';
 export { default as AdminUsersListView } from './admin/AdminUsersListView';
 export { default as AdminUserEditView } from './admin/AdminUserEditView';
 export { default as AdminOrdersView } from './admin/AdminOrdersView';
+
+export type { CategoryBreadcrumbItem, CategoryBreadcrumbsResult } from './catalog/lib/category-tree';
+export {
+    buildCategoryBreadcrumbs,
+    findCategoryPathInTree,
+    findCategoryByPath,
+} from './catalog/lib/category-tree';
+
+export type { HomeHeroSlide } from './home/home-slides';
+export { HOME_HERO_SLIDES } from './home/home-slides';
