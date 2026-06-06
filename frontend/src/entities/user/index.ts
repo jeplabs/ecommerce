@@ -5,6 +5,7 @@ export type {
     LoginFormValues,
     RegisterFormValues,
     UpdateProfileFormValues,
+    UpdatePasswordFormValues,
     UpdateUserStatusRequest,
     UpdateUserRoleRequest,
     AuthSession,
@@ -21,11 +22,13 @@ export {
     loginFormSchema,
     registerFormSchema,
     updateProfileFormSchema,
+    updatePasswordFormSchema,
     updateUserStatusRequestSchema,
     updateUserRoleRequestSchema,
     mapRegisterFormToRequest,
     mapLoginFormToRequest,
     mapUpdateProfileFormToRequest,
+    mapUpdatePasswordFormToRequest,
 } from './model/types';
 
 export {
@@ -50,6 +53,7 @@ export {
     profileApi,
     getPerfil,
     updatePerfil,
+    updatePassword,
 } from './api';
 
 export { useProfileLogic } from './model/useProfileLogic';

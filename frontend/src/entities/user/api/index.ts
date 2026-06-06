@@ -14,4 +14,5 @@ export {
     profileApi,
     getPerfil,
     updatePerfil,
+    updatePassword,
 } from './profileApi';

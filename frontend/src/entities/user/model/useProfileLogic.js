@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getPerfil, updatePerfil } from '@/entities/user';
+import { getPerfil, updatePerfil, updatePassword as updatePasswordApi } from '@/entities/user';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 
 export const useProfileLogic = () => {
@@ -59,6 +59,25 @@ export const useProfileLogic = () => {
         [handleAuthError]
     );
 
+    const updatePassword = useCallback(
+        async (datos) => {
+            setSaving(true);
+            setError(null);
+            try {
+                const result = await updatePasswordApi(datos);
+                return { success: true, data: result };
+            } catch (err) {
+                if (handleAuthError(err.status)) {
+                    throw new Error('Sesión expirada');
+                }
+                return { success: false, error: err.message };
+            } finally {
+                setSaving(false);
+            }
+        },
+        [handleAuthError]
+    );
+
     return {
         usuario,
         loading,
@@ -66,5 +85,6 @@ export const useProfileLogic = () => {
         error,
         fetchPerfil,
         updatePerfil,
+        updatePassword,
     };
 };

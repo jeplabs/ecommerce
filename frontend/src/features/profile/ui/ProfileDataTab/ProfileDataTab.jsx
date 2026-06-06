@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 
 import { getInitials } from '@/shared/lib/format';
+import ChangePasswordForm from '../ChangePasswordForm/ChangePasswordForm';
 import './ProfileDataTab.css';
 
 export default function ProfileDataTab() {
@@ -56,16 +57,18 @@ export default function ProfileDataTab() {
     const handleCancel = () => {
         setIsEditing(false);
         setFormError(null);
-        fetchPerfil();
+        // fetchPerfil();
     };
 
     return (
         <section className="profile-data" aria-label="Datos personales">
             <ProfileHero usuario={usuario} isEditing={isEditing} />
+            <div className="profile-data__content">
 
             {!isEditing ? (
                 <div className="profile-data__view">
                     <dl className="profile-data__grid">
+                        <h3 className="profile-data__section-title">Información personal</h3>
                         <div className="profile-data__field">
                             <dt>Nombre completo</dt>
                             <dd>{usuario.nombre} {usuario.apellido}</dd>
@@ -91,10 +94,13 @@ export default function ProfileDataTab() {
                             Cerrar sesión
                         </button>
                     </div>
+
+                    {/* <ChangePasswordForm /> */}
                 </div>
             ) : (
+                <>
                 <form className="profile-data__form" onSubmit={handleSubmit}>
-                    <h3 className="profile-data__form-title">Editar datos</h3>
+                    <h3 className="">Editar datos</h3>
                     {formError && <p className="profile-data__error" role="alert">{formError}</p>}
 
                     <div className="profile-data__form-row">
@@ -127,7 +133,11 @@ export default function ProfileDataTab() {
                         </button>
                     </div>
                 </form>
+
+                </>
             )}
+            <ChangePasswordForm />
+            </div>
         </section>
     );
 }
@@ -141,9 +151,10 @@ function ProfileHero({ usuario, isEditing }) {
             <div className="profile-data__info">
                 <h2 className="profile-data__name">{usuario.nombre} {usuario.apellido}</h2>
                 <p className="profile-data__email">{usuario.email}</p>
-                {!isEditing && (
+                <span className="profile-data__member-since">Cliente registrado</span>
+                {/* {!isEditing && (
                     <span className="profile-data__member-since">Cliente registrado</span>
-                )}
+                )} */}
             </div>
         </div>
     );
