@@ -1,5 +1,7 @@
+import { getProductMainImageUrl } from '@/entities/product';
+import type { ProductApi } from '@/entities/product';
 import type { CartApi } from './schemas/api';
-import type { CartLineView, CartSummaryView } from './types';
+import type { CartItemUiView, CartLineView, CartSummaryView } from './types';
 
 export function mapCartItemApiToLineView(
     item: CartApi['items'][number],
@@ -29,4 +31,31 @@ export function mapCartApiToSummary(cart: CartApi): CartSummaryView {
 
 export function isCartEmpty(cart: CartApi): boolean {
     return cart.items.length === 0 || cart.totalItems === 0;
+}
+
+/** Mapea respuesta API + catálogo a ítems usados por CartProvider y checkout. */
+export function mapCartApiToUiItems(
+    cart: CartApi | null | undefined,
+    productos: ProductApi[] = []
+): CartItemUiView[] {
+    if (!cart?.items?.length) return [];
+
+    return cart.items.map((item) => {
+        const producto = productos.find((p) => p.id === item.productoId);
+        const imageUrl = producto ? getProductMainImageUrl(producto) ?? '' : '';
+        const altText = producto?.nombre ?? item.nombreProducto;
+
+        return {
+            id: item.id,
+            productoId: item.productoId,
+            name: item.nombreProducto,
+            sku: item.skuProducto,
+            price: item.precioUnitario,
+            quantity: item.cantidad,
+            qty: item.cantidad,
+            subtotal: item.subtotal,
+            imageUrl,
+            altText,
+        };
+    });
 }

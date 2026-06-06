@@ -1,23 +1,37 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { orderApi } from '@/entities/order';
+import { orderApi } from '../api';
+import type { OrderApi } from './schemas/api';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
+import { ApiError } from '@/shared';
 
 const PAGE_SIZE = 10;
 
-export const useOrdenesLogic = () => {
+export type OrderActionResult<T = void> =
+    | { success: true; data?: T }
+    | { success: false; error: string };
+
+function toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Error desconocido';
+}
+
+function toErrorStatus(error: unknown): number | undefined {
+    return error instanceof ApiError ? error.status : undefined;
+}
+
+export function useOrdenesLogic() {
     const navigate = useNavigate();
-    const [ordenes, setOrdenes] = useState([]);
+    const [ordenes, setOrdenes] = useState<OrderApi[]>([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [loading, setLoading] = useState(false);
     const [detailLoading, setDetailLoading] = useState(false);
-    const [ordenSeleccionada, setOrdenSeleccionada] = useState(null);
-    const [error, setError] = useState(null);
+    const [ordenSeleccionada, setOrdenSeleccionada] = useState<OrderApi | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const handleAuthError = useCallback(
-        (status) => redirectUnauthorized(status, navigate),
+        (status: number | undefined) => redirectUnauthorized(status, navigate),
         [navigate]
     );
 
@@ -27,13 +41,13 @@ export const useOrdenesLogic = () => {
             setError(null);
             try {
                 const data = await orderApi.listarMisOrdenes(pageNum, PAGE_SIZE);
-                setOrdenes(data.content || []);
+                setOrdenes(data.content ?? []);
                 setPage(data.number ?? pageNum);
                 setTotalPages(data.totalPages ?? 0);
                 setTotalElements(data.totalElements ?? 0);
             } catch (err) {
-                if (handleAuthError(err.status)) return;
-                setError(err.message);
+                if (handleAuthError(toErrorStatus(err))) return;
+                setError(toErrorMessage(err));
                 setOrdenes([]);
             } finally {
                 setLoading(false);
@@ -43,7 +57,7 @@ export const useOrdenesLogic = () => {
     );
 
     const cargarDetalle = useCallback(
-        async (ordenId) => {
+        async (ordenId: number): Promise<OrderActionResult<OrderApi>> => {
             setDetailLoading(true);
             setOrdenSeleccionada(null);
             setError(null);
@@ -52,11 +66,11 @@ export const useOrdenesLogic = () => {
                 setOrdenSeleccionada(data);
                 return { success: true, data };
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return { success: false, error: 'Sesión expirada' };
                 }
-                setError(err.message);
-                return { success: false, error: err.message };
+                setError(toErrorMessage(err));
+                return { success: false, error: toErrorMessage(err) };
             } finally {
                 setDetailLoading(false);
             }
@@ -69,26 +83,26 @@ export const useOrdenesLogic = () => {
     }, []);
 
     const cancelarOrden = useCallback(
-        async (ordenId) => {
+        async (ordenId: number): Promise<OrderActionResult<OrderApi>> => {
             try {
                 const data = await orderApi.cancelarOrden(ordenId);
                 setOrdenSeleccionada(data);
                 await fetchOrdenes(page);
-                return { success: true };
+                return { success: true, data };
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return { success: false, error: 'Sesión expirada' };
                 }
-                return { success: false, error: err.message };
+                return { success: false, error: toErrorMessage(err) };
             }
         },
         [fetchOrdenes, page, handleAuthError]
     );
 
     const irAPagina = useCallback(
-        (nuevaPagina) => {
+        (nuevaPagina: number) => {
             if (nuevaPagina < 0 || nuevaPagina >= totalPages) return;
-            fetchOrdenes(nuevaPagina);
+            void fetchOrdenes(nuevaPagina);
         },
         [fetchOrdenes, totalPages]
     );
@@ -108,4 +122,4 @@ export const useOrdenesLogic = () => {
         cancelarOrden,
         irAPagina,
     };
-};
+}

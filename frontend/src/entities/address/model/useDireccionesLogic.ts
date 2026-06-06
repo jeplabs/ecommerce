@@ -1,17 +1,36 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addressApi } from '@/entities/address';
+import { addressApi } from '../api';
+import type { AddressApi } from './schemas/api';
+import type { CreateAddressRequest, UpdateAddressRequest } from './schemas/forms';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
+import { ApiError } from '@/shared';
 
-export const useDireccionesLogic = (enabled = true) => {
+export type AddressActionResult<T = void> =
+    | { success: true; data?: T }
+    | { success: false; error: string; fields?: unknown };
+
+function toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Error desconocido';
+}
+
+function toErrorStatus(error: unknown): number | undefined {
+    return error instanceof ApiError ? error.status : undefined;
+}
+
+function toErrorFields(error: unknown): unknown {
+    return error instanceof ApiError ? error.data : undefined;
+}
+
+export function useDireccionesLogic(enabled = true) {
     const navigate = useNavigate();
-    const [direcciones, setDirecciones] = useState([]);
+    const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     const handleAuthError = useCallback(
-        (status) => redirectUnauthorized(status, navigate),
+        (status: number | undefined) => redirectUnauthorized(status, navigate),
         [navigate]
     );
 
@@ -24,8 +43,8 @@ export const useDireccionesLogic = (enabled = true) => {
             const data = await addressApi.listar();
             setDirecciones(Array.isArray(data) ? data : []);
         } catch (err) {
-            if (handleAuthError(err.status)) return;
-            setError(err.message);
+            if (handleAuthError(toErrorStatus(err))) return;
+            setError(toErrorMessage(err));
             setDirecciones([]);
         } finally {
             setLoading(false);
@@ -34,12 +53,12 @@ export const useDireccionesLogic = (enabled = true) => {
 
     useEffect(() => {
         if (enabled) {
-            fetchDirecciones();
+            void fetchDirecciones();
         }
     }, [enabled, fetchDirecciones]);
 
     const crearDireccion = useCallback(
-        async (datos) => {
+        async (datos: CreateAddressRequest): Promise<AddressActionResult<AddressApi>> => {
             setSaving(true);
             setError(null);
             try {
@@ -47,10 +66,14 @@ export const useDireccionesLogic = (enabled = true) => {
                 await fetchDirecciones();
                 return { success: true, data: nueva };
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return { success: false, error: 'Sesión expirada' };
                 }
-                return { success: false, error: err.message, fields: err.data };
+                return {
+                    success: false,
+                    error: toErrorMessage(err),
+                    fields: toErrorFields(err),
+                };
             } finally {
                 setSaving(false);
             }
@@ -59,7 +82,10 @@ export const useDireccionesLogic = (enabled = true) => {
     );
 
     const actualizarDireccion = useCallback(
-        async (id, datos) => {
+        async (
+            id: number,
+            datos: UpdateAddressRequest
+        ): Promise<AddressActionResult> => {
             setSaving(true);
             setError(null);
             try {
@@ -67,10 +93,14 @@ export const useDireccionesLogic = (enabled = true) => {
                 await fetchDirecciones();
                 return { success: true };
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return { success: false, error: 'Sesión expirada' };
                 }
-                return { success: false, error: err.message, fields: err.data };
+                return {
+                    success: false,
+                    error: toErrorMessage(err),
+                    fields: toErrorFields(err),
+                };
             } finally {
                 setSaving(false);
             }
@@ -79,17 +109,17 @@ export const useDireccionesLogic = (enabled = true) => {
     );
 
     const cambiarPrincipal = useCallback(
-        async (id) => {
+        async (id: number): Promise<AddressActionResult> => {
             setSaving(true);
             try {
                 await addressApi.cambiarPrincipal(id);
                 await fetchDirecciones();
                 return { success: true };
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return { success: false, error: 'Sesión expirada' };
                 }
-                return { success: false, error: err.message };
+                return { success: false, error: toErrorMessage(err) };
             } finally {
                 setSaving(false);
             }
@@ -98,17 +128,17 @@ export const useDireccionesLogic = (enabled = true) => {
     );
 
     const eliminarDireccion = useCallback(
-        async (id) => {
+        async (id: number): Promise<AddressActionResult> => {
             setSaving(true);
             try {
                 await addressApi.eliminar(id);
                 await fetchDirecciones();
                 return { success: true };
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return { success: false, error: 'Sesión expirada' };
                 }
-                return { success: false, error: err.message };
+                return { success: false, error: toErrorMessage(err) };
             } finally {
                 setSaving(false);
             }
@@ -127,4 +157,4 @@ export const useDireccionesLogic = (enabled = true) => {
         cambiarPrincipal,
         eliminarDireccion,
     };
-};
+}

@@ -1,43 +1,58 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { orderApi } from '@/entities/order';
+import { orderApi } from '@/entities/order/api';
+import type { OrderApi, OrderStatus } from '@/entities/order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { useToast } from '@/app/providers/ToastProvider';
+import { ApiError } from '@/shared';
+import type {
+    AdminActionResult,
+    AdminOrderStatusFilter,
+    UseAdminOrdersLogicResult,
+} from './types';
 
 const PAGE_SIZE = 10;
+
+function toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Error desconocido';
+}
+
+function toErrorStatus(error: unknown): number | undefined {
+    return error instanceof ApiError ? error.status : undefined;
+}
 
 /**
  * Listado paginado de órdenes (admin), filtro por estado y actualización de estado.
  */
-export function useAdminOrdersLogic() {
+export function useAdminOrdersLogic(): UseAdminOrdersLogicResult {
     const navigate = useNavigate();
     const { showSuccess, showError } = useToast();
 
-    const [ordenes, setOrdenes] = useState([]);
+    const [ordenes, setOrdenes] = useState<OrderApi[]>([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [estadoFiltro, setEstadoFiltroState] = useState('');
-    const [error, setError] = useState(null);
-    const [updatingId, setUpdatingId] = useState(null);
+    const [estadoFiltro, setEstadoFiltroState] = useState<AdminOrderStatusFilter>('');
+    const [error, setError] = useState<string | null>(null);
+    const [updatingId, setUpdatingId] = useState<number | null>(null);
 
     const [detailModalOpen, setDetailModalOpen] = useState(false);
-    const [ordenDetalle, setOrdenDetalle] = useState(null);
+    const [ordenDetalle, setOrdenDetalle] = useState<OrderApi | null>(null);
     const [detailLoading, setDetailLoading] = useState(false);
 
     const handleAuthError = useCallback(
-        (status) => redirectUnauthorized(status, navigate),
+        (status: number | undefined) => redirectUnauthorized(status, navigate),
         [navigate]
     );
 
-    const setEstadoFiltro = useCallback((valor) => {
+    const setEstadoFiltro = useCallback((valor: AdminOrderStatusFilter) => {
         setEstadoFiltroState(valor);
         setPage(0);
     }, []);
 
     const fetchPage = useCallback(
-        async (pageNum) => {
+        async (pageNum: number) => {
             if (!localStorage.getItem('token')) {
                 navigate('/login', { replace: true });
                 return;
@@ -56,11 +71,11 @@ export function useAdminOrdersLogic() {
                 setTotalPages(data.totalPages ?? 0);
                 setTotalElements(data.totalElements ?? 0);
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return;
                 }
                 console.error('Error al listar órdenes (admin)', err);
-                setError(err.message);
+                setError(toErrorMessage(err));
                 setOrdenes([]);
             } finally {
                 setLoading(false);
@@ -74,7 +89,7 @@ export function useAdminOrdersLogic() {
     }, [page, estadoFiltro, fetchPage]);
 
     const irAPagina = useCallback(
-        (nuevaPagina) => {
+        (nuevaPagina: number) => {
             if (nuevaPagina < 0 || nuevaPagina >= totalPages) return;
             setPage(nuevaPagina);
         },
@@ -82,7 +97,10 @@ export function useAdminOrdersLogic() {
     );
 
     const updateEstadoOrden = useCallback(
-        async (ordenId, nuevoEstado) => {
+        async (
+            ordenId: number,
+            nuevoEstado: OrderStatus
+        ): Promise<AdminActionResult<OrderApi>> => {
             setUpdatingId(ordenId);
             try {
                 const updated = await orderApi.actualizarEstadoOrdenAdmin(ordenId, nuevoEstado);
@@ -93,11 +111,12 @@ export function useAdminOrdersLogic() {
                 showSuccess('Estado del pedido actualizado');
                 return { success: true, data: updated };
             } catch (err) {
-                if (handleAuthError(err.status)) {
+                if (handleAuthError(toErrorStatus(err))) {
                     return { success: false, error: 'Sesión expirada' };
                 }
-                showError(err.message);
-                return { success: false, error: err.message };
+                const message = toErrorMessage(err);
+                showError(message);
+                return { success: false, error: message };
             } finally {
                 setUpdatingId(null);
             }
@@ -106,7 +125,7 @@ export function useAdminOrdersLogic() {
     );
 
     const abrirDetalle = useCallback(
-        async (ordenId) => {
+        async (ordenId: number): Promise<AdminActionResult<OrderApi>> => {
             setDetailModalOpen(true);
             setOrdenDetalle(null);
             setDetailLoading(true);
@@ -115,12 +134,13 @@ export function useAdminOrdersLogic() {
                 setOrdenDetalle(data);
                 return { success: true, data };
             } catch (err) {
-                if (handleAuthError(err.status)) {
-                    return { success: false };
+                if (handleAuthError(toErrorStatus(err))) {
+                    return { success: false, error: 'Sesión expirada' };
                 }
-                showError(err.message);
+                const message = toErrorMessage(err);
+                showError(message);
                 setDetailModalOpen(false);
-                return { success: false, error: err.message };
+                return { success: false, error: message };
             } finally {
                 setDetailLoading(false);
             }

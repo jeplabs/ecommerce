@@ -1,20 +1,26 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { shippingApi, partitionShippingServices } from '@/entities/shipping';
+import { shippingApi } from '../api';
+import { partitionShippingServices } from './mappers';
+import type { EnvioOpcionesState, UseEnvioOpcionesResult } from './types';
 
-const EMPTY_OPCIONES = {
+const EMPTY_OPCIONES: EnvioOpcionesState = {
     envioGratis: false,
     costoEnvio: null,
     montoMinimoGratis: null,
     servicios: [],
 };
 
+function toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Error desconocido';
+}
+
 /**
  * Carga opciones de envío desde el API según el subtotal del carrito.
  */
-export function useEnvioOpciones(subtotal) {
-    const [opciones, setOpciones] = useState(EMPTY_OPCIONES);
+export function useEnvioOpciones(subtotal: number): UseEnvioOpcionesResult {
+    const [opciones, setOpciones] = useState<EnvioOpcionesState>(EMPTY_OPCIONES);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchOpciones = useCallback(async () => {
         setLoading(true);
@@ -28,7 +34,7 @@ export function useEnvioOpciones(subtotal) {
                 servicios: Array.isArray(data.servicios) ? data.servicios : [],
             });
         } catch (err) {
-            setError(err.message || 'No se pudieron cargar los servicios de envío');
+            setError(toErrorMessage(err) || 'No se pudieron cargar los servicios de envío');
             setOpciones(EMPTY_OPCIONES);
         } finally {
             setLoading(false);
@@ -36,7 +42,7 @@ export function useEnvioOpciones(subtotal) {
     }, [subtotal]);
 
     useEffect(() => {
-        fetchOpciones();
+        void fetchOpciones();
     }, [fetchOpciones]);
 
     const { pickup, delivery } = useMemo(

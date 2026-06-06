@@ -2,6 +2,14 @@ export { useAdminOrdersLogic } from './model/useAdminOrdersLogic';
 export { useAdminUser } from './model/useAdminUser';
 export { useAdminUsersList } from './model/useAdminUsersList';
 
+export type {
+    AdminActionResult,
+    AdminOrderStatusFilter,
+    UseAdminOrdersLogicResult,
+    UseAdminUsersListResult,
+    UseAdminUserResult,
+} from './model/types';
+
 export * from './lib/product-image-admin';
 
 export { default as AdminOrdersTable } from './ui/AdminOrdersTable/AdminOrdersTable';

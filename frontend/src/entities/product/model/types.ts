@@ -66,3 +66,11 @@ export type ProductListFilters = {
     page?: number;
     size?: number;
 };
+
+export type ProductMutationResult =
+    | { success: true }
+    | { success: false; message: string };
+
+export type ProductImagesMutationResult =
+    | { success: true; data: ProductImageApi[] }
+    | { success: false; message: string };

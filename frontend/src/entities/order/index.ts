@@ -56,4 +56,7 @@ export {
     type ListOrdersAdminParams,
 } from './api';
 
-export { useOrdenesLogic } from './model/useOrdenesLogic';
+export {
+    useOrdenesLogic,
+    type OrderActionResult,
+} from './model/useOrdenesLogic';

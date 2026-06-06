@@ -27,4 +27,7 @@ export {
     eliminar,
 } from './api';
 
-export { useDireccionesLogic } from './model/useDireccionesLogic';
+export {
+    useDireccionesLogic,
+    type AddressActionResult,
+} from './model/useDireccionesLogic';

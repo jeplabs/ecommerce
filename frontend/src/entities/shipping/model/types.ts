@@ -29,3 +29,21 @@ export type ShippingOptionsView = {
     pickupServices: ShippingServiceView[];
     deliveryServices: ShippingServiceView[];
 };
+
+/** Estado normalizado de opciones de envío (hook + provider checkout). */
+export type EnvioOpcionesState = {
+    envioGratis: boolean;
+    costoEnvio: number | null;
+    montoMinimoGratis: number | null;
+    servicios: ShippingServiceApi[];
+};
+
+export type UseEnvioOpcionesResult = {
+    opciones: EnvioOpcionesState;
+    servicios: ShippingServiceApi[];
+    pickupServices: ShippingServiceApi[];
+    deliveryServices: ShippingServiceApi[];
+    loading: boolean;
+    error: string | null;
+    refetch: () => Promise<void>;
+};

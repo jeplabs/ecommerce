@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import { categoryApi } from '@/entities/category';
+import { useState, useEffect, useCallback } from 'react';
+import { categoryApi } from '../api';
+import type { CategoryApi } from './schemas/api';
+import type { CreateCategoryRequest } from './schemas/forms';
 
-export const useCategorias = () => {
-    const [arbolCategorias, setArbolCategorias] = useState([]);
+export function useCategorias() {
+    const [arbolCategorias, setArbolCategorias] = useState<CategoryApi[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -17,14 +19,13 @@ export const useCategorias = () => {
                 setLoading(false);
             }
         };
-        fetchCategorias();
+        void fetchCategorias();
     }, []);
 
-    const createCategory = async (categoriaDatos) => {
+    const createCategory = useCallback(async (categoriaDatos: CreateCategoryRequest) => {
         setLoading(true);
         try {
             const nuevaCategoria = await categoryApi.create(categoriaDatos);
-            // Actualizar estado localmente sin recargar
             setArbolCategorias((prev) => [...prev, nuevaCategoria]);
             return nuevaCategoria;
         } catch (error) {
@@ -33,11 +34,11 @@ export const useCategorias = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     return {
         arbolCategorias,
         loading,
         createCategory,
     };
-};
+}

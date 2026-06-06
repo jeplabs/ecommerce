@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { useCartLogic } from '@/entities/cart/model/useCartLogic';
+import { useCartLogic } from '@/entities/cart';
 
 const CartContext = createContext();
 

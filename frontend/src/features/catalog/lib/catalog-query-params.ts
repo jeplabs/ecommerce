@@ -1,8 +1,15 @@
 import { createDefaultFiltros, createEmptySpecs } from './filter-facets';
+import type { CatalogFilterOpciones, CatalogFiltros, CatalogSortOrder } from '../model/types';
 
-const SORT_VALUES = new Set(['price-asc', 'price-desc', 'name-asc', 'name-desc', 'newest']);
+const SORT_VALUES = new Set<CatalogSortOrder>([
+    'price-asc',
+    'price-desc',
+    'name-asc',
+    'name-desc',
+    'newest',
+]);
 
-function safeOpciones(opciones) {
+function safeOpciones(opciones: CatalogFilterOpciones | null | undefined) {
     return {
         precioMin: opciones?.precioMin ?? 0,
         precioMax: opciones?.precioMax ?? 10000,
@@ -10,25 +17,32 @@ function safeOpciones(opciones) {
     };
 }
 
-function clearFilterParams(next, facetKeys) {
+function clearFilterParams(next: URLSearchParams, facetKeys: string[]) {
     next.delete('precioMin');
     next.delete('precioMax');
     next.delete('sort');
-    (facetKeys || []).forEach((k) => next.delete(k));
+    facetKeys.forEach((k) => next.delete(k));
     ['marca', 'ram', 'almacenamiento'].forEach((k) => next.delete(k));
 }
 
-export function getPersistedSortParam(searchParams) {
+export function getPersistedSortParam(
+    searchParams: URLSearchParams | null | undefined
+): CatalogSortOrder | null {
     if (!searchParams) return null;
     const s = searchParams.get('sort');
-    return SORT_VALUES.has(s) ? s : null;
+    return SORT_VALUES.has(s as CatalogSortOrder) ? (s as CatalogSortOrder) : null;
 }
 
-export function getEffectiveSortOrder(searchParams) {
+export function getEffectiveSortOrder(
+    searchParams: URLSearchParams | null | undefined
+): CatalogSortOrder {
     return getPersistedSortParam(searchParams) ?? 'price-asc';
 }
 
-export function parseFiltrosFromParams(searchParams, opciones) {
+export function parseFiltrosFromParams(
+    searchParams: URLSearchParams | null | undefined,
+    opciones: CatalogFilterOpciones
+): CatalogFiltros | null {
     if (!searchParams) return null;
 
     const { precioMin: defMin, precioMax: defMax, facetKeys } = safeOpciones(opciones);
@@ -87,19 +101,33 @@ export function parseFiltrosFromParams(searchParams, opciones) {
     return { specs, precioMin, precioMax };
 }
 
-export function isFiltrosDefault(filtros, opciones) {
+export function isFiltrosDefault(
+    filtros: CatalogFiltros | null | undefined,
+    opciones: CatalogFilterOpciones
+): boolean {
     if (!filtros) return true;
     const { precioMin, precioMax, facetKeys } = safeOpciones(opciones);
 
     for (const key of facetKeys) {
         const selected = filtros.specs?.[key];
-        if (selected?.length > 0) return false;
+        if (selected?.length) return false;
     }
 
     return filtros.precioMin === precioMin && filtros.precioMax === precioMax;
 }
 
-export function buildCatalogSearchParams(prevSearchParams, { filtros, sort, opciones }) {
+export function buildCatalogSearchParams(
+    prevSearchParams: URLSearchParams,
+    {
+        filtros,
+        sort,
+        opciones,
+    }: {
+        filtros: CatalogFiltros | null;
+        sort: CatalogSortOrder | null;
+        opciones: CatalogFilterOpciones;
+    }
+): URLSearchParams {
     const next = new URLSearchParams(prevSearchParams);
     const { facetKeys } = safeOpciones(opciones);
 

@@ -6,6 +6,8 @@ export type {
     ShippingPaymentFormValues,
     ShippingServiceView,
     ShippingOptionsView,
+    EnvioOpcionesState,
+    UseEnvioOpcionesResult,
 } from './model/types';
 
 export {

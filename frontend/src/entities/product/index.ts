@@ -13,6 +13,8 @@ export type {
     ProductCardView,
     ProductDetailView,
     ProductListFilters,
+    ProductMutationResult,
+    ProductImagesMutationResult,
 } from './model/types';
 
 export {

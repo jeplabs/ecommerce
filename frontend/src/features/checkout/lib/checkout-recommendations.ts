@@ -1,11 +1,20 @@
+import type { OrderItemApi } from '@/entities/order';
+import type { ProductApi } from '@/entities/product';
+
 /**
  * Productos sugeridos tras una compra (excluye lo ya pedido).
  */
-export function pickPostCheckoutProducts(productos, orderItems = [], limit = 12) {
+export function pickPostCheckoutProducts(
+    productos: ProductApi[] | null | undefined,
+    orderItems: OrderItemApi[] | null | undefined = [],
+    limit = 12
+): ProductApi[] {
     if (!Array.isArray(productos) || productos.length === 0) return [];
 
     const purchasedIds = new Set(
-        (orderItems || []).map((item) => item.productoId).filter((id) => id != null)
+        (orderItems ?? [])
+            .map((item) => item.productoId)
+            .filter((id): id is number => id != null)
     );
 
     const hidden = ['OCULTO', 'DESCONTINUADO'];

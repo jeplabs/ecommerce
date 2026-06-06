@@ -297,10 +297,40 @@ Widgets renombrados: `*Page` → `*View` / `HomeContent`. Helpers: `widgets/cata
 
 Router: `import { HomePage } from '@/pages/home'` (barrel `@/pages` opcional).
 
+## Hooks TypeScript (Fase B — en curso)
+
+| Hook | Ubicación | Estado |
+|------|-----------|--------|
+| `useCartLogic` | `entities/cart/model` | ✅ `.ts` + `CartItemUiView`, `mapCartApiToUiItems` |
+| `useCheckoutLogic` | `features/checkout/model` | ✅ `.ts` |
+| `useCheckoutSuccessRecommendations` | `features/checkout/model` | ✅ `.ts` |
+| `pickPostCheckoutProducts` | `features/checkout/lib` | ✅ `.ts` |
+| `useAuthLogic` | `features/auth/model` | ✅ `.ts` |
+| `useProfileLogic` | `entities/user/model` | ✅ `.ts` |
+| `useProducts` | `entities/product/model` | ✅ `.ts` + `ProductMutationResult` |
+| `useCategorias` | `entities/category/model` | ✅ `.ts` |
+| `useDireccionesLogic` | `entities/address/model` | ✅ `.ts` + `AddressActionResult` |
+| `useEnvioOpciones` | `entities/shipping/model` | ✅ `.ts` + `UseEnvioOpcionesResult` |
+| `useOrdenesLogic` | `entities/order/model` | ✅ `.ts` + `OrderActionResult` |
+| `useProductosByCategory` | `features/catalog/model` | ✅ `.ts` |
+| `useProductFilterForm` | `features/catalog/model` | ✅ `.ts` |
+
+**Entities:** todos los hooks `model/` en `.ts`.
+
+### features/catalog (Fase B — migrado)
+
+| Módulo | Estado |
+|--------|--------|
+| `useProductosByCategory`, `useProductFilterForm` | ✅ `.ts` |
+| `filter-facets`, `catalog-query-params`, `category-path` | ✅ `.ts` |
+| `model/types.ts` | `CatalogFiltros`, `CatalogFilterOpciones`, `CatalogSortOrder`, … |
+
+Pendientes Fase B: `features/admin`, `widgets/catalog/lib/category-tree.js`, `home-slides.js`.
+
 ## Próximos pasos de migración sugeridos
 
-1. Tipar hooks `model/*.js` → `.ts` y reducir `allowJs` cuando sea posible.
-2. Estilos globales (`index.css`, `App.css`) → `app/styles/` si se quiere cerrar el bootstrap bajo `app/`.
+1. Completar Fase B (hooks y libs restantes) y revisar `allowJs`.
+2. Estilos globales (`index.css`, `App.css`) → `app/styles/`.
 
 ## Notas del dominio actual
 

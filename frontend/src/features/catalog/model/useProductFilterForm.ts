@@ -1,12 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createDefaultFiltros, mergeFiltrosWithFacets } from '@/features/catalog/lib/filter-facets';
+import { createDefaultFiltros, mergeFiltrosWithFacets } from '../lib/filter-facets';
+import type { CatalogFiltros, UseProductFilterFormParams } from './types';
+
+type PriceField = 'precioMin' | 'precioMax';
+
+type ToggleOptions = { draft?: boolean };
 
 /**
  * Estado del formulario de filtros (desktop inmediato, móvil con borrador + drawer).
  */
-export function useProductFilterForm({ filtros, opciones, onFilterChange }) {
+export function useProductFilterForm({
+    filtros,
+    opciones,
+    onFilterChange,
+}: UseProductFilterFormParams) {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [draftFiltros, setDraftFiltros] = useState(() =>
+    const [draftFiltros, setDraftFiltros] = useState<CatalogFiltros>(() =>
         mergeFiltrosWithFacets(filtros, opciones)
     );
 
@@ -25,27 +34,30 @@ export function useProductFilterForm({ filtros, opciones, onFilterChange }) {
         setIsDrawerOpen(false);
     }, []);
 
-    const toggleSpec = useCallback((specKey, matchValue, { draft = false } = {}) => {
-        const updater = (prev) => {
-            const current = prev.specs[specKey] || [];
-            const nextValues = current.includes(matchValue)
-                ? current.filter((v) => v !== matchValue)
-                : [...current, matchValue];
-            return {
-                ...prev,
-                specs: { ...prev.specs, [specKey]: nextValues },
+    const toggleSpec = useCallback(
+        (specKey: string, matchValue: string, { draft = false }: ToggleOptions = {}) => {
+            const updater = (prev: CatalogFiltros): CatalogFiltros => {
+                const current = prev.specs[specKey] || [];
+                const nextValues = current.includes(matchValue)
+                    ? current.filter((v) => v !== matchValue)
+                    : [...current, matchValue];
+                return {
+                    ...prev,
+                    specs: { ...prev.specs, [specKey]: nextValues },
+                };
             };
-        };
 
-        if (draft) {
-            setDraftFiltros(updater);
-        } else {
-            onFilterChange(updater(filtros));
-        }
-    }, [filtros, onFilterChange]);
+            if (draft) {
+                setDraftFiltros(updater);
+            } else {
+                onFilterChange(updater(filtros));
+            }
+        },
+        [filtros, onFilterChange]
+    );
 
     const setPrice = useCallback(
-        (name, value, { draft = false } = {}) => {
+        (name: PriceField, value: string, { draft = false }: ToggleOptions = {}) => {
             const numeric = Number(value);
             const nextValue = Number.isNaN(numeric) ? 0 : numeric;
 
@@ -59,7 +71,7 @@ export function useProductFilterForm({ filtros, opciones, onFilterChange }) {
     );
 
     const clearFiltros = useCallback(
-        ({ draft = false } = {}) => {
+        ({ draft = false }: ToggleOptions = {}) => {
             const limpios = createDefaultFiltros(opciones);
             if (draft) {
                 setDraftFiltros(limpios);
@@ -86,7 +98,7 @@ export function useProductFilterForm({ filtros, opciones, onFilterChange }) {
 
     useEffect(() => {
         if (!isDrawerOpen) return undefined;
-        const onKeyDown = (e) => {
+        const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') closeDrawer();
         };
         document.addEventListener('keydown', onKeyDown);

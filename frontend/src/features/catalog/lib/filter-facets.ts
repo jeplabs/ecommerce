@@ -1,20 +1,32 @@
-/** Parámetros de URL reservados (no son claves de especificación). */
-export const RESERVED_FILTER_PARAMS = new Set(['sort', 'search', 'precioMin', 'precioMax']);
+import type {
+    CatalogFilterOpciones,
+    CatalogFiltros,
+    CatalogProduct,
+    SpecFacetOption,
+} from '../model/types';
 
-export function normalizeSpecDisplay(value) {
+/** Parámetros de URL reservados (no son claves de especificación). */
+export const RESERVED_FILTER_PARAMS = new Set([
+    'sort',
+    'search',
+    'precioMin',
+    'precioMax',
+]);
+
+export function normalizeSpecDisplay(value: unknown): string {
     if (value == null || value === '') return '';
     return String(value).trim().replace(/\s+/g, ' ');
 }
 
 /** Valor normalizado para comparar en filtros y URL. */
-export function normalizeSpecMatch(value) {
+export function normalizeSpecMatch(value: unknown): string {
     return normalizeSpecDisplay(value).replace(/\s/g, '');
 }
 
 /**
  * Extrae facetas dinámicas desde `productos[].specs` del catálogo o categoría actual.
  */
-export function extractFilterFacets(productos) {
+export function extractFilterFacets(productos: CatalogProduct[]): CatalogFilterOpciones {
     if (!productos?.length) {
         return {
             specFacets: {},
@@ -24,11 +36,11 @@ export function extractFilterFacets(productos) {
         };
     }
 
-    const facetMaps = {};
+    const facetMaps: Record<string, Map<string, string>> = {};
     let precioMin = Infinity;
     let precioMax = -Infinity;
 
-    const addFacetValue = (key, raw) => {
+    const addFacetValue = (key: string, raw: unknown) => {
         const displayLabel = normalizeSpecDisplay(raw);
         const matchValue = normalizeSpecMatch(raw);
         if (!matchValue) return;
@@ -58,7 +70,7 @@ export function extractFilterFacets(productos) {
         a.localeCompare(b, 'es', { sensitivity: 'base' })
     );
 
-    const specFacets = {};
+    const specFacets: Record<string, SpecFacetOption[]> = {};
     for (const key of facetKeys) {
         specFacets[key] = Array.from(facetMaps[key].entries())
             .sort((a, b) => a[1].localeCompare(b[1], 'es', { sensitivity: 'base' }))
@@ -73,11 +85,11 @@ export function extractFilterFacets(productos) {
     };
 }
 
-export function createEmptySpecs(facetKeys) {
-    return Object.fromEntries((facetKeys || []).map((key) => [key, []]));
+export function createEmptySpecs(facetKeys: string[] = []): Record<string, string[]> {
+    return Object.fromEntries(facetKeys.map((key) => [key, []]));
 }
 
-export function createDefaultFiltros(opciones) {
+export function createDefaultFiltros(opciones: CatalogFilterOpciones): CatalogFiltros {
     return {
         specs: createEmptySpecs(opciones?.facetKeys),
         precioMin: opciones?.precioMin ?? 0,
@@ -85,11 +97,14 @@ export function createDefaultFiltros(opciones) {
     };
 }
 
-export function mergeFiltrosWithFacets(filtros, opciones) {
+export function mergeFiltrosWithFacets(
+    filtros: CatalogFiltros | null | undefined,
+    opciones: CatalogFilterOpciones
+): CatalogFiltros {
     const base = createDefaultFiltros(opciones);
     if (!filtros) return base;
     const specs = { ...base.specs };
-    for (const key of opciones?.facetKeys || []) {
+    for (const key of opciones?.facetKeys ?? []) {
         specs[key] = Array.isArray(filtros.specs?.[key]) ? [...filtros.specs[key]] : [];
     }
     return {
@@ -99,7 +114,10 @@ export function mergeFiltrosWithFacets(filtros, opciones) {
     };
 }
 
-export function productMatchesSpecs(producto, specs) {
+export function productMatchesSpecs(
+    producto: CatalogProduct,
+    specs: Record<string, string[]> | undefined
+): boolean {
     if (!specs) return true;
     for (const [key, selected] of Object.entries(specs)) {
         if (!selected?.length) continue;
@@ -111,7 +129,11 @@ export function productMatchesSpecs(producto, specs) {
     return true;
 }
 
-export function applyProductFilters(productos, filtros, searchTerm = '') {
+export function applyProductFilters(
+    productos: CatalogProduct[],
+    filtros: CatalogFiltros | null | undefined,
+    searchTerm = ''
+): CatalogProduct[] {
     if (!productos?.length) return [];
 
     let resultado = [...productos];
@@ -134,7 +156,10 @@ export function applyProductFilters(productos, filtros, searchTerm = '') {
     return resultado;
 }
 
-export function countActiveFilters(filtros, opciones) {
+export function countActiveFilters(
+    filtros: CatalogFiltros | null | undefined,
+    opciones: CatalogFilterOpciones
+): number {
     if (!filtros) return 0;
     let count = 0;
     for (const values of Object.values(filtros.specs || {})) {

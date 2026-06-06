@@ -1,21 +1,46 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressApi } from '@/entities/address';
-import { orderApi } from '@/entities/order';
-import { paymentApi, PAYMENT_METHODS } from '@/features/checkout';
+import type { AddressApi } from '@/entities/address';
+import { orderApi, FORMA_PAGO_ENVIO } from '@/entities/order';
+import type { FormaPago, OrderApi } from '@/entities/order';
+import { paymentApi, PAYMENT_METHODS } from '@/features/checkout/api';
+import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
-import { FORMA_PAGO_ENVIO } from '@/entities/order';
+import { ApiError } from '@/shared';
 import {
     isPickupService,
     resolveShippingCost,
     resolveShippingCostInTotal,
     getServicioCostos,
 } from '@/entities/shipping';
+import type { UseEnvioOpcionesResult } from '@/entities/shipping';
 import { useEnvioOpcionesContext } from '@/app/providers';
+import type { CartItemUiView } from '@/entities/cart';
 
-const STEPS = ['envio', 'pago', 'confirmar'];
+const STEPS = ['envio', 'pago', 'confirmar'] as const;
 
-export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
+export type CheckoutStep = (typeof STEPS)[number];
+
+export type CheckoutLogicParams = {
+    cartItems: CartItemUiView[];
+    cartTotal: number;
+    isEmpty: boolean;
+};
+
+export type CheckoutCompleteResult =
+    | { success: true; orden: OrderApi; payment: PaymentSuccessResult }
+    | { success: false; error?: string };
+
+function toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Error desconocido';
+}
+
+function toErrorStatus(error: unknown): number | undefined {
+    return error instanceof ApiError ? error.status : undefined;
+}
+
+export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogicParams) {
     const navigate = useNavigate();
     const {
         opciones: envioOpciones,
@@ -25,15 +50,15 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         refetch: refetchEnvioOpciones,
         pickupServices,
         deliveryServices,
-    } = useEnvioOpcionesContext();
+    } = useEnvioOpcionesContext() as UseEnvioOpcionesResult;
 
     const [step, setStep] = useState(0);
-    const [direcciones, setDirecciones] = useState([]);
-    const [selectedAddressId, setSelectedAddressId] = useState(null);
-    const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState(null);
-    const [formaPagoEnvio, setFormaPagoEnvio] = useState(FORMA_PAGO_ENVIO.EN_LINEA);
-    const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS.STRIPE);
-    const [cardData, setCardData] = useState({
+    const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
+    const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+    const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState<number | null>(null);
+    const [formaPagoEnvio, setFormaPagoEnvio] = useState<FormaPago>(FORMA_PAGO_ENVIO.EN_LINEA);
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
+    const [cardData, setCardData] = useState<StripeCardFormValues>({
         cardholder: '',
         cardNumber: '',
         expiry: '',
@@ -43,13 +68,13 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
 
     const [loadingAddresses, setLoadingAddresses] = useState(true);
     const [processing, setProcessing] = useState(false);
-    const [error, setError] = useState(null);
-    const [paymentResult, setPaymentResult] = useState(null);
+    const [error, setError] = useState<string | null>(null);
+    const [paymentResult, setPaymentResult] = useState<PaymentSuccessResult | null>(null);
 
     const currentStep = STEPS[step];
 
     const handleAuthError = useCallback(
-        (status) =>
+        (status: number | undefined) =>
             redirectUnauthorized(status, navigate, {
                 state: { from: '/checkout' },
             }),
@@ -61,7 +86,9 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         setError(null);
         try {
             const data = await addressApi.listar();
-            const activas = (Array.isArray(data) ? data : []).filter((d) => d.activo !== false);
+            const activas = (Array.isArray(data) ? data : []).filter(
+                (d) => d.activo !== false
+            );
             setDirecciones(activas);
 
             const principal = activas.find((d) => d.principal);
@@ -71,8 +98,8 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
                 setSelectedAddressId(activas[0].id);
             }
         } catch (err) {
-            if (handleAuthError(err.status)) return;
-            setError(err.message);
+            if (handleAuthError(toErrorStatus(err))) return;
+            setError(toErrorMessage(err));
         } finally {
             setLoadingAddresses(false);
         }
@@ -80,7 +107,7 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
 
     useEffect(() => {
         if (!isEmpty) {
-            fetchDirecciones();
+            void fetchDirecciones();
         }
     }, [isEmpty, fetchDirecciones]);
 
@@ -99,7 +126,8 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
 
         const preferPickup = pickupServices[0];
         const preferDelivery = deliveryServices[0];
-        const defaultId = preferPickup?.id ?? preferDelivery?.id ?? servicios[0]?.id ?? null;
+        const defaultId =
+            preferPickup?.id ?? preferDelivery?.id ?? servicios[0]?.id ?? null;
         setSelectedServicioEnvioId(defaultId);
     }, [
         loadingEnvioOpciones,
@@ -109,10 +137,11 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         selectedServicioEnvioId,
     ]);
 
-    const selectedAddress = direcciones.find((d) => d.id === selectedAddressId) || null;
+    const selectedAddress =
+        direcciones.find((d) => d.id === selectedAddressId) ?? null;
 
     const selectedServicio = useMemo(
-        () => servicios.find((s) => s.id === selectedServicioEnvioId) || null,
+        () => servicios.find((s) => s.id === selectedServicioEnvioId) ?? null,
         [servicios, selectedServicioEnvioId]
     );
 
@@ -162,10 +191,10 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
     const canContinuePayment =
         paymentMethod === PAYMENT_METHODS.WEBPAY ||
         (paymentMethod === PAYMENT_METHODS.STRIPE &&
-            cardData.cardholder &&
-            cardData.cardNumber &&
-            cardData.expiry &&
-            cardData.cvc);
+            Boolean(cardData.cardholder) &&
+            Boolean(cardData.cardNumber) &&
+            Boolean(cardData.expiry) &&
+            Boolean(cardData.cvc));
 
     const goNext = useCallback(() => {
         setError(null);
@@ -181,11 +210,14 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         }
     }, [step]);
 
-    const updateCardField = useCallback((name, value) => {
-        setCardData((prev) => ({ ...prev, [name]: value }));
-    }, []);
+    const updateCardField = useCallback(
+        (name: keyof StripeCardFormValues, value: string) => {
+            setCardData((prev) => ({ ...prev, [name]: value }));
+        },
+        []
+    );
 
-    const completeCheckout = useCallback(async () => {
+    const completeCheckout = useCallback(async (): Promise<CheckoutCompleteResult> => {
         if (!selectedAddressId || !selectedServicioEnvioId || isEmpty) {
             setError('Completa dirección y forma de entrega');
             return { success: false };
@@ -201,7 +233,8 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
                 method: paymentMethod,
                 amount: orderTotal,
                 orderReference,
-                cardData: paymentMethod === PAYMENT_METHODS.STRIPE ? cardData : undefined,
+                cardData:
+                    paymentMethod === PAYMENT_METHODS.STRIPE ? cardData : undefined,
             });
 
             if (!payment.success) {
@@ -224,10 +257,10 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
                 payment,
             };
         } catch (err) {
-            if (handleAuthError(err.status)) {
+            if (handleAuthError(toErrorStatus(err))) {
                 return { success: false, error: 'Sesión expirada' };
             }
-            const message = err.message || 'Error al procesar el pedido';
+            const message = toErrorMessage(err) || 'Error al procesar el pedido';
             setError(message);
             return { success: false, error: message };
         } finally {
@@ -291,4 +324,4 @@ export const useCheckoutLogic = ({ cartItems, cartTotal, isEmpty }) => {
         cartTotal,
         PAYMENT_METHODS,
     };
-};
+}

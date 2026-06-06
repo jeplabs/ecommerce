@@ -6,6 +6,8 @@ export type {
     UpdateCartItemQuantityRequest,
     CartLineView,
     CartSummaryView,
+    CartItemUiView,
+    CartActionResult,
 } from './model/types';
 
 export {
@@ -16,7 +18,12 @@ export {
     updateCartItemQuantityRequestSchema,
 } from './model/types';
 
-export { mapCartApiToSummary, mapCartItemApiToLineView, isCartEmpty } from './model/mappers';
+export {
+    mapCartApiToSummary,
+    mapCartItemApiToLineView,
+    mapCartApiToUiItems,
+    isCartEmpty,
+} from './model/mappers';
 
 export {
     cartApi,
