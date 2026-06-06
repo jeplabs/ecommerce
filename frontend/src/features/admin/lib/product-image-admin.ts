@@ -80,7 +80,7 @@ export function resolvePrincipalBackendId(
         return Number(principal.id);
     }
 
-    const url = getImageUrl(principal);
+    const url = principal.url;
     if (url && Array.isArray(addedImages)) {
         const match = addedImages.find((db) => db.url === url);
         if (match?.id != null) return Number(match.id);

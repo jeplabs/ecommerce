@@ -10,7 +10,7 @@ type AppProvidersProps = {
 };
 
 /**
- * Providers globales de la app (árbol en App.jsx).
+ * Providers globales de la app (árbol en App.tsx).
  * Checkout y Profile se montan a nivel de página.
  */
 export function AppProviders({ children }: AppProvidersProps) {

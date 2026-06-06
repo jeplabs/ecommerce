@@ -3,7 +3,7 @@ import { findCategoryByPath } from '@/features/catalog/lib/category-path';
 
 export type CategoryBreadcrumbItem = {
     label: string;
-    path: string | null;
+    path?: string | null;
 };
 
 export type CategoryBreadcrumbsResult = {
