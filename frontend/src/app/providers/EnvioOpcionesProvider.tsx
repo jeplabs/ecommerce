@@ -1,10 +1,11 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useCart } from '@/app/providers/CartProvider';
 import { useEnvioOpciones } from '@/entities/shipping/model/useEnvioOpciones';
+import type { UseEnvioOpcionesResult } from '@/entities/shipping';
 
-const EnvioOpcionesContext = createContext(null);
+const EnvioOpcionesContext = createContext<UseEnvioOpcionesResult | null>(null);
 
-export const useEnvioOpcionesContext = () => {
+export const useEnvioOpcionesContext = (): UseEnvioOpcionesResult => {
     const context = useContext(EnvioOpcionesContext);
     if (!context) {
         throw new Error('useEnvioOpcionesContext debe usarse dentro de EnvioOpcionesProvider');
@@ -12,8 +13,12 @@ export const useEnvioOpcionesContext = () => {
     return context;
 };
 
+type EnvioOpcionesProviderProps = {
+    children: ReactNode;
+};
+
 /** Opciones de envío del backend según subtotal del carrito (checkout). */
-export function EnvioOpcionesProvider({ children }) {
+export function EnvioOpcionesProvider({ children }: EnvioOpcionesProviderProps) {
     const { cartTotal } = useCart();
     const envio = useEnvioOpciones(cartTotal);
 

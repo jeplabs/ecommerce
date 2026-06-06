@@ -1,9 +1,11 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useProducts } from '@/entities/product/model/useProducts';
 
-const ProductContext = createContext();
+export type ProductContextValue = ReturnType<typeof useProducts>;
 
-export const useProduct = () => {
+const ProductContext = createContext<ProductContextValue | null>(null);
+
+export const useProduct = (): ProductContextValue => {
     const context = useContext(ProductContext);
     if (!context) {
         throw new Error('useProduct debe ser usado dentro de un ProductProvider');
@@ -11,7 +13,11 @@ export const useProduct = () => {
     return context;
 };
 
-export function ProductProvider({ children }) {
+type ProductProviderProps = {
+    children: ReactNode;
+};
+
+export function ProductProvider({ children }: ProductProviderProps) {
     const productsLogic = useProducts();
 
     return (

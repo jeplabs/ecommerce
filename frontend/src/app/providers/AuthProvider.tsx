@@ -1,11 +1,23 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useAuthLogic } from '@/features/auth/model/useAuthLogic';
 
-const AuthContext = createContext();
+export type AuthContextValue = ReturnType<typeof useAuthLogic>;
 
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }) {
+export const useAuth = (): AuthContextValue => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth debe usarse dentro de AuthProvider');
+    }
+    return context;
+};
+
+type AuthProviderProps = {
+    children: ReactNode;
+};
+
+export function AuthProvider({ children }: AuthProviderProps) {
     const auth = useAuthLogic();
 
     return (
@@ -14,6 +26,7 @@ export function AuthProvider({ children }) {
                 isAuthenticated: auth.isAuthenticated,
                 user: auth.user,
                 userRol: auth.userRol,
+                loading: auth.loading,
                 login: auth.login,
                 register: auth.register,
                 logout: auth.logout,

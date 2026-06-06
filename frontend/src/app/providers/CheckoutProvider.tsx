@@ -1,11 +1,16 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useCart } from '@/app/providers/CartProvider';
 import { EnvioOpcionesProvider } from '@/app/providers/EnvioOpcionesProvider';
 import { useCheckoutLogic } from '@/features/checkout/model/useCheckoutLogic';
 
-const CheckoutContext = createContext();
+export type CheckoutContextValue = ReturnType<typeof useCheckoutLogic> & {
+    cartLoading: boolean;
+    isEmpty: boolean;
+};
 
-export const useCheckout = () => {
+const CheckoutContext = createContext<CheckoutContextValue | null>(null);
+
+export const useCheckout = (): CheckoutContextValue => {
     const context = useContext(CheckoutContext);
     if (!context) {
         throw new Error('useCheckout debe usarse dentro de CheckoutProvider');
@@ -13,7 +18,11 @@ export const useCheckout = () => {
     return context;
 };
 
-function CheckoutProviderInner({ children }) {
+type CheckoutProviderInnerProps = {
+    children: ReactNode;
+};
+
+function CheckoutProviderInner({ children }: CheckoutProviderInnerProps) {
     const { items, cartTotal, isEmpty, loading: cartLoading } = useCart();
     const checkout = useCheckoutLogic({
         cartItems: items,
@@ -34,7 +43,11 @@ function CheckoutProviderInner({ children }) {
     );
 }
 
-export function CheckoutProvider({ children }) {
+type CheckoutProviderProps = {
+    children: ReactNode;
+};
+
+export function CheckoutProvider({ children }: CheckoutProviderProps) {
     return (
         <EnvioOpcionesProvider>
             <CheckoutProviderInner>{children}</CheckoutProviderInner>

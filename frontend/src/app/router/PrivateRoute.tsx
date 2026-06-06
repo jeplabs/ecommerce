@@ -1,7 +1,14 @@
+import type { ReactNode } from 'react';
 import { useAuth } from '@/app/providers';
+import type { UserRole } from '@/entities/user';
 import { Navigate, useLocation } from 'react-router-dom';
 
-export function PrivateRoute({ children, requiredRol }) {
+type PrivateRouteProps = {
+    children: ReactNode;
+    requiredRol?: UserRole;
+};
+
+export function PrivateRoute({ children, requiredRol }: PrivateRouteProps) {
     const { isAuthenticated, userRol, loading } = useAuth();
     const location = useLocation();
 

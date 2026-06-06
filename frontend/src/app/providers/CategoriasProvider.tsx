@@ -1,9 +1,11 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useCategorias as useCategoriasHook } from '@/entities/category/model/useCategorias';
 
-const CategoriasContext = createContext();
+export type CategoriasContextValue = ReturnType<typeof useCategoriasHook>;
 
-const useCategoriasContextValue = () => {
+const CategoriasContext = createContext<CategoriasContextValue | null>(null);
+
+const useCategoriasContextValue = (): CategoriasContextValue => {
     const context = useContext(CategoriasContext);
     if (!context) {
         throw new Error('useCategorias debe ser usado dentro de un CategoriasProvider');
@@ -11,7 +13,11 @@ const useCategoriasContextValue = () => {
     return context;
 };
 
-export function CategoriasProvider({ children }) {
+type CategoriasProviderProps = {
+    children: ReactNode;
+};
+
+export function CategoriasProvider({ children }: CategoriasProviderProps) {
     const categoriasData = useCategoriasHook();
 
     return (

@@ -14,7 +14,6 @@ import {
     resolveShippingCostInTotal,
     getServicioCostos,
 } from '@/entities/shipping';
-import type { UseEnvioOpcionesResult } from '@/entities/shipping';
 import { useEnvioOpcionesContext } from '@/app/providers';
 import type { CartItemUiView } from '@/entities/cart';
 
@@ -50,7 +49,7 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
         refetch: refetchEnvioOpciones,
         pickupServices,
         deliveryServices,
-    } = useEnvioOpcionesContext() as UseEnvioOpcionesResult;
+    } = useEnvioOpcionesContext();
 
     const [step, setStep] = useState(0);
     const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
