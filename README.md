@@ -5,6 +5,12 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-blue?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT-green?style=for-the-badge&logo=springsecurity&logoColor=white)
 ![Flyway](https://img.shields.io/badge/Flyway-Migrations-red?style=for-the-badge&logo=flyway&logoColor=white)
+![React](https://img.shields.io/badge/React-19.2.0-blue?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-blue?style=for-the-badge&logo=typescript&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-4.4.3-blue?style=for-the-badge&logo=zod&logoColor=white)
+![CSS Modules](https://img.shields.io/badge/CSS%20Modules-2.1.1-purple?style=for-the-badge&logo=css-modules&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7.3.1-purple?style=for-the-badge&logo=vite&logoColor=white)
+![pnpm](https://img.shields.io/badge/pnpm-9.6.4-red?style=for-the-badge&logo=pnpm&logoColor=white)
 ![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow?style=for-the-badge)
 
 API REST de e-commerce tecnológico desarrollada de forma colaborativa con el objetivo de aplicar buenas prácticas de desarrollo en equipo, metodología Scrum y tecnologías modernas del ecosistema Java.
@@ -31,7 +37,7 @@ API REST de e-commerce tecnológico desarrollada de forma colaborativa con el ob
 | Base de datos | PostgreSQL |
 | Migraciones | Flyway |
 | Documentación API | SpringDoc + Redocly |
-| Frontend | React (repositorio separado) |
+| Frontend | React + TypeScript + CSS Modules |
 | Gestión de proyecto | Jira + Scrum |
 | Control de versiones | Git + GitHub |
 
@@ -171,6 +177,9 @@ com.jeplabs.ecommerce
 - Java 21
 - Maven
 - PostgreSQL
+- Node.js LTS
+- pnpm
+- Git
 
 ### Pasos
 
@@ -185,8 +194,14 @@ cd ecommerce
 # - Credenciales de la base de datos
 # - Secreto JWT
 
-# 3. Ejecutar
+# 3. Ejecutar Backend en una terminal
+cd backend
 ./mvnw spring-boot:run
+
+# 4. Ejecutar Frontend en otra terminal
+cd frontend
+pnpm install
+pnpm run dev
 ```
 
 > Las migraciones de base de datos se ejecutan automáticamente con **Flyway** al iniciar la aplicación.

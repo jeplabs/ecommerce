@@ -3,6 +3,7 @@ import { AuthSessionListeners } from '@/features/auth';
 import ShopLayout from '@/widgets/layout/ShopLayout/ShopLayout';
 import AdminLayout from '@/widgets/layout/AdminLayout/AdminLayout';
 import PrivateRoute from './PrivateRoute';
+import ScrollToTop from './ScrollToTop';
 
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
@@ -26,6 +27,7 @@ import { AdminOrdersPage } from '@/pages/admin/orders';
 export function AppRouter() {
     return (
         <Router>
+            <ScrollToTop />
             <AuthSessionListeners />
             <Routes>
                 {/* Tienda: nav + categorías + footer */}
