@@ -1,0 +1,12 @@
+/**
+ * Punto de entrada de estilos globales (importar solo desde main.tsx).
+ *
+ * Orden importa: tokens → animaciones → reset → legacy por dominio → utilidades.
+ */
+@import './tokens.css';
+@import './animations.css';
+@import './reset.css';
+@import './buttons-legacy.css';
+@import './forms-legacy.css';
+@import './admin-legacy.css';
+@import './utilities.css';

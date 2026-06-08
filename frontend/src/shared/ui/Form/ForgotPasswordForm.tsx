@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { forgotPassword } from '@/entities/user/api/authApi';
+import { Button } from '@/shared/ui/Button';
 
 type ForgotPasswordFormProps = {
     onBack: () => void;
@@ -45,9 +46,9 @@ export default function ForgotPasswordForm({ onBack, onSuccess }: ForgotPassword
                     Revisa tu bandeja de entrada y sigue las instrucciones para recuperar tu
                     contraseña.
                 </p>
-                <button type="button" className="btn-submit" onClick={onBack}>
+                <Button type="button" variant="primary" fullWidth onClick={onBack}>
                     Volver al login
-                </button>
+                </Button>
             </div>
         );
     }
@@ -81,9 +82,9 @@ export default function ForgotPasswordForm({ onBack, onSuccess }: ForgotPassword
             {error && <span className="error">{error}</span>}
 
             <br />
-            <button type="submit" className="btn-submit" disabled={isLoading}>
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
                 {isLoading ? 'Enviando...' : 'Enviar correo'}
-            </button>
+            </Button>
         </form>
     );
 }

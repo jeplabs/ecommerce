@@ -1,3 +1,4 @@
+import { Button } from '@/shared/ui/Button';
 import './Footer.css';
 
 type IconProps = {
@@ -222,9 +223,9 @@ const Footer = () => {
                                 className="footer-input"
                                 required
                             />
-                            <button type="submit" className="btn-submit">
+                            <Button type="submit" variant="primary">
                                 Unirme al Newsletter
-                            </button>
+                            </Button>
                         </form>
                         <div className="contact-row">
                             <span className="icon-text">

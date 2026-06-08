@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { resetPassword } from '@/entities/user/api/authApi';
+import { Button } from '@/shared/ui/Button';
 import styles from '@/pages/login/ui/LoginPage.module.css';
 
 export function ResetPasswordPage() {
@@ -60,9 +61,9 @@ export function ResetPasswordPage() {
             <div className={styles.authPage}>
                 <h1>Token inválido</h1>
                 <p className="form-sub">El enlace de recuperación es inválido o ha expirado.</p>
-                <button type="button" className="btn-submit" onClick={() => navigate('/login')}>
+                <Button type="button" variant="primary" fullWidth onClick={() => navigate('/login')}>
                     Volver al login
-                </button>
+                </Button>
             </div>
         );
     }
@@ -72,9 +73,9 @@ export function ResetPasswordPage() {
             <div className={styles.authPage}>
                 <h1>Contraseña restablecida</h1>
                 <p className="form-sub">Tu contraseña ha sido actualizada. Ya puedes iniciar sesión con tu nueva contraseña.</p>
-                <button type="button" className="btn-submit" onClick={() => navigate('/login')}>
+                <Button type="button" variant="primary" fullWidth onClick={() => navigate('/login')}>
                     Ir a iniciar sesión
-                </button>
+                </Button>
             </div>
         );
     }
@@ -112,9 +113,9 @@ export function ResetPasswordPage() {
                 {error && <span className="error">{error}</span>}
 
                 <br />
-                <button type="submit" className="btn-submit" disabled={isLoading}>
+                <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
                     {isLoading ? 'Actualizando...' : 'Actualizar contraseña'}
-                </button>
+                </Button>
 
                 <p className="form-sub">
                     <a

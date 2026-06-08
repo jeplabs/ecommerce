@@ -1,3 +1,6 @@
+export { Button } from './Button';
+export type { ButtonProps, ButtonVariant } from './Button';
+
 export { default as Breadcrumbs } from './Breadcrumbs/Breadcrumbs';
 export { default as Carousel } from './Carousel/Carousel';
 export { ProductCard } from './Card/ProductCard';

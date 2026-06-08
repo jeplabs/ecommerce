@@ -1,6 +1,7 @@
 import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/shared/ui/Button';
 import ForgotPasswordForm from './ForgotPasswordForm';
 
 type LoginFormData = {
@@ -95,9 +96,9 @@ export default function LoginForm() {
             </p>
 
             <br />
-            <button className="btn-submit" type="submit">
+            <Button type="submit" variant="primary" fullWidth>
                 Iniciar sesión
-            </button>
+            </Button>
         </form>
     );
 }

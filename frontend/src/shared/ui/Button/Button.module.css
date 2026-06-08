@@ -1,0 +1,142 @@
+/**
+ * Primitiva Button — variantes alineadas a tokens globales.
+ * Sustituye gradualmente .btn-submit, .profile-btn--*, etc.
+ */
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+        background 0.25s,
+        transform 0.15s,
+        box-shadow 0.25s,
+        border-color 0.2s,
+        color 0.2s;
+    max-width: none;
+    padding: 0.75rem 1.25rem;
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+/* primary — antes .btn-submit / .profile-btn--primary */
+.primary {
+    background: var(--indigo);
+    color: var(--text);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+}
+
+.primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
+    pointer-events: none;
+}
+
+.primary:hover:not(:disabled) {
+    background: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.45);
+}
+
+.primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* secondary — antes .profile-btn--secondary */
+.secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+    box-shadow: none;
+}
+
+.secondary:hover:not(:disabled) {
+    border-color: var(--indigo);
+}
+
+/* ghost — antes .profile-btn--ghost */
+.ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    box-shadow: none;
+}
+
+.ghost:hover:not(:disabled) {
+    color: var(--error);
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* danger — acciones destructivas */
+.danger {
+    background: var(--error);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+}
+
+.danger:hover:not(:disabled) {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.danger:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* outline — admin .btn-edit / .btn-delete */
+.outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    box-shadow: none;
+}
+
+.outlinePrimary {
+    composes: outline;
+    border-color: var(--indigo);
+}
+
+.outlinePrimary:hover:not(:disabled) {
+    background: var(--indigo);
+    color: #0d0d0d;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+.outlineDanger {
+    composes: outline;
+    border-color: #ef4444;
+}
+
+.outlineDanger:hover:not(:disabled) {
+    background: #ef4444;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}

@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useProfile, useToast } from '@/app/providers';
 import { updatePasswordFormSchema } from '@/entities/user';
+import { Button } from '@/shared/ui/Button';
 
 const EMPTY_FORM = {
     passwordActual: '',
@@ -83,13 +84,9 @@ export default function ChangePasswordForm() {
                     Actualiza tu contraseña ingresando la actual y la nueva.
                 </p>
                 <div className="profile-data__actions">
-                    <button
-                        type="button"
-                        className="profile-btn profile-btn--primary"
-                        onClick={() => setIsOpen(true)}
-                        >
+                    <Button type="button" variant="primary" onClick={() => setIsOpen(true)}>
                         Cambiar contraseña
-                    </button>
+                    </Button>
                 </div>
             </section>
         );
@@ -156,21 +153,12 @@ export default function ChangePasswordForm() {
                 </div>
 
                 <div className="profile-data__actions">
-                    <button
-                        type="submit"
-                        className="profile-btn profile-btn--primary"
-                        disabled={isSubmitting}
-                    >
+                    <Button type="submit" variant="primary" disabled={isSubmitting}>
                         {isSubmitting ? 'Actualizando…' : 'Actualizar contraseña'}
-                    </button>
-                    <button
-                        type="button"
-                        className="profile-btn profile-btn--secondary"
-                        onClick={handleCancel}
-                        disabled={isSubmitting}
-                    >
+                    </Button>
+                    <Button type="button" variant="secondary" onClick={handleCancel} disabled={isSubmitting}>
                         Cancelar
-                    </button>
+                    </Button>
                 </div>
             </form>
         </section>

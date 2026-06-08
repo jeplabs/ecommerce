@@ -1,6 +1,7 @@
 import { useProduct, useToast } from '@/app/providers';
 import type { NavigateFunction } from 'react-router-dom';
 import type { ProductAdminApi, ProductApi } from '@/entities/product';
+import { Button } from '@/shared/ui/Button';
 
 type AdminProductListViewProps = {
     onNavigate: NavigateFunction;
@@ -166,15 +167,12 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
             {loading && <div className="loading-indicator">Cargando datos...</div>}
 
             <div className="admin-product-actions">
-                <button
-                    onClick={() => onNavigate('/admin/products/new')}
-                    className="btn-submit"
-                >
+                <Button type="button" variant="primary" onClick={() => onNavigate('/admin/products/new')}>
                     Agregar Producto
-                </button>
-                <button onClick={() => onNavigate('/admin')} className="btn-submit">
+                </Button>
+                <Button type="button" variant="primary" onClick={() => onNavigate('/admin')}>
                     Volver atrás
-                </button>
+                </Button>
             </div>
 
             <h2>Productos Disponibles</h2>

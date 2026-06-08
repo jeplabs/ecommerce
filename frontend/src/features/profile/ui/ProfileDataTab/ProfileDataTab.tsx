@@ -2,6 +2,7 @@ import { useProfile, useAuth, useToast } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { getInitials } from '@/shared/lib/format';
+import { Button } from '@/shared/ui/Button';
 import type { UserApi } from '@/entities/user';
 import ChangePasswordForm from '../ChangePasswordForm/ChangePasswordForm';
 import './ProfileDataTab.css';
@@ -91,12 +92,12 @@ export default function ProfileDataTab() {
                     </dl>
 
                     <div className="profile-data__actions">
-                        <button type="button" className="profile-btn profile-btn--primary" onClick={startEditing}>
+                        <Button type="button" variant="primary" onClick={startEditing}>
                             Editar perfil
-                        </button>
-                        <button type="button" className="profile-btn profile-btn--ghost" onClick={logout}>
+                        </Button>
+                        <Button type="button" variant="ghost" onClick={logout}>
                             Cerrar sesión
-                        </button>
+                        </Button>
                     </div>
                 </div>
             ) : (
@@ -127,12 +128,12 @@ export default function ProfileDataTab() {
                     </div>
 
                     <div className="profile-data__actions">
-                        <button type="submit" className="profile-btn profile-btn--primary" disabled={saving}>
+                        <Button type="submit" variant="primary" disabled={saving}>
                             {saving ? 'Guardando…' : 'Guardar cambios'}
-                        </button>
-                        <button type="button" className="profile-btn profile-btn--secondary" onClick={handleCancel} disabled={saving}>
+                        </Button>
+                        <Button type="button" variant="secondary" onClick={handleCancel} disabled={saving}>
                             Cancelar
-                        </button>
+                        </Button>
                     </div>
                 </form>
 

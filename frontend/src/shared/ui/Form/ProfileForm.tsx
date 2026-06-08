@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import type { UpdateProfileFormValues, UserApi } from '@/entities/user';
+import { Button } from '@/shared/ui/Button';
 
 type ProfileFormProps = {
     user: UserApi;
@@ -68,9 +69,9 @@ export default function ProfileForm({ user, onSave, onCancel }: ProfileFormProps
                     <span style={{ fontSize: '0.8em', color: '#666' }}>(No editable)</span>
                 </div>
 
-                <button className="btn-submit" onClick={() => setIsEditing(true)}>
+                <Button type="button" variant="primary" onClick={() => setIsEditing(true)}>
                     Editar Perfil
-                </button>
+                </Button>
             </div>
         );
     }
@@ -125,17 +126,12 @@ export default function ProfileForm({ user, onSave, onCancel }: ProfileFormProps
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                    className="btn-submit"
-                    type="submit"
-                    disabled={loading}
-                    style={{ padding: '8px 16px', cursor: 'pointer' }}
-                >
+                <Button type="submit" variant="primary" disabled={loading}>
                     {loading ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
-                <button
-                    className="btn-submit"
+                </Button>
+                <Button
                     type="button"
+                    variant="secondary"
                     onClick={() => {
                         setIsEditing(false);
                         onCancel();
@@ -143,7 +139,7 @@ export default function ProfileForm({ user, onSave, onCancel }: ProfileFormProps
                     disabled={loading}
                 >
                     Cancelar
-                </button>
+                </Button>
             </div>
         </form>
     );

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderStatus } from '@/entities/order';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
+import { Button } from '@/shared/ui/Button';
 import './OrdersTab.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
@@ -166,23 +167,25 @@ export default function OrdersTab() {
 
                             {totalPages > 1 && (
                                 <div className="orders-tab__pagination">
-                                    <button
+                                    <Button
                                         type="button"
-                                        className="profile-btn profile-btn--secondary"
+                                        variant="secondary"
+                                        className="orders-tab__page-btn"
                                         onClick={() => irAPagina(page - 1)}
                                         disabled={page === 0 || loading}
                                     >
                                         Anterior
-                                    </button>
+                                    </Button>
                                     <span>Página {page + 1} de {totalPages}</span>
-                                    <button
+                                    <Button
                                         type="button"
-                                        className="profile-btn profile-btn--secondary"
+                                        variant="secondary"
+                                        className="orders-tab__page-btn"
                                         onClick={() => irAPagina(page + 1)}
                                         disabled={page >= totalPages - 1 || loading}
                                     >
                                         Siguiente
-                                    </button>
+                                    </Button>
                                 </div>
                             )}
                         </>

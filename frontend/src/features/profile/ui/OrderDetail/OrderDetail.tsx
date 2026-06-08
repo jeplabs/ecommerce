@@ -1,6 +1,7 @@
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
+import { Button } from '@/shared/ui/Button';
 import './OrderDetail.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
@@ -93,14 +94,16 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
             )}
 
             {canCancel && onCancel && (
-                <button
+                <Button
                     type="button"
-                    className="profile-btn profile-btn--ghost order-detail__cancel"
+                    variant="ghost"
+                    className="order-detail__cancel"
+                    fullWidth
                     onClick={() => onCancel(orden.id)}
                     disabled={cancelling}
                 >
                     {cancelling ? 'Cancelando…' : 'Cancelar pedido'}
-                </button>
+                </Button>
             )}
         </div>
     );

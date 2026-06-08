@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ProductApi } from '@/entities/product';
 import type { CartActionResult } from '@/entities/cart';
+import { Button } from '@/shared/ui/Button';
 import './ProductInfo.css';
 
 type ProductInfoProps = {
@@ -89,14 +90,15 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
                     </button>
                 </div>
 
-                <button
+                <Button
                     type="button"
-                    className="btn-submit"
+                    variant="primary"
+                    className="pd-add-btn"
                     disabled={!disponible || agregando}
                     onClick={handleAddToCart}
                 >
                     {agregando ? 'Agregando...' : disponible ? 'Añadir al Carrito' : 'Sin Stock'}
-                </button>
+                </Button>
                 <button type="button" className="btn-secondary" aria-label="Añadir a favoritos">
                     <span className="material-symbols-outlined">favorite_border</span>
                 </button>

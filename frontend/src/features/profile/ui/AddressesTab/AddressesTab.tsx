@@ -8,6 +8,7 @@ import {
 import type { AddressApi } from '@/entities/address';
 import type { AddressFormValues } from '@/entities/address';
 import AddressForm from '../AddressForm/AddressForm';
+import { Button } from '@/shared/ui/Button';
 import './AddressesTab.css';
 
 export default function AddressesTab() {
@@ -82,13 +83,14 @@ export default function AddressesTab() {
                     <p>Gestiona tus direcciones de envío</p>
                 </div>
                 {!showForm && !editingAddress && (
-                    <button
+                    <Button
                         type="button"
-                        className="profile-btn profile-btn--primary addresses-tab__add-btn"
+                        variant="primary"
+                        className="addresses-tab__add-btn"
                         onClick={() => setShowForm(true)}
                     >
                         + Nueva dirección
-                    </button>
+                    </Button>
                 )}
             </div>
 
@@ -116,13 +118,9 @@ export default function AddressesTab() {
             ) : activeDirecciones.length === 0 && !showForm ? (
                 <div className="addresses-tab__empty">
                     <p>No tienes direcciones guardadas.</p>
-                    <button
-                        type="button"
-                        className="profile-btn profile-btn--primary"
-                        onClick={() => setShowForm(true)}
-                    >
+                    <Button type="button" variant="primary" onClick={() => setShowForm(true)}>
                         Agregar primera dirección
-                    </button>
+                    </Button>
                 </div>
             ) : (
                 <ul className="addresses-list">
@@ -182,21 +180,21 @@ export default function AddressesTab() {
                                 <div className="address-card__confirm">
                                     <p>¿Eliminar esta dirección?</p>
                                     <div className="address-card__confirm-actions">
-                                        <button
+                                        <Button
                                             type="button"
-                                            className="profile-btn profile-btn--secondary"
+                                            variant="secondary"
                                             onClick={() => setConfirmDelete(null)}
                                         >
                                             No
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
                                             type="button"
-                                            className="profile-btn profile-btn--primary"
+                                            variant="primary"
                                             onClick={() => handleDelete(dir.id)}
                                             disabled={saving}
                                         >
                                             Sí, eliminar
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             )}

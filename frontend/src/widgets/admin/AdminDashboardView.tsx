@@ -4,6 +4,7 @@ import type { NavigateFunction } from 'react-router-dom';
 import type { UserApi } from '@/entities/user';
 import { API_URL } from '@/shared/config';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
+import { Button } from '@/shared/ui/Button';
 
 type AdminDashboardViewProps = {
     onNavigate: NavigateFunction;
@@ -67,19 +68,19 @@ export default function AdminDashboardView({ onNavigate }: AdminDashboardViewPro
         <main className="admin-container">
             <h1>Admin</h1>
 
-            <button type="button" className="btn-submit" onClick={() => onNavigate('/admin/users')}>
+            <Button type="button" variant="primary" onClick={() => onNavigate('/admin/users')}>
                 Usuarios
-            </button>
-            <button type="button" className="btn-submit" onClick={() => onNavigate('/admin/products')}>
+            </Button>
+            <Button type="button" variant="primary" onClick={() => onNavigate('/admin/products')}>
                 Productos
-            </button>
-            <button type="button" className="btn-submit" onClick={() => onNavigate('/admin/orders')}>
+            </Button>
+            <Button type="button" variant="primary" onClick={() => onNavigate('/admin/orders')}>
                 Pedidos
-            </button>
+            </Button>
 
-            <button onClick={logout} className="btn-submit">
+            <Button type="button" variant="primary" onClick={logout}>
                 Cerrar sesión
-            </button>
+            </Button>
         </main>
     );
 }

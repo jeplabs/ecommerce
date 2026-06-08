@@ -44,7 +44,7 @@
     color: var(--muted);
 }
 
-.addresses-tab__empty .profile-btn {
+.addresses-tab__empty button {
     margin-top: 1rem;
     max-width: 240px;
     margin-left: auto;
@@ -159,7 +159,7 @@
     margin-top: 0.5rem;
 }
 
-.address-card__confirm-actions .profile-btn {
+.address-card__confirm-actions button {
     flex: 1;
     padding: 0.5rem;
     font-size: 0.82rem;

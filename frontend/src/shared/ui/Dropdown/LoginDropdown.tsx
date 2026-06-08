@@ -2,6 +2,7 @@ import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import ForgotPasswordForm from '@/shared/ui/Form/ForgotPasswordForm';
+import { Button } from '@/shared/ui/Button';
 import './LoginDropdown.css';
 
 type LoginDropdownProps = {
@@ -112,9 +113,9 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
                     </a>
                 </p>
 
-                <button type="submit" className="btn-submit" disabled={isLoading}>
+                <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
                     {isLoading ? 'Cargando...' : 'Entrar'}
-                </button>
+                </Button>
             </form>
 
             <div className="dropdown-divider"></div>

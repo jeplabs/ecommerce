@@ -5,6 +5,7 @@ import {
 } from '@/features/admin/lib/product-image-admin';
 import type { AdminImageApiSource, AdminProductFormImage } from '@/features/admin/lib/product-image-admin';
 import type { CategoryTreeNode } from '@/entities/category';
+import { Button } from '@/shared/ui/Button';
 
 type ProductFormImage = AdminProductFormImage;
 
@@ -948,14 +949,14 @@ export const ProductForm = ({
                     {/* Botón Agregar */}
                     <div>
                         <label>(Opcional)</label>
-                        <button 
-                            type="button" 
-                            onClick={addAdditionalCategory} 
-                            className="btn-submit"
+                        <Button
+                            type="button"
+                            variant="primary"
+                            onClick={addAdditionalCategory}
                             style={{ marginTop: '6px' }}
                         >
                             Agregar categoría
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -1021,15 +1022,15 @@ export const ProductForm = ({
                             {/* Botón Eliminar */}
                             <div>
                                 <label>Remover</label>
-                                <button 
-                                    type="button" 
-                                    className="btn-submit" 
+                                <Button
+                                    type="button"
+                                    variant="danger"
                                     onClick={() => removeAdditionalCategory(group.id)}
                                     title="Eliminar categoría"
                                     style={{ marginTop: '6px' }}
                                 >
                                     Eliminar
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     );
@@ -1118,14 +1119,14 @@ export const ProductForm = ({
                         style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUrl())}
                     />
-                    <button 
-                        type="button" 
-                        onClick={handleAddUrl} 
-                        className="btn-submit"
+                    <Button
+                        type="button"
+                        variant="primary"
+                        onClick={handleAddUrl}
                         style={{ width: '140px' }}
                     >
                         Agregar URL
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Opción comentada: Subir Archivos (no se usa) */}
@@ -1336,21 +1337,20 @@ export const ProductForm = ({
                 {/* <button type="submit" className="btn-submit">Agregar producto</button>
                 <br /> */}
                 {/* Botones */}
-                <div style={{ marginTop: '20px' }}>
-                    <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                <div className="product-form__actions">
+                    <Button type="submit" variant="primary" fullWidth disabled={isSubmitting}>
                         {isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar Producto' : 'Agregar Producto')}
-                    </button>
-                    <br />
-                    <br />
+                    </Button>
                     {onCancel && (
-                        <button 
-                            type="button" 
-                            onClick={onCancel} 
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            fullWidth
+                            onClick={onCancel}
                             disabled={isSubmitting}
-                            className="btn-submit"
                         >
                             Cancelar
-                        </button>
+                        </Button>
                     )}
                 </div>
                 <br />

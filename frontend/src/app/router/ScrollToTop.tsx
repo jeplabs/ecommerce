@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
  * Restaura scroll al inicio en cada cambio de ruta.
  * Debe vivir dentro de <Router>.
  *
- * No basta con window.scrollTo: en index.css body tiene position:fixed,
+ * No basta con window.scrollTo: en app/styles/reset.css body tiene position:fixed,
  * así que el scroll real puede estar en documentElement o en body.
  */
 function resetPageScroll() {

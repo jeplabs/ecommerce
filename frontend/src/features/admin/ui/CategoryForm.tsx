@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import type { CategoryApi } from '@/entities/category';
 import type { CreateCategoryRequest } from '@/entities/category';
+import { Button } from '@/shared/ui/Button';
 
 type CategoryFormProps = {
     categorias?: CategoryApi[];
@@ -71,9 +72,9 @@ export function CategoryForm({ categorias = [], onCreate, isLoading }: CategoryF
 
                 {error && <p className="error">{error}</p>}
 
-                <button type="submit" className="btn-submit" disabled={isLoading}>
+                <Button type="submit" variant="primary" disabled={isLoading}>
                     {isLoading ? 'Creando...' : 'Crear categoría'}
-                </button>
+                </Button>
             </form>
         </section>
     );

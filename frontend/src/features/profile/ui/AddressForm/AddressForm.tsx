@@ -2,6 +2,7 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import type { AddressApi } from '@/entities/address';
 import type { AddressFormValues } from '@/entities/address';
 import type { AddressActionResult } from '@/entities/address';
+import { Button } from '@/shared/ui/Button';
 import './AddressForm.css';
 
 const EMPTY: AddressFormValues = {
@@ -125,12 +126,12 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
             )}
 
             <div className="address-form__actions">
-                <button type="submit" className="profile-btn profile-btn--primary" disabled={saving}>
+                <Button type="submit" variant="primary" disabled={saving}>
                     {saving ? 'Guardando…' : isEditing ? 'Guardar cambios' : 'Agregar dirección'}
-                </button>
-                <button type="button" className="profile-btn profile-btn--secondary" onClick={onCancel} disabled={saving}>
+                </Button>
+                <Button type="button" variant="secondary" onClick={onCancel} disabled={saving}>
                     Cancelar
-                </button>
+                </Button>
             </div>
         </form>
     );

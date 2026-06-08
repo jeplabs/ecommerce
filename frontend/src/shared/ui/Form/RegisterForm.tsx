@@ -1,6 +1,7 @@
 import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import type { RegisterFormValues } from '@/entities/user';
+import { Button } from '@/shared/ui/Button';
 
 type RegisterFormProps = {
     onRegisterSuccess: () => void;
@@ -187,9 +188,9 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
             {errors.general && <span className="error">{errors.general}</span>}
             <br />
 
-            <button className="btn-submit" type="submit" disabled={loading}>
+            <Button type="submit" variant="primary" fullWidth disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
-            </button>
+            </Button>
         </form>
     );
 }

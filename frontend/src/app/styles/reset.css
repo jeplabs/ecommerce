@@ -1,0 +1,51 @@
+/**
+ * Reset y estilos base de documento (html, body, tipografía, enlaces).
+ */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100vh;
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: scroll;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+
+body {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image:
+        linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    margin: 0;
+    display: grid;
+    min-width: 320px;
+    min-height: 100vh;
+    animation: panelIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    background:
+        radial-gradient(ellipse 60% 50% at 15% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 85% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 60%);
+}
+
+a {
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
+}
+
+a:hover {
+    color: #535bf2;
+}
+
+h1 {
+    line-height: 1.1;
+    text-align: center;
+}
