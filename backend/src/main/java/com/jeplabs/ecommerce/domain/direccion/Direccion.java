@@ -53,6 +53,7 @@ public class Direccion {
         if (datos.codigoPostal() != null) this.codigoPostal = datos.codigoPostal();
         if (datos.pais() != null) this.pais = datos.pais();
         if (datos.telefono() != null) this.telefono = datos.telefono();
+        if (datos.referencias() != null) this.referencias = datos.referencias().isBlank() ? null : datos.referencias();
     }
 
     public void marcarComoPrincipal() {
