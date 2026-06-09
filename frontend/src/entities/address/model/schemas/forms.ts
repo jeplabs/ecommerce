@@ -59,7 +59,8 @@ export function mapAddressFormToUpdateRequest(values: AddressFormValues): Update
         codigoPostal: values.codigoPostal?.trim() || undefined,
         pais: values.pais.trim(),
         telefono: values.telefono.trim(),
-        referencias: values.referencias?.trim() ?? '',
+        referencias: values.referencias?.trim() ?? undefined,
+        //referencias: values.referencias?.trim() ?? '',
     };
 }
 
