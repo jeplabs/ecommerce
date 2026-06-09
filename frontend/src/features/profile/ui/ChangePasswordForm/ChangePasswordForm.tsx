@@ -2,6 +2,8 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useProfile, useToast } from '@/app/providers';
 import { updatePasswordFormSchema } from '@/entities/user';
 import { Button } from '@/shared/ui/Button';
+import { FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
 
 const EMPTY_FORM = {
     passwordActual: '',
@@ -101,9 +103,12 @@ export default function ChangePasswordForm() {
                     <p className="profile-data__error" role="alert">{formError}</p>
                 )}
 
-                <div className="profile-field">
-                    <label htmlFor="passwordActual">Contraseña actual</label>
-                    <input
+                <FormField
+                    label="Contraseña actual"
+                    htmlFor="passwordActual"
+                    error={fieldErrors.passwordActual}
+                >
+                    <Input
                         id="passwordActual"
                         name="passwordActual"
                         type="password"
@@ -112,15 +117,12 @@ export default function ChangePasswordForm() {
                         autoComplete="current-password"
                         required
                         disabled={isSubmitting}
+                        invalid={!!fieldErrors.passwordActual}
                     />
-                    {fieldErrors.passwordActual && (
-                        <span className="profile-data__field-error">{fieldErrors.passwordActual}</span>
-                    )}
-                </div>
+                </FormField>
 
-                <div className="profile-field">
-                    <label htmlFor="password">Nueva contraseña</label>
-                    <input
+                <FormField label="Nueva contraseña" htmlFor="password" error={fieldErrors.password}>
+                    <Input
                         id="password"
                         name="password"
                         type="password"
@@ -129,15 +131,16 @@ export default function ChangePasswordForm() {
                         autoComplete="new-password"
                         required
                         disabled={isSubmitting}
+                        invalid={!!fieldErrors.password}
                     />
-                    {fieldErrors.password && (
-                        <span className="profile-data__field-error">{fieldErrors.password}</span>
-                    )}
-                </div>
+                </FormField>
 
-                <div className="profile-field">
-                    <label htmlFor="confirmarPassword">Confirmar nueva contraseña</label>
-                    <input
+                <FormField
+                    label="Confirmar nueva contraseña"
+                    htmlFor="confirmarPassword"
+                    error={fieldErrors.confirmarPassword}
+                >
+                    <Input
                         id="confirmarPassword"
                         name="confirmarPassword"
                         type="password"
@@ -146,11 +149,9 @@ export default function ChangePasswordForm() {
                         autoComplete="new-password"
                         required
                         disabled={isSubmitting}
+                        invalid={!!fieldErrors.confirmarPassword}
                     />
-                    {fieldErrors.confirmarPassword && (
-                        <span className="profile-data__field-error">{fieldErrors.confirmarPassword}</span>
-                    )}
-                </div>
+                </FormField>
 
                 <div className="profile-data__actions">
                     <Button type="submit" variant="primary" disabled={isSubmitting}>

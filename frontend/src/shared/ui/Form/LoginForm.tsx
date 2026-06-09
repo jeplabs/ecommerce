@@ -2,6 +2,10 @@ import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/Button';
+import { Form } from '@/shared/ui/Form/Form';
+import formStyles from '@/shared/ui/Form/Form.module.css';
+import { FieldError, FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
 import ForgotPasswordForm from './ForgotPasswordForm';
 
 type LoginFormData = {
@@ -58,32 +62,34 @@ export default function LoginForm() {
     }
 
     return (
-        <form className="form-box" onSubmit={handleSubmit}>
-            <label htmlFor="email">Correo electrónico</label>
-            <input
-                className="login-input"
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-            />
-            {error && <span className="error">{error}</span>}
+        <Form variant="auth" onSubmit={handleSubmit}>
+            <FormField label="Correo electrónico" htmlFor="email">
+                <Input
+                    withIconPadding
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                />
+            </FormField>
 
-            <label htmlFor="password">Contraseña</label>
-            <input
-                className="login-input"
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-            />
-            {error && <span className="error">{error}</span>}
+            <FormField label="Contraseña" htmlFor="password">
+                <Input
+                    withIconPadding
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                />
+            </FormField>
 
-            <p className="form-sub">
+            {error && <FieldError>{error}</FieldError>}
+
+            <p className={formStyles.sub}>
                 <a
                     href="#"
                     onClick={(e) => {
@@ -95,10 +101,9 @@ export default function LoginForm() {
                 </a>
             </p>
 
-            <br />
             <Button type="submit" variant="primary" fullWidth>
                 Iniciar sesión
             </Button>
-        </form>
+        </Form>
     );
 }

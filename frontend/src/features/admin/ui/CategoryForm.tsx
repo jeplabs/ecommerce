@@ -2,6 +2,10 @@ import { useState, type FormEvent } from 'react';
 import type { CategoryApi } from '@/entities/category';
 import type { CreateCategoryRequest } from '@/entities/category';
 import { Button } from '@/shared/ui/Button';
+import { Form } from '@/shared/ui/Form/Form';
+import { FieldError, FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
+import { Select } from '@/shared/ui/Select';
 
 type CategoryFormProps = {
     categorias?: CategoryApi[];
@@ -41,10 +45,9 @@ export function CategoryForm({ categorias = [], onCreate, isLoading }: CategoryF
     return (
         <section className="category-form">
             <h2>Crear categoría</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-field">
-                    <label htmlFor="categoria-nombre">Nombre</label>
-                    <input
+            <Form variant="wide" onSubmit={handleSubmit}>
+                <FormField label="Nombre" htmlFor="categoria-nombre">
+                    <Input
                         id="categoria-nombre"
                         name="nombre"
                         value={nombre}
@@ -52,11 +55,10 @@ export function CategoryForm({ categorias = [], onCreate, isLoading }: CategoryF
                         placeholder="Ej. Electrónica"
                         required
                     />
-                </div>
+                </FormField>
 
-                <div className="form-field">
-                    <label htmlFor="categoria-parent">Categoría padre (opcional)</label>
-                    <select
+                <FormField label="Categoría padre (opcional)" htmlFor="categoria-parent">
+                    <Select
                         id="categoria-parent"
                         value={parentId}
                         onChange={(e) => setParentId(e.target.value)}
@@ -67,15 +69,15 @@ export function CategoryForm({ categorias = [], onCreate, isLoading }: CategoryF
                                 {cat.nombre}
                             </option>
                         ))}
-                    </select>
-                </div>
+                    </Select>
+                </FormField>
 
-                {error && <p className="error">{error}</p>}
+                {error && <FieldError>{error}</FieldError>}
 
                 <Button type="submit" variant="primary" disabled={isLoading}>
                     {isLoading ? 'Creando...' : 'Crear categoría'}
                 </Button>
-            </form>
+            </Form>
         </section>
     );
 }

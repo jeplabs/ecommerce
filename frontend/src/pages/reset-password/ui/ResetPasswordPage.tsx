@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { resetPassword } from '@/entities/user/api/authApi';
 import { Button } from '@/shared/ui/Button';
+import { Form } from '@/shared/ui/Form/Form';
+import formStyles from '@/shared/ui/Form/Form.module.css';
+import { FieldError, FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
 import styles from '@/pages/login/ui/LoginPage.module.css';
 
 export function ResetPasswordPage() {
@@ -60,7 +64,7 @@ export function ResetPasswordPage() {
         return (
             <div className={styles.authPage}>
                 <h1>Token inválido</h1>
-                <p className="form-sub">El enlace de recuperación es inválido o ha expirado.</p>
+                <p className={formStyles.sub}>El enlace de recuperación es inválido o ha expirado.</p>
                 <Button type="button" variant="primary" fullWidth onClick={() => navigate('/login')}>
                     Volver al login
                 </Button>
@@ -72,7 +76,7 @@ export function ResetPasswordPage() {
         return (
             <div className={styles.authPage}>
                 <h1>Contraseña restablecida</h1>
-                <p className="form-sub">Tu contraseña ha sido actualizada. Ya puedes iniciar sesión con tu nueva contraseña.</p>
+                <p className={formStyles.sub}>Tu contraseña ha sido actualizada. Ya puedes iniciar sesión con tu nueva contraseña.</p>
                 <Button type="button" variant="primary" fullWidth onClick={() => navigate('/login')}>
                     Ir a iniciar sesión
                 </Button>
@@ -83,41 +87,42 @@ export function ResetPasswordPage() {
     return (
         <div className={styles.authPage}>
             <h1>Restablecer contraseña</h1>
-            <form className="form-box" onSubmit={handleSubmit}>
-                <label htmlFor="password">Nueva contraseña</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    className="login-input"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    disabled={isLoading}
-                    minLength={8}
-                />
+            <Form variant="auth" onSubmit={handleSubmit}>
+                <FormField label="Nueva contraseña" htmlFor="password">
+                    <Input
+                        type="password"
+                        id="password"
+                        name="password"
+                        withIconPadding
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        disabled={isLoading}
+                        minLength={8}
+                    />
+                </FormField>
 
-                <label htmlFor="confirmarPassword">Confirmar contraseña</label>
-                <input
-                    type="password"
-                    id="confirmarPassword"
-                    name="confirmarPassword"
-                    className="login-input"
-                    value={formData.confirmarPassword}
-                    onChange={handleChange}
-                    required
-                    disabled={isLoading}
-                    minLength={8}
-                />
+                <FormField label="Confirmar contraseña" htmlFor="confirmarPassword">
+                    <Input
+                        type="password"
+                        id="confirmarPassword"
+                        name="confirmarPassword"
+                        withIconPadding
+                        value={formData.confirmarPassword}
+                        onChange={handleChange}
+                        required
+                        disabled={isLoading}
+                        minLength={8}
+                    />
+                </FormField>
 
-                {error && <span className="error">{error}</span>}
+                {error && <FieldError>{error}</FieldError>}
 
-                <br />
                 <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
                     {isLoading ? 'Actualizando...' : 'Actualizar contraseña'}
                 </Button>
 
-                <p className="form-sub">
+                <p className={formStyles.sub}>
                     <a
                         href="#"
                         onClick={(e) => {
@@ -128,7 +133,7 @@ export function ResetPasswordPage() {
                         Cancelar
                     </a>
                 </p>
-            </form>
+            </Form>
         </div>
     );
 }

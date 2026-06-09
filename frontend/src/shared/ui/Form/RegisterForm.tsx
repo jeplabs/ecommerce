@@ -2,6 +2,9 @@ import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import type { RegisterFormValues } from '@/entities/user';
 import { Button } from '@/shared/ui/Button';
+import { Form } from '@/shared/ui/Form/Form';
+import { FieldError, FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
 
 type RegisterFormProps = {
     onRegisterSuccess: () => void;
@@ -122,75 +125,82 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
     };
 
     return (
-        <form className="form-box" onSubmit={handleSubmit}>
-            <label htmlFor="nombre">Nombre</label>
-            <input
-                type="text"
-                name="nombre"
-                id="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-            />
-            {errors.nombre && <span className="error">{errors.nombre}</span>}
+        <Form variant="auth" onSubmit={handleSubmit}>
+            <FormField label="Nombre" htmlFor="nombre" error={errors.nombre}>
+                <Input
+                    type="text"
+                    name="nombre"
+                    id="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    invalid={!!errors.nombre}
+                />
+            </FormField>
 
-            <label htmlFor="apellido">Apellido</label>
-            <input
-                type="text"
-                name="apellido"
-                id="apellido"
-                value={formData.apellido}
-                onChange={handleChange}
-            />
-            {errors.apellido && <span className="error">{errors.apellido}</span>}
+            <FormField label="Apellido" htmlFor="apellido" error={errors.apellido}>
+                <Input
+                    type="text"
+                    name="apellido"
+                    id="apellido"
+                    value={formData.apellido}
+                    onChange={handleChange}
+                    invalid={!!errors.apellido}
+                />
+            </FormField>
 
-            <label htmlFor="pais">País</label>
-            <input
-                type="text"
-                name="pais"
-                id="pais"
-                value={formData.pais}
-                onChange={handleChange}
-            />
-            {errors.pais && <span className="error">{errors.pais}</span>}
+            <FormField label="País" htmlFor="pais" error={errors.pais}>
+                <Input
+                    type="text"
+                    name="pais"
+                    id="pais"
+                    value={formData.pais}
+                    onChange={handleChange}
+                    invalid={!!errors.pais}
+                />
+            </FormField>
 
-            <label htmlFor="email">Correo electrónico</label>
-            <input
-                type="email"
-                name="email"
-                id="email"
-                value={formData.email}
-                onChange={handleChange}
-            />
-            {errors.email && <span className="error">{errors.email}</span>}
+            <FormField label="Correo electrónico" htmlFor="email" error={errors.email}>
+                <Input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    invalid={!!errors.email}
+                />
+            </FormField>
 
-            <label htmlFor="password">Contraseña</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-            />
-            {errors.password && <span className="error">{errors.password}</span>}
+            <FormField label="Contraseña" htmlFor="password" error={errors.password}>
+                <Input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    invalid={!!errors.password}
+                />
+            </FormField>
 
-            <label htmlFor="confirmarPassword">Confirmar contraseña</label>
-            <input
-                type="password"
-                id="confirmarPassword"
-                name="confirmarPassword"
-                value={formData.confirmarPassword}
-                onChange={handleChange}
-            />
-            {errors.confirmarPassword && (
-                <span className="error">{errors.confirmarPassword}</span>
-            )}
+            <FormField
+                label="Confirmar contraseña"
+                htmlFor="confirmarPassword"
+                error={errors.confirmarPassword}
+            >
+                <Input
+                    type="password"
+                    id="confirmarPassword"
+                    name="confirmarPassword"
+                    value={formData.confirmarPassword}
+                    onChange={handleChange}
+                    invalid={!!errors.confirmarPassword}
+                />
+            </FormField>
 
-            {errors.general && <span className="error">{errors.general}</span>}
-            <br />
+            {errors.general && <FieldError>{errors.general}</FieldError>}
 
             <Button type="submit" variant="primary" fullWidth disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
             </Button>
-        </form>
+        </Form>
     );
 }

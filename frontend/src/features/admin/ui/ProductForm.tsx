@@ -6,6 +6,12 @@ import {
 import type { AdminImageApiSource, AdminProductFormImage } from '@/features/admin/lib/product-image-admin';
 import type { CategoryTreeNode } from '@/entities/category';
 import { Button } from '@/shared/ui/Button';
+import { Form } from '@/shared/ui/Form/Form';
+import { FieldError, FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
+import { Select } from '@/shared/ui/Select';
+import { Textarea } from '@/shared/ui/Textarea';
+import styles from './ProductForm.module.css';
 
 type ProductFormImage = AdminProductFormImage;
 
@@ -326,7 +332,7 @@ export const ProductForm = ({
         // Si hay al menos un error en el objeto...
         if (Object.keys(errors).length > 0) {
             const timer = setTimeout(() => {
-            const firstErrorElement = document.querySelector('.error');
+            const firstErrorElement = document.querySelector('[data-field-error]');
             
             if (firstErrorElement) {
                 // Obtener el input asociado a este error
@@ -761,64 +767,61 @@ export const ProductForm = ({
     };
 
     return (
-        <section className="product-form">
+        <section className={styles.productForm}>
             {/* <h2>{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</h2> */}
             {/* <br /> */}
-            <form onSubmit={handleSubmit} noValidate>
+            <Form variant="wide" onSubmit={handleSubmit} noValidate>
 
-                {/* Nombre */}
-                <label htmlFor="nombre">Nombre</label>
-                <input 
-                    type="text" 
-                    id="nombre" 
-                    name="nombre" 
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    placeholder="Nombre del producto" 
-                    required
-                />
-                {errors.nombre && <span className="error">{errors.nombre}</span>}
+                <FormField label="Nombre" htmlFor="nombre" error={errors.nombre}>
+                    <Input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        placeholder="Nombre del producto"
+                        required
+                        invalid={!!errors.nombre}
+                    />
+                </FormField>
 
-                {/* SKU */}
-                <label htmlFor="sku">SKU</label>
-                <input 
-                    type="text" 
-                    id="sku" 
-                    name="sku" 
-                    value={formData.sku}
-                    onChange={handleChange}
-                    placeholder="SKU del producto"
-                    disabled={isEditing}
-                    required
-                />
-                {errors.sku && <span className="error">{errors.sku}</span>}
+                <FormField label="SKU" htmlFor="sku" error={errors.sku}>
+                    <Input
+                        type="text"
+                        id="sku"
+                        name="sku"
+                        value={formData.sku}
+                        onChange={handleChange}
+                        placeholder="SKU del producto"
+                        disabled={isEditing}
+                        required
+                        invalid={!!errors.sku}
+                    />
+                </FormField>
 
-                {/* Descripción */}
-                <label htmlFor="descripcion">Descripción</label>
-                <textarea 
-                    id="descripcion" 
-                    name="descripcion" 
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    placeholder="Descripción del producto"
-                    required
-                ></textarea>
-                {errors.descripcion && <span className="error">{errors.descripcion}</span>}
+                <FormField label="Descripción" htmlFor="descripcion" error={errors.descripcion}>
+                    <Textarea
+                        id="descripcion"
+                        name="descripcion"
+                        value={formData.descripcion}
+                        onChange={handleChange}
+                        placeholder="Descripción del producto"
+                        required
+                        invalid={!!errors.descripcion}
+                    />
+                </FormField>
                 
                 {/* Campos de precio y stock */}
-                <div className="form-row">
+                <div className={styles.formRow}>
                         
-                    {/* Precio */}
-                    <div className="form-field">
-                        <label htmlFor="price">Precio</label>
-                        <input
+                    <FormField label="Precio" htmlFor="price" error={errors.price}>
+                        <Input
                             type="number"
                             id="price"
                             name="price"
                             value={formData.price}
                             onChange={handleChange}
                             min="0"
-                            //step="0.01"
                             onInput={(e) => {
                                 const input = e.target as HTMLInputElement;
                                 if (Number(input.value) < 0) {
@@ -827,14 +830,12 @@ export const ProductForm = ({
                             }}
                             placeholder="0.00"
                             required
+                            invalid={!!errors.price}
                         />
-                        {errors.price && <span className="error">{errors.price}</span>}
-                    </div>
+                    </FormField>
 
-                    {/* Moneda */}
-                    <div className="form-field">
-                        <label htmlFor="moneda">Moneda</label>
-                        <select
+                    <FormField label="Moneda" htmlFor="moneda">
+                        <Select
                             id="moneda"
                             name="moneda"
                             value={formData.moneda}
@@ -843,13 +844,11 @@ export const ProductForm = ({
                             <option value="USD">USD</option>
                             <option value="EUR">EUR</option>
                             <option value="ARS">ARS</option>
-                        </select>
-                    </div>
+                        </Select>
+                    </FormField>
 
-                    {/* Stock */}
-                    <div className="form-field">
-                        <label htmlFor="stock">Stock</label>
-                        <input
+                    <FormField label="Stock" htmlFor="stock" error={errors.stock}>
+                        <Input
                             type="number"
                             id="stock"
                             name="stock"
@@ -858,14 +857,12 @@ export const ProductForm = ({
                             min="0"
                             placeholder="0"
                             required
+                            invalid={!!errors.stock}
                         />
-                        {errors.stock && <span className="error">{errors.stock}</span>}
-                    </div>
+                    </FormField>
 
-                    {/* Estado */}
-                    <div className="form-field">
-                        <label htmlFor="estado">Estado</label>
-                        <select
+                    <FormField label="Estado" htmlFor="estado">
+                        <Select
                             id="estado"
                             name="estado"
                             value={formData.estado}
@@ -876,13 +873,11 @@ export const ProductForm = ({
                             <option value="sin-stock">Sin stock</option>
                             <option value="oculto">Oculto</option>
                             <option value="descontinuado">Descontinuado</option>
-                        </select>
-                    </div>
+                        </Select>
+                    </FormField>
 
-                    {/* Categoria */}
-                    <div className="form-field">
-                        <label htmlFor="categoria">Categoria</label>
-                        <select
+                    <FormField label="Categoria" htmlFor="categoria">
+                        <Select
                             id="categoria"
                             name="categoria"
                             value={formData.categoria}
@@ -895,19 +890,17 @@ export const ProductForm = ({
                                     {categoria.nombre}
                                 </option>
                             ))}
-                        </select>
-                    </div>
+                        </Select>
+                    </FormField>
 
-                    {/* Subcategoria */}
-                    <div className="form-field">
-                        <label htmlFor="subcategoria">Subcategoria</label>
-                        <select
+                    <FormField label="Subcategoria" htmlFor="subcategoria">
+                        <Select
                             id="subcategoria"
                             name="subcategoria"
                             value={formData.subcategoria}
                             onChange={handleChange}
                             required
-                            disabled={!formData.categoria} 
+                            disabled={!formData.categoria}
                         >
                             <option value="">Selecciona una subcategoría</option>
                             {arbolCategorias
@@ -918,19 +911,16 @@ export const ProductForm = ({
                                         {subcategoria.nombre}
                                     </option>
                             ))}
-                        </select>
-                    </div>
+                        </Select>
+                    </FormField>
 
-                    {/* Subsubcategoria */}
-                    <div className="form-field">
-                        <label htmlFor="subsubcategoria">Subsubcategoria</label>
-                        <select
+                    <FormField label="Subsubcategoria" htmlFor="subsubcategoria">
+                        <Select
                             id="subsubcategoria"
                             name="subsubcategoria"
                             value={formData.subsubcategoria}
                             onChange={handleChange}
-                            //required
-                            disabled={!formData.subcategoria} 
+                            disabled={!formData.subcategoria}
                         >
                             <option value="">Selecciona una subcategoría</option>
                             {arbolCategorias
@@ -943,12 +933,10 @@ export const ProductForm = ({
                                         {subsubcategoria.nombre}
                                     </option>
                             ))}
-                        </select>
-                    </div>
+                        </Select>
+                    </FormField>
 
-                    {/* Botón Agregar */}
-                    <div>
-                        <label>(Opcional)</label>
+                    <FormField label="(Opcional)">
                         <Button
                             type="button"
                             variant="primary"
@@ -957,7 +945,7 @@ export const ProductForm = ({
                         >
                             Agregar categoría
                         </Button>
-                    </div>
+                    </FormField>
                 </div>
 
                 {/* Categorías Adicionales */}
@@ -969,11 +957,10 @@ export const ProductForm = ({
                         <div 
                             key={group.id} 
                             // style={{ marginTop: '20px' }}
-                            className="form-row"
+                            className={styles.formRow}
                         >
-                            <div className="form-field">
-                                <label>Categoria Adicional</label>
-                                <select
+                            <FormField label="Categoria Adicional">
+                                <Select
                                     value={group.categoria}
                                     onChange={(e) => updateAdditionalCategory(group.id, 'categoria', e.target.value)}
                                 >
@@ -981,12 +968,11 @@ export const ProductForm = ({
                                     {arbolCategorias.map((cat) => (
                                         <option key={cat.id} value={cat.id}>{cat.nombre}</option>
                                     ))}
-                                </select>
-                            </div>
+                                </Select>
+                            </FormField>
 
-                            <div className="form-field">
-                                <label>Subcategoria</label>
-                                <select
+                            <FormField label="Subcategoria">
+                                <Select
                                     value={group.subcategoria}
                                     onChange={(e) => updateAdditionalCategory(group.id, 'subcategoria', e.target.value)}
                                     disabled={!group.categoria}
@@ -995,33 +981,23 @@ export const ProductForm = ({
                                     {catNode?.subcategorias?.map((sub) => (
                                         <option key={sub.id} value={sub.id}>{sub.nombre}</option>
                                     ))}
-                                </select>
-                            </div>
+                                </Select>
+                            </FormField>
 
-                            <div className="form-field">
-                                <label>Subsubcategoria</label>
-                                <div 
-                                    style={{ display: 'flex', gap: '10px' }}
+                            <FormField label="Subsubcategoria">
+                                <Select
+                                    value={group.subsubcategoria}
+                                    onChange={(e) => updateAdditionalCategory(group.id, 'subsubcategoria', e.target.value)}
+                                    disabled={!group.subcategoria}
                                 >
-                                    <select
-                                        value={group.subsubcategoria}
-                                        onChange={(e) => updateAdditionalCategory(group.id, 'subsubcategoria', e.target.value)}
-                                        disabled={!group.subcategoria}
-                                        // style={{ flex: 1 }}
-                                    >
-                                        <option value="">Selecciona una subcategoría</option>
-                                        {subCatNode?.subcategorias?.map((subsub) => (
-                                            <option key={subsub.id} value={subsub.id}>{subsub.nombre}</option>
-                                        ))}
-                                    </select>
-                                    
-                                    
-                                </div>
-                                
-                            </div>
-                            {/* Botón Eliminar */}
-                            <div>
-                                <label>Remover</label>
+                                    <option value="">Selecciona una subcategoría</option>
+                                    {subCatNode?.subcategorias?.map((subsub) => (
+                                        <option key={subsub.id} value={subsub.id}>{subsub.nombre}</option>
+                                    ))}
+                                </Select>
+                            </FormField>
+
+                            <FormField label="Remover">
                                 <Button
                                     type="button"
                                     variant="danger"
@@ -1031,7 +1007,7 @@ export const ProductForm = ({
                                 >
                                     Eliminar
                                 </Button>
-                            </div>
+                            </FormField>
                         </div>
                     );
                 })}
@@ -1039,52 +1015,50 @@ export const ProductForm = ({
 
                 {/* Specs */}
 
-                <div className="field specs-section">
-                    <div className="specs-header">
-                        <label>Características / Especificaciones</label>
-                        <button 
-                            type="button" 
-                            className="btn-add-spec" 
+                <div className={styles.specsSection}>
+                    <div className={styles.specsHeader}>
+                        <span className={styles.specsTitle}>Características / Especificaciones</span>
+                        <button
+                            type="button"
+                            className={styles.btnAddSpec}
                             onClick={addSpec}
                             title="Agregar característica"
                         >
                             + Agregar
                         </button>
                     </div>
-                    
-                    <div className="specs-list">
+
+                    <div className={styles.specsList}>
                         {specs.map((spec) => (
-                            <div key={spec.id} className="spec-row" >
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', width: '100%' }}>
-                                <input 
-                                    type="text" 
-                                    placeholder="Clave (ej. Color)" 
+                            <div key={spec.id} className={styles.specRow}>
+                                <Input
+                                    type="text"
+                                    placeholder="Clave (ej. Color)"
                                     value={spec.key}
                                     onChange={(e) => updateSpec(spec.id, 'key', e.target.value)}
-                                    className="spec-key"
+                                    className={styles.specKey}
                                 />
-                                    <input
-                                        type="text"
-                                        placeholder="Valor (ej. Rojo)"
-                                        value={spec.value}
-                                        onChange={(e) => updateSpec(spec.id, 'value', e.target.value)}
-                                        className="spec-value"
-                                    />
-                                    <button
-                                        type="button"
-                                        className="btn-remove-spec"
-                                        onClick={() => removeSpec(spec.id)}
-                                        title="Eliminar fila"
-                                        aria-label="Eliminar característica"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
+                                <Input
+                                    type="text"
+                                    placeholder="Valor (ej. Rojo)"
+                                    value={spec.value}
+                                    onChange={(e) => updateSpec(spec.id, 'value', e.target.value)}
+                                    className={styles.specValue}
+                                />
+                                <button
+                                    type="button"
+                                    className={styles.btnRemoveSpec}
+                                    onClick={() => removeSpec(spec.id)}
+                                    title="Eliminar fila"
+                                    aria-label="Eliminar característica"
+                                >
+                                    ×
+                                </button>
                             </div>
                         ))}
                     </div>
-                    {errors.specs && <span className="error">{errors.specs}</span>}
-                    <p className="field-help">Agrega pares clave-valor para detallar el producto.</p>
+                    {errors.specs && <FieldError>{errors.specs}</FieldError>}
+                    <p className={styles.fieldHelp}>Agrega pares clave-valor para detallar el producto.</p>
                 </div>
 
                 {/* Imágenes */}
@@ -1111,12 +1085,12 @@ export const ProductForm = ({
                 <div 
                     style={{ display: 'flex', gap: '10px' }}
                 >
-                    <input
+                    <Input
                         type="url"
                         placeholder="https://ejemplo.com/imagen.jpg"
                         value={urlInput}
                         onChange={(e) => setUrlInput(e.target.value)}
-                        style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                        style={{ flex: 1 }}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUrl())}
                     />
                     <Button
@@ -1171,7 +1145,7 @@ export const ProductForm = ({
                 )}
                 */}
 
-                {errors.images && <span className="error">{errors.images}</span>}
+                {errors.images && <FieldError>{errors.images}</FieldError>}
 
                 {/* Vista Previa (Común para ambos) */}
                 {/* {formData.images.length > 0 && (
@@ -1337,7 +1311,7 @@ export const ProductForm = ({
                 {/* <button type="submit" className="btn-submit">Agregar producto</button>
                 <br /> */}
                 {/* Botones */}
-                <div className="product-form__actions">
+                <div className={styles.actions}>
                     <Button type="submit" variant="primary" fullWidth disabled={isSubmitting}>
                         {isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar Producto' : 'Agregar Producto')}
                     </Button>
@@ -1354,7 +1328,7 @@ export const ProductForm = ({
                     )}
                 </div>
                 <br />
-            </form>
+            </Form>
         </section>
     );
 };

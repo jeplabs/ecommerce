@@ -1,6 +1,11 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { forgotPassword } from '@/entities/user/api/authApi';
 import { Button } from '@/shared/ui/Button';
+import formStyles from '@/shared/ui/Form/Form.module.css';
+import { Form } from '@/shared/ui/Form/Form';
+import { FieldError, FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
+import clsx from 'clsx';
 
 type ForgotPasswordFormProps = {
     onBack: () => void;
@@ -41,8 +46,8 @@ export default function ForgotPasswordForm({ onBack, onSuccess }: ForgotPassword
 
     if (success) {
         return (
-            <div className="form-box">
-                <p className="form-sub">
+            <div className={clsx(formStyles.form, formStyles.auth)}>
+                <p className={formStyles.sub}>
                     Revisa tu bandeja de entrada y sigue las instrucciones para recuperar tu
                     contraseña.
                 </p>
@@ -54,8 +59,8 @@ export default function ForgotPasswordForm({ onBack, onSuccess }: ForgotPassword
     }
 
     return (
-        <form className="form-box" onSubmit={handleSubmit}>
-            <p className="form-sub">
+        <Form variant="auth" onSubmit={handleSubmit}>
+            <p className={formStyles.sub}>
                 <a
                     href="#"
                     onClick={(e) => {
@@ -67,24 +72,24 @@ export default function ForgotPasswordForm({ onBack, onSuccess }: ForgotPassword
                 </a>
             </p>
 
-            <label htmlFor="forgot-email">Correo electrónico</label>
-            <input
-                type="email"
-                id="forgot-email"
-                name="email"
-                className="login-input"
-                value={email}
-                onChange={handleChange}
-                required
-                disabled={isLoading}
-            />
+            <FormField label="Correo electrónico" htmlFor="forgot-email">
+                <Input
+                    type="email"
+                    id="forgot-email"
+                    name="email"
+                    withIconPadding
+                    value={email}
+                    onChange={handleChange}
+                    required
+                    disabled={isLoading}
+                />
+            </FormField>
 
-            {error && <span className="error">{error}</span>}
+            {error && <FieldError>{error}</FieldError>}
 
-            <br />
             <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
                 {isLoading ? 'Enviando...' : 'Enviar correo'}
             </Button>
-        </form>
+        </Form>
     );
 }

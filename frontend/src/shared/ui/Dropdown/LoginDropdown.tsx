@@ -2,7 +2,12 @@ import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import ForgotPasswordForm from '@/shared/ui/Form/ForgotPasswordForm';
+import { Form } from '@/shared/ui/Form/Form';
+import formStyles from '@/shared/ui/Form/Form.module.css';
 import { Button } from '@/shared/ui/Button';
+import { FieldError } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
+import styles from './LoginDropdown.module.css';
 import './LoginDropdown.css';
 
 type LoginDropdownProps = {
@@ -79,29 +84,31 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
                 <span>Bienvenido de nuevo</span>
             </div>
 
-            <form className="mini-login-form" onSubmit={handleSubmit}>
-                <input
+            <Form className={styles.loginForm} onSubmit={handleSubmit}>
+                <Input
                     type="email"
                     name="email"
                     placeholder="Correo electrónico"
-                    className="dropdown-input"
+                    className={styles.input}
                     value={formData.email}
                     onChange={handleChange}
+                    invalid={!!error}
                     required
                 />
-                <input
+                <Input
                     type="password"
                     name="password"
                     placeholder="Contraseña"
-                    className="dropdown-input"
+                    className={styles.input}
                     value={formData.password}
                     onChange={handleChange}
+                    invalid={!!error}
                     required
                 />
 
-                {error && <span className="dropdown-error">{error}</span>}
+                {error && <FieldError>{error}</FieldError>}
 
-                <p className="form-sub">
+                <p className={formStyles.sub}>
                     <a
                         href="#"
                         onClick={(e) => {
@@ -116,7 +123,7 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
                 <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
                     {isLoading ? 'Cargando...' : 'Entrar'}
                 </Button>
-            </form>
+            </Form>
 
             <div className="dropdown-divider"></div>
 

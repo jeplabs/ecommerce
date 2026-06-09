@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 import type { ProductAdminApi, ProductApi, ProductStatus } from '@/entities/product';
 import { ProductForm } from '@/features/admin/ui/ProductForm';
+import { FieldError } from '@/shared/ui/FormField';
 import type {
     ProductFormInitialData,
     ProductFormSubmitPayload,
@@ -226,7 +227,7 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
         return (
             <main className="product-edit-container">
                 <h1>Error al cargar producto</h1>
-                <p className="error">{error}</p>
+                <FieldError>{error}</FieldError>
                 <button
                     type="button"
                     onClick={() => onNavigate('/admin/products')}

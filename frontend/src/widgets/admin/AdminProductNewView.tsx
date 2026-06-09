@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 import type { CreateProductRequest } from '@/entities/product';
 import { ProductForm } from '@/features/admin/ui/ProductForm';
+import { FieldError } from '@/shared/ui/FormField';
 import type { ProductFormSubmitPayload } from '@/features/admin/ui/ProductForm';
 import type { AdminProductFormImage } from '@/features/admin/lib/product-image-admin';
 
@@ -48,7 +49,7 @@ export default function AdminProductNewView({ onNavigate }: AdminProductNewViewP
     return (
         <main className="product-new-container">
             <h1>Crear Producto</h1>
-            {error && <p className="error">{error}</p>}
+            {error && <FieldError>{error}</FieldError>}
             <ProductForm
                 onSubmit={handleCreate}
                 isSubmitting={loading}

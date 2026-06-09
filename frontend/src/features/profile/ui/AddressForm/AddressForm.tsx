@@ -3,6 +3,9 @@ import type { AddressApi } from '@/entities/address';
 import type { AddressFormValues } from '@/entities/address';
 import type { AddressActionResult } from '@/entities/address';
 import { Button } from '@/shared/ui/Button';
+import { FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
+import { Textarea } from '@/shared/ui/Textarea';
 import './AddressForm.css';
 
 const EMPTY: AddressFormValues = {
@@ -76,47 +79,96 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
             {error && <p className="address-form__error" role="alert">{error}</p>}
 
             <div className="address-form__row">
-                <div className="profile-field">
-                    <label htmlFor="alias">Alias</label>
-                    <input id="alias" name="alias" type="text" placeholder="Casa, Oficina…" value={form.alias} onChange={handleChange} required />
-                </div>
-                <div className="profile-field">
-                    <label htmlFor="telefono">Teléfono</label>
-                    <input id="telefono" name="telefono" type="tel" placeholder="+521234567890" value={form.telefono} onChange={handleChange} required />
-                </div>
+                <FormField label="Alias" htmlFor="alias">
+                    <Input
+                        id="alias"
+                        name="alias"
+                        type="text"
+                        placeholder="Casa, Oficina…"
+                        value={form.alias}
+                        onChange={handleChange}
+                        required
+                    />
+                </FormField>
+                <FormField label="Teléfono" htmlFor="telefono">
+                    <Input
+                        id="telefono"
+                        name="telefono"
+                        type="tel"
+                        placeholder="+521234567890"
+                        value={form.telefono}
+                        onChange={handleChange}
+                        required
+                    />
+                </FormField>
             </div>
 
-            <div className="profile-field">
-                <label htmlFor="direccion">Calle y número</label>
-                <input id="direccion" name="direccion" type="text" value={form.direccion} onChange={handleChange} required />
+            <FormField label="Calle y número" htmlFor="direccion">
+                <Input
+                    id="direccion"
+                    name="direccion"
+                    type="text"
+                    value={form.direccion}
+                    onChange={handleChange}
+                    required
+                />
+            </FormField>
+
+            <div className="address-form__row">
+                <FormField label="Ciudad" htmlFor="ciudad">
+                    <Input
+                        id="ciudad"
+                        name="ciudad"
+                        type="text"
+                        value={form.ciudad}
+                        onChange={handleChange}
+                        required
+                    />
+                </FormField>
+                <FormField label="Estado" htmlFor="estado">
+                    <Input
+                        id="estado"
+                        name="estado"
+                        type="text"
+                        value={form.estado}
+                        onChange={handleChange}
+                        required
+                    />
+                </FormField>
             </div>
 
             <div className="address-form__row">
-                <div className="profile-field">
-                    <label htmlFor="ciudad">Ciudad</label>
-                    <input id="ciudad" name="ciudad" type="text" value={form.ciudad} onChange={handleChange} required />
-                </div>
-                <div className="profile-field">
-                    <label htmlFor="estado">Estado</label>
-                    <input id="estado" name="estado" type="text" value={form.estado} onChange={handleChange} required />
-                </div>
+                <FormField label="Código postal" htmlFor="codigoPostal">
+                    <Input
+                        id="codigoPostal"
+                        name="codigoPostal"
+                        type="text"
+                        value={form.codigoPostal}
+                        onChange={handleChange}
+                    />
+                </FormField>
+                <FormField label="País" htmlFor="pais">
+                    <Input
+                        id="pais"
+                        name="pais"
+                        type="text"
+                        value={form.pais}
+                        onChange={handleChange}
+                        required
+                    />
+                </FormField>
             </div>
 
-            <div className="address-form__row">
-                <div className="profile-field">
-                    <label htmlFor="codigoPostal">Código postal</label>
-                    <input id="codigoPostal" name="codigoPostal" type="text" value={form.codigoPostal} onChange={handleChange} />
-                </div>
-                <div className="profile-field">
-                    <label htmlFor="pais">País</label>
-                    <input id="pais" name="pais" type="text" value={form.pais} onChange={handleChange} required />
-                </div>
-            </div>
-
-            <div className="profile-field">
-                <label htmlFor="referencias">Referencias (opcional)</label>
-                <textarea id="referencias" name="referencias" rows={2} value={form.referencias} onChange={handleChange} placeholder="Entre calles, color de fachada…" />
-            </div>
+            <FormField label="Referencias (opcional)" htmlFor="referencias">
+                <Textarea
+                    id="referencias"
+                    name="referencias"
+                    rows={2}
+                    value={form.referencias}
+                    onChange={handleChange}
+                    placeholder="Entre calles, color de fachada…"
+                />
+            </FormField>
 
             {!isEditing && (
                 <label className="address-form__checkbox">

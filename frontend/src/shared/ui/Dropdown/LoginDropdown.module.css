@@ -1,0 +1,23 @@
+.loginForm {
+    padding-top: 0;
+    max-width: none;
+}
+
+.input {
+    border-radius: 6px;
+    padding: 0.7rem;
+    font-size: 0.9rem;
+    background-color: var(--bg-dark);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.input:focus {
+    border-color: var(--accent-blue);
+    background-color: var(--bg-dark);
+    box-shadow: none;
+}
+
+.input::placeholder {
+    color: var(--text-muted);
+}

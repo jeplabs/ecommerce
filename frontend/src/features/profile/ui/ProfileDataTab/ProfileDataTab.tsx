@@ -3,6 +3,8 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { getInitials } from '@/shared/lib/format';
 import { Button } from '@/shared/ui/Button';
+import { FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
 import type { UserApi } from '@/entities/user';
 import ChangePasswordForm from '../ChangePasswordForm/ChangePasswordForm';
 import './ProfileDataTab.css';
@@ -107,25 +109,42 @@ export default function ProfileDataTab() {
                     {formError && <p className="profile-data__error" role="alert">{formError}</p>}
 
                     <div className="profile-data__form-row">
-                        <div className="profile-field">
-                            <label htmlFor="nombre">Nombre</label>
-                            <input id="nombre" name="nombre" type="text" value={formData.nombre} onChange={handleChange} required />
-                        </div>
-                        <div className="profile-field">
-                            <label htmlFor="apellido">Apellido</label>
-                            <input id="apellido" name="apellido" type="text" value={formData.apellido} onChange={handleChange} required />
-                        </div>
+                        <FormField label="Nombre" htmlFor="nombre">
+                            <Input
+                                id="nombre"
+                                name="nombre"
+                                type="text"
+                                value={formData.nombre}
+                                onChange={handleChange}
+                                required
+                            />
+                        </FormField>
+                        <FormField label="Apellido" htmlFor="apellido">
+                            <Input
+                                id="apellido"
+                                name="apellido"
+                                type="text"
+                                value={formData.apellido}
+                                onChange={handleChange}
+                                required
+                            />
+                        </FormField>
                     </div>
 
-                    <div className="profile-field">
-                        <label htmlFor="pais">País</label>
-                        <input id="pais" name="pais" type="text" value={formData.pais} onChange={handleChange} required />
-                    </div>
+                    <FormField label="País" htmlFor="pais">
+                        <Input
+                            id="pais"
+                            name="pais"
+                            type="text"
+                            value={formData.pais}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormField>
 
-                    <div className="profile-field profile-field--readonly">
-                        <label htmlFor="email">Correo electrónico</label>
-                        <input id="email" type="email" value={usuario.email} disabled tabIndex={-1} />
-                    </div>
+                    <FormField label="Correo electrónico" htmlFor="email" readonly>
+                        <Input id="email" type="email" value={usuario.email} disabled tabIndex={-1} />
+                    </FormField>
 
                     <div className="profile-data__actions">
                         <Button type="submit" variant="primary" disabled={saving}>

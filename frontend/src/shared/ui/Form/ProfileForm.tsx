@@ -1,6 +1,11 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import type { UpdateProfileFormValues, UserApi } from '@/entities/user';
 import { Button } from '@/shared/ui/Button';
+import formStyles from '@/shared/ui/Form/Form.module.css';
+import { Form } from '@/shared/ui/Form/Form';
+import { FieldError, FormField } from '@/shared/ui/FormField';
+import { Input } from '@/shared/ui/Input';
+import clsx from 'clsx';
 
 type ProfileFormProps = {
     user: UserApi;
@@ -56,7 +61,7 @@ export default function ProfileForm({ user, onSave, onCancel }: ProfileFormProps
 
     if (!isEditing) {
         return (
-            <div className="profile-view form-box">
+            <div className={clsx('profile-view', formStyles.form, formStyles.auth)}>
                 <h2>Detalles del Usuario</h2>
                 <div style={{ marginBottom: '10px' }}>
                     <strong>Nombre:</strong> {formData.nombre} {formData.apellido}
@@ -77,53 +82,47 @@ export default function ProfileForm({ user, onSave, onCancel }: ProfileFormProps
     }
 
     return (
-        <form onSubmit={handleSubmit} className="form-box">
+        <Form variant="auth" onSubmit={handleSubmit}>
             <h2>Editar Perfil</h2>
 
-            {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+            {error && <FieldError>{error}</FieldError>}
 
-            <div>
-                <label>Nombre:</label>
-                <input
+            <FormField label="Nombre" htmlFor="nombre">
+                <Input
                     type="text"
                     name="nombre"
+                    id="nombre"
                     value={formData.nombre}
                     onChange={handleChange}
                     required
                 />
-            </div>
+            </FormField>
 
-            <div>
-                <label>Apellido:</label>
-                <input
+            <FormField label="Apellido" htmlFor="apellido">
+                <Input
                     type="text"
                     name="apellido"
+                    id="apellido"
                     value={formData.apellido}
                     onChange={handleChange}
                     required
                 />
-            </div>
+            </FormField>
 
-            <div>
-                <label>País:</label>
-                <input
+            <FormField label="País" htmlFor="pais">
+                <Input
                     type="text"
                     name="pais"
+                    id="pais"
                     value={formData.pais}
                     onChange={handleChange}
                     required
                 />
-            </div>
+            </FormField>
 
-            <div
-                style={{
-                    opacity: 0.6,
-                    pointerEvents: 'none',
-                }}
-            >
-                <label>Email:</label>
-                <input type="email" value={formData.email} tabIndex={-1} />
-            </div>
+            <FormField label="Email" htmlFor="email" readonly>
+                <Input type="email" id="email" value={formData.email} tabIndex={-1} disabled />
+            </FormField>
 
             <div style={{ display: 'flex', gap: '10px' }}>
                 <Button type="submit" variant="primary" disabled={loading}>
@@ -141,6 +140,6 @@ export default function ProfileForm({ user, onSave, onCancel }: ProfileFormProps
                     Cancelar
                 </Button>
             </div>
-        </form>
+        </Form>
     );
 }

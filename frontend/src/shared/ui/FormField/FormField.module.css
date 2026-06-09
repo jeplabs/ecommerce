@@ -1,0 +1,32 @@
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.error {
+    color: var(--error);
+    font-size: 0.8rem;
+}
+
+.hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.readonly :global(input),
+.readonly :global(textarea),
+.readonly :global(select) {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
