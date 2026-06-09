@@ -1,4 +1,7 @@
 .address-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     padding: 1.25rem;
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -9,7 +12,7 @@
 
 .address-form__title {
     font-size: 1.05rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .address-form__row {
@@ -21,7 +24,7 @@
 .address-form__error {
     color: var(--error);
     font-size: 0.88rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     padding: 0.65rem 0.85rem;
     background: rgba(239, 68, 68, 0.1);
     border-radius: 8px;
@@ -52,7 +55,7 @@
     gap: 0.5rem;
     font-size: 0.88rem;
     color: var(--muted);
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     cursor: pointer;
 }
 

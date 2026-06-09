@@ -13,6 +13,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     background-color: var(--bg-dark);
     padding: 1rem 2rem;
     border-bottom: 1px solid var(--border-color);
@@ -24,7 +25,8 @@
 
 /* --- Izquierda: Logo --- */
 .navbar-left {
-    flex: 1;
+    /* flex: 1; */
+    min-width: 0;
 }
 
 .navbar-logo {
@@ -42,11 +44,12 @@
 
 /* --- Centro: Buscador --- */
 .navbar-center {
-    flex: 2;
+    flex: 2 1 0;
     display: flex;
     justify-content: center;
     max-width: 600px;
     margin: 0 1rem;
+    min-width: 0;
 }
 
 .search-form {
@@ -69,28 +72,44 @@
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
+/* Aislado de control.module / forms-legacy: el buscador no usa <Input> */
 .search-input {
-    flex: 1;
+    flex: 1 1 0;
     min-width: 0;
     width: auto;
-    /* display: block; */
+    max-width: 100%;
+    box-sizing: border-box;
     background: transparent;
     border: none;
+    border-radius: 0;
     padding: 0.75rem 1rem;
     color: var(--text-main);
+    font-family: inherit;
     font-size: 0.95rem;
     outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    box-shadow: none;
 }
 
 .search-input::placeholder {
     color: var(--text-muted);
 }
 
+.search-input:focus {
+    outline: none;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
 .search-btn {
     flex-shrink: 0;
     background: transparent;
     border: none;
+    border-radius: 0;
     padding: 0 1rem;
+    font-size: inherit;
     cursor: pointer;
     color: var(--text-muted);
     transition: color 0.3s ease;
@@ -102,14 +121,20 @@
 
 .search-btn:hover {
     color: var(--accent-blue);
+    border-color: transparent;
 }
 
 /* --- Derecha: Botones --- */
 .navbar-right {
-    flex: 1;
+    /* flex: 1 0 auto; */
     display: flex;
     justify-content: flex-end;
     position: relative;
+}
+
+/* Anular buttons-legacy (max-width: 400px) sin cambiar el aspecto */
+.navbar button {
+    max-width: none;
 }
 
 /* Botón "Iniciar sesión" (Trigger) */
@@ -129,6 +154,7 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    flex-shrink: 0;
 }
 
 /* Estilos comunes para enlaces tipo botón */
@@ -195,7 +221,7 @@
     }
     
     .navbar-center {
-        order: 2; /* Buscador abajo en móviles si se prefiere, o quitar para mantener orden */
+        order: 2; 
     }
     
     .navbar-right {
@@ -213,9 +239,10 @@
 
 /* Estilo para el botón del carrito para que parezca un icono limpio */
 .btn-cart-trigger {
+    position: relative;
     background: transparent;
     border: none;
-    color: var(--text-muted); /* O el color que uses para iconos */
+    color: var(--text-muted); 
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 6px;
@@ -223,12 +250,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: 0.5rem; /* Espacio respecto a otros elementos */
+    /* margin-left: 0.5rem;  */
 }
 
 .btn-cart-trigger:hover {
     color: var(--accent-blue); /* Color al pasar el mouse */
     background-color: rgba(255, 255, 255, 0.05);
+    border: none;
+}
+
+/* Anular buttons-legacy: button:focus / button:hover (borde y outline al pulsar) */
+.btn-cart-trigger:focus,
+.btn-cart-trigger:focus-visible,
+.btn-cart-trigger:active {
+    outline: none;
+    border: none;
+    box-shadow: none;
 }
 
 /* Asegurar que los iconos de material se alineen bien */
@@ -253,6 +290,3 @@
     pointer-events: none;
 }
 
-.btn-cart-trigger {
-    position: relative;
-}

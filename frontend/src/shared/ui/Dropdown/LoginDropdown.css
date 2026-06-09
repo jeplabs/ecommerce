@@ -4,10 +4,15 @@
     background-color: rgba(37, 99, 235, 0.05);
 }
 
+.login-dropdown-anchor {
+    position: relative;
+    display: inline-flex;
+}
+
 /* --- Dropdown Menu (El contenedor desplegable) --- */
 .dropdown-menu {
     position: absolute;
-    top: 120%; /* Un poco separado del botón */
+    top: 120%;
     right: 0;
     width: 320px;
     background-color: var(--bg-element);
@@ -17,6 +22,13 @@
     padding: 1.5rem;
     z-index: 1001;
     animation: fadeIn 0.2s ease-out;
+}
+
+/* Centrado bajo el botón "Iniciar sesión" (margin, no transform: evita salto al fin de la animación) */
+.login-dropdown-anchor .dropdown-menu {
+    left: 50%;
+    right: auto;
+    margin-left: -160px;
 }
 
 /* Animación suave de aparición */
@@ -74,5 +86,7 @@
         left: 1rem;
         right: 1rem;
         width: auto;
+        margin-left: 0;
+        animation: fadeIn 0.2s ease-out;
     }
 }

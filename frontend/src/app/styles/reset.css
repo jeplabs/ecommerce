@@ -12,9 +12,16 @@ html, body {
     font-family: 'Instrument Sans', sans-serif;
     background: var(--bg);
     color: var(--text);
-    overflow: scroll;
+    overflow-x: clip;
+    overflow-y: scroll;
     scroll-behavior: smooth;
     scrollbar-width: none;
+}
+
+#root {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }
 
 body {

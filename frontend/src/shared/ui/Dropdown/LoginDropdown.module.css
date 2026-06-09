@@ -1,6 +1,9 @@
 .loginForm {
     padding-top: 0;
     max-width: none;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .input {

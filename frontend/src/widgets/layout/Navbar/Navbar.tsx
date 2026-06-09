@@ -111,15 +111,17 @@ export default function Navbar() {
                 <div className="navbar-right">
                     {!isAuthenticated ? (
                         <div className="auth-links" ref={menuRef}>
-                            <button
-                                className="btn-login-trigger"
-                                onClick={toggleMenu}
-                                aria-expanded={isMenuOpen}
-                            >
-                                Iniciar sesión
-                            </button>
+                            <div className="login-dropdown-anchor">
+                                <button
+                                    className="btn-login-trigger"
+                                    onClick={toggleMenu}
+                                    aria-expanded={isMenuOpen}
+                                >
+                                    Iniciar sesión
+                                </button>
 
-                            {isMenuOpen && <LoginDropdown onClose={closeMenu} />}
+                                {isMenuOpen && <LoginDropdown onClose={closeMenu} />}
+                            </div>
 
                             <button
                                 className="btn-cart-trigger"
@@ -144,18 +146,10 @@ export default function Navbar() {
                                     </Link>
 
                                     <button
+                                        type="button"
                                         className="btn-cart-trigger"
                                         onClick={openCart}
                                         aria-label="Abrir carrito"
-                                        style={{
-                                            background: 'transparent',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            color: 'var(--cat-text-muted)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            position: 'relative',
-                                        }}
                                     >
                                         <span
                                             className="material-symbols-outlined"
