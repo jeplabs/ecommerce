@@ -1,3 +1,71 @@
+.menu {
+    position: absolute;
+    top: 150%;
+    left: 50%;
+    right: auto;
+    width: 320px;
+    margin-left: -170px;
+    box-sizing: border-box;
+    background-color: var(--bg-element);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    z-index: 1001;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.header span {
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: block;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 1.2rem 0;
+}
+
+.footer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.registerLink {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.registerLink:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
 .loginForm {
     padding-top: 0;
     max-width: none;
@@ -23,4 +91,18 @@
 
 .input::placeholder {
     color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .menu {
+        position: fixed;
+        top: 180px;
+        left: 1rem;
+        right: 1rem;
+        width: auto;
+        max-width: none;
+        margin-left: 0;
+        transform: none;
+        animation: fadeIn 0.2s ease-out;
+    }
 }

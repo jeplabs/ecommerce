@@ -1,0 +1,12 @@
+.admin-product-edit {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.admin-product-edit__loading {
+    font-size: 1.1rem;
+    color: var(--muted);
+}

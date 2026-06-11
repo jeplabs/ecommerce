@@ -1,7 +1,10 @@
 import { useCart, useToast } from '@/app/providers';
+import { Button } from '@/shared/ui/Button';
+import buttonStyles from '@/shared/ui/Button/Button.module.css';
+import clsx from 'clsx';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import './CartView.css';
+import styles from './CartView.module.css';
 
 type CartViewProps = {
     onProceedToCheckout: () => void;
@@ -44,20 +47,27 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
     }, [cartTotal]);
 
     return (
-        <section className="cart-page__content">
+        <section className={styles.content}>
             <h1>Mi Carrito</h1>
 
             {isEmpty ? (
-                <div className="cart-empty">
+                <div className={styles.empty}>
                     <p>Tu carrito está vacío.</p>
-                    <Link to="/catalogo" className="btn-go-to-catalog">
+                    <Link
+                        to="/catalogo"
+                        className={clsx(
+                            buttonStyles.button,
+                            buttonStyles.primary,
+                            styles.emptyLink
+                        )}
+                    >
                         Ver productos
                     </Link>
                 </div>
             ) : (
                 <>
-                    <div className="cart-table" role="table" aria-label="Productos en el carrito">
-                        <div className="cart-table__header" role="row">
+                    <div className={styles.table} role="table" aria-label="Productos en el carrito">
+                        <div className={styles.tableHeader} role="row">
                             <span role="columnheader">Producto</span>
                             <span role="columnheader">Cantidad</span>
                             <span role="columnheader">Subtotal</span>
@@ -69,38 +79,38 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                 { minimumFractionDigits: 2 }
                             );
                             return (
-                                <article key={item.id} className="cart-table__row" role="row">
-                                    <div className="cart-item__info" role="cell">
+                                <article key={item.id} className={styles.tableRow} role="row">
+                                    <div className={styles.itemInfo} role="cell">
                                         {item.imageUrl ? (
                                             <img
                                                 src={item.imageUrl}
                                                 alt={item.altText || item.name}
-                                                className="cart-item__thumb"
+                                                className={styles.itemThumb}
                                             />
                                         ) : (
-                                            <div className="cart-item__thumb-placeholder">
+                                            <div className={styles.itemThumbPlaceholder}>
                                                 Sin imagen
                                             </div>
                                         )}
-                                        <div className="cart-item__meta">
-                                            <p className="cart-item__name">{item.name}</p>
-                                            <p className="cart-item__price">
+                                        <div className={styles.itemMeta}>
+                                            <p className={styles.itemName}>{item.name}</p>
+                                            <p className={styles.itemPrice}>
                                                 $
                                                 {item.price.toLocaleString('es-ES', {
                                                     minimumFractionDigits: 2,
                                                 })}{' '}
-                                                <span className="cart-item__price-unit">c/u</span>
+                                                <span className={styles.itemPriceUnit}>c/u</span>
                                             </p>
                                         </div>
                                     </div>
                                     <div
-                                        className="cart-item__qty"
+                                        className={styles.itemQty}
                                         role="cell"
                                         data-label="Cantidad"
                                     >
                                         <button
                                             type="button"
-                                            className="qty-btn"
+                                            className={styles.qtyBtn}
                                             aria-label="Disminuir cantidad"
                                             onClick={() =>
                                                 handleQuantityChange(item.id, item.quantity - 1)
@@ -109,12 +119,12 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                         >
                                             −
                                         </button>
-                                        <span className="cart-item__qty-value" aria-live="polite">
+                                        <span className={styles.itemQtyValue} aria-live="polite">
                                             {item.quantity}
                                         </span>
                                         <button
                                             type="button"
-                                            className="qty-btn"
+                                            className={styles.qtyBtn}
                                             aria-label="Aumentar cantidad"
                                             onClick={() =>
                                                 handleQuantityChange(item.id, item.quantity + 1)
@@ -125,52 +135,54 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                         </button>
                                     </div>
                                     <div
-                                        className="cart-item__subtotal"
+                                        className={styles.itemSubtotal}
                                         role="cell"
                                         data-label="Subtotal"
                                     >
                                         ${subtotalFormatted}
                                     </div>
                                     <div
-                                        className="cart-item__actions"
+                                        className={styles.itemActions}
                                         role="cell"
                                         data-label="Acción"
                                     >
-                                        <button
+                                        <Button
                                             type="button"
-                                            className="btn-remove-item"
+                                            variant="outlineDanger"
+                                            className={styles.removeItem}
                                             onClick={() => handleRemove(item.id)}
                                             disabled={loading}
                                         >
                                             Eliminar
-                                        </button>
+                                        </Button>
                                     </div>
                                 </article>
                             );
                         })}
                     </div>
 
-                    <div className="cart-summary">
-                        <div>
+                    <div className={styles.summary}>
+                        <div className={styles.summaryTotal}>
                             <span>Total</span>
                             <strong>${totalDisplay}</strong>
                         </div>
-                        <div className="cart-summary__actions">
-                            <button
-                                className="btn-clear-cart"
+                        <div className={styles.summaryActions}>
+                            <Button
+                                type="button"
+                                variant="ghost"
                                 onClick={handleClear}
                                 disabled={loading}
                             >
                                 Vaciar carrito
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="button"
-                                className="btn-checkout"
+                                variant="primary"
                                 disabled={loading}
                                 onClick={onProceedToCheckout}
                             >
                                 Proceder al pago
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </>

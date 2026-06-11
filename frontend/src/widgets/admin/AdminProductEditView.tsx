@@ -4,6 +4,8 @@ import type { NavigateFunction } from 'react-router-dom';
 import type { ProductAdminApi, ProductApi, ProductStatus } from '@/entities/product';
 import { ProductForm } from '@/features/admin/ui/ProductForm';
 import { FieldError } from '@/shared/ui/FormField';
+import { Button } from '@/shared/ui/Button';
+import './AdminProductEditView.css';
 import type {
     ProductFormInitialData,
     ProductFormSubmitPayload,
@@ -225,30 +227,26 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
 
     if (error) {
         return (
-            <main className="product-edit-container">
+            <main className="admin-product-edit">
                 <h1>Error al cargar producto</h1>
                 <FieldError>{error}</FieldError>
-                <button
-                    type="button"
-                    onClick={() => onNavigate('/admin/products')}
-                    className="btn-secondary"
-                >
+                <Button type="button" variant="secondary" onClick={() => onNavigate('/admin/products')}>
                     Volver a la lista
-                </button>
+                </Button>
             </main>
         );
     }
 
     if (loading || !productData) {
         return (
-            <main className="product-edit-container">
-                <div className="loading-indicator">Cargando producto...</div>
+            <main className="admin-product-edit">
+                <div className="admin-product-edit__loading">Cargando producto...</div>
             </main>
         );
     }
 
     return (
-        <main className="product-edit-container">
+        <main className="admin-product-edit">
             <h1>Editar Producto</h1>
             <ProductForm
                 initialData={productData}

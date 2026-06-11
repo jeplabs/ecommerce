@@ -2,6 +2,7 @@ import { useProduct, useToast } from '@/app/providers';
 import type { NavigateFunction } from 'react-router-dom';
 import type { ProductAdminApi, ProductApi } from '@/entities/product';
 import { Button } from '@/shared/ui/Button';
+import './AdminProductListView.css';
 
 type AdminProductListViewProps = {
     onNavigate: NavigateFunction;
@@ -120,53 +121,35 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
                     </span>
                 </div>
 
-                {showImage && (
-                    <div className="product-actions">
-                        <button
-                            onClick={() => onNavigate(`/admin/products/edit/${producto.id}`)}
-                            className="btn-edit"
-                            title="Editar producto"
-                        >
-                            ✏️ Editar
-                        </button>
-                        <button
-                            onClick={() => handleDelete(producto.id, producto.nombre)}
-                            className="btn-delete"
-                            title="Eliminar producto"
-                        >
-                            🗑️ Eliminar
-                        </button>
-                    </div>
-                )}
-                {!showImage && (
-                    <div className="product-actions">
-                        <button
-                            onClick={() => onNavigate(`/admin/products/edit/${producto.id}`)}
-                            className="btn-edit"
-                            title="Editar producto"
-                        >
-                            ✏️ Editar
-                        </button>
-                        <button
-                            onClick={() => handleDelete(producto.id, producto.nombre)}
-                            className="btn-delete"
-                            title="Eliminar producto"
-                        >
-                            🗑️ Eliminar
-                        </button>
-                    </div>
-                )}
+                <div className="product-actions">
+                    <Button
+                        type="button"
+                        variant="outlinePrimary"
+                        onClick={() => onNavigate(`/admin/products/edit/${producto.id}`)}
+                        title="Editar producto"
+                    >
+                        ✏️ Editar
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outlineDanger"
+                        onClick={() => handleDelete(producto.id, producto.nombre)}
+                        title="Eliminar producto"
+                    >
+                        🗑️ Eliminar
+                    </Button>
+                </div>
             </div>
         </article>
     );
 
     return (
-        <main className="products-container">
+        <main className="admin-product-list-view">
             <h1>Admin: Productos y Categorías</h1>
 
-            {loading && <div className="loading-indicator">Cargando datos...</div>}
+            {loading && <div className="admin-product-list-view__loading">Cargando datos...</div>}
 
-            <div className="admin-product-actions">
+            <div className="admin-product-list-view__actions">
                 <Button type="button" variant="primary" onClick={() => onNavigate('/admin/products/new')}>
                     Agregar Producto
                 </Button>
@@ -176,9 +159,9 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
             </div>
 
             <h2>Productos Disponibles</h2>
-            <section className="admin-product-list">
+            <section>
                 {productos?.length > 0 ? (
-                    <div className="admin-product-grid">
+                    <div className="admin-product-list-view__grid">
                         {(productos as AdminListProduct[]).map((producto) =>
                             renderProductCard(producto, true)
                         )}
@@ -189,9 +172,9 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
             </section>
 
             <h2>Productos Ocultos</h2>
-            <section className="admin-product-list">
+            <section>
                 {productosOcultos?.length > 0 ? (
-                    <div className="admin-product-grid">
+                    <div className="admin-product-list-view__grid">
                         {(productosOcultos as AdminListProduct[]).map((producto) =>
                             renderProductCard(producto, false)
                         )}
@@ -202,9 +185,9 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
             </section>
 
             <h2>Productos Descontinuados</h2>
-            <section className="admin-product-list">
+            <section>
                 {productosDescontinuados?.length > 0 ? (
-                    <div className="admin-product-grid">
+                    <div className="admin-product-list-view__grid">
                         {(productosDescontinuados as AdminListProduct[]).map((producto) => (
                             <article key={producto.id} className="product-card">
                                 <div className="card-body">

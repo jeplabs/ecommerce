@@ -4,7 +4,7 @@ import { useAuth, useCart } from '@/app/providers';
 import useClickOutside from '@/shared/lib/useClickOutside';
 import LoginDropdown from '@/shared/ui/Dropdown/LoginDropdown';
 import CartDrawer from '@/widgets/cart/CartDrawer';
-import './Navbar.css';
+import styles from './Navbar.module.css';
 
 /** Rutas donde el buscador sincroniza ?search= con la URL del catálogo. */
 function isCatalogSearchPath(pathname: string): boolean {
@@ -86,34 +86,35 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="navbar">
-                <div className="navbar-left">
-                    <Link to="/" className="navbar-logo">
+            <nav className={styles.navbar}>
+                <div className={styles.navbarLeft}>
+                    <Link to="/" className={styles.navbarLogo}>
                         JEPLabs
                     </Link>
                 </div>
 
-                <div className="navbar-center">
-                    <div className="search-form">
+                <div className={styles.navbarCenter}>
+                    <div className={styles.searchForm}>
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={handleSearchChange}
                             placeholder="Buscar productos..."
-                            className="search-input"
+                            className={styles.searchInput}
                         />
-                        <button type="button" className="search-btn" aria-label="Buscar" disabled>
+                        <button type="button" className={styles.searchBtn} aria-label="Buscar" disabled>
                             🔍
                         </button>
                     </div>
                 </div>
 
-                <div className="navbar-right">
+                <div className={styles.navbarRight}>
                     {!isAuthenticated ? (
-                        <div className="auth-links" ref={menuRef}>
-                            <div className="login-dropdown-anchor">
+                        <div className={styles.authLinks} ref={menuRef}>
+                            <div className={styles.loginDropdownAnchor}>
                                 <button
-                                    className="btn-login-trigger"
+                                    type="button"
+                                    className={styles.loginTrigger}
                                     onClick={toggleMenu}
                                     aria-expanded={isMenuOpen}
                                 >
@@ -124,53 +125,51 @@ export default function Navbar() {
                             </div>
 
                             <button
-                                className="btn-cart-trigger"
+                                type="button"
+                                className={styles.cartTrigger}
                                 onClick={toggleCart}
                                 aria-label="Abrir carrito"
                             >
-                                <span
-                                    className="material-symbols-outlined"
-                                    style={{ verticalAlign: 'middle', fontSize: '1.2rem' }}
-                                >
+                                <span className={`material-symbols-outlined ${styles.materialIcon}`}>
                                     shopping_cart
                                 </span>
-                                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                                {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
                             </button>
                         </div>
                     ) : (
-                        <div className="user-menu">
+                        <div className={styles.userMenu}>
                             {userRol === 'ROLE_CUSTOMER' && (
-                                <div className="auth-links">
-                                    <Link to="/profile" className="btn-link">
+                                <div className={styles.authLinks}>
+                                    <Link to="/profile" className={styles.btnLink}>
                                         Perfil
                                     </Link>
 
                                     <button
                                         type="button"
-                                        className="btn-cart-trigger"
+                                        className={styles.cartTrigger}
                                         onClick={openCart}
                                         aria-label="Abrir carrito"
                                     >
                                         <span
-                                            className="material-symbols-outlined"
+                                            className={`material-symbols-outlined ${styles.materialIcon}`}
                                             style={{ fontSize: '1.2rem' }}
                                         >
                                             shopping_cart
                                         </span>
                                         {cartCount > 0 && (
-                                            <span className="cart-badge">{cartCount}</span>
+                                            <span className={styles.cartBadge}>{cartCount}</span>
                                         )}
                                     </button>
                                 </div>
                             )}
 
                             {userRol === 'ROLE_ADMIN' && (
-                                <Link to="/admin" className="btn-link">
+                                <Link to="/admin" className={styles.btnLink}>
                                     Admin
                                 </Link>
                             )}
 
-                            <button onClick={logout} className="btn-logout">
+                            <button type="button" onClick={logout} className={styles.btnLogout}>
                                 Cerrar sesión
                             </button>
                         </div>

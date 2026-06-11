@@ -1,7 +1,10 @@
 import { useAuth, useCart, useToast } from '@/app/providers';
+import { Button } from '@/shared/ui/Button';
+import buttonStyles from '@/shared/ui/Button/Button.module.css';
+import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import './CartDrawer.css';
+import styles from './CartDrawer.module.css';
 
 type CartDrawerProps = {
     isOpen: boolean;
@@ -97,52 +100,68 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     if (!shouldRender) return null;
 
     return (
-        <>
+        <div className={styles.shell}>
             <div
-                className={`cart-overlay ${isVisible ? 'active' : ''}`}
+                className={clsx(styles.overlay, isVisible && styles.overlayActive)}
                 onClick={handleClose}
             />
 
-            <div className={`cart-drawer ${isVisible ? 'active' : ''}`}>
-                <div className="cart-header">
+            <div className={clsx(styles.drawer, isVisible && styles.drawerActive)}>
+                <div className={styles.header}>
                     <h2>Tu Carrito</h2>
-                    <button className="cart-close-btn" onClick={handleClose}>
+                    <button
+                        type="button"
+                        className={styles.closeBtn}
+                        onClick={handleClose}
+                        aria-label="Cerrar carrito"
+                    >
                         <span className="material-symbols-outlined">close</span>
                     </button>
                 </div>
 
-                <div className="cart-body">
+                <div className={styles.body}>
                     {isEmpty ? (
-                        <div className="cart-empty-state">
-                            <span className="material-symbols-outlined empty-icon">shopping_cart</span>
+                        <div className={styles.emptyState}>
+                            <span className={clsx('material-symbols-outlined', styles.emptyIcon)}>
+                                shopping_cart
+                            </span>
                             <p>Tu carrito está vacío</p>
-                            <Link to="/catalogo" className="btn-browse" onClick={handleClose}>
+                            <Link
+                                to="/catalogo"
+                                className={clsx(
+                                    buttonStyles.button,
+                                    buttonStyles.outlinePrimary,
+                                    styles.browseLink
+                                )}
+                                onClick={handleClose}
+                            >
                                 Ver productos
                             </Link>
                         </div>
                     ) : (
-                        <ul className="cart-items-list">
+                        <ul className={styles.itemsList}>
                             {items.map((item) => (
-                                <li key={item.id} className="cart-item">
-                                    <div className="cart-item-details">
-                                        <h4 className="cart-item-name">{item.name}</h4>
-                                        <p className="cart-item-meta">
+                                <li key={item.id} className={styles.item}>
+                                    <div className={styles.itemDetails}>
+                                        <h4 className={styles.itemName}>{item.name}</h4>
+                                        <p className={styles.itemMeta}>
                                             {item.quantity} x $
                                             {item.price.toLocaleString('es-ES', {
                                                 minimumFractionDigits: 2,
                                             })}
                                         </p>
-                                        <p className="cart-item-subtotal">
+                                        <p className={styles.itemSubtotal}>
                                             Subtotal: $
                                             {(item.price * item.quantity).toLocaleString('es-ES', {
                                                 minimumFractionDigits: 2,
                                             })}
                                         </p>
                                     </div>
-                                    <div className="cart-item-controls">
-                                        <div className="cart-item-actions">
+                                    <div className={styles.itemControls}>
+                                        <div className={styles.itemActions}>
                                             <button
-                                                className="cart-item-qty-btn"
+                                                type="button"
+                                                className={styles.qtyBtn}
                                                 onClick={() =>
                                                     handleUpdateQuantity(item.id, item.quantity - 1)
                                                 }
@@ -151,9 +170,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                             >
                                                 −
                                             </button>
-                                            <span className="cart-item-qty">{item.quantity}</span>
+                                            <span className={styles.qty}>{item.quantity}</span>
                                             <button
-                                                className="cart-item-qty-btn"
+                                                type="button"
+                                                className={styles.qtyBtn}
                                                 onClick={() =>
                                                     handleUpdateQuantity(item.id, item.quantity + 1)
                                                 }
@@ -164,7 +184,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                             </button>
                                         </div>
                                         <button
-                                            className="cart-item-remove"
+                                            type="button"
+                                            className={styles.removeBtn}
                                             onClick={() => handleRemove(item.id)}
                                             disabled={loading}
                                             title="Eliminar del carrito"
@@ -180,32 +201,37 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </div>
 
                 {!isEmpty && (
-                    <div className="cart-footer">
-                        <div className="cart-total">
+                    <div className={styles.footer}>
+                        <div className={styles.total}>
                             <span>Total</span>
-                            <span className="cart-total-amount">
+                            <span className={styles.totalAmount}>
                                 $
                                 {cartTotal.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
                             </span>
                         </div>
 
-                        <div className="cart-actions">
-                            <Link to="/cart" className="btn-cart-secondary" onClick={handleClose}>
+                        <div className={styles.actions}>
+                            <Link
+                                to="/cart"
+                                className={clsx(buttonStyles.button, buttonStyles.secondary)}
+                                onClick={handleClose}
+                            >
                                 Ver carrito completo
                             </Link>
-                            <button
-                                className="btn-cart-primary"
+                            <Button
+                                variant="primary"
+                                fullWidth
                                 onClick={handleCheckout}
                                 disabled={loading}
                             >
                                 {isAuthenticated
                                     ? 'Proceder al Pago'
                                     : 'Iniciar Sesión para Comprar'}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }

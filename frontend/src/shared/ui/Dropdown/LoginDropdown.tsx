@@ -8,7 +8,6 @@ import { Button } from '@/shared/ui/Button';
 import { FieldError } from '@/shared/ui/FormField';
 import { Input } from '@/shared/ui/Input';
 import styles from './LoginDropdown.module.css';
-import './LoginDropdown.css';
 
 type LoginDropdownProps = {
     onClose?: () => void;
@@ -69,7 +68,7 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
 
     if (showForgotPassword) {
         return (
-            <div className="dropdown-menu">
+            <div className={styles.menu}>
                 <ForgotPasswordForm
                     onBack={() => setShowForgotPassword(false)}
                     onSuccess={handleForgotPasswordSuccess}
@@ -79,8 +78,8 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
     }
 
     return (
-        <div className="dropdown-menu">
-            <div className="dropdown-header">
+        <div className={styles.menu}>
+            <div className={styles.header}>
                 <span>Bienvenido de nuevo</span>
             </div>
 
@@ -125,11 +124,11 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
                 </Button>
             </Form>
 
-            <div className="dropdown-divider"></div>
+            <div className={styles.divider} />
 
-            <div className="dropdown-footer">
+            <div className={styles.footer}>
                 <span>¿No tienes cuenta?</span>
-                <Link to="/register" className="btn-dropdown-register" onClick={onClose}>
+                <Link to="/register" className={styles.registerLink} onClick={onClose}>
                     Registrarse
                 </Link>
             </div>

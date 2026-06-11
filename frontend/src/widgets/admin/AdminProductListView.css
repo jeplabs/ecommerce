@@ -1,0 +1,211 @@
+.admin-product-list-view {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    gap: 2rem;
+    box-sizing: border-box;
+}
+
+.admin-product-list-view__loading {
+    font-size: 1.1rem;
+    color: var(--muted);
+}
+
+.admin-product-list-view__actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin-product-list-view__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(250px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+@media (max-width: 1024px) {
+    .admin-product-list-view__grid {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-product-list-view__grid {
+        grid-template-columns: repeat(1, minmax(220px, 1fr));
+    }
+
+    .admin-product-list-view__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* Tarjetas admin — scoped para no pisar ProductCard del catálogo */
+.admin-product-list-view .product-card {
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: none;
+}
+
+.admin-product-list-view .card-preview {
+    height: 180px;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-product-list-view .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.admin-product-list-view .product-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.admin-product-list-view .product-price-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--indigo);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--indigo);
+}
+
+.admin-product-list-view .card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background: #161616;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.admin-product-list-view .card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    line-height: 1.1;
+    margin: 0 0 0.5rem 0;
+    color: var(--text);
+    letter-spacing: 0.02em;
+}
+
+.admin-product-list-view .card-desc {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--muted);
+    margin: 0 0 1rem 0;
+}
+
+.admin-product-list-view .product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+}
+
+.admin-product-list-view .product-sku {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.admin-product-list-view .product-stock {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.admin-product-list-view .product-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    width: fit-content;
+}
+
+.admin-product-list-view .product-status[data-status='DISPONIBLE'] {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.admin-product-list-view .product-status[data-status='SIN_STOCK'],
+.admin-product-list-view .product-status[data-status='SIN-STOCK'] {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-product-list-view .product-status[data-status='OCULTO'] {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-product-list-view .product-status[data-status='DESCONTINUADO'] {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-product-list-view .product-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .admin-product-list-view .card-preview {
+        height: 160px;
+    }
+
+    .admin-product-list-view .product-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-product-list-view .card-preview {
+        height: 140px;
+    }
+
+    .admin-product-list-view .card-body {
+        padding: 0.8rem;
+    }
+
+    .admin-product-list-view .card-name {
+        font-size: 1.2rem;
+    }
+}

@@ -5,6 +5,7 @@ import type { UserApi } from '@/entities/user';
 import { API_URL } from '@/shared/config';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { Button } from '@/shared/ui/Button';
+import './AdminDashboardView.css';
 
 type AdminDashboardViewProps = {
     onNavigate: NavigateFunction;
@@ -57,7 +58,7 @@ export default function AdminDashboardView({ onNavigate }: AdminDashboardViewPro
     }, [onNavigate]);
 
     if (loading && usuarios.length === 0) {
-        return <p className="loading">Cargando...</p>;
+        return <p className="admin-dashboard__loading">Cargando...</p>;
     }
 
     if (error) {
@@ -65,7 +66,7 @@ export default function AdminDashboardView({ onNavigate }: AdminDashboardViewPro
     }
 
     return (
-        <main className="admin-container">
+        <main className="admin-dashboard">
             <h1>Admin</h1>
 
             <Button type="button" variant="primary" onClick={() => onNavigate('/admin/users')}>

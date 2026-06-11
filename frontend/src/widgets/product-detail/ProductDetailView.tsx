@@ -2,6 +2,7 @@ import { useProduct, useCategorias, useCart } from '@/app/providers';
 import { useState, useEffect } from 'react';
 import type { ProductApi } from '@/entities/product';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
+import { Button } from '@/shared/ui/Button';
 import type { CategoryBreadcrumbItem } from '@/widgets/catalog/lib/category-tree';
 import ProductGallery from '@/widgets/product-detail/ProductGallery/ProductGallery';
 import ProductInfo from '@/widgets/product-detail/ProductInfo/ProductInfo';
@@ -40,9 +41,9 @@ export default function ProductDetailView({ slug, onBackHome }: ProductDetailVie
         return (
             <div className="error-container">
                 <h2>Producto no encontrado</h2>
-                <button type="button" onClick={onBackHome}>
+                <Button type="button" variant="primary" onClick={onBackHome}>
                     Volver al inicio
-                </button>
+                </Button>
             </div>
         );
     }

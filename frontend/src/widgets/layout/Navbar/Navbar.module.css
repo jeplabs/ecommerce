@@ -1,15 +1,12 @@
-/* Variables de color para tema oscuro tecnológico */
-:root {
-    --bg-dark: #0a0e17;       /* Negro azulado muy oscuro */
-    --bg-element: #151a25;    /* Gris azulado para elementos */
-    --text-main: #e0e6ed;     /* Blanco grisáceo */
-    --text-muted: #94a3b8;    /* Gris medio */
-    --accent-blue: #2563eb;   /* Azul tecnológico */
-    --accent-hover: #1d4ed8;  /* Azul más oscuro para hover */
-    --border-color: #1e293b;  /* Borde sutil */
-}
-
 .navbar {
+    --bg-dark: #0a0e17;
+    --bg-element: #151a25;
+    --text-main: #e0e6ed;
+    --text-muted: #94a3b8;
+    --accent-blue: #2563eb;
+    --accent-hover: #1d4ed8;
+    --border-color: #1e293b;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -23,13 +20,11 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
-/* --- Izquierda: Logo --- */
-.navbar-left {
-    /* flex: 1; */
+.navbarLeft {
     min-width: 0;
 }
 
-.navbar-logo {
+.navbarLogo {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-main);
@@ -38,12 +33,11 @@
     transition: color 0.3s ease;
 }
 
-.navbar-logo:hover {
+.navbarLogo:hover {
     color: var(--accent-blue);
 }
 
-/* --- Centro: Buscador --- */
-.navbar-center {
+.navbarCenter {
     flex: 2 1 0;
     display: flex;
     justify-content: center;
@@ -52,13 +46,12 @@
     min-width: 0;
 }
 
-.search-form {
+.searchForm {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     padding: 0;
     width: 100%;
-    /* height: 45px; */
     align-items: center;
     background-color: var(--bg-element);
     border: 1px solid var(--border-color);
@@ -67,13 +60,12 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.search-form:focus-within {
+.searchForm:focus-within {
     border-color: var(--accent-blue);
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* Aislado de control.module / forms-legacy: el buscador no usa <Input> */
-.search-input {
+.searchInput {
     flex: 1 1 0;
     min-width: 0;
     width: auto;
@@ -92,18 +84,18 @@
     box-shadow: none;
 }
 
-.search-input::placeholder {
+.searchInput::placeholder {
     color: var(--text-muted);
 }
 
-.search-input:focus {
+.searchInput:focus {
     outline: none;
     background: transparent;
     border: none;
     box-shadow: none;
 }
 
-.search-btn {
+.searchBtn {
     flex-shrink: 0;
     background: transparent;
     border: none;
@@ -119,26 +111,23 @@
     white-space: nowrap;
 }
 
-.search-btn:hover {
+.searchBtn:hover {
     color: var(--accent-blue);
     border-color: transparent;
 }
 
-/* --- Derecha: Botones --- */
-.navbar-right {
-    /* flex: 1 0 auto; */
+.navbarRight {
     display: flex;
     justify-content: flex-end;
     position: relative;
 }
 
-/* Anular buttons-legacy (max-width: 400px) sin cambiar el aspecto */
-.navbar button {
-    max-width: none;
+.loginDropdownAnchor {
+    position: relative;
+    display: inline-flex;
 }
 
-/* Botón "Iniciar sesión" (Trigger) */
-.btn-login-trigger {
+.loginTrigger {
     background: transparent;
     color: var(--text-muted);
     border: 1px solid var(--border-color);
@@ -150,15 +139,21 @@
     transition: all 0.3s ease;
 }
 
-.auth-links, .user-menu {
+.loginTrigger:hover {
+    color: var(--text-main);
+    border-color: var(--accent-blue);
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+.authLinks,
+.userMenu {
     display: flex;
     align-items: center;
     gap: 1.5rem;
     flex-shrink: 0;
 }
 
-/* Estilos comunes para enlaces tipo botón */
-.btn-link {
+.btnLink {
     color: var(--text-muted);
     text-decoration: none;
     font-size: 0.95rem;
@@ -166,12 +161,11 @@
     transition: color 0.3s ease;
 }
 
-.btn-link:hover {
+.btnLink:hover {
     color: var(--text-main);
 }
 
-/* Botón Primario (Registrarse) */
-.btn-primary {
+.btnPrimary {
     background-color: var(--accent-blue);
     color: white;
     padding: 0.6rem 1.2rem;
@@ -182,13 +176,12 @@
     transition: background-color 0.3s ease;
 }
 
-.btn-primary:hover {
+.btnPrimary:hover {
     color: white;
     background-color: var(--accent-hover);
 }
 
-/* Botón Cerrar Sesión */
-.btn-logout {
+.btnLogout {
     background: transparent;
     color: var(--text-muted);
     border: 1px solid var(--border-color);
@@ -199,50 +192,17 @@
     transition: all 0.3s ease;
 }
 
-.btn-logout:hover {
-    color: #ef4444; /* Rojo sutil para logout */
+.btnLogout:hover {
+    color: #ef4444;
     border-color: #ef4444;
     background-color: rgba(239, 68, 68, 0.05);
 }
 
-/* --- Responsividad --- */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-        text-align: center;
-        z-index: 1000;
-    }
-
-    .navbar-left, .navbar-center, .navbar-right {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .navbar-center {
-        order: 2; 
-    }
-    
-    .navbar-right {
-        order: 3;
-    }
-}
-
-@media (min-width: 1200px) {
-    .navbar {
-        padding: 1rem 12rem;
-        /* max-width: 1200px; */
-        justify-content: space-between;
-    }
-}
-
-/* Estilo para el botón del carrito para que parezca un icono limpio */
-.btn-cart-trigger {
+.cartTrigger {
     position: relative;
     background: transparent;
     border: none;
-    color: var(--text-muted); 
+    color: var(--text-muted);
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 6px;
@@ -250,30 +210,27 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* margin-left: 0.5rem;  */
 }
 
-.btn-cart-trigger:hover {
-    color: var(--accent-blue); /* Color al pasar el mouse */
+.cartTrigger:hover {
+    color: var(--accent-blue);
     background-color: rgba(255, 255, 255, 0.05);
     border: none;
 }
 
-/* Anular buttons-legacy: button:focus / button:hover (borde y outline al pulsar) */
-.btn-cart-trigger:focus,
-.btn-cart-trigger:focus-visible,
-.btn-cart-trigger:active {
+.cartTrigger:focus,
+.cartTrigger:focus-visible,
+.cartTrigger:active {
     outline: none;
     border: none;
     box-shadow: none;
 }
 
-/* Asegurar que los iconos de material se alineen bien */
-.material-symbols-outlined {
+.materialIcon {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-.cart-badge {
+.cartBadge {
     position: absolute;
     top: 4px;
     right: 4px;
@@ -290,3 +247,34 @@
     pointer-events: none;
 }
 
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        text-align: center;
+        z-index: 1000;
+    }
+
+    .navbarLeft,
+    .navbarCenter,
+    .navbarRight {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .navbarCenter {
+        order: 2;
+    }
+
+    .navbarRight {
+        order: 3;
+    }
+}
+
+@media (min-width: 1200px) {
+    .navbar {
+        padding: 1rem 12rem;
+        justify-content: space-between;
+    }
+}
