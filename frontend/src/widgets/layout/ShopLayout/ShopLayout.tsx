@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
 import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav';
 import Footer from '@/widgets/layout/Footer/Footer';
-import './ShopLayout.css';
+import styles from './ShopLayout.module.css';
 
 type ShopLayoutProps = {
     showCategoriasNav?: boolean;
@@ -14,10 +14,10 @@ type ShopLayoutProps = {
  */
 export default function ShopLayout({ showCategoriasNav = true }: ShopLayoutProps) {
     return (
-        <div className="shop-layout">
+        <div className={styles.layout}>
             <Navbar />
             {showCategoriasNav ? <CategoriasNav /> : null}
-            <main className="shop-layout__main">
+            <main className={styles.main}>
                 <Outlet />
             </main>
             <Footer />

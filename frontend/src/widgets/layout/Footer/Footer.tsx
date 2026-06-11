@@ -1,5 +1,5 @@
 import { Button } from '@/shared/ui/Button';
-import './Footer.css';
+import styles from './Footer.module.css';
 
 type IconProps = {
     size?: number;
@@ -153,33 +153,33 @@ const IconCreditCard = ({ size = 28 }: Pick<IconProps, 'size'>) => (
 
 const Footer = () => {
     return (
-        <footer className="ecommerce-footer">
-            <div className="footer-container">
-                <div className="footer-grid">
-                    <div className="footer-col brand">
-                        <h2 className="footer-logo">
-                            JEPLabs Ecommerce<span className="accent">.</span>
+        <footer className={styles.footer}>
+            <div className={styles.container}>
+                <div className={styles.grid}>
+                    <div className={styles.col}>
+                        <h2 className={styles.logo}>
+                            JEPLabs Ecommerce<span className={styles.accent}>.</span>
                         </h2>
-                        <p className="footer-desc">
+                        <p className={styles.desc}>
                             Ecommerce moderno diseñado con estándares de calidad. Envíos rápidos y
                             atención personalizada.
                         </p>
-                        <div className="social-row">
-                            <a href="#" className="social-btn">
+                        <div className={styles.socialRow}>
+                            <a href="#" className={styles.socialBtn}>
                                 <IconFacebook />
                             </a>
-                            <a href="#" className="social-btn">
+                            <a href="#" className={styles.socialBtn}>
                                 <IconInstagram />
                             </a>
-                            <a href="#" className="social-btn">
+                            <a href="#" className={styles.socialBtn}>
                                 <IconTwitter />
                             </a>
                         </div>
                     </div>
 
-                    <div className="footer-col">
-                        <h4 className="footer-heading">Tienda</h4>
-                        <ul className="footer-list">
+                    <div className={styles.col}>
+                        <h4 className={styles.heading}>Tienda</h4>
+                        <ul className={styles.list}>
                             <li>
                                 <a href="#">Novedades</a>
                             </li>
@@ -195,9 +195,9 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="footer-col">
-                        <h4 className="footer-heading">Ayuda</h4>
-                        <ul className="footer-list">
+                    <div className={styles.col}>
+                        <h4 className={styles.heading}>Ayuda</h4>
+                        <ul className={styles.list}>
                             <li>
                                 <a href="#">Rastrear Pedido</a>
                             </li>
@@ -213,64 +213,64 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="footer-col newsletter">
-                        <h4 className="footer-heading">Newsletter</h4>
-                        <p className="footer-small">Recibe un 10% OFF en tu primera compra.</p>
-                        <form className="input-group" onSubmit={(e) => e.preventDefault()}>
+                    <div className={styles.col}>
+                        <h4 className={styles.heading}>Newsletter</h4>
+                        <p className={styles.small}>Recibe un 10% OFF en tu primera compra.</p>
+                        <form className={styles.inputGroup} onSubmit={(e) => e.preventDefault()}>
                             <input
                                 type="email"
                                 placeholder="Tu email"
-                                className="footer-input"
+                                className={styles.input}
                                 required
                             />
                             <Button type="submit" variant="primary">
                                 Unirme al Newsletter
                             </Button>
                         </form>
-                        <div className="contact-row">
-                            <span className="icon-text">
+                        <div className={styles.contactRow}>
+                            <span className={styles.iconText}>
                                 <IconMail size={16} /> contacto@jeplabsecommerce.com
                             </span>
-                            <span className="icon-text">
+                            <span className={styles.iconText}>
                                 <IconPhone size={16} /> +34 900 000
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="features-bar">
-                    <div className="feature">
-                        <div className="feature-icon-wrap">
+                <div className={styles.featuresBar}>
+                    <div className={styles.feature}>
+                        <div className={styles.featureIconWrap}>
                             <IconTruck />
                         </div>
                         <span>Envío Gratis</span>
                     </div>
-                    <div className="feature">
-                        <div className="feature-icon-wrap">
+                    <div className={styles.feature}>
+                        <div className={styles.featureIconWrap}>
                             <IconShield />
                         </div>
                         <span>Pago Seguro</span>
                     </div>
-                    <div className="feature">
-                        <div className="feature-icon-wrap">
+                    <div className={styles.feature}>
+                        <div className={styles.featureIconWrap}>
                             <IconPackage />
                         </div>
                         <span>Devolución 30 días</span>
                     </div>
-                    <div className="feature">
-                        <div className="feature-icon-wrap">
+                    <div className={styles.feature}>
+                        <div className={styles.featureIconWrap}>
                             <IconCreditCard />
                         </div>
                         <span>Tarjetas</span>
                     </div>
                 </div>
 
-                <div className="footer-bottom">
+                <div className={styles.bottom}>
                     <p>&copy; 2026 JEPLabs Ecommerce. Todos los derechos reservados.</p>
-                    <div className="payments">
-                        <span className="pay-tag">VISA</span>
-                        <span className="pay-tag">Mastercard</span>
-                        <span className="pay-tag">PayPal</span>
+                    <div className={styles.payments}>
+                        <span className={styles.payTag}>VISA</span>
+                        <span className={styles.payTag}>Mastercard</span>
+                        <span className={styles.payTag}>PayPal</span>
                     </div>
                 </div>
             </div>

@@ -1,8 +1,9 @@
 import { useCategorias } from '@/app/providers';
+import clsx from 'clsx';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { CategoryApi } from '@/entities/category';
-import './CategoriasNav.css';
+import styles from './CategoriasNav.module.css';
 
 const buildCategoryPath = (parentPath: string, categoria: CategoryApi): string =>
     `${parentPath}/${categoria.slug || categoria.id}`;
@@ -19,18 +20,18 @@ const MegaMenuColumn = ({ cat, parentPath }: MegaMenuColumnProps) => {
     const currentPath = buildCategoryPath(parentPath, cat);
 
     return (
-        <div className="mega-column">
-            <Link to={currentPath} className="mega-col-title">
+        <div className={styles.megaColumn}>
+            <Link to={currentPath} className={styles.megaColTitle}>
                 {cat.nombre}
             </Link>
-            <ul className="mega-sub-list">
+            <ul className={styles.megaSubList}>
                 {hijos.map((hijo) => (
                     <li key={hijo.id}>
-                        <Link to={buildCategoryPath(currentPath, hijo)} className="mega-sub-link">
+                        <Link to={buildCategoryPath(currentPath, hijo)} className={styles.megaSubLink}>
                             {hijo.nombre}
                         </Link>
                         {hijo.subcategorias && hijo.subcategorias.length > 0 && (
-                            <ul className="mega-deep-list">
+                            <ul className={styles.megaDeepList}>
                                 {hijo.subcategorias.map((nieto) => (
                                     <li key={nieto.id}>
                                         <Link
@@ -68,21 +69,27 @@ const DrawerItem = ({ cat, parentPath, onClose }: DrawerItemProps) => {
     };
 
     return (
-        <li className="drawer-item">
-            <div className="drawer-row" onClick={() => setIsOpen(!isOpen)}>
-                <Link to={currentPath} className="drawer-link" onClick={handleLinkClick}>
+        <li className={styles.drawerItem}>
+            <div className={styles.drawerRow} onClick={() => setIsOpen(!isOpen)}>
+                <Link to={currentPath} className={styles.drawerLink} onClick={handleLinkClick}>
                     {cat.nombre}
                 </Link>
                 {hijos.length > 0 && (
-                    <button type="button" className="drawer-toggle">
-                        <span className={`material-symbols-outlined ${isOpen ? 'rotated' : ''}`}>
+                    <button type="button" className={styles.drawerToggle}>
+                        <span
+                            className={clsx(
+                                'material-symbols-outlined',
+                                styles.toggleIcon,
+                                isOpen && styles.toggleIconRotated
+                            )}
+                        >
                             {isOpen ? 'expand_less' : 'expand_more'}
                         </span>
                     </button>
                 )}
             </div>
             {hijos.length > 0 && (
-                <ul className={`drawer-sub ${isOpen ? 'open' : ''}`}>
+                <ul className={clsx(styles.drawerSub, isOpen && styles.drawerSubOpen)}>
                     {hijos.map((hijo) => (
                         <DrawerItem key={hijo.id} cat={hijo} parentPath={currentPath} onClose={onClose} />
                     ))}
@@ -126,19 +133,19 @@ const CategoriasNav = () => {
     if (loading || !arbolCategorias || arbolCategorias.length === 0) return null;
 
     return (
-        <>
-            <div className="categorias-wrapper desktop-nav">
-                <div className="categorias-container">
-                    <ul className="categorias-lista">
+        <div className={styles.root}>
+            <div className={styles.desktopNav}>
+                <div className={styles.categoriasContainer}>
+                    <ul className={styles.categoriasLista}>
                         {arbolCategorias.map((cat) => (
-                            <li key={cat.id} className="cat-item">
-                                <Link to={`/categoria/${cat.slug || cat.id}`} className="cat-link">
+                            <li key={cat.id} className={styles.catItem}>
+                                <Link to={`/categoria/${cat.slug || cat.id}`} className={styles.catLink}>
                                     {cat.nombre}
                                 </Link>
 
                                 {cat.subcategorias && cat.subcategorias.length > 0 && (
-                                    <div className="mega-panel">
-                                        <div className="mega-panel-content">
+                                    <div className={styles.megaPanel}>
+                                        <div className={styles.megaPanelContent}>
                                             {cat.subcategorias.map((sub) => (
                                                 <MegaMenuColumn
                                                     key={sub.id}
@@ -155,28 +162,29 @@ const CategoriasNav = () => {
                 </div>
             </div>
 
-            <div className="mobile-trigger" onClick={() => setIsDrawerOpen(true)}>
+            <div className={styles.mobileTrigger} onClick={() => setIsDrawerOpen(true)}>
                 <span className="material-symbols-outlined">menu</span>
                 <span>Ver Categorías</span>
             </div>
 
             <div
-                className={`drawer-overlay ${isDrawerOpen ? 'active' : ''}`}
+                className={clsx(styles.drawerOverlay, isDrawerOpen && styles.drawerOverlayActive)}
                 onClick={() => setIsDrawerOpen(false)}
             />
-            <div className={`drawer-menu ${isDrawerOpen ? 'active' : ''}`}>
-                <div className="drawer-header">
-                    <span className="drawer-title">Categorías</span>
+            <div className={clsx(styles.drawerMenu, isDrawerOpen && styles.drawerMenuActive)}>
+                <div className={styles.drawerHeader}>
+                    <span className={styles.drawerTitle}>Categorías</span>
                     <button
                         type="button"
-                        className="drawer-close"
+                        className={styles.drawerClose}
                         onClick={() => setIsDrawerOpen(false)}
+                        aria-label="Cerrar menú de categorías"
                     >
                         <span className="material-symbols-outlined">close</span>
                     </button>
                 </div>
-                <div className="drawer-content">
-                    <ul className="drawer-list">
+                <div className={styles.drawerContent}>
+                    <ul className={styles.drawerList}>
                         {arbolCategorias.map((cat) => (
                             <DrawerItem
                                 key={cat.id}
@@ -188,7 +196,7 @@ const CategoriasNav = () => {
                     </ul>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

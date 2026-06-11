@@ -1,13 +1,13 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from '@/widgets/layout/Navbar/Navbar';
-import './AdminLayout.css';
+import styles from './AdminLayout.module.css';
 
 /** Panel admin: solo navbar global; sin categorías ni footer de tienda. */
 export default function AdminLayout() {
     return (
-        <div className="admin-layout">
+        <div className={styles.layout}>
             <Navbar />
-            <main className="admin-layout__main">
+            <main className={styles.main}>
                 <Outlet />
             </main>
         </div>

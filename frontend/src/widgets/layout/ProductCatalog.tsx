@@ -23,7 +23,7 @@ import {
     buildCatalogSearchParams,
     isFiltrosDefault,
 } from '@/features/catalog/lib/catalog-query-params';
-import './ProductCatalog.css';
+import styles from './ProductCatalog.module.css';
 
 type ProductCatalogProps = {
     productosExternos?: CatalogProduct[] | null;
@@ -151,9 +151,9 @@ export const ProductCatalog = ({
     }
 
     return (
-        <section className="product-catalog" aria-label="Catálogo de productos">
-            <div className="catalog-container">
-                <div className="catalog-sidebar">
+        <section className={styles.catalog} aria-label="Catálogo de productos">
+            <div className={styles.container}>
+                <div className={styles.sidebar}>
                     <ProductFilters
                         productos={productosAUsar}
                         filtros={filtrosParaUi}
@@ -161,14 +161,14 @@ export const ProductCatalog = ({
                     />
                 </div>
 
-                <div className="catalog-content">
-                    <header className="catalog-toolbar">
-                        <h2 className="catalog-title">Productos ({listaOrdenada.length})</h2>
+                <div className={styles.content}>
+                    <header className={styles.toolbar}>
+                        <h2 className={styles.title}>Productos ({listaOrdenada.length})</h2>
                         <SortSelector sortOption={sortSelectValue} onChange={handleSortChange} />
                     </header>
 
                     {searchTerm.trim() && (
-                        <p className="catalog-search-hint">
+                        <p className={styles.searchHint}>
                             Resultados para: &ldquo;{searchTerm.trim()}&rdquo;
                         </p>
                     )}
@@ -176,9 +176,9 @@ export const ProductCatalog = ({
                     {listaOrdenada.length === 0 ? (
                         <p className="center-message">No hay productos que coincidan con los filtros.</p>
                     ) : (
-                        <ul className="catalog-product-grid">
+                        <ul className={styles.productGrid}>
                             {listaOrdenada.map((producto) => (
-                                <li key={producto.id} className="catalog-product-grid__item">
+                                <li key={producto.id} className={styles.productGridItem}>
                                     <ProductCard
                                         className="product-card"
                                         imageSrc={getMainProductImageUrl(producto)}

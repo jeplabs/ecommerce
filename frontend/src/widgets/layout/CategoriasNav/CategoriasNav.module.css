@@ -1,30 +1,27 @@
-:root {
+.root {
     --cat-bg: #0f172a;
     --cat-hover: #1e293b;
     --cat-text: #f8fafc;
     --cat-text-muted: #94a3b8;
     --cat-accent: #3b82f6;
     --cat-border: #334155;
-    --mega-panel-width: 100%; /* Ancho completo del contenedor padre o fijo */
     --drawer-width: 300px;
+    display: contents;
 }
 
-/* =========================================
-    DESKTOP NAV (Hover Mega Panel)
-   ========================================= */
-.categorias-wrapper.desktop-nav {
+.desktopNav {
     background-color: var(--cat-bg);
     border-bottom: 1px solid var(--cat-border);
-    display: block; /* Visible por defecto */
+    display: block;
 }
 
 @media (max-width: 1024px) {
-    .categorias-wrapper.desktop-nav {
-        display: none; /* Ocultar en tablet/móvil */
+    .desktopNav {
+        display: none;
     }
 }
 
-.categorias-container {
+.categoriasContainer {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
@@ -35,12 +32,11 @@
     width: 100%;
 }
 
-.categorias-lista {
+.categoriasLista {
     list-style: none;
     margin: 0 auto;
     padding: 0;
     display: flex;
-    /* gap: 2px; */
     height: 100%;
     justify-content: center;
     width: 100%;
@@ -48,14 +44,13 @@
     z-index: 20;
 }
 
-.cat-item {
-    /* position: relative; */
+.catItem {
     height: 100%;
     display: flex;
     align-items: center;
 }
 
-.cat-link {
+.catLink {
     padding: 0 18px;
     height: 100%;
     display: flex;
@@ -70,121 +65,79 @@
     z-index: 20;
 }
 
-.cat-link::after {
+.catLink::after {
     content: '';
     position: absolute;
-    top: 100%; /* Comienza justo debajo del link */
+    top: 100%;
     left: 0;
     width: 100%;
-    /* height: 40px;  */
-    background: transparent; /* Invisible */
-    z-index: 10; /* Por encima del fondo pero por debajo del texto */
-    pointer-events: auto; /* Asegura que capture el mouse */
+    background: transparent;
+    z-index: 10;
+    pointer-events: auto;
 }
 
-.cat-link:hover {
+.catLink:hover {
     background-color: var(--cat-hover);
     color: var(--cat-accent);
 }
 
-/* --- MEGA PANEL ÚNICO --- */
-.mega-menus-container {
+.megaPanel {
     position: absolute;
     top: 100%;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Permite que el hover pase a través del contenedor vacío */
-    z-index: 10;
-}
-
-.mega-panel {
-    position: absolute;
-    top: 100%;
-    /* top: 0; */
     left: 50%;
     transform: translateX(-50%) translateY(10px);
-    width: 100%; 
-    min-width: 1200px; 
+    width: 100%;
+    min-width: 1200px;
     display: flex;
     justify-content: center;
-    
     background-color: var(--cat-hover);
     border: 1px solid var(--cat-border);
     border-top: 2px solid var(--cat-accent);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
     border-radius: 0 0 8px 8px;
     padding: 2rem;
     z-index: 1000;
-    
-    /* Animación */
     opacity: 0;
     visibility: hidden;
-    /* transform: translateY(10px); */
-    pointer-events: auto; 
-    /* transition: all 0.25s ease; */
+    pointer-events: auto;
     overflow: visible;
 }
 
-.mega-menus-container {
-    /* pointer-events: none;  <-- Esto estaba bien para el contenedor vacío, 
-       pero ahora los paneles tienen pointer-events: auto, así que está bien. */
-    height: auto; /* Permitir que el contenido (y el puente) existan */
-    overflow: visible; /* Crucial: dejar que el ::before salga hacia arriba */
-}
-
-.categorias-container:has(.cat-item:nth-child(1):hover) .panel-0,
-.categorias-container:has(.cat-item:nth-child(2):hover) .panel-1,
-.categorias-container:has(.cat-item:nth-child(3):hover) .panel-2,
-.categorias-container:has(.cat-item:nth-child(4):hover) .panel-3,
-.categorias-container:has(.cat-item:nth-child(5):hover) .panel-4,
-.categorias-container:has(.cat-item:nth-child(6):hover) .panel-5,
-.categorias-container:has(.cat-item:nth-child(7):hover) .panel-6,
-.categorias-container:has(.cat-item:nth-child(8):hover) .panel-7 {
+.catItem:hover .megaPanel {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0);
 }
 
-/* Mostrar panel al hacer hover en el item padre */
-.cat-item:hover .mega-panel {
-    opacity: 1;
-    visibility: visible;
-    /* transform: translateY(0); */
-    transform: translateX(-50%) translateY(0);
-}
-
-/* Grid interno para las columnas */
-.mega-panel-content {
+.megaPanelContent {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Columnas responsivas dentro del panel */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 2.5rem;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-/* Columnas individuales */
-.mega-column {
+.megaColumn {
     display: flex;
     flex-direction: column;
 }
 
-.mega-col-title {
+.megaColTitle {
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--cat-accent);
     margin-bottom: 1rem;
     text-decoration: none;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 0.5rem;
     display: block;
 }
 
-.mega-col-title:hover {
+.megaColTitle:hover {
     color: #60a5fa;
 }
 
-.mega-sub-list {
+.megaSubList {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -193,7 +146,7 @@
     gap: 0.6rem;
 }
 
-.mega-sub-link {
+.megaSubLink {
     text-decoration: none;
     color: var(--cat-text-muted);
     font-size: 0.9rem;
@@ -201,13 +154,12 @@
     display: block;
 }
 
-.mega-sub-link:hover {
+.megaSubLink:hover {
     color: var(--cat-text);
     padding-left: 5px;
 }
 
-/* Lista profunda (Nivel 3) */
-.mega-deep-list {
+.megaDeepList {
     list-style: none;
     padding: 0.5rem 0 0 1rem;
     margin: 0.5rem 0 0 0;
@@ -217,20 +169,17 @@
     gap: 0.4rem;
 }
 
-.mega-deep-list li a {
+.megaDeepList li a {
     text-decoration: none;
     color: #64748b;
     font-size: 0.85rem;
 }
 
-.mega-deep-list li a:hover {
+.megaDeepList li a:hover {
     color: var(--cat-accent);
 }
 
-/* =========================================
-    MÓVIL / TABLET (Drawer Lateral)
-   ========================================= */
-.mobile-trigger {
+.mobileTrigger {
     display: none;
     background-color: var(--cat-bg);
     color: var(--cat-text);
@@ -243,16 +192,18 @@
 }
 
 @media (max-width: 1024px) {
-    .mobile-trigger {
+    .mobileTrigger {
         display: flex;
     }
 }
 
-/* Overlay oscuro */
-.drawer-overlay {
+.drawerOverlay {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
     z-index: 1999;
     opacity: 0;
     visibility: hidden;
@@ -261,17 +212,16 @@
     pointer-events: none;
 }
 
-.drawer-overlay.active {
+.drawerOverlayActive {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
 }
 
-/* Menú Drawer */
-.drawer-menu {
+.drawerMenu {
     position: fixed;
     top: 0;
-    left: -100%; /* Oculto a la izquierda */
+    left: -100%;
     width: var(--drawer-width);
     max-width: 85%;
     height: 100vh;
@@ -283,11 +233,11 @@
     flex-direction: column;
 }
 
-.drawer-menu.active {
+.drawerMenuActive {
     left: 0;
 }
 
-.drawer-header {
+.drawerHeader {
     padding: 1.5rem;
     border-bottom: 1px solid var(--cat-border);
     display: flex;
@@ -295,37 +245,37 @@
     align-items: center;
 }
 
-.drawer-title {
+.drawerTitle {
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--cat-text);
 }
 
-.drawer-close {
+.drawerClose {
     background: transparent;
     border: none;
     color: var(--cat-text);
     cursor: pointer;
 }
 
-.drawer-content {
+.drawerContent {
     flex: 1;
     overflow-y: auto;
     padding: 1rem 0;
 }
 
-/* Estilos del Acordeón en Drawer */
-.drawer-list, .drawer-sub {
+.drawerList,
+.drawerSub {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.drawer-item {
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+.drawerItem {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.drawer-row {
+.drawerRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -333,14 +283,14 @@
     cursor: pointer;
 }
 
-.drawer-link {
+.drawerLink {
     text-decoration: none;
     color: var(--cat-text);
     font-weight: 500;
     flex: 1;
 }
 
-.drawer-toggle {
+.drawerToggle {
     background: transparent;
     border: none;
     color: var(--cat-text-muted);
@@ -348,30 +298,30 @@
     padding: 0;
 }
 
-.drawer-toggle .material-symbols-outlined {
+.toggleIcon {
     transition: transform 0.3s;
 }
 
-.drawer-toggle .rotated {
+.toggleIconRotated {
     transform: rotate(180deg);
 }
 
-.drawer-sub {
+.drawerSub {
     max-height: 0;
     overflow: hidden;
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0, 0, 0, 0.2);
     transition: max-height 0.3s ease;
 }
 
-.drawer-sub.open {
-    max-height: 1000px; /* Valor suficiente para contenido */
+.drawerSubOpen {
+    max-height: 1000px;
 }
 
-.drawer-sub .drawer-row {
+.drawerSub .drawerRow {
     padding-left: 2.5rem;
-    background-color: rgba(255,255,255,0.02);
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
-.drawer-sub .drawer-sub .drawer-row {
+.drawerSub .drawerSub .drawerRow {
     padding-left: 3.5rem;
 }
