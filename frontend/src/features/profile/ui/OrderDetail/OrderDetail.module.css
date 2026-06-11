@@ -1,4 +1,4 @@
-.order-detail {
+.root {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -8,24 +8,30 @@
     overflow-y: auto;
 }
 
-.order-detail__header {
+.detailInModal {
+    max-height: none;
+    overflow: visible;
+    margin: 0;
+}
+
+.header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 0.75rem;
 }
 
-.order-detail__header h3 {
+.header h3 {
     font-size: 1.15rem;
     margin-bottom: 0.15rem;
 }
 
-.order-detail__date {
+.date {
     font-size: 0.82rem;
     color: var(--muted);
 }
 
-.order-detail__close {
+.close {
     width: 32px;
     height: 32px;
     border: 1px solid var(--border);
@@ -37,13 +43,13 @@
     transition: background 0.2s, color 0.2s;
 }
 
-.order-detail__close:hover {
+.close:hover {
     background: rgba(239, 68, 68, 0.1);
     color: var(--error);
     border-color: rgba(239, 68, 68, 0.3);
 }
 
-.order-detail__status {
+.status {
     display: inline-block;
     font-size: 0.75rem;
     font-weight: 600;
@@ -54,20 +60,20 @@
     letter-spacing: 0.04em;
 }
 
-.status--pending { background: rgba(234, 179, 8, 0.15); color: #fbbf24; }
-.status--confirmed { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-.status--processing { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-.status--shipped { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-.status--delivered { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-.status--cancelled { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.statusPending { background: rgba(234, 179, 8, 0.15); color: #fbbf24; }
+.statusConfirmed { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.statusProcessing { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+.statusShipped { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+.statusDelivered { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.statusCancelled { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 
-.order-detail__section {
+.section {
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border);
 }
 
-.order-detail__section h4 {
+.section h4 {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -75,23 +81,23 @@
     margin-bottom: 0.5rem;
 }
 
-.order-detail__section p {
+.section p {
     font-size: 0.88rem;
     color: var(--text);
     margin-bottom: 0.15rem;
 }
 
-.order-detail__refs {
+.refs {
     font-style: italic;
     color: var(--muted);
     font-size: 0.82rem;
 }
 
-.order-detail__items {
+.items {
     list-style: none;
 }
 
-.order-detail__item {
+.item {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -100,38 +106,38 @@
     border-bottom: 1px solid var(--border);
 }
 
-.order-detail__item:last-child {
+.item:last-child {
     border-bottom: none;
 }
 
-.order-detail__item-name {
+.itemName {
     display: block;
     font-size: 0.9rem;
     font-weight: 500;
 }
 
-.order-detail__item-sku {
+.itemSku {
     font-size: 0.75rem;
     color: var(--muted);
 }
 
-.order-detail__item-qty {
+.itemQty {
     text-align: right;
     font-size: 0.88rem;
     white-space: nowrap;
 }
 
-.order-detail__item-qty span:first-child {
+.itemQty span:first-child {
     display: block;
     color: var(--muted);
     font-size: 0.78rem;
 }
 
-.order-detail__totals {
+.totals {
     margin-bottom: 1rem;
 }
 
-.order-detail__total-row {
+.totalRow {
     display: flex;
     justify-content: space-between;
     font-size: 0.88rem;
@@ -139,7 +145,7 @@
     color: var(--muted);
 }
 
-.order-detail__total-row--grand {
+.totalRowGrand {
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--text);
@@ -148,7 +154,7 @@
     border-top: 1px solid var(--border2);
 }
 
-.order-detail__cancel {
+.cancel {
     width: 100%;
     margin-top: 0.5rem;
 }

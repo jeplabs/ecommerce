@@ -1,4 +1,4 @@
-.confirm-step__block {
+.block {
     padding: 1rem;
     margin-bottom: 0.75rem;
     background: var(--surface2);
@@ -6,7 +6,7 @@
     border-radius: 12px;
 }
 
-.confirm-step__block h3 {
+.block h3 {
     font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -14,76 +14,76 @@
     margin-bottom: 0.5rem;
 }
 
-.confirm-step__block p {
+.block p {
     font-size: 0.88rem;
     color: var(--text);
     margin: 0.15rem 0;
 }
 
-.confirm-step__amount {
+.amount {
     margin-top: 0.5rem !important;
     padding-top: 0.5rem;
     border-top: 1px solid var(--border);
 }
 
-.confirm-step__amount strong {
+.amount strong {
     color: var(--accent);
     font-size: 1.1rem;
 }
 
-.confirm-step__free {
+.free {
     color: #22c55e;
     font-weight: 600;
 }
 
-.confirm-step__struck {
+.struck {
     text-decoration: line-through;
     color: var(--muted);
     font-weight: 500;
 }
 
-.confirm-step__envio-payment {
+.envioPayment {
     font-size: 0.82rem !important;
     color: var(--muted) !important;
 }
 
-.confirm-step__envio-breakdown {
+.envioBreakdown {
     margin: 0.5rem 0 0;
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
 }
 
-.confirm-step__envio-breakdown div {
+.envioBreakdown div {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
     font-size: 0.84rem;
 }
 
-.confirm-step__envio-breakdown dt {
+.envioBreakdown dt {
     color: var(--muted);
     font-weight: 500;
 }
 
-.confirm-step__envio-breakdown dd {
+.envioBreakdown dd {
     margin: 0;
     font-weight: 600;
 }
 
-.confirm-step__contra-note {
+.contraNote {
     font-size: 0.8rem !important;
     color: var(--muted) !important;
     font-style: italic;
 }
 
-.confirm-step__pickup-hint,
-.confirm-step__contact {
+.pickupHint,
+.contact {
     font-size: 0.82rem !important;
     color: var(--muted) !important;
 }
 
-.confirm-step__disclaimer {
+.disclaimer {
     font-size: 0.78rem;
     color: var(--muted);
     line-height: 1.5;

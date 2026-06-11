@@ -4,7 +4,7 @@ import { useLocation, Navigate } from 'react-router-dom';
 import type { OrderApi } from '@/entities/order';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
 import CheckoutSuccessView from '@/widgets/checkout/CheckoutSuccessView';
-import '@/widgets/checkout/CheckoutSuccessView.css';
+import styles from '@/widgets/checkout/checkoutSuccessPage.module.css';
 
 type CheckoutSuccessLocationState = {
     orden?: OrderApi;
@@ -25,8 +25,8 @@ export function CheckoutSuccessPage() {
     }
 
     return (
-        <main className="checkout-success-page">
-            <div className="checkout-success-page__inner">
+        <main className={styles.page}>
+            <div className={styles.inner}>
                 <CheckoutSuccessView orden={orden} payment={payment} />
             </div>
         </main>

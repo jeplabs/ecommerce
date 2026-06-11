@@ -1,19 +1,20 @@
 import { useProfile, useToast } from '@/app/providers';
 import { useEffect, useState } from 'react';
+import clsx from 'clsx';
 
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderStatus } from '@/entities/order';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import { Button } from '@/shared/ui/Button';
-import './OrdersTab.css';
+import styles from './OrdersTab.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
-    PENDIENTE: 'status--pending',
-    CONFIRMADA: 'status--confirmed',
-    EN_PROCESO: 'status--processing',
-    ENVIADA: 'status--shipped',
-    ENTREGADA: 'status--delivered',
-    CANCELADA: 'status--cancelled',
+    PENDIENTE: styles.statusPending,
+    CONFIRMADA: styles.statusConfirmed,
+    EN_PROCESO: styles.statusProcessing,
+    ENVIADA: styles.statusShipped,
+    ENTREGADA: styles.statusDelivered,
+    CANCELADA: styles.statusCancelled,
 };
 
 export default function OrdersTab() {
@@ -85,8 +86,8 @@ export default function OrdersTab() {
     };
 
     return (
-        <section className="orders-tab" aria-label="Historial de pedidos">
-            <div className="orders-tab__header">
+        <section className={styles.root} aria-label="Historial de pedidos">
+            <div className={styles.header}>
                 <h2>Mis pedidos</h2>
                 <p>
                     {totalElements > 0
@@ -95,27 +96,27 @@ export default function OrdersTab() {
                 </p>
             </div>
 
-            {error && <p className="orders-tab__error" role="alert">{error}</p>}
+            {error && <p className={styles.error} role="alert">{error}</p>}
 
-            <div className="orders-tab__layout">
-                <div className="orders-tab__table-wrap">
+            <div className={styles.layout}>
+                <div className={styles.tableWrap}>
                     {loading ? (
-                        <p className="orders-tab__loading">Cargando pedidos…</p>
+                        <p className={styles.loading}>Cargando pedidos…</p>
                     ) : lista.length === 0 ? (
-                        <div className="orders-tab__empty">
+                        <div className={styles.empty}>
                             <p>Aún no tienes pedidos.</p>
                         </div>
                     ) : (
                         <>
-                            <div className="orders-table-scroll">
-                                <table className="orders-table">
+                            <div className={styles.tableScroll}>
+                                <table className={styles.table}>
                                     <thead>
                                         <tr>
                                             <th scope="col">Pedido</th>
                                             <th scope="col">Fecha</th>
                                             <th scope="col">Estado</th>
-                                            <th scope="col" className="orders-table__col-total">Total</th>
-                                            <th scope="col" className="orders-table__col-action">Acción</th>
+                                            <th scope="col" className={styles.colTotal}>Total</th>
+                                            <th scope="col" className={styles.colAction}>Acción</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -128,26 +129,26 @@ export default function OrdersTab() {
                                             return (
                                                 <tr
                                                     key={orden.id}
-                                                    className={`orders-table__row ${isRowActive ? 'orders-table__row--selected' : ''}`}
+                                                    className={clsx(isRowActive && styles.rowSelected)}
                                                 >
-                                                    <td className="orders-table__cell-id" data-label="Pedido">
+                                                    <td className={styles.cellId} data-label="Pedido">
                                                         #{orden.id}
                                                     </td>
-                                                    <td className="orders-table__cell-date" data-label="Fecha">
+                                                    <td className={styles.cellDate} data-label="Fecha">
                                                         {formatDateTime(orden.creadoAt)}
                                                     </td>
-                                                    <td className="orders-table__cell-status" data-label="Estado">
-                                                        <span className={`orders-table__status ${ESTADO_CLASS[orden.estado] || ''}`}>
+                                                    <td className={styles.cellStatus} data-label="Estado">
+                                                        <span className={clsx(styles.status, ESTADO_CLASS[orden.estado])}>
                                                             {formatEstadoOrden(orden.estado)}
                                                         </span>
                                                     </td>
-                                                    <td className="orders-table__cell-total" data-label="Total">
+                                                    <td className={styles.cellTotal} data-label="Total">
                                                         {formatCurrency(orden.total)}
                                                     </td>
-                                                    <td className="orders-table__cell-action" data-label="Acción">
+                                                    <td className={styles.cellAction} data-label="Acción">
                                                         <button
                                                             type="button"
-                                                            className="orders-table__detail-btn"
+                                                            className={styles.detailBtn}
                                                             onClick={() => handleDetailClick(orden.id)}
                                                             disabled={isRowLoading}
                                                         >
@@ -166,11 +167,11 @@ export default function OrdersTab() {
                             </div>
 
                             {totalPages > 1 && (
-                                <div className="orders-tab__pagination">
+                                <div className={styles.pagination}>
                                     <Button
                                         type="button"
                                         variant="secondary"
-                                        className="orders-tab__page-btn"
+                                        className={styles.pageBtn}
                                         onClick={() => irAPagina(page - 1)}
                                         disabled={page === 0 || loading}
                                     >
@@ -180,7 +181,7 @@ export default function OrdersTab() {
                                     <Button
                                         type="button"
                                         variant="secondary"
-                                        className="orders-tab__page-btn"
+                                        className={styles.pageBtn}
                                         onClick={() => irAPagina(page + 1)}
                                         disabled={page >= totalPages - 1 || loading}
                                     >

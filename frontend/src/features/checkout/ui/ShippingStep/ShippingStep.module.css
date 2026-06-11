@@ -1,17 +1,17 @@
-.shipping-step__empty {
+.empty {
     text-align: center;
     padding: 2rem 1rem;
     border: 1px dashed var(--border2);
     border-radius: 14px;
 }
 
-.shipping-step__hint {
+.hint {
     color: var(--muted);
     font-size: 0.88rem;
     margin: 0.5rem 0 1.25rem;
 }
 
-.shipping-step__list {
+.list {
     list-style: none;
     display: flex;
     flex-direction: column;
@@ -19,7 +19,7 @@
     margin-bottom: 1.25rem;
 }
 
-.shipping-step__card {
+.card {
     display: block;
     cursor: pointer;
     border: 2px solid var(--border);
@@ -29,25 +29,25 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.shipping-step__card input {
+.card input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-.shipping-step__card--selected {
+.cardSelected {
     border-color: var(--indigo);
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
 }
 
-.shipping-step__card-header {
+.cardHeader {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.35rem;
 }
 
-.shipping-step__badge {
+.badge {
     font-size: 0.68rem;
     padding: 0.15rem 0.45rem;
     border-radius: 999px;
@@ -55,19 +55,19 @@
     color: var(--accent);
 }
 
-.shipping-step__card-body p {
+.cardBody p {
     font-size: 0.85rem;
     color: var(--muted);
     margin: 0.1rem 0;
 }
 
-.shipping-step__link {
+.link {
     display: inline-block;
     margin-top: 0.75rem;
     font-size: 0.85rem;
     color: var(--accent);
 }
 
-.shipping-step__link:hover {
+.link:hover {
     text-decoration: underline;
 }

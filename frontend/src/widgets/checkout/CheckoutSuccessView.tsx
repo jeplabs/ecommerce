@@ -4,6 +4,7 @@ import CheckoutSuccessHeader from '@/features/checkout/ui/success/CheckoutSucces
 import OrderConfirmationSummary from '@/features/checkout/ui/success/OrderConfirmationSummary/OrderConfirmationSummary';
 import CheckoutSuccessActions from '@/features/checkout/ui/success/CheckoutSuccessActions/CheckoutSuccessActions';
 import CheckoutSuccessRecommendations from '@/features/checkout/ui/success/CheckoutSuccessRecommendations/CheckoutSuccessRecommendations';
+import styles from '@/widgets/checkout/checkoutSuccessPage.module.css';
 
 type CheckoutSuccessViewProps = {
     orden: OrderApi;
@@ -15,7 +16,7 @@ export default function CheckoutSuccessView({ orden, payment }: CheckoutSuccessV
         <>
             <CheckoutSuccessHeader orderId={orden.id} />
 
-            <div className="checkout-success-page__main">
+            <div className={styles.main}>
                 <OrderConfirmationSummary orden={orden} payment={payment} />
                 <CheckoutSuccessActions />
             </div>

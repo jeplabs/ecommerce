@@ -7,7 +7,7 @@ import { FormField } from '@/shared/ui/FormField';
 import { Input } from '@/shared/ui/Input';
 import type { UserApi } from '@/entities/user';
 import ChangePasswordForm from '../ChangePasswordForm/ChangePasswordForm';
-import './ProfileDataTab.css';
+import styles from './ProfileDataTab.module.css';
 
 type ProfileFormData = {
     nombre: string;
@@ -68,32 +68,32 @@ export default function ProfileDataTab() {
     };
 
     return (
-        <section className="profile-data" aria-label="Datos personales">
+        <section className={styles.root} aria-label="Datos personales">
             <ProfileHero usuario={usuario} />
-            <div className="profile-data__content">
+            <div className={styles.content}>
 
             {!isEditing ? (
-                <div className="profile-data__view">
-                    <dl className="profile-data__grid">
+                <div>
+                    <dl className={styles.grid}>
                         <h3 className="profile-data__section-title">Información personal</h3>
-                        <div className="profile-data__field">
+                        <div className={styles.field}>
                             <dt>Nombre completo</dt>
                             <dd>{usuario.nombre} {usuario.apellido}</dd>
                         </div>
-                        <div className="profile-data__field">
+                        <div className={styles.field}>
                             <dt>País</dt>
                             <dd>{usuario.pais}</dd>
                         </div>
-                        <div className="profile-data__field">
+                        <div className={styles.field}>
                             <dt>Correo electrónico</dt>
                             <dd>
                                 {usuario.email}
-                                <span className="profile-data__badge">No editable</span>
+                                <span className={styles.badge}>No editable</span>
                             </dd>
                         </div>
                     </dl>
 
-                    <div className="profile-data__actions">
+                    <div className={styles.actions}>
                         <Button type="button" variant="primary" onClick={startEditing}>
                             Editar perfil
                         </Button>
@@ -104,11 +104,11 @@ export default function ProfileDataTab() {
                 </div>
             ) : (
                 <>
-                <form className="profile-data__form" onSubmit={handleSubmit}>
+                <form className={styles.form} onSubmit={handleSubmit}>
                     <h3 className="">Editar datos</h3>
-                    {formError && <p className="profile-data__error" role="alert">{formError}</p>}
+                    {formError && <p className={styles.error} role="alert">{formError}</p>}
 
-                    <div className="profile-data__form-row">
+                    <div className={styles.formRow}>
                         <FormField label="Nombre" htmlFor="nombre">
                             <Input
                                 id="nombre"
@@ -146,7 +146,7 @@ export default function ProfileDataTab() {
                         <Input id="email" type="email" value={usuario.email} disabled tabIndex={-1} />
                     </FormField>
 
-                    <div className="profile-data__actions">
+                    <div className={styles.actions}>
                         <Button type="submit" variant="primary" disabled={saving}>
                             {saving ? 'Guardando…' : 'Guardar cambios'}
                         </Button>
@@ -170,14 +170,14 @@ type ProfileHeroProps = {
 
 function ProfileHero({ usuario }: ProfileHeroProps) {
     return (
-        <div className="profile-data__hero">
-            <div className="profile-data__avatar" aria-hidden="true">
+        <div className={styles.hero}>
+            <div className={styles.avatar} aria-hidden="true">
                 {getInitials(usuario.nombre, usuario.apellido)}
             </div>
-            <div className="profile-data__info">
-                <h2 className="profile-data__name">{usuario.nombre} {usuario.apellido}</h2>
-                <p className="profile-data__email">{usuario.email}</p>
-                <span className="profile-data__member-since">Cliente registrado</span>
+            <div>
+                <h2 className={styles.name}>{usuario.nombre} {usuario.apellido}</h2>
+                <p className={styles.email}>{usuario.email}</p>
+                <span className={styles.memberSince}>Cliente registrado</span>
             </div>
         </div>
     );

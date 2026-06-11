@@ -6,7 +6,7 @@ import { Button } from '@/shared/ui/Button';
 import { FormField } from '@/shared/ui/FormField';
 import { Input } from '@/shared/ui/Input';
 import { Textarea } from '@/shared/ui/Textarea';
-import './AddressForm.css';
+import styles from './AddressForm.module.css';
 
 const EMPTY: AddressFormValues = {
     alias: '',
@@ -71,14 +71,14 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
     };
 
     return (
-        <form className="address-form" onSubmit={handleSubmit}>
-            <h3 className="address-form__title">
+        <form className={styles.form} onSubmit={handleSubmit}>
+            <h3 className={styles.title}>
                 {isEditing ? 'Editar dirección' : 'Nueva dirección'}
             </h3>
 
-            {error && <p className="address-form__error" role="alert">{error}</p>}
+            {error && <p className={styles.error} role="alert">{error}</p>}
 
-            <div className="address-form__row">
+            <div className={styles.row}>
                 <FormField label="Alias" htmlFor="alias">
                     <Input
                         id="alias"
@@ -114,7 +114,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                 />
             </FormField>
 
-            <div className="address-form__row">
+            <div className={styles.row}>
                 <FormField label="Ciudad" htmlFor="ciudad">
                     <Input
                         id="ciudad"
@@ -137,7 +137,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                 </FormField>
             </div>
 
-            <div className="address-form__row">
+            <div className={styles.row}>
                 <FormField label="Código postal" htmlFor="codigoPostal">
                     <Input
                         id="codigoPostal"
@@ -171,13 +171,13 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
             </FormField>
 
             {!isEditing && (
-                <label className="address-form__checkbox">
+                <label className={styles.checkbox}>
                     <input type="checkbox" name="principal" checked={form.principal} onChange={handleChange} />
                     Establecer como dirección principal
                 </label>
             )}
 
-            <div className="address-form__actions">
+            <div className={styles.actions}>
                 <Button type="submit" variant="primary" disabled={saving}>
                     {saving ? 'Guardando…' : isEditing ? 'Guardar cambios' : 'Agregar dirección'}
                 </Button>

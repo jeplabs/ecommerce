@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCheckoutSuccessRecommendations } from '@/features/checkout';
 import { ProductSlider } from '@/shared/ui/ProductSlider/ProductSlider';
 import type { OrderApi } from '@/entities/order';
-import './CheckoutSuccessRecommendations.css';
+import styles from './CheckoutSuccessRecommendations.module.css';
 
 type CheckoutSuccessRecommendationsProps = {
     orden: OrderApi | null | undefined;
@@ -32,8 +32,8 @@ export default function CheckoutSuccessRecommendations({ orden }: CheckoutSucces
 
     if (loading) {
         return (
-            <section className="checkout-success-recommendations" aria-busy="true">
-                <p className="checkout-success-recommendations__loading">Cargando sugerencias…</p>
+            <section className={styles.root} aria-busy="true">
+                <p className={styles.loading}>Cargando sugerencias…</p>
             </section>
         );
     }
@@ -44,15 +44,15 @@ export default function CheckoutSuccessRecommendations({ orden }: CheckoutSucces
 
     return (
         <section
-            className="checkout-success-recommendations"
+            className={styles.root}
             aria-labelledby="checkout-recommendations-title"
         >
-            <div className="checkout-success-recommendations__intro">
+            <div className={styles.intro}>
                 <h2 id="checkout-recommendations-title">También te puede interesar</h2>
                 <p>Descubre más productos mientras preparamos tu pedido.</p>
             </div>
 
-            <div className="checkout-success-recommendations__sliders">
+            <div className={styles.sliders}>
                 {recommended.length > 0 && (
                     <ProductSlider
                         title="Recomendados para ti"

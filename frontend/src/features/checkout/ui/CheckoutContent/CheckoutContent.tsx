@@ -1,4 +1,5 @@
 import { useCheckout, useToast } from '@/app/providers';
+import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 
 import CheckoutSteps from '../CheckoutSteps/CheckoutSteps';
@@ -6,7 +7,9 @@ import ShippingStep from '../ShippingStep/ShippingStep';
 import PaymentStep from '../PaymentStep/PaymentStep';
 import ConfirmStep from '../ConfirmStep/ConfirmStep';
 import OrderSummary from '../OrderSummary/OrderSummary';
-import './CheckoutContent.css';
+import sharedStyles from '../checkoutShared.module.css';
+import pageStyles from '@/widgets/checkout/checkoutPage.module.css';
+import styles from './CheckoutContent.module.css';
 
 export default function CheckoutContent() {
     const navigate = useNavigate();
@@ -36,7 +39,7 @@ export default function CheckoutContent() {
     } = useCheckout();
 
     if (cartLoading || isEmpty) {
-        return <p className="checkout-page__loading">Preparando checkout…</p>;
+        return <p className={pageStyles.loading}>Preparando checkout…</p>;
     }
 
     const handleNext = () => {
@@ -63,26 +66,30 @@ export default function CheckoutContent() {
     const isLastStep = currentStep === 'confirmar';
 
     return (
-        <div className="checkout-content">
+        <div>
             <CheckoutSteps steps={steps} currentIndex={step} />
 
             {error && (
-                <p className="checkout-content__error" role="alert">
+                <p className={styles.error} role="alert">
                     {error}
                 </p>
             )}
 
-            <div className="checkout-content__layout">
-                <div className="checkout-content__main">
+            <div className={styles.layout}>
+                <div className={styles.main}>
                     {currentStep === 'envio' && <ShippingStep />}
                     {currentStep === 'pago' && <PaymentStep />}
                     {currentStep === 'confirmar' && <ConfirmStep />}
 
-                    <div className="checkout-content__nav">
+                    <div className={styles.nav}>
                         {step > 0 && (
                             <button
                                 type="button"
-                                className="checkout-btn checkout-btn--secondary"
+                                className={clsx(
+                                    sharedStyles.btn,
+                                    sharedStyles.btnSecondary,
+                                    styles.navBtn
+                                )}
                                 onClick={goBack}
                                 disabled={processing}
                             >
@@ -93,7 +100,11 @@ export default function CheckoutContent() {
                         {!isLastStep ? (
                             <button
                                 type="button"
-                                className="checkout-btn checkout-btn--primary"
+                                className={clsx(
+                                    sharedStyles.btn,
+                                    sharedStyles.btnPrimary,
+                                    styles.navBtn
+                                )}
                                 onClick={handleNext}
                                 disabled={
                                     processing ||
@@ -106,7 +117,12 @@ export default function CheckoutContent() {
                         ) : (
                             <button
                                 type="button"
-                                className="checkout-btn checkout-btn--primary checkout-btn--pay"
+                                className={clsx(
+                                    sharedStyles.btn,
+                                    sharedStyles.btnPrimary,
+                                    styles.btnPay,
+                                    styles.navBtn
+                                )}
                                 onClick={handlePay}
                                 disabled={processing}
                             >

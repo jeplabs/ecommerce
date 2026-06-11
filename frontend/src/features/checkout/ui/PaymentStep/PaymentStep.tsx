@@ -1,28 +1,33 @@
 import { useCheckout } from '@/app/providers';
+import clsx from 'clsx';
 
 import { PAYMENT_METHODS } from '@/features/checkout';
 import SimulatedStripeForm from '../SimulatedStripeForm/SimulatedStripeForm';
 import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
-import './PaymentStep.css';
+import sharedStyles from '../checkoutShared.module.css';
+import styles from './PaymentStep.module.css';
 
 export default function PaymentStep() {
     const { paymentMethod, setPaymentMethod } = useCheckout();
 
     return (
-        <div className="payment-step">
-            <h2 className="checkout-step__title">Método de pago</h2>
-            <p className="checkout-step__subtitle">
+        <div>
+            <h2 className={sharedStyles.stepTitle}>Método de pago</h2>
+            <p className={sharedStyles.stepSubtitle}>
                 Elige cómo pagar. En este entorno el pago es simulado (sin cargos reales).
             </p>
 
-            <div className="payment-step__methods">
+            <div className={styles.methods}>
                 <button
                     type="button"
-                    className={`payment-method ${paymentMethod === PAYMENT_METHODS.STRIPE ? 'payment-method--active' : ''}`}
+                    className={clsx(
+                        styles.method,
+                        paymentMethod === PAYMENT_METHODS.STRIPE && styles.methodActive
+                    )}
                     onClick={() => setPaymentMethod(PAYMENT_METHODS.STRIPE)}
                 >
-                    <span className="payment-method__icon">💳</span>
-                    <span className="payment-method__info">
+                    <span className={styles.methodIcon}>💳</span>
+                    <span className={styles.methodInfo}>
                         <strong>Tarjeta (Stripe)</strong>
                         <small>Visa, Mastercard, Amex</small>
                     </span>
@@ -30,11 +35,14 @@ export default function PaymentStep() {
 
                 <button
                     type="button"
-                    className={`payment-method ${paymentMethod === PAYMENT_METHODS.WEBPAY ? 'payment-method--active' : ''}`}
+                    className={clsx(
+                        styles.method,
+                        paymentMethod === PAYMENT_METHODS.WEBPAY && styles.methodActive
+                    )}
                     onClick={() => setPaymentMethod(PAYMENT_METHODS.WEBPAY)}
                 >
-                    <span className="payment-method__icon">🏦</span>
-                    <span className="payment-method__info">
+                    <span className={styles.methodIcon}>🏦</span>
+                    <span className={styles.methodInfo}>
                         <strong>Webpay Plus</strong>
                         <small>Transbank · Chile</small>
                     </span>

@@ -1,11 +1,12 @@
 import { useCheckout } from '@/app/providers';
+import clsx from 'clsx';
 
 import { formatCurrency } from '@/shared/lib/format';
 import { FORMA_PAGO_ENVIO } from '@/entities/order';
 import type { FormaPago } from '@/entities/order';
 import { getServicioCostos, isPickupService } from '@/entities/shipping';
 import type { ShippingServiceApi } from '@/entities/shipping';
-import './ShippingServiceSelector.css';
+import styles from './ShippingServiceSelector.module.css';
 
 type CostLineProps = {
     label: string;
@@ -15,15 +16,15 @@ type CostLineProps = {
 
 function CostLine({ label, amount, envioGratis }: CostLineProps) {
     return (
-        <div className="shipping-service-selector__cost-line">
-            <span className="shipping-service-selector__cost-label">{label}</span>
-            <span className="shipping-service-selector__cost-value">
+        <div className={styles.costLine}>
+            <span className={styles.costLabel}>{label}</span>
+            <span className={styles.costValue}>
                 {envioGratis ? (
                     <>
-                        <span className="shipping-service-selector__cost-struck">
+                        <span className={styles.costStruck}>
                             {formatCurrency(amount)}
                         </span>
-                        <span className="shipping-service-selector__cost-free">Gratis</span>
+                        <span className={styles.costFree}>Gratis</span>
                     </>
                 ) : (
                     formatCurrency(amount)
@@ -51,7 +52,11 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
     return (
         <li>
             <label
-                className={`shipping-service-selector__card ${isSelected ? 'shipping-service-selector__card--selected' : ''} ${isPickup ? 'shipping-service-selector__card--pickup' : ''}`}
+                className={clsx(
+                    styles.card,
+                    isSelected && styles.cardSelected,
+                    isPickup && styles.cardPickup
+                )}
             >
                 <input
                     type="radio"
@@ -64,18 +69,18 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
                     <img
                         src={servicio.logoUrl}
                         alt=""
-                        className="shipping-service-selector__logo"
+                        className={styles.logo}
                     />
                 ) : (
-                    <span className="shipping-service-selector__logo-placeholder" aria-hidden="true">
+                    <span className={styles.logoPlaceholder} aria-hidden="true">
                         {isPickup ? '🏪' : '📦'}
                     </span>
                 )}
-                <div className="shipping-service-selector__body">
-                    <div className="shipping-service-selector__name-row">
+                <div className={styles.body}>
+                    <div className={styles.nameRow}>
                         <strong>{servicio.nombre}</strong>
                         {isSelected && !envioGratis && (
-                            <span className="shipping-service-selector__active-total">
+                            <span className={styles.activeTotal}>
                                 {formaPagoEnvio === FORMA_PAGO_ENVIO.CONTRA_ENTREGA
                                     ? 'Contra entrega: '
                                     : 'En línea: '}
@@ -83,15 +88,15 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
                             </span>
                         )}
                         {isSelected && envioGratis && (
-                            <span className="shipping-service-selector__price shipping-service-selector__price--free">
+                            <span className={clsx(styles.price, styles.priceFree)}>
                                 Gratis
                             </span>
                         )}
                     </div>
                     {servicio.descripcion && (
-                        <p className="shipping-service-selector__desc">{servicio.descripcion}</p>
+                        <p className={styles.desc}>{servicio.descripcion}</p>
                     )}
-                    <div className="shipping-service-selector__costs">
+                    <div className={styles.costs}>
                         <CostLine label="Tarifa de envío" amount={tarifa} envioGratis={envioGratis} />
                         {recargo > 0 && (
                             <CostLine
@@ -130,9 +135,9 @@ function ServiceGroup({ label, servicios, selectedId, envioGratis, formaPagoEnvi
     if (!servicios.length) return null;
 
     return (
-        <section className="shipping-service-selector__group" aria-label={label}>
-            <h3 className="shipping-service-selector__group-label">{label}</h3>
-            <ul className="shipping-service-selector__list" role="radiogroup">
+        <section className={styles.group} aria-label={label}>
+            <h3 className={styles.groupLabel}>{label}</h3>
+            <ul className={styles.list} role="radiogroup">
                 {servicios.map((s) => (
                     <ServiceOption
                         key={s.id}
@@ -167,27 +172,27 @@ export default function ShippingServiceSelector() {
 
     if (loadingEnvioOpciones) {
         return (
-            <section className="shipping-service-selector" aria-labelledby="shipping-service-title">
-                <h2 id="shipping-service-title" className="shipping-service-selector__title">
+            <section className={styles.root} aria-labelledby="shipping-service-title">
+                <h2 id="shipping-service-title" className={styles.title}>
                     Forma de entrega
                 </h2>
-                <p className="shipping-service-selector__loading">Cargando opciones de envío…</p>
+                <p className={styles.loading}>Cargando opciones de envío…</p>
             </section>
         );
     }
 
     if (envioOpcionesError) {
         return (
-            <section className="shipping-service-selector" aria-labelledby="shipping-service-title">
-                <h2 id="shipping-service-title" className="shipping-service-selector__title">
+            <section className={styles.root} aria-labelledby="shipping-service-title">
+                <h2 id="shipping-service-title" className={styles.title}>
                     Forma de entrega
                 </h2>
-                <p className="shipping-service-selector__error" role="alert">
+                <p className={styles.error} role="alert">
                     {envioOpcionesError}
                 </p>
                 <button
                     type="button"
-                    className="shipping-service-selector__retry"
+                    className={styles.retry}
                     onClick={refetchEnvioOpciones}
                 >
                     Reintentar
@@ -201,11 +206,11 @@ export default function ShippingServiceSelector() {
 
     if (!hasServices) {
         return (
-            <section className="shipping-service-selector" aria-labelledby="shipping-service-title">
-                <h2 id="shipping-service-title" className="shipping-service-selector__title">
+            <section className={styles.root} aria-labelledby="shipping-service-title">
+                <h2 id="shipping-service-title" className={styles.title}>
                     Forma de entrega
                 </h2>
-                <p className="shipping-service-selector__empty">
+                <p className={styles.empty}>
                     No hay servicios de envío disponibles. Contacta a la tienda.
                 </p>
             </section>
@@ -213,22 +218,22 @@ export default function ShippingServiceSelector() {
     }
 
     return (
-        <section className="shipping-service-selector" aria-labelledby="shipping-service-title">
-            <h2 id="shipping-service-title" className="shipping-service-selector__title">
+        <section className={styles.root} aria-labelledby="shipping-service-title">
+            <h2 id="shipping-service-title" className={styles.title}>
                 Forma de entrega
             </h2>
-            <p className="shipping-service-selector__subtitle">
+            <p className={styles.subtitle}>
                 Elige retiro en tienda o un servicio de envío a domicilio.
             </p>
 
             {envioGratis && (
-                <p className="shipping-service-selector__banner" role="status">
+                <p className={styles.banner} role="status">
                     ¡Envío gratis en este pedido! Los valores tachados muestran el costo habitual.
                 </p>
             )}
 
             {!envioGratis && montoMinimoGratis != null && Number(montoMinimoGratis) > 0 && (
-                <p className="shipping-service-selector__hint-free">
+                <p className={styles.hintFree}>
                     Compra desde {formatCurrency(montoMinimoGratis)} y obtén envío gratis.
                 </p>
             )}
@@ -252,7 +257,7 @@ export default function ShippingServiceSelector() {
             />
 
             {isPickupSelected && (
-                <p className="shipping-service-selector__pickup-note">
+                <p className={styles.pickupNote}>
                     Retirarás el pedido en nuestra tienda. La dirección seleccionada arriba se usa como
                     contacto y referencia del pedido.
                 </p>

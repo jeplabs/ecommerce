@@ -1,8 +1,9 @@
 import { useCheckout } from '@/app/providers';
+import clsx from 'clsx';
 
 import { FORMA_PAGO_ENVIO } from '@/entities/order';
 import type { FormaPago } from '@/entities/order';
-import './ShippingPaymentSelector.css';
+import styles from './ShippingPaymentSelector.module.css';
 
 const OPTIONS: Array<{ value: FormaPago; title: string; description: string }> = [
     {
@@ -22,21 +23,24 @@ export default function ShippingPaymentSelector() {
     const { formaPagoEnvio, setFormaPagoEnvio } = useCheckout();
 
     return (
-        <section className="shipping-payment-selector" aria-labelledby="shipping-payment-title">
-            <h2 id="shipping-payment-title" className="shipping-payment-selector__title">
+        <section className={styles.root} aria-labelledby="shipping-payment-title">
+            <h2 id="shipping-payment-title" className={styles.title}>
                 Pago del envío
             </h2>
-            <p className="shipping-payment-selector__subtitle">
+            <p className={styles.subtitle}>
                 Elige cómo pagar el costo de entrega. Los productos se pagan en el paso de pago.
             </p>
 
-            <ul className="shipping-payment-selector__list" role="radiogroup" aria-label="Pago del envío">
+            <ul className={styles.list} role="radiogroup" aria-label="Pago del envío">
                 {OPTIONS.map((opt) => {
                     const isSelected = formaPagoEnvio === opt.value;
                     return (
                         <li key={opt.value}>
                             <label
-                                className={`shipping-payment-selector__card ${isSelected ? 'shipping-payment-selector__card--selected' : ''}`}
+                                className={clsx(
+                                    styles.card,
+                                    isSelected && styles.cardSelected
+                                )}
                             >
                                 <input
                                     type="radio"
@@ -45,7 +49,7 @@ export default function ShippingPaymentSelector() {
                                     checked={isSelected}
                                     onChange={() => setFormaPagoEnvio(opt.value)}
                                 />
-                                <div className="shipping-payment-selector__body">
+                                <div className={styles.body}>
                                     <strong>{opt.title}</strong>
                                     <p>{opt.description}</p>
                                 </div>

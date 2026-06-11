@@ -1,9 +1,11 @@
 import { useCheckout } from '@/app/providers';
+import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 
 import ShippingServiceSelector from '../ShippingServiceSelector/ShippingServiceSelector';
 import ShippingPaymentSelector from '../ShippingPaymentSelector/ShippingPaymentSelector';
-import './ShippingStep.css';
+import sharedStyles from '../checkoutShared.module.css';
+import styles from './ShippingStep.module.css';
 
 export default function ShippingStep() {
     const {
@@ -16,17 +18,17 @@ export default function ShippingStep() {
     } = useCheckout();
 
     if (loadingAddresses) {
-        return <p className="checkout-step__loading">Cargando direcciones…</p>;
+        return <p className={sharedStyles.stepLoading}>Cargando direcciones…</p>;
     }
 
     if (direcciones.length === 0) {
         return (
-            <div className="shipping-step__empty">
+            <div className={styles.empty}>
                 <p>No tienes direcciones guardadas.</p>
-                <p className="shipping-step__hint">
+                <p className={styles.hint}>
                     Agrega una dirección en tu perfil para continuar con la compra.
                 </p>
-                <Link to="/profile" className="checkout-btn checkout-btn--primary">
+                <Link to="/profile" className={clsx(sharedStyles.btn, sharedStyles.btnPrimary)}>
                     Ir a mis direcciones
                 </Link>
             </div>
@@ -34,15 +36,18 @@ export default function ShippingStep() {
     }
 
     return (
-        <div className="shipping-step">
-            <h2 className="checkout-step__title">Dirección de envío</h2>
-            <p className="checkout-step__subtitle">Selecciona dónde quieres recibir tu pedido</p>
+        <div>
+            <h2 className={sharedStyles.stepTitle}>Dirección de envío</h2>
+            <p className={sharedStyles.stepSubtitle}>Selecciona dónde quieres recibir tu pedido</p>
 
-            <ul className="shipping-step__list" role="radiogroup" aria-label="Direcciones de envío">
+            <ul className={styles.list} role="radiogroup" aria-label="Direcciones de envío">
                 {direcciones.map((dir) => (
                     <li key={dir.id}>
                         <label
-                            className={`shipping-step__card ${selectedAddressId === dir.id ? 'shipping-step__card--selected' : ''}`}
+                            className={clsx(
+                                styles.card,
+                                selectedAddressId === dir.id && styles.cardSelected
+                            )}
                         >
                             <input
                                 type="radio"
@@ -51,11 +56,11 @@ export default function ShippingStep() {
                                 checked={selectedAddressId === dir.id}
                                 onChange={() => setSelectedAddressId(dir.id)}
                             />
-                            <div className="shipping-step__card-body">
-                                <div className="shipping-step__card-header">
+                            <div className={styles.cardBody}>
+                                <div className={styles.cardHeader}>
                                     <strong>{dir.alias}</strong>
                                     {dir.principal && (
-                                        <span className="shipping-step__badge">Principal</span>
+                                        <span className={styles.badge}>Principal</span>
                                     )}
                                 </div>
                                 <p>{dir.direccion}</p>
@@ -67,7 +72,7 @@ export default function ShippingStep() {
                 ))}
             </ul>
 
-            <div className="checkout-field">
+            <div className={sharedStyles.field}>
                 <label htmlFor="notas">Notas para el pedido (opcional)</label>
                 <textarea
                     id="notas"
@@ -83,7 +88,7 @@ export default function ShippingStep() {
 
             <ShippingServiceSelector />
 
-            <Link to="/profile" className="shipping-step__link">
+            <Link to="/profile" className={styles.link}>
                 Gestionar direcciones en mi perfil
             </Link>
         </div>

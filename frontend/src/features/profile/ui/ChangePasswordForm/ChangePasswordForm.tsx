@@ -4,6 +4,7 @@ import { updatePasswordFormSchema } from '@/entities/user';
 import { Button } from '@/shared/ui/Button';
 import { FormField } from '@/shared/ui/FormField';
 import { Input } from '@/shared/ui/Input';
+import styles from '../ProfileDataTab/ProfileDataTab.module.css';
 
 const EMPTY_FORM = {
     passwordActual: '',
@@ -80,12 +81,12 @@ export default function ChangePasswordForm() {
 
     if (!isOpen) {
         return (
-            <section className="profile-data__password" aria-label="Cambiar contraseña">
-                <h3 className="profile-data__form-title">Contraseña</h3>
-                <p className="profile-data__password-hint">
+            <section className={styles.password} aria-label="Cambiar contraseña">
+                <h3 className={styles.formTitle}>Contraseña</h3>
+                <p className={styles.passwordHint}>
                     Actualiza tu contraseña ingresando la actual y la nueva.
                 </p>
-                <div className="profile-data__actions">
+                <div className={styles.actions}>
                     <Button type="button" variant="primary" onClick={() => setIsOpen(true)}>
                         Cambiar contraseña
                     </Button>
@@ -95,12 +96,12 @@ export default function ChangePasswordForm() {
     }
 
     return (
-        <section className="profile-data__password" aria-label="Cambiar contraseña">
-            <h3 className="profile-data__form-title">Cambiar contraseña</h3>
+        <section className={styles.password} aria-label="Cambiar contraseña">
+            <h3 className={styles.formTitle}>Cambiar contraseña</h3>
 
-            <form className="profile-data__form" onSubmit={handleSubmit}>
+            <form className={styles.form} onSubmit={handleSubmit}>
                 {formError && (
-                    <p className="profile-data__error" role="alert">{formError}</p>
+                    <p className={styles.error} role="alert">{formError}</p>
                 )}
 
                 <FormField
@@ -153,7 +154,7 @@ export default function ChangePasswordForm() {
                     />
                 </FormField>
 
-                <div className="profile-data__actions">
+                <div className={styles.actions}>
                     <Button type="submit" variant="primary" disabled={isSubmitting}>
                         {isSubmitting ? 'Actualizando…' : 'Actualizar contraseña'}
                     </Button>

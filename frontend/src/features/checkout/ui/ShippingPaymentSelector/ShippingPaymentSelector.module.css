@@ -1,10 +1,10 @@
-.shipping-payment-selector {
+.root {
     margin-top: 1.75rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
 }
 
-.shipping-payment-selector__title {
+.title {
     margin: 0 0 0.35rem;
     font-family: 'Instrument Serif', serif;
     font-size: 1.15rem;
@@ -12,14 +12,14 @@
     color: var(--text);
 }
 
-.shipping-payment-selector__subtitle {
+.subtitle {
     margin: 0 0 1rem;
     font-size: 0.88rem;
     color: var(--muted);
     line-height: 1.45;
 }
 
-.shipping-payment-selector__list {
+.list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -28,7 +28,7 @@
     gap: 0.65rem;
 }
 
-.shipping-payment-selector__card {
+.card {
     display: block;
     cursor: pointer;
     border: 2px solid var(--border);
@@ -38,24 +38,24 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.shipping-payment-selector__card input {
+.card input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-.shipping-payment-selector__card--selected {
+.cardSelected {
     border-color: var(--indigo);
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
 }
 
-.shipping-payment-selector__body strong {
+.body strong {
     display: block;
     font-size: 0.95rem;
     margin-bottom: 0.25rem;
 }
 
-.shipping-payment-selector__body p {
+.body p {
     margin: 0;
     font-size: 0.82rem;
     color: var(--muted);

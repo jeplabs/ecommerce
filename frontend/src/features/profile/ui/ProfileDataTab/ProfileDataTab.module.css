@@ -1,8 +1,8 @@
-.profile-data {
+.root {
     animation: fadeUp 0.35s ease both;
 }
 
-.profile-data__hero {
+.hero {
     display: flex;
     align-items: center;
     gap: 1.25rem;
@@ -13,13 +13,13 @@
     border-radius: 16px;
 }
 
-.profile-data__content {
+.content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
 
-.profile-data__avatar {
+.avatar {
     flex-shrink: 0;
     width: 72px;
     height: 72px;
@@ -34,20 +34,20 @@
     box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
 }
 
-.profile-data__name {
+.name {
     font-family: 'Instrument Serif', serif;
     font-size: 1.5rem;
     letter-spacing: -0.02em;
     margin-bottom: 0.25rem;
 }
 
-.profile-data__email {
+.email {
     font-size: 0.9rem;
     color: var(--muted);
     margin-bottom: 0.35rem;
 }
 
-.profile-data__member-since {
+.memberSince {
     display: inline-block;
     font-size: 0.72rem;
     padding: 0.2rem 0.55rem;
@@ -57,13 +57,13 @@
     border: 1px solid var(--border);
 }
 
-.profile-data__grid {
+.grid {
     display: grid;
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
 
-.profile-data__field dt {
+.field dt {
     font-size: 0.68rem;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -72,12 +72,12 @@
     margin-bottom: 0.25rem;
 }
 
-.profile-data__field dd {
+.field dd {
     font-size: 1rem;
     color: var(--text);
 }
 
-.profile-data__badge {
+.badge {
     display: inline-block;
     margin-left: 0.5rem;
     font-size: 0.7rem;
@@ -88,7 +88,7 @@
     vertical-align: middle;
 }
 
-.profile-data__form {
+.form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -96,19 +96,19 @@
     padding: 0;
 }
 
-.profile-data__form-title {
+.formTitle {
     font-size: 1.1rem;
     margin-bottom: 1rem;
     color: var(--text);
 }
 
-.profile-data__form-row {
+.formRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
-.profile-data__error {
+.error {
     color: var(--error);
     font-size: 0.88rem;
     margin-bottom: 0;
@@ -118,46 +118,46 @@
     border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
-.profile-data__actions {
+.actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-top: 0;
 }
 
-.profile-data__password-hint {
+.passwordHint {
     font-size: 0.88rem;
     color: var(--muted);
     margin-bottom: 1rem;
 }
 
 @media (max-width: 560px) {
-    .profile-data__form-row {
+    .formRow {
         grid-template-columns: 1fr;
     }
 
-    .profile-data__hero {
+    .hero {
         flex-direction: column;
         text-align: center;
     }
 
-    .profile-data__content {
+    .content {
         grid-template-columns: 1fr;
     }
 
-    .profile-data__password {
+    .password {
         margin-top: 2rem;
         padding-top: 1.5rem;
         border-top: 1px solid var(--border);
     }
 
-    .profile-data__actions {
+    .actions {
         flex-direction: column;
         align-items: center;
         gap: 1rem;
     }
 
-    .profile-data__actions button {
+    .actions button {
         width: 100%;
     }
 }

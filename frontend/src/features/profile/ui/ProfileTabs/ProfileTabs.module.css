@@ -1,4 +1,4 @@
-.profile-tabs {
+.tabs {
     display: flex;
     gap: 0.5rem;
     padding: 0.35rem;
@@ -10,11 +10,11 @@
     scrollbar-width: none;
 }
 
-.profile-tabs::-webkit-scrollbar {
+.tabs::-webkit-scrollbar {
     display: none;
 }
 
-.profile-tabs__btn {
+.btn {
     flex: 1;
     min-width: max-content;
     display: flex;
@@ -34,33 +34,33 @@
     white-space: nowrap;
 }
 
-.profile-tabs__btn:hover {
+.btn:hover {
     color: var(--text);
     background: rgba(99, 102, 241, 0.08);
 }
 
-.profile-tabs__btn--active {
+.btnActive {
     background: var(--indigo);
     color: #fff;
     box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
 }
 
-.profile-tabs__btn--active:hover {
+.btnActive:hover {
     color: #fff;
     background: #4f46e5;
 }
 
-.profile-tabs__icon {
+.icon {
     font-size: 1rem;
     line-height: 1;
 }
 
 @media (max-width: 520px) {
-    .profile-tabs__label {
+    .label {
         font-size: 0.8rem;
     }
 
-    .profile-tabs__btn {
+    .btn {
         padding: 0.65rem 0.75rem;
     }
 }

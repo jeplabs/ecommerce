@@ -1,4 +1,5 @@
 import { useProfile } from '@/app/providers';
+import pageStyles from '@/widgets/profile/ProfileView.module.css';
 
 import ProfileTabs from '../ProfileTabs/ProfileTabs';
 import ProfileDataTab from '../ProfileDataTab/ProfileDataTab';
@@ -10,12 +11,12 @@ export default function ProfileContent() {
     const { loading, error } = profile;
 
     if (loading) {
-        return <p className="profile-page__loading">Cargando perfil…</p>;
+        return <p className={pageStyles.loading}>Cargando perfil…</p>;
     }
 
     if (error) {
         return (
-            <div className="profile-page__error">
+            <div className={pageStyles.error}>
                 <p>{error}</p>
             </div>
         );
@@ -25,7 +26,7 @@ export default function ProfileContent() {
         <>
             <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-            <div className="profile-page__panel" role="tabpanel">
+            <div className={pageStyles.panel} role="tabpanel">
                 {activeTab === 'datos' && <ProfileDataTab />}
                 {activeTab === 'direcciones' && <AddressesTab />}
                 {activeTab === 'ordenes' && <OrdersTab />}

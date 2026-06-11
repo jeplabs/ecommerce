@@ -1,6 +1,7 @@
 import { useCheckout } from '@/app/providers';
 
-import './SimulatedStripeForm.css';
+import sharedStyles from '../checkoutShared.module.css';
+import styles from './SimulatedStripeForm.module.css';
 
 const formatCardNumber = (value: string): string => {
     const digits = value.replace(/\D/g, '').slice(0, 16);
@@ -17,17 +18,17 @@ export default function SimulatedStripeForm() {
     const { cardData, updateCardField } = useCheckout();
 
     return (
-        <div className="stripe-sim">
-            <div className="stripe-sim__banner">
-                <span className="stripe-sim__logo">Stripe</span>
-                <span className="stripe-sim__badge">Modo demo</span>
+        <div className={styles.root}>
+            <div className={styles.banner}>
+                <span className={styles.logo}>Stripe</span>
+                <span className={styles.badge}>Modo demo</span>
             </div>
 
-            <p className="stripe-sim__hint">
+            <p className={styles.hint}>
                 Tarjeta de prueba: <code>4242 4242 4242 4242</code> · Cualquier fecha futura · CVC 123
             </p>
 
-            <div className="checkout-field">
+            <div className={sharedStyles.field}>
                 <label htmlFor="cardholder">Titular de la tarjeta</label>
                 <input
                     id="cardholder"
@@ -39,7 +40,7 @@ export default function SimulatedStripeForm() {
                 />
             </div>
 
-            <div className="checkout-field">
+            <div className={sharedStyles.field}>
                 <label htmlFor="cardNumber">Número de tarjeta</label>
                 <input
                     id="cardNumber"
@@ -52,8 +53,8 @@ export default function SimulatedStripeForm() {
                 />
             </div>
 
-            <div className="stripe-sim__row">
-                <div className="checkout-field">
+            <div className={styles.row}>
+                <div className={sharedStyles.field}>
                     <label htmlFor="expiry">Expiración</label>
                     <input
                         id="expiry"
@@ -65,7 +66,7 @@ export default function SimulatedStripeForm() {
                         placeholder="MM/AA"
                     />
                 </div>
-                <div className="checkout-field">
+                <div className={sharedStyles.field}>
                     <label htmlFor="cvc">CVC</label>
                     <input
                         id="cvc"

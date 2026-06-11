@@ -1,15 +1,15 @@
-.checkout-content__layout {
+.layout {
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 1.5rem;
     align-items: start;
 }
 
-.checkout-content__main {
+.main {
     min-width: 0;
 }
 
-.checkout-content__error {
+.error {
     color: var(--error);
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
@@ -18,7 +18,7 @@
     border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
-.checkout-content__nav {
+.nav {
     display: flex;
     justify-content: flex-end;
     gap: 0.75rem;
@@ -27,22 +27,22 @@
     border-top: 1px solid var(--border);
 }
 
-.checkout-btn--pay {
+.btnPay {
     min-width: 200px;
 }
 
 @media (max-width: 900px) {
-    .checkout-content__layout {
+    .layout {
         grid-template-columns: 1fr;
     }
 
-    .checkout-content__nav {
+    .nav {
         flex-direction: row;
         align-items: center;
         justify-content: center;
     }
 
-    .checkout-btn {
+    .nav .navBtn {
         width: 100%;
     }
 }

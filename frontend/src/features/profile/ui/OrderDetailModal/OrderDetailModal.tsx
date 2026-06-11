@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import OrderDetail from '../OrderDetail/OrderDetail';
 import type { OrderApi } from '@/entities/order';
-import './OrderDetailModal.css';
+import detailStyles from '../OrderDetail/OrderDetail.module.css';
+import styles from './OrderDetailModal.module.css';
 
 const TITLE_ID = 'order-detail-modal-title';
 
@@ -69,17 +70,17 @@ export default function OrderDetailModal({
     }
 
     return createPortal(
-        <div className="order-detail-modal">
+        <div className={styles.root}>
             <button
                 type="button"
-                className="order-detail-modal__backdrop"
+                className={styles.backdrop}
                 aria-label="Cerrar detalle del pedido"
                 onClick={onClose}
             />
 
             <div
                 ref={panelRef}
-                className="order-detail-modal__panel"
+                className={styles.panel}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={orden ? TITLE_ID : undefined}
@@ -89,7 +90,7 @@ export default function OrderDetailModal({
                 onClick={(e) => e.stopPropagation()}
             >
                 {loading && !orden ? (
-                    <p className="order-detail-modal__loading">Cargando pedido…</p>
+                    <p className={styles.loading}>Cargando pedido…</p>
                 ) : orden ? (
                     <OrderDetail
                         orden={orden}
@@ -97,6 +98,7 @@ export default function OrderDetailModal({
                         onCancel={onCancel}
                         cancelling={cancelling}
                         titleId={TITLE_ID}
+                        className={detailStyles.detailInModal}
                     />
                 ) : null}
             </div>

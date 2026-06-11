@@ -1,4 +1,4 @@
-.checkout-steps {
+.root {
     display: flex;
     justify-content: center;
     gap: 0;
@@ -7,7 +7,7 @@
     padding: 0;
 }
 
-.checkout-steps__item {
+.item {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,7 +18,7 @@
     font-size: 0.78rem;
 }
 
-.checkout-steps__item:not(:last-child)::after {
+.item:not(:last-child)::after {
     content: '';
     position: absolute;
     top: 14px;
@@ -29,12 +29,12 @@
     z-index: 0;
 }
 
-.checkout-steps__item--done:not(:last-child)::after,
-.checkout-steps__item--active:not(:last-child)::after {
+.itemDone:not(:last-child)::after,
+.itemActive:not(:last-child)::after {
     background: var(--indigo);
 }
 
-.checkout-steps__number {
+.number {
     width: 28px;
     height: 28px;
     display: flex;
@@ -48,25 +48,25 @@
     z-index: 1;
 }
 
-.checkout-steps__item--active .checkout-steps__number {
+.itemActive .number {
     border-color: var(--indigo);
     background: var(--indigo);
     color: #fff;
 }
 
-.checkout-steps__item--done .checkout-steps__number {
+.itemDone .number {
     border-color: var(--indigo);
     background: rgba(99, 102, 241, 0.2);
     color: var(--accent);
 }
 
-.checkout-steps__item--active {
+.itemActive {
     color: var(--text);
     font-weight: 600;
 }
 
 @media (max-width: 480px) {
-    .checkout-steps__label {
+    .label {
         font-size: 0.68rem;
     }
 }

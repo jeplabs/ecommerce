@@ -1,8 +1,9 @@
+import clsx from 'clsx';
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi } from '@/entities/order';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
-import './OrderConfirmationSummary.css';
+import styles from './OrderConfirmationSummary.module.css';
 
 type OrderConfirmationSummaryProps = {
     orden: OrderApi | null | undefined;
@@ -15,33 +16,33 @@ export default function OrderConfirmationSummary({ orden, payment }: OrderConfir
     const costoEnvio = Number(orden.costoEnvio ?? 0);
 
     return (
-        <article className="order-confirmation" aria-labelledby="order-confirmation-title">
-            <header className="order-confirmation__head">
+        <article className={styles.root} aria-labelledby="order-confirmation-title">
+            <header className={styles.head}>
                 <div>
                     <h2 id="order-confirmation-title">Resumen del pedido</h2>
-                    <p className="order-confirmation__date">{formatDateTime(orden.creadoAt)}</p>
+                    <p className={styles.date}>{formatDateTime(orden.creadoAt)}</p>
                 </div>
-                <span className="order-confirmation__status">
+                <span className={styles.status}>
                     {formatEstadoOrden(orden.estado)}
                 </span>
             </header>
 
             {payment && (
-                <section className="order-confirmation__payment" aria-labelledby="order-payment-title">
-                    <h3 id="order-payment-title" className="order-confirmation__section-title">
+                <section className={styles.payment} aria-labelledby="order-payment-title">
+                    <h3 id="order-payment-title" className={styles.sectionTitle}>
                         Pago
                     </h3>
                     <dl>
-                        <div className="order-confirmation__payment-row">
+                        <div className={styles.paymentRow}>
                             <dt>Método</dt>
                             <dd>{payment.provider}</dd>
                         </div>
-                        <div className="order-confirmation__payment-row">
+                        <div className={styles.paymentRow}>
                             <dt>Referencia</dt>
-                            <dd className="order-confirmation__payment-ref">{payment.transactionId}</dd>
+                            <dd className={styles.paymentRef}>{payment.transactionId}</dd>
                         </div>
                         {payment.last4 && (
-                            <div className="order-confirmation__payment-row">
+                            <div className={styles.paymentRow}>
                                 <dt>Tarjeta</dt>
                                 <dd>•••• {payment.last4}</dd>
                             </div>
@@ -53,21 +54,21 @@ export default function OrderConfirmationSummary({ orden, payment }: OrderConfir
             <OrderShippingSummary orden={orden} />
 
             <section aria-labelledby="order-items-title">
-                <h3 id="order-items-title" className="order-confirmation__section-title">
+                <h3 id="order-items-title" className={styles.sectionTitle}>
                     Productos
                 </h3>
-                <ul className="order-confirmation__items">
+                <ul className={styles.items}>
                     {(orden.items || []).map((item) => (
-                        <li key={item.id} className="order-confirmation__item">
+                        <li key={item.id} className={styles.item}>
                             <div>
-                                <span className="order-confirmation__item-name">
+                                <span className={styles.itemName}>
                                     {item.nombreProducto}
                                 </span>
-                                <span className="order-confirmation__item-sku">SKU: {item.sku}</span>
+                                <span className={styles.itemSku}>SKU: {item.sku}</span>
                             </div>
-                            <div className="order-confirmation__item-qty">
+                            <div className={styles.itemQty}>
                                 <span>Cant. {item.cantidad}</span>
-                                <span className="order-confirmation__item-price">
+                                <span className={styles.itemPrice}>
                                     {formatCurrency(item.subtotal)}
                                 </span>
                             </div>
@@ -76,30 +77,30 @@ export default function OrderConfirmationSummary({ orden, payment }: OrderConfir
                 </ul>
             </section>
 
-            <div className="order-confirmation__totals">
-                <div className="order-confirmation__total-row">
+            <div className={styles.totals}>
+                <div className={styles.totalRow}>
                     <span>Subtotal productos</span>
                     <span>{formatCurrency(orden.subtotal)}</span>
                 </div>
                 {orden.servicioEnvio != null && (
-                    <div className="order-confirmation__total-row">
+                    <div className={styles.totalRow}>
                         <span>Envío ({orden.servicioEnvio})</span>
                         <span>{costoEnvio === 0 ? 'Gratis' : formatCurrency(costoEnvio)}</span>
                     </div>
                 )}
-                <div className="order-confirmation__total-row">
+                <div className={styles.totalRow}>
                     <span>IVA</span>
                     <span>{formatCurrency(orden.iva)}</span>
                 </div>
-                <div className="order-confirmation__total-row order-confirmation__total-row--grand">
+                <div className={clsx(styles.totalRow, styles.totalRowGrand)}>
                     <span>Total pagado</span>
                     <span>{formatCurrency(orden.total)}</span>
                 </div>
             </div>
 
             {orden.notas?.trim() && (
-                <div className="order-confirmation__notes">
-                    <strong className="order-confirmation__section-title">Notas del pedido</strong>
+                <div className={styles.notes}>
+                    <strong className={styles.sectionTitle}>Notas del pedido</strong>
                     <p>{orden.notas}</p>
                 </div>
             )}

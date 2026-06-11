@@ -1,4 +1,4 @@
-.address-form {
+.form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -10,18 +10,18 @@
     max-width: 100%;
 }
 
-.address-form__title {
+.title {
     font-size: 1.05rem;
     margin-bottom: 0;
 }
 
-.address-form__row {
+.row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
-.address-form__error {
+.error {
     color: var(--error);
     font-size: 0.88rem;
     margin-bottom: 0;
@@ -30,7 +30,7 @@
     border-radius: 8px;
 }
 
-.address-form textarea {
+.form textarea {
     width: 100%;
     padding: 0.75rem 0.9rem;
     border: 1px solid var(--border2);
@@ -43,13 +43,13 @@
     min-height: 72px;
 }
 
-.address-form textarea:focus {
+.form textarea:focus {
     outline: none;
     border-color: var(--indigo);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
-.address-form__checkbox {
+.checkbox {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -59,18 +59,18 @@
     cursor: pointer;
 }
 
-.address-form__checkbox input {
+.checkbox input {
     accent-color: var(--indigo);
 }
 
-.address-form__actions {
+.actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
 }
 
 @media (max-width: 560px) {
-    .address-form__row {
+    .row {
         grid-template-columns: 1fr;
     }
 }

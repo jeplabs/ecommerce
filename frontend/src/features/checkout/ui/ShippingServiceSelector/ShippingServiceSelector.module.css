@@ -1,10 +1,10 @@
-.shipping-service-selector {
+.root {
     margin-top: 1.75rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
 }
 
-.shipping-service-selector__title {
+.title {
     margin: 0 0 0.35rem;
     font-family: 'Instrument Serif', serif;
     font-size: 1.15rem;
@@ -12,14 +12,14 @@
     color: var(--text);
 }
 
-.shipping-service-selector__subtitle {
+.subtitle {
     margin: 0 0 1rem;
     font-size: 0.88rem;
     color: var(--muted);
     line-height: 1.45;
 }
 
-.shipping-service-selector__banner {
+.banner {
     margin: 0 0 1rem;
     padding: 0.65rem 0.85rem;
     border-radius: 10px;
@@ -29,13 +29,13 @@
     color: var(--text);
 }
 
-.shipping-service-selector__hint-free {
+.hintFree {
     margin: 0 0 0.85rem;
     font-size: 0.82rem;
     color: var(--muted);
 }
 
-.shipping-service-selector__group-label {
+.groupLabel {
     margin: 0 0 0.5rem;
     font-size: 0.68rem;
     font-weight: 600;
@@ -44,11 +44,11 @@
     color: var(--muted);
 }
 
-.shipping-service-selector__group {
+.group {
     margin-bottom: 1.1rem;
 }
 
-.shipping-service-selector__list {
+.list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -57,7 +57,7 @@
     gap: 0.65rem;
 }
 
-.shipping-service-selector__card {
+.card {
     display: flex;
     align-items: flex-start;
     gap: 0.85rem;
@@ -69,22 +69,22 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.shipping-service-selector__card input {
+.card input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-.shipping-service-selector__card--selected {
+.cardSelected {
     border-color: var(--indigo);
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
 }
 
-.shipping-service-selector__card--pickup {
+.cardPickup {
     border-style: dashed;
 }
 
-.shipping-service-selector__logo {
+.logo {
     width: 2.5rem;
     height: 2.5rem;
     object-fit: contain;
@@ -93,7 +93,7 @@
     flex-shrink: 0;
 }
 
-.shipping-service-selector__logo-placeholder {
+.logoPlaceholder {
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 8px;
@@ -105,12 +105,12 @@
     flex-shrink: 0;
 }
 
-.shipping-service-selector__body {
+.body {
     flex: 1;
     min-width: 0;
 }
 
-.shipping-service-selector__name-row {
+.nameRow {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -118,11 +118,11 @@
     gap: 0.35rem 0.75rem;
 }
 
-.shipping-service-selector__name-row strong {
+.nameRow strong {
     font-size: 0.95rem;
 }
 
-.shipping-service-selector__costs {
+.costs {
     margin-top: 0.55rem;
     padding-top: 0.55rem;
     border-top: 1px dashed var(--border);
@@ -131,7 +131,7 @@
     gap: 0.3rem;
 }
 
-.shipping-service-selector__cost-line {
+.costLine {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -139,71 +139,71 @@
     font-size: 0.78rem;
 }
 
-.shipping-service-selector__cost-label {
+.costLabel {
     color: var(--muted);
 }
 
-.shipping-service-selector__cost-value {
+.costValue {
     font-weight: 600;
     text-align: right;
 }
 
-.shipping-service-selector__cost-struck {
+.costStruck {
     text-decoration: line-through;
     color: var(--muted);
     font-weight: 500;
     margin-right: 0.35rem;
 }
 
-.shipping-service-selector__cost-free {
+.costFree {
     color: #22c55e;
     font-weight: 600;
 }
 
-.shipping-service-selector__active-total {
+.activeTotal {
     font-size: 0.82rem;
     font-weight: 600;
     color: var(--indigo);
     white-space: nowrap;
 }
 
-.shipping-service-selector__price {
+.price {
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--accent);
     white-space: nowrap;
 }
 
-.shipping-service-selector__price--free {
+.priceFree {
     color: #22c55e;
 }
 
-.shipping-service-selector__desc {
+.desc {
     margin: 0.25rem 0 0;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.4;
 }
 
-.shipping-service-selector__pickup-note {
+.pickupNote {
     margin: 0.75rem 0 0;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.45;
 }
 
-.shipping-service-selector__loading,
-.shipping-service-selector__error,
-.shipping-service-selector__empty {
+.loading,
+.error,
+.empty {
     font-size: 0.9rem;
     color: var(--muted);
 }
 
-.shipping-service-selector__error {
+.error {
     color: var(--error);
 }
 
-.shipping-service-selector__retry {
+.retry {
     margin-top: 0.5rem;
     padding: 0.4rem 0.75rem;
     border: 1px solid var(--border2);
@@ -215,6 +215,6 @@
     cursor: pointer;
 }
 
-.shipping-service-selector__retry:hover {
+.retry:hover {
     border-color: var(--indigo);
 }

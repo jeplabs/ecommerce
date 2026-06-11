@@ -1,26 +1,27 @@
+import clsx from 'clsx';
 import { Link } from 'react-router-dom';
-import './CheckoutSuccessActions.css';
+import styles from './CheckoutSuccessActions.module.css';
 
 export default function CheckoutSuccessActions() {
     return (
-        <nav className="checkout-success-actions" aria-label="Acciones tras la compra">
-            <p className="checkout-success-actions__hint">
+        <nav className={styles.root} aria-label="Acciones tras la compra">
+            <p className={styles.hint}>
                 Guardamos tu pedido en el historial. Puedes consultar el estado cuando quieras.
             </p>
             <Link
                 to="/profile"
                 state={{ tab: 'ordenes' }}
-                className="checkout-success-actions__btn checkout-success-actions__btn--primary"
+                className={clsx(styles.btn, styles.btnPrimary)}
             >
                 Ver historial de compras
             </Link>
             <Link
                 to="/catalogo"
-                className="checkout-success-actions__btn checkout-success-actions__btn--secondary"
+                className={clsx(styles.btn, styles.btnSecondary)}
             >
                 Seguir comprando
             </Link>
-            <Link to="/" className="checkout-success-actions__btn checkout-success-actions__btn--ghost">
+            <Link to="/" className={clsx(styles.btn, styles.btnGhost)}>
                 Volver al inicio
             </Link>
         </nav>

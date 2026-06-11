@@ -1,5 +1,6 @@
+import clsx from 'clsx';
 import type { CheckoutStep } from '@/features/checkout/model/useCheckoutLogic';
-import './CheckoutSteps.css';
+import styles from './CheckoutSteps.module.css';
 
 const STEP_LABELS: Record<CheckoutStep, string> = {
     envio: 'Envío',
@@ -14,7 +15,7 @@ type CheckoutStepsProps = {
 
 export default function CheckoutSteps({ steps, currentIndex }: CheckoutStepsProps) {
     return (
-        <ol className="checkout-steps" aria-label="Pasos del checkout">
+        <ol className={styles.root} aria-label="Pasos del checkout">
             {steps.map((stepId, index) => {
                 const isActive = index === currentIndex;
                 const isDone = index < currentIndex;
@@ -22,13 +23,17 @@ export default function CheckoutSteps({ steps, currentIndex }: CheckoutStepsProp
                 return (
                     <li
                         key={stepId}
-                        className={`checkout-steps__item ${isActive ? 'checkout-steps__item--active' : ''} ${isDone ? 'checkout-steps__item--done' : ''}`}
+                        className={clsx(
+                            styles.item,
+                            isActive && styles.itemActive,
+                            isDone && styles.itemDone
+                        )}
                         aria-current={isActive ? 'step' : undefined}
                     >
-                        <span className="checkout-steps__number">
+                        <span className={styles.number}>
                             {isDone ? '✓' : index + 1}
                         </span>
-                        <span className="checkout-steps__label">{STEP_LABELS[stepId]}</span>
+                        <span className={styles.label}>{STEP_LABELS[stepId]}</span>
                     </li>
                 );
             })}

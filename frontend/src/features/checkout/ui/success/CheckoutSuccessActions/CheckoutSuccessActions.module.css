@@ -1,10 +1,10 @@
-.checkout-success-actions {
+.root {
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
 }
 
-.checkout-success-actions__hint {
+.hint {
     margin: 0 0 0.35rem;
     font-size: 0.82rem;
     color: var(--muted);
@@ -12,7 +12,7 @@
     text-align: center;
 }
 
-.checkout-success-actions__btn {
+.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -29,40 +29,40 @@
     transition: filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
-.checkout-success-actions__btn--primary {
+.btnPrimary {
     border: none;
     background: linear-gradient(135deg, var(--indigo), var(--violet));
     color: #fff;
 }
 
-.checkout-success-actions__btn--primary:hover {
+.btnPrimary:hover {
     filter: brightness(1.06);
 }
 
-.checkout-success-actions__btn--secondary {
+.btnSecondary {
     border: 1px solid var(--border2);
     background: var(--surface2);
     color: var(--text);
 }
 
-.checkout-success-actions__btn--secondary:hover {
+.btnSecondary:hover {
     border-color: rgba(99, 102, 241, 0.45);
     color: var(--accent);
 }
 
-.checkout-success-actions__btn--ghost {
+.btnGhost {
     border: 1px solid transparent;
     background: transparent;
     color: var(--muted);
 }
 
-.checkout-success-actions__btn--ghost:hover {
+.btnGhost:hover {
     color: var(--text);
     background: rgba(99, 102, 241, 0.08);
 }
 
 @media (min-width: 900px) {
-    .checkout-success-actions {
+    .root {
         position: sticky;
         top: 1.25rem;
         padding: 1.25rem;
@@ -72,7 +72,7 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     }
 
-    .checkout-success-actions__hint {
+    .hint {
         text-align: left;
     }
 }

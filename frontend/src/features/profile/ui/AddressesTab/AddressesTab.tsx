@@ -1,5 +1,6 @@
 import { useProfile, useToast } from '@/app/providers';
 import { useState } from 'react';
+import clsx from 'clsx';
 
 import {
     mapAddressFormToCreateRequest,
@@ -9,7 +10,7 @@ import type { AddressApi } from '@/entities/address';
 import type { AddressFormValues } from '@/entities/address';
 import AddressForm from '../AddressForm/AddressForm';
 import { Button } from '@/shared/ui/Button';
-import './AddressesTab.css';
+import styles from './AddressesTab.module.css';
 
 export default function AddressesTab() {
     const { direcciones } = useProfile();
@@ -76,8 +77,8 @@ export default function AddressesTab() {
     const activeDirecciones = lista.filter((d) => d.activo !== false);
 
     return (
-        <section className="addresses-tab" aria-label="Direcciones de envío">
-            <div className="addresses-tab__header">
+        <section className={styles.root} aria-label="Direcciones de envío">
+            <div className={styles.header}>
                 <div>
                     <h2>Mis direcciones</h2>
                     <p>Gestiona tus direcciones de envío</p>
@@ -86,7 +87,7 @@ export default function AddressesTab() {
                     <Button
                         type="button"
                         variant="primary"
-                        className="addresses-tab__add-btn"
+                        className={styles.addBtn}
                         onClick={() => setShowForm(true)}
                     >
                         + Nueva dirección
@@ -94,7 +95,7 @@ export default function AddressesTab() {
                 )}
             </div>
 
-            {error && <p className="addresses-tab__error" role="alert">{error}</p>}
+            {error && <p className={styles.error} role="alert">{error}</p>}
 
             {showForm && (
                 <AddressForm
@@ -114,43 +115,43 @@ export default function AddressesTab() {
             )}
 
             {loading ? (
-                <p className="addresses-tab__loading">Cargando direcciones…</p>
+                <p className={styles.loading}>Cargando direcciones…</p>
             ) : activeDirecciones.length === 0 && !showForm ? (
-                <div className="addresses-tab__empty">
+                <div className={styles.empty}>
                     <p>No tienes direcciones guardadas.</p>
                     <Button type="button" variant="primary" onClick={() => setShowForm(true)}>
                         Agregar primera dirección
                     </Button>
                 </div>
             ) : (
-                <ul className="addresses-list">
+                <ul className={styles.list}>
                     {activeDirecciones.map((dir) => (
-                        <li key={dir.id} className={`address-card ${dir.principal ? 'address-card--principal' : ''}`}>
-                            <div className="address-card__header">
-                                <span className="address-card__alias">{dir.alias}</span>
+                        <li key={dir.id} className={clsx(styles.card, dir.principal && styles.cardPrincipal)}>
+                            <div className={styles.cardHeader}>
+                                <span className={styles.alias}>{dir.alias}</span>
                                 {dir.principal && (
-                                    <span className="address-card__badge">Principal</span>
+                                    <span className={styles.badge}>Principal</span>
                                 )}
                             </div>
-                            <p className="address-card__line">{dir.direccion}</p>
-                            <p className="address-card__line">
+                            <p className={styles.line}>{dir.direccion}</p>
+                            <p className={styles.line}>
                                 {dir.ciudad}, {dir.estado} {dir.codigoPostal}
                             </p>
-                            <p className="address-card__line">{dir.pais}</p>
-                            <p className="address-card__line address-card__phone">📞 {dir.telefono}</p>
+                            <p className={styles.line}>{dir.pais}</p>
+                            <p className={clsx(styles.line, styles.phone)}>📞 {dir.telefono}</p>
                             <br></br>
                             <h4>Referencias</h4>
                             {dir.referencias && dir.referencias.length > 0 ? (
-                                <p className="address-card__refs">{dir.referencias}</p>
+                                <p className={styles.refs}>{dir.referencias}</p>
                             ) : (
-                                <p className="address-card__refs">No hay referencias guardadas.</p>
+                                <p className={styles.refs}>No hay referencias guardadas.</p>
                             )}
 
-                            <div className="address-card__actions">
+                            <div className={styles.cardActions}>
                                 {!dir.principal && (
                                     <button
                                         type="button"
-                                        className="address-card__action"
+                                        className={styles.action}
                                         onClick={() => handleSetPrincipal(dir.id)}
                                         disabled={saving}
                                     >
@@ -159,7 +160,7 @@ export default function AddressesTab() {
                                 )}
                                 <button
                                     type="button"
-                                    className="address-card__action"
+                                    className={styles.action}
                                     onClick={() => {
                                         setShowForm(false);
                                         setEditingAddress(dir);
@@ -169,7 +170,7 @@ export default function AddressesTab() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="address-card__action address-card__action--danger"
+                                    className={clsx(styles.action, styles.actionDanger)}
                                     onClick={() => setConfirmDelete(dir.id)}
                                 >
                                     Eliminar
@@ -177,9 +178,9 @@ export default function AddressesTab() {
                             </div>
 
                             {confirmDelete === dir.id && (
-                                <div className="address-card__confirm">
+                                <div className={styles.confirm}>
                                     <p>¿Eliminar esta dirección?</p>
-                                    <div className="address-card__confirm-actions">
+                                    <div className={styles.confirmActions}>
                                         <Button
                                             type="button"
                                             variant="secondary"

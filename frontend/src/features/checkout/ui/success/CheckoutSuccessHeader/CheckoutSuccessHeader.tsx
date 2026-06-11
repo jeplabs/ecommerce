@@ -1,4 +1,4 @@
-import './CheckoutSuccessHeader.css';
+import styles from './CheckoutSuccessHeader.module.css';
 
 type CheckoutSuccessHeaderProps = {
     orderId: number | string;
@@ -6,14 +6,14 @@ type CheckoutSuccessHeaderProps = {
 
 export default function CheckoutSuccessHeader({ orderId }: CheckoutSuccessHeaderProps) {
     return (
-        <header className="checkout-success-header">
-            <div className="checkout-success-header__icon" aria-hidden="true">
+        <header className={styles.root}>
+            <div className={styles.icon} aria-hidden="true">
                 ✓
             </div>
-            <h1 className="checkout-success-header__title">¡Compra realizada con éxito!</h1>
-            <p className="checkout-success-header__lead">
+            <h1 className={styles.title}>¡Compra realizada con éxito!</h1>
+            <p className={styles.lead}>
                 Tu pedido{' '}
-                <span className="checkout-success-header__order-id">#{orderId}</span>{' '}
+                <span className={styles.orderId}>#{orderId}</span>{' '}
                 fue registrado. Revisa el resumen de tu compra y el envío a continuación.
             </p>
         </header>

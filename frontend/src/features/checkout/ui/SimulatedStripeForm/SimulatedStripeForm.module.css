@@ -1,4 +1,4 @@
-.stripe-sim {
+.root {
     padding: 1.25rem;
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -6,21 +6,21 @@
     margin-top: 1rem;
 }
 
-.stripe-sim__banner {
+.banner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0.75rem;
 }
 
-.stripe-sim__logo {
+.logo {
     font-weight: 700;
     font-size: 1.1rem;
     letter-spacing: -0.02em;
     color: #635bff;
 }
 
-.stripe-sim__badge {
+.badge {
     font-size: 0.68rem;
     padding: 0.2rem 0.5rem;
     border-radius: 6px;
@@ -28,28 +28,28 @@
     color: #a5b4fc;
 }
 
-.stripe-sim__hint {
+.hint {
     font-size: 0.78rem;
     color: var(--muted);
     margin-bottom: 1rem;
     line-height: 1.5;
 }
 
-.stripe-sim__hint code {
+.hint code {
     background: var(--surface);
     padding: 0.1rem 0.35rem;
     border-radius: 4px;
     font-size: 0.75rem;
 }
 
-.stripe-sim__row {
+.row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
 @media (max-width: 480px) {
-    .stripe-sim__row {
+    .row {
         grid-template-columns: 1fr;
     }
 }

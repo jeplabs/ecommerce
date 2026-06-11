@@ -1,10 +1,11 @@
+import clsx from 'clsx';
 import { formatCurrency } from '@/shared/lib/format';
 import { FORMA_PAGO_ENVIO } from '@/entities/order';
 import { formatFormaPagoEnvio } from '@/entities/order';
 import type { FormaPago } from '@/entities/order';
 import type { CartItemUiView } from '@/entities/cart';
 import type { ShippingServiceCosts } from '@/entities/shipping';
-import './OrderSummary.css';
+import styles from './OrderSummary.module.css';
 
 type OrderSummaryProps = {
     items: CartItemUiView[];
@@ -36,46 +37,46 @@ export default function OrderSummary({
         !envioGratis && servicioCostos && (tarifa > 0 || recargo > 0 || shippingCostDisplay > 0);
 
     return (
-        <aside className={`order-summary ${compact ? 'order-summary--compact' : ''}`}>
-            <h3 className="order-summary__title">Resumen del pedido</h3>
+        <aside className={clsx(styles.root, compact && styles.compact)}>
+            <h3 className={styles.title}>Resumen del pedido</h3>
 
-            <ul className="order-summary__items">
+            <ul className={styles.items}>
                 {items.map((item) => (
-                    <li key={item.id} className="order-summary__item">
+                    <li key={item.id} className={styles.item}>
                         {item.imageUrl ? (
-                            <img src={item.imageUrl} alt="" className="order-summary__thumb" />
+                            <img src={item.imageUrl} alt="" className={styles.thumb} />
                         ) : (
-                            <div className="order-summary__thumb-placeholder" />
+                            <div className={styles.thumbPlaceholder} />
                         )}
-                        <div className="order-summary__meta">
-                            <span className="order-summary__name">{item.name}</span>
-                            <span className="order-summary__qty">×{item.quantity}</span>
+                        <div>
+                            <span className={styles.name}>{item.name}</span>
+                            <span className={styles.qty}>×{item.quantity}</span>
                         </div>
-                        <span className="order-summary__price">
+                        <span className={styles.price}>
                             {formatCurrency(item.price * item.quantity)}
                         </span>
                     </li>
                 ))}
             </ul>
 
-            <dl className="order-summary__breakdown">
-                <div className="order-summary__row">
+            <dl className={styles.breakdown}>
+                <div className={styles.row}>
                     <dt>Subtotal productos</dt>
                     <dd>{formatCurrency(subtotal)}</dd>
                 </div>
 
-                <div className="order-summary__row order-summary__row--envio">
+                <div className={clsx(styles.row, styles.rowEnvio)}>
                     <dt>
                         Envío
-                        <span className="order-summary__envio-mode">
+                        <span className={styles.envioMode}>
                             {formatFormaPagoEnvio(formaPagoEnvio)}
                         </span>
                     </dt>
                     <dd>
                         {envioGratis ? (
-                            <span className="order-summary__free-wrap">
+                            <span className={styles.freeWrap}>
                                 {showShippingBreakdown && (
-                                    <span className="order-summary__struck">
+                                    <span className={styles.struck}>
                                         {formatCurrency(
                                             envioContraEntrega
                                                 ? tarifa + recargo
@@ -83,12 +84,12 @@ export default function OrderSummary({
                                         )}
                                     </span>
                                 )}
-                                <span className="order-summary__free">Gratis</span>
+                                <span className={styles.free}>Gratis</span>
                             </span>
                         ) : envioContraEntrega ? (
-                            <span className="order-summary__envio-contra">
+                            <span className={styles.envioContra}>
                                 {formatCurrency(shippingCostDisplay)}
-                                <span className="order-summary__envio-note">
+                                <span className={styles.envioNote}>
                                     Al recibir · no incluido en total
                                 </span>
                             </span>
@@ -100,12 +101,12 @@ export default function OrderSummary({
 
                 {showShippingBreakdown && envioContraEntrega && !envioGratis && (
                     <>
-                        <div className="order-summary__row order-summary__row--sub">
+                        <div className={clsx(styles.row, styles.rowSub)}>
                             <dt>Tarifa de envío</dt>
                             <dd>{formatCurrency(tarifa)}</dd>
                         </div>
                         {recargo > 0 && (
-                            <div className="order-summary__row order-summary__row--sub">
+                            <div className={clsx(styles.row, styles.rowSub)}>
                                 <dt>Recargo contra entrega</dt>
                                 <dd>{formatCurrency(recargo)}</dd>
                             </div>
@@ -114,18 +115,18 @@ export default function OrderSummary({
                 )}
             </dl>
 
-            <div className="order-summary__total">
+            <div className={styles.total}>
                 <span>Total a pagar ahora</span>
                 <strong>{formatCurrency(displayTotal)}</strong>
             </div>
 
             {envioContraEntrega && !envioGratis && shippingCostDisplay > 0 && (
-                <p className="order-summary__contra-note">
+                <p className={styles.contraNote}>
                     + {formatCurrency(shippingCostDisplay)} de envío al recibir el pedido
                 </p>
             )}
 
-            <p className="order-summary__note">Precios con IVA incluido</p>
+            <p className={styles.note}>Precios con IVA incluido</p>
         </aside>
     );
 }

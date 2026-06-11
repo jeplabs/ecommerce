@@ -1,16 +1,16 @@
-.checkout-success-recommendations {
+.root {
     margin-top: 2.5rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border);
 }
 
-.checkout-success-recommendations__intro {
+.intro {
     max-width: 40rem;
     margin: 0 auto 1.5rem;
     text-align: center;
 }
 
-.checkout-success-recommendations__intro h2 {
+.intro h2 {
     margin: 0 0 0.4rem;
     font-family: 'Instrument Serif', serif;
     font-size: 1.45rem;
@@ -18,23 +18,23 @@
     color: var(--text);
 }
 
-.checkout-success-recommendations__intro p {
+.intro p {
     margin: 0;
     font-size: 0.9rem;
     color: var(--muted);
     line-height: 1.45;
 }
 
-.checkout-success-recommendations__loading,
-.checkout-success-recommendations__empty {
+.loading,
+.empty {
     text-align: center;
     font-size: 0.9rem;
     color: var(--muted);
     padding: 1.5rem 0;
 }
 
-.checkout-success-recommendations__sliders {
+/* .sliders {
     display: flex;
     flex-direction: column;
     gap: 2rem;
-}
+} */

@@ -1,0 +1,43 @@
+.page {
+    min-height: calc(100vh - 80px);
+    padding: 2rem 1.5rem 3rem;
+}
+
+.inner {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 1.75rem;
+}
+
+.back {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    text-decoration: none;
+}
+
+.back:hover {
+    text-decoration: underline;
+}
+
+.header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    text-align: left;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+}

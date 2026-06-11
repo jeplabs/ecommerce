@@ -1,16 +1,17 @@
+import clsx from 'clsx';
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import { Button } from '@/shared/ui/Button';
-import './OrderDetail.css';
+import styles from './OrderDetail.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
-    PENDIENTE: 'status--pending',
-    CONFIRMADA: 'status--confirmed',
-    EN_PROCESO: 'status--processing',
-    ENVIADA: 'status--shipped',
-    ENTREGADA: 'status--delivered',
-    CANCELADA: 'status--cancelled',
+    PENDIENTE: styles.statusPending,
+    CONFIRMADA: styles.statusConfirmed,
+    EN_PROCESO: styles.statusProcessing,
+    ENVIADA: styles.statusShipped,
+    ENTREGADA: styles.statusDelivered,
+    CANCELADA: styles.statusCancelled,
 };
 
 type OrderDetailProps = {
@@ -19,42 +20,43 @@ type OrderDetailProps = {
     onCancel?: (ordenId: number) => void;
     cancelling?: boolean;
     titleId?: string;
+    className?: string;
 };
 
-export default function OrderDetail({ orden, onClose, onCancel, cancelling, titleId }: OrderDetailProps) {
+export default function OrderDetail({ orden, onClose, onCancel, cancelling, titleId, className }: OrderDetailProps) {
     if (!orden) return null;
 
     const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'CONFIRMADA';
     const costoEnvio = Number(orden.costoEnvio ?? 0);
 
     return (
-        <div className="order-detail">
-            <div className="order-detail__header">
+        <div className={clsx(styles.root, className)}>
+            <div className={styles.header}>
                 <div>
                     <h3 id={titleId}>Pedido #{orden.id}</h3>
-                    <p className="order-detail__date">{formatDateTime(orden.creadoAt)}</p>
+                    <p className={styles.date}>{formatDateTime(orden.creadoAt)}</p>
                 </div>
-                <button type="button" className="order-detail__close" onClick={onClose} aria-label="Cerrar detalle">
+                <button type="button" className={styles.close} onClick={onClose} aria-label="Cerrar detalle">
                     ✕
                 </button>
             </div>
 
-            <span className={`order-detail__status ${ESTADO_CLASS[orden.estado] || ''}`}>
+            <span className={clsx(styles.status, ESTADO_CLASS[orden.estado])}>
                 {formatEstadoOrden(orden.estado)}
             </span>
 
             <OrderShippingSummary orden={orden} />
 
-            <div className="order-detail__section">
+            <div className={styles.section}>
                 <h4>Productos</h4>
-                <ul className="order-detail__items">
+                <ul className={styles.items}>
                     {orden.items?.map((item) => (
-                        <li key={item.id} className="order-detail__item">
-                            <div className="order-detail__item-info">
-                                <span className="order-detail__item-name">{item.nombreProducto}</span>
-                                <span className="order-detail__item-sku">SKU: {item.sku}</span>
+                        <li key={item.id} className={styles.item}>
+                            <div>
+                                <span className={styles.itemName}>{item.nombreProducto}</span>
+                                <span className={styles.itemSku}>SKU: {item.sku}</span>
                             </div>
-                            <div className="order-detail__item-qty">
+                            <div className={styles.itemQty}>
                                 <span>×{item.cantidad}</span>
                                 <span>{formatCurrency(item.subtotal)}</span>
                             </div>
@@ -63,31 +65,31 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
                 </ul>
             </div>
 
-            <div className="order-detail__totals">
-                <div className="order-detail__total-row">
+            <div className={styles.totals}>
+                <div className={styles.totalRow}>
                     <span>Subtotal productos</span>
                     <span>{formatCurrency(orden.subtotal)}</span>
                 </div>
                 {orden.servicioEnvio != null && (
-                    <div className="order-detail__total-row">
+                    <div className={styles.totalRow}>
                         <span>Envío ({orden.servicioEnvio})</span>
                         <span>
                             {costoEnvio === 0 ? 'Gratis' : formatCurrency(costoEnvio)}
                         </span>
                     </div>
                 )}
-                <div className="order-detail__total-row">
+                <div className={styles.totalRow}>
                     <span>IVA</span>
                     <span>{formatCurrency(orden.iva)}</span>
                 </div>
-                <div className="order-detail__total-row order-detail__total-row--grand">
+                <div className={clsx(styles.totalRow, styles.totalRowGrand)}>
                     <span>Total</span>
                     <span>{formatCurrency(orden.total)}</span>
                 </div>
             </div>
 
             {orden.notas && (
-                <div className="order-detail__section">
+                <div className={styles.section}>
                     <h4>Notas</h4>
                     <p>{orden.notas}</p>
                 </div>
@@ -97,7 +99,7 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
                 <Button
                     type="button"
                     variant="ghost"
-                    className="order-detail__cancel"
+                    className={styles.cancel}
                     fullWidth
                     onClick={() => onCancel(orden.id)}
                     disabled={cancelling}
