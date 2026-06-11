@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import type { ProductApi } from '@/entities/product';
 import { getProductImageUrls, getMainProductImageUrl } from '@/entities/product';
-import './ProductGallery.css';
+import styles from './ProductGallery.module.css';
 
 type ProductGalleryProps = {
     producto: ProductApi;
@@ -13,19 +14,24 @@ export default function ProductGallery({ producto }: ProductGalleryProps) {
     const tieneVarias = imagenes.length > 1;
 
     return (
-        <div className="pd-gallery">
-            <div className="main-image-wrapper">
-                <img src={imagenActiva} alt={producto.nombre} className="main-img" />
-                {producto.stock === 0 && <div className="stock-badge out">Agotado</div>}
+        <div className={styles.gallery}>
+            <div className={styles.mainImageWrapper}>
+                <img src={imagenActiva} alt={producto.nombre} className={styles.mainImg} />
+                {producto.stock === 0 && (
+                    <div className={clsx(styles.stockBadge, styles.stockBadgeOut)}>Agotado</div>
+                )}
             </div>
 
             {tieneVarias && (
-                <div className="thumbnail-list">
+                <div className={styles.thumbnailList}>
                     {imagenes.map((img, idx) => (
                         <button
                             key={idx}
                             type="button"
-                            className={`thumb-btn ${imagenActiva === img ? 'active' : ''}`}
+                            className={clsx(
+                                styles.thumbBtn,
+                                imagenActiva === img && styles.thumbBtnActive
+                            )}
                             onClick={() => setImagenActiva(img)}
                             aria-label={`Ver imagen ${idx + 1} de ${producto.nombre}`}
                         >

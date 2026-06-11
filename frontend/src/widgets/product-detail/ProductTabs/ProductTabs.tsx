@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import type { ProductApi } from '@/entities/product';
-import './ProductTabs.css';
+import styles from './ProductTabs.module.css';
 
 type ProductTabsProps = {
     producto: ProductApi;
@@ -11,13 +12,13 @@ export default function ProductTabs({ producto }: ProductTabsProps) {
     const specsArray = producto.specs ? Object.entries(producto.specs) : [];
 
     return (
-        <div className="pd-tabs-section">
-            <div className="pd-tabs-header" role="tablist">
+        <div className={styles.section}>
+            <div className={styles.header} role="tablist">
                 <button
                     type="button"
                     role="tab"
                     aria-selected={tabActiva === 'descripcion'}
-                    className={`tab-btn ${tabActiva === 'descripcion' ? 'active' : ''}`}
+                    className={clsx(styles.tabBtn, tabActiva === 'descripcion' && styles.tabBtnActive)}
                     onClick={() => setTabActiva('descripcion')}
                 >
                     Descripción Detallada
@@ -26,19 +27,22 @@ export default function ProductTabs({ producto }: ProductTabsProps) {
                     type="button"
                     role="tab"
                     aria-selected={tabActiva === 'caracteristicas'}
-                    className={`tab-btn ${tabActiva === 'caracteristicas' ? 'active' : ''}`}
+                    className={clsx(
+                        styles.tabBtn,
+                        tabActiva === 'caracteristicas' && styles.tabBtnActive
+                    )}
                     onClick={() => setTabActiva('caracteristicas')}
                 >
                     Características Técnicas
                 </button>
             </div>
 
-            <div className="pd-tabs-content">
+            <div className={styles.content}>
                 {tabActiva === 'descripcion' && (
-                    <div className="tab-content fade-in" role="tabpanel">
+                    <div className={clsx(styles.fadeIn)} role="tabpanel">
                         <h3>Detalles del producto</h3>
                         <div
-                            className="full-description"
+                            className={styles.fullDescription}
                             dangerouslySetInnerHTML={{
                                 __html: (producto.descripcion ?? '').replace(/\n/g, '<br/>'),
                             }}
@@ -47,15 +51,15 @@ export default function ProductTabs({ producto }: ProductTabsProps) {
                 )}
 
                 {tabActiva === 'caracteristicas' && (
-                    <div className="tab-content fade-in" role="tabpanel">
+                    <div className={clsx(styles.fadeIn)} role="tabpanel">
                         <h3>Especificaciones Técnicas</h3>
                         {specsArray.length > 0 ? (
-                            <table className="specs-table">
+                            <table className={styles.specsTable}>
                                 <tbody>
                                     {specsArray.map(([key, value]) => (
                                         <tr key={key}>
-                                            <td className="spec-key">{key}</td>
-                                            <td className="spec-value">{String(value)}</td>
+                                            <td className={styles.specKey}>{key}</td>
+                                            <td className={styles.specValue}>{String(value)}</td>
                                         </tr>
                                     ))}
                                 </tbody>

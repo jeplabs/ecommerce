@@ -1,19 +1,18 @@
-/* PESTAÑAS INFERIORES */
-.pd-tabs-section {
+.section {
     background-color: var(--pd-card-bg);
     border-radius: 12px;
     padding: 2rem;
     margin-top: 2rem;
 }
 
-.pd-tabs-header {
+.header {
     display: flex;
     gap: 1rem;
     border-bottom: 1px solid var(--pd-border);
     margin-bottom: 2rem;
 }
 
-.tab-btn {
+.tabBtn {
     background: none;
     border: none;
     color: var(--pd-text-muted);
@@ -25,15 +24,15 @@
     transition: color 0.2s;
 }
 
-.tab-btn.active {
+.tabBtnActive {
     color: var(--pd-accent);
 }
 
-.tab-btn:focus {
+.tabBtn:focus {
     outline: none;
 }
 
-.tab-btn.active::after {
+.tabBtnActive::after {
     content: '';
     position: absolute;
     bottom: -1px;
@@ -43,78 +42,72 @@
     background-color: var(--pd-accent);
 }
 
-.tab-content h3 {
+.content {
+    min-width: 0;
+}
+
+.content h3 {
     margin-top: 0;
     color: var(--pd-text-main);
     margin-bottom: 1.5rem;
 }
 
-.full-description {
+.fullDescription {
     line-height: 1.8;
     color: var(--pd-text-muted);
-    white-space: pre-wrap; /* Respeta saltos de línea si no usas dangerouslySetInnerHTML con <br> */
+    white-space: pre-wrap;
 }
 
-/* GRID DE ESPECIFICACIONES */
-.specs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.specs-table {
+.specsTable {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1rem;
 }
 
-.specs-table td {
+.specsTable td {
     padding: 0.5rem;
     border: 1px solid var(--pd-border);
 }
 
-.spec-row {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 1rem;
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-}
-
-.spec-key {
+.specKey {
     font-size: 0.85rem;
     color: var(--pd-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.spec-value {
+.specValue {
     font-size: 1rem;
     color: var(--pd-text-main);
     font-weight: 500;
 }
 
-.fade-in {
+.fadeIn {
     animation: fadeIn 0.3s ease-in;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 600px) {
-    .pd-tabs-section {
+    .section {
         padding: 1.5rem;
     }
 
-    .pd-tabs-header {
+    .header {
         gap: 0.5rem;
         margin-bottom: 1.5rem;
     }
 
-    .tab-btn {
+    .tabBtn {
         font-size: 0.95rem;
         padding-bottom: 0.75rem;
     }

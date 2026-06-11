@@ -1,17 +1,14 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import ProductDetailView from '@/widgets/product-detail/ProductDetailView';
-import '@/widgets/product-detail/ProductDetailView.css';
+import styles from '@/widgets/product-detail/ProductDetailView.module.css';
 
 export function ProductPage() {
     const { slug } = useParams();
     const navigate = useNavigate();
 
     return (
-        <main className="product-detail-page">
-            <ProductDetailView
-                slug={slug ?? ''}
-                onBackHome={() => navigate('/')}
-            />
+        <main className={styles.page}>
+            <ProductDetailView slug={slug ?? ''} onBackHome={() => navigate('/')} />
         </main>
     );
 }

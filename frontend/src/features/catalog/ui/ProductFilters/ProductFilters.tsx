@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import clsx from 'clsx';
 import {
     extractFilterFacets,
     countActiveFilters,
@@ -9,7 +10,7 @@ import { useProductFilterForm } from '@/features/catalog';
 import type { CatalogFiltros, CatalogProduct } from '@/features/catalog/model/types';
 import type { CatalogFilterOpciones } from '@/features/catalog/model/types';
 import ProductFiltersPanel from './ProductFiltersPanel';
-import './ProductFilters.css';
+import styles from './ProductFilters.module.css';
 
 function buildFacetSections(opciones: CatalogFilterOpciones) {
     return (opciones.facetKeys || []).map((key) => ({
@@ -71,7 +72,7 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
 
     return (
         <>
-            <aside className="product-filters" aria-label="Filtros de productos">
+            <aside className={styles.filters} aria-label="Filtros de productos">
                 <ProductFiltersPanel
                     {...panelProps}
                     filtros={filtrosMerged}
@@ -84,12 +85,12 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
                 <>
                     <button
                         type="button"
-                        className="product-filters__fab"
+                        className={styles.fab}
                         onClick={openDrawer}
                         aria-expanded={isDrawerOpen}
                         aria-controls="product-filters-drawer"
                     >
-                        <svg className="product-filters__fab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <svg className={styles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
                             <line x1="4" y1="21" x2="4" y2="14" />
                             <line x1="4" y1="10" x2="4" y2="3" />
                             <line x1="12" y1="21" x2="12" y2="12" />
@@ -102,7 +103,7 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
                         </svg>
                         Filtros
                         {activeCount > 0 && (
-                            <span className="product-filters__fab-badge" aria-label={`${activeCount} filtros activos`}>
+                            <span className={styles.fabBadge} aria-label={`${activeCount} filtros activos`}>
                                 {activeCount}
                             </span>
                         )}
@@ -110,7 +111,7 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
 
                     <button
                         type="button"
-                        className={`product-filters__overlay ${isDrawerOpen ? 'product-filters__overlay--open' : ''}`}
+                        className={clsx(styles.overlay, isDrawerOpen && styles.overlayOpen)}
                         aria-label="Cerrar filtros"
                         onClick={closeDrawer}
                         tabIndex={isDrawerOpen ? 0 : -1}
@@ -118,17 +119,17 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
 
                     <aside
                         id="product-filters-drawer"
-                        className={`product-filters__drawer ${isDrawerOpen ? 'product-filters__drawer--open' : ''}`}
+                        className={clsx(styles.drawer, isDrawerOpen && styles.drawerOpen)}
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="product-filters-drawer-title"
                         aria-hidden={!isDrawerOpen}
                     >
-                        <header className="product-filters__drawer-header">
+                        <header className={styles.drawerHeader}>
                             <h2 id="product-filters-drawer-title">Filtrar productos</h2>
                             <button
                                 type="button"
-                                className="product-filters__drawer-close"
+                                className={styles.drawerClose}
                                 onClick={closeDrawer}
                                 aria-label="Cerrar panel de filtros"
                             >
@@ -136,7 +137,7 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
                             </button>
                         </header>
 
-                        <div className="product-filters__drawer-body">
+                        <div className={styles.drawerBody}>
                             <ProductFiltersPanel
                                 {...panelProps}
                                 filtros={draftFiltros}
@@ -146,17 +147,13 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
                             />
                         </div>
 
-                        <footer className="product-filters__drawer-footer">
-                            <button
-                                type="button"
-                                className="product-filters__apply"
-                                onClick={applyDraft}
-                            >
+                        <footer className={styles.drawerFooter}>
+                            <button type="button" className={styles.apply} onClick={applyDraft}>
                                 Ver resultados
                             </button>
                             <button
                                 type="button"
-                                className="product-filters__clear-full"
+                                className={styles.clearFull}
                                 onClick={() => clearFiltros({ draft: true })}
                             >
                                 Limpiar filtros

@@ -1,5 +1,7 @@
+import clsx from 'clsx';
 import type { CatalogFiltros } from '@/features/catalog/model/types';
 import type { SpecFacetOption } from '@/features/catalog/model/types';
+import styles from './ProductFilters.module.css';
 
 type FacetSection = {
     key: string;
@@ -35,43 +37,43 @@ export default function ProductFiltersPanel({
     const hasFacets = facetSections?.length > 0;
 
     return (
-        <div className="product-filters-panel">
+        <div className={styles.panel}>
             {showClear && (
-                <header className="product-filters-panel__header">
-                    <h2 className="product-filters-panel__title">Filtros</h2>
-                    <button type="button" className="product-filters-panel__clear" onClick={onClear}>
+                <header className={styles.panelHeader}>
+                    <h2 className={styles.panelTitle}>Filtros</h2>
+                    <button type="button" className={styles.panelClear} onClick={onClear}>
                         Limpiar
                     </button>
                 </header>
             )}
 
-            <fieldset className="product-filters-panel__group">
-                <legend className="product-filters-panel__legend">Precio</legend>
-                <div className="product-filters-panel__price-row">
-                    <label className="product-filters-panel__price-label" htmlFor={`${idPrefix}-precio-min`}>
+            <fieldset className={styles.panelGroup}>
+                <legend className={styles.panelLegend}>Precio</legend>
+                <div className={styles.panelPriceRow}>
+                    <label className={styles.panelPriceLabel} htmlFor={`${idPrefix}-precio-min`}>
                         Mín.
                     </label>
                     <input
                         id={`${idPrefix}-precio-min`}
                         type="number"
                         name="precioMin"
-                        className="product-filters-panel__input"
+                        className={styles.panelInput}
                         min={precioMinBound}
                         max={precioMaxBound}
                         value={filtros.precioMin}
                         onChange={(e) => onPriceChange('precioMin', e.target.value)}
                     />
-                    <span className="product-filters-panel__price-sep" aria-hidden="true">
+                    <span className={styles.panelPriceSep} aria-hidden="true">
                         —
                     </span>
-                    <label className="product-filters-panel__price-label" htmlFor={`${idPrefix}-precio-max`}>
+                    <label className={styles.panelPriceLabel} htmlFor={`${idPrefix}-precio-max`}>
                         Máx.
                     </label>
                     <input
                         id={`${idPrefix}-precio-max`}
                         type="number"
                         name="precioMax"
-                        className="product-filters-panel__input"
+                        className={styles.panelInput}
                         min={precioMinBound}
                         max={precioMaxBound}
                         value={filtros.precioMax}
@@ -82,26 +84,29 @@ export default function ProductFiltersPanel({
 
             {hasFacets ? (
                 facetSections.map(({ key, options }) => (
-                    <fieldset key={key} className="product-filters-panel__group">
-                        <legend className="product-filters-panel__legend">{key}</legend>
-                        <ul className="product-filters-panel__options">
+                    <fieldset key={key} className={styles.panelGroup}>
+                        <legend className={styles.panelLegend}>{key}</legend>
+                        <ul className={styles.panelOptions}>
                             {options.map(({ matchValue, displayLabel }) => {
                                 const inputId = `${idPrefix}-${key}-${encodeURIComponent(matchValue)}`;
                                 const checked = (filtros.specs[key] || []).includes(matchValue);
                                 return (
-                                    <li key={matchValue} className="product-filters-panel__chip-item">
+                                    <li key={matchValue} className={styles.panelChipItem}>
                                         <label
-                                            className={`product-filters-panel__chip${checked ? ' product-filters-panel__chip--selected' : ''}`}
+                                            className={clsx(
+                                                styles.panelChip,
+                                                checked && styles.panelChipSelected
+                                            )}
                                             htmlFor={inputId}
                                         >
                                             <input
                                                 id={inputId}
                                                 type="checkbox"
-                                                className="product-filters-panel__chip-input"
+                                                className={styles.panelChipInput}
                                                 checked={checked}
                                                 onChange={() => onSpecToggle(key, matchValue)}
                                             />
-                                            <span className="product-filters-panel__chip-text">{displayLabel}</span>
+                                            <span className={styles.panelChipText}>{displayLabel}</span>
                                         </label>
                                     </li>
                                 );
@@ -110,7 +115,7 @@ export default function ProductFiltersPanel({
                     </fieldset>
                 ))
             ) : (
-                <p className="product-filters-panel__empty-hint">
+                <p className={styles.panelEmptyHint}>
                     No hay especificaciones para filtrar en esta selección.
                 </p>
             )}

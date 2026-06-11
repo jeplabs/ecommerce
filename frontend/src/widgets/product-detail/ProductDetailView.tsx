@@ -8,7 +8,7 @@ import ProductGallery from '@/widgets/product-detail/ProductGallery/ProductGalle
 import ProductInfo from '@/widgets/product-detail/ProductInfo/ProductInfo';
 import ProductTabs from '@/widgets/product-detail/ProductTabs/ProductTabs';
 import { findCategoryPathInTree } from '@/widgets/catalog/lib/category-tree';
-import './ProductDetailView.css';
+import styles from './ProductDetailView.module.css';
 
 type ProductDetailViewProps = {
     slug: string;
@@ -34,12 +34,12 @@ export default function ProductDetailView({ slug, onBackHome }: ProductDetailVie
     }, [slug, productos]);
 
     if (loading) {
-        return <div className="loading-container">Cargando producto...</div>;
+        return <div className={styles.loadingContainer}>Cargando producto...</div>;
     }
 
     if (!producto) {
         return (
-            <div className="error-container">
+            <div className={styles.errorContainer}>
                 <h2>Producto no encontrado</h2>
                 <Button type="button" variant="primary" onClick={onBackHome}>
                     Volver al inicio
@@ -92,9 +92,9 @@ export default function ProductDetailView({ slug, onBackHome }: ProductDetailVie
     }).format(producto.precioVenta);
 
     return (
-        <div className="pd-container">
+        <div className={styles.container}>
             <Breadcrumbs items={breadcrumbs} />
-            <div className="pd-main-grid">
+            <div className={styles.mainGrid}>
                 <ProductGallery producto={producto} />
                 <ProductInfo
                     producto={producto}

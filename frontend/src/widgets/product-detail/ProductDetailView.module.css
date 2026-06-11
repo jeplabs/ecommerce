@@ -1,5 +1,15 @@
-/* ProductDetail.css */
-:root {
+.page {
+    color: var(--pd-text-main);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 2rem 1rem;
+    min-height: 80vh;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+.container {
     --pd-bg: #0f172a;
     --pd-card-bg: #1e293b;
     --pd-text-main: #f8fafc;
@@ -9,47 +19,32 @@
     --pd-border: #334155;
     --pd-success: #10b981;
     --pd-danger: #ef4444;
-}
 
-.product-detail-page {
-    /* background-color: var(--pd-bg); */
-    color: var(--pd-text-main);
-    font-family: 'Inter', system-ui, sans-serif;
-    padding: 2rem 1rem;
-    min-height: 80vh;
-    overflow-x: hidden; 
-    width: 100%;
-    max-width: 100vw; /* Nunca más ancho que la ventana */
-    box-sizing: border-box;
-}
-
-.pd-container {
     max-width: 1200px;
     width: 100%;
     box-sizing: border-box;
     margin: 0 auto;
 }
 
-/* GRID PRINCIPAL */
-.pd-main-grid {
+.mainGrid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 3rem;
     margin-top: 2rem;
-    margin-bottom: 4rem;   
-    min-width: 0; 
+    margin-bottom: 4rem;
+    min-width: 0;
     width: 100%;
 }
 
 @media (min-width: 768px) {
-    .pd-main-grid {
+    .mainGrid {
         grid-template-columns: 1fr 1fr;
         align-items: start;
     }
 }
 
-/* Utilitarios */
-.loading-container, .error-container {
+.loadingContainer,
+.errorContainer {
     text-align: center;
     padding: 4rem 1rem;
     color: var(--pd-text-muted);

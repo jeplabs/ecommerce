@@ -29,9 +29,5 @@
 
 .separator {
     color: var(--pd-text-muted);
-}
-
-.item {
-    display: inline-flex;
-    align-items: center;
+    user-select: none;
 }
