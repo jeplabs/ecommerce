@@ -1,5 +1,4 @@
-/* PRODUCT CARD */
-.product-card {
+.card {
     border-radius: 12px;
     overflow: hidden;
     background: var(--surface2);
@@ -8,7 +7,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-height: 400px; 
+    max-height: 400px;
     font-family: 'DM Sans', sans-serif;
     width: 100%;
     box-sizing: border-box;
@@ -16,23 +15,20 @@
     contain: layout;
 }
 
-.product-card:hover {
+.card:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     border-color: var(--indigo);
 }
 
-.card-preview {
-    height: 180px; 
+.preview {
+    height: 180px;
     margin: 0;
     position: relative;
     overflow: hidden;
-    margin: 0;
-    position: relative;
-    /* background: #1a1a1a; */
 }
 
-.product-image {
+.image {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -42,18 +38,18 @@
     max-width: 100%;
 }
 
-.product-card:hover .product-image {
+.card:hover .image {
     transform: scale(1.05);
 }
 
-.product-price-tag {
+.priceTag {
     position: absolute;
     top: 10px;
     right: 10px;
     background: rgba(0, 0, 0, 0.8);
-    color: var(--indigo); 
+    color: var(--indigo);
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem; 
+    font-size: 1.1rem;
     padding: 4px 10px;
     border-radius: 6px;
     letter-spacing: 0.05em;
@@ -61,7 +57,7 @@
     border: 1px solid var(--indigo);
 }
 
-.card-body {
+.body {
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -71,7 +67,7 @@
     width: 100%;
 }
 
-.card-name {
+.name {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.3rem;
     line-height: 1.1;
@@ -88,26 +84,26 @@
     min-height: 2.8rem;
 }
 
-.card-desc {
+.desc {
     font-size: 0.85rem;
     line-height: 1.4;
-    color: var(--text-secondary);
+    color: var(--text-secondary, var(--muted));
     margin: 0 0 1rem 0;
     flex-grow: 1;
     display: -webkit-box;
-    -webkit-line-clamp: 2; 
+    -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-.card-actions {
+.actions {
     display: grid;
     gap: 0.75rem;
     margin-top: auto;
 }
 
-.product-btn {
+.actionBtn {
     width: 100%;
     padding: 0.75rem;
     background: transparent;
@@ -123,19 +119,19 @@
     transition: all 0.2s ease;
 }
 
-.product-btn.primary {
+.actionBtnPrimary {
     background: var(--indigo);
     color: #fff;
     border-color: var(--indigo);
 }
 
-.product-btn.secondary {
-    background: rgba(255,255,255,0.04);
+.actionBtnSecondary {
+    background: rgba(255, 255, 255, 0.04);
 }
 
-.product-btn:hover:not(:disabled) {
+.actionBtn:hover:not(:disabled) {
     background: var(--indigo);
-    color: #0D0D0D;
+    color: #0d0d0d;
     border-color: var(--indigo);
     box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
 }

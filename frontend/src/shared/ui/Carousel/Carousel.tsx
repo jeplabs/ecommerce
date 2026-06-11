@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import './Carousel.css';
+import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import type { HomeHeroSlide } from '@/widgets/home/home-slides';
+import styles from './Carousel.module.css';
 
 type CarouselProps = {
     slides: HomeHeroSlide[];
@@ -27,14 +28,14 @@ const Carousel = ({ slides }: CarouselProps) => {
     if (!slides || slides.length === 0) return null;
 
     return (
-        <div className="carousel-container">
+        <div className={styles.container}>
             <div
-                className="carousel-track"
+                className={styles.track}
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
                 {slides.map((slide, index) => (
-                    <div key={index} className="carousel-slide">
-                        <Link to={slide.link} className="slide-link" aria-label={slide.alt}>
+                    <div key={index} className={styles.slide}>
+                        <Link to={slide.link} className={styles.slideLink} aria-label={slide.alt}>
                             <img
                                 src={slide.src}
                                 srcSet={slide.srcSet}
@@ -42,7 +43,7 @@ const Carousel = ({ slides }: CarouselProps) => {
                                 alt={slide.alt}
                                 loading={index === 0 ? 'eager' : 'lazy'}
                             />
-                            <div className="slide-overlay"></div>
+                            <div className={styles.slideOverlay} />
                         </Link>
                     </div>
                 ))}
@@ -51,24 +52,30 @@ const Carousel = ({ slides }: CarouselProps) => {
             {slides.length > 1 && (
                 <>
                     <button
-                        className="carousel-btn prev"
+                        type="button"
+                        className={clsx(styles.navBtn, styles.navBtnPrev)}
                         onClick={prevSlide}
                         aria-label="Anterior"
                     >
                         &#10094;
                     </button>
                     <button
-                        className="carousel-btn next"
+                        type="button"
+                        className={clsx(styles.navBtn, styles.navBtnNext)}
                         onClick={nextSlide}
                         aria-label="Siguiente"
                     >
                         &#10095;
                     </button>
-                    <div className="carousel-indicators">
+                    <div className={styles.indicators}>
                         {slides.map((_, index) => (
                             <button
                                 key={index}
-                                className={`indicator ${index === currentIndex ? 'active' : ''}`}
+                                type="button"
+                                className={clsx(
+                                    styles.indicator,
+                                    index === currentIndex && styles.indicatorActive
+                                )}
                                 onClick={() => goToSlide(index)}
                                 aria-label={`Ir a la diapositiva ${index + 1}`}
                             />

@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
+import clsx from 'clsx';
 import { ProductCard } from '@/shared/ui/Card/ProductCard';
 import { getMainProductImageUrl } from '@/entities/product';
 import type { ProductApi } from '@/entities/product';
 import { useNavigate } from 'react-router-dom';
-import './ProductSlider.css';
+import styles from './ProductSlider.module.css';
 
 type ProductSliderProps = {
     title: string;
@@ -43,14 +44,19 @@ export const ProductSlider = ({ title, products, onAddToCart }: ProductSliderPro
     if (!products || products.length === 0) return null;
 
     return (
-        <section className="product-slider-section">
-            <div className="slider-title-container">
+        <section className={styles.section}>
+            <div className={styles.titleContainer}>
                 <h2>{title}</h2>
             </div>
 
-            <div className="slider-wrapper">
+            <div className={styles.wrapper}>
                 <button
-                    className={`slider-btn slider-btn-left ${!showLeftBtn ? 'hidden' : ''}`}
+                    type="button"
+                    className={clsx(
+                        styles.navBtn,
+                        styles.navBtnLeft,
+                        !showLeftBtn && styles.navBtnHidden
+                    )}
                     onClick={() => scroll('left')}
                     aria-label="Ver anteriores"
                 >
@@ -68,11 +74,10 @@ export const ProductSlider = ({ title, products, onAddToCart }: ProductSliderPro
                     </svg>
                 </button>
 
-                <div className="slider-track" ref={sliderRef} onScroll={checkScroll}>
+                <div className={styles.track} ref={sliderRef} onScroll={checkScroll}>
                     {products.map((producto) => (
-                        <div key={producto.id} className="slider-card-item">
+                        <div key={producto.id} className={styles.cardItem}>
                             <ProductCard
-                                className="product-card"
                                 imageSrc={getMainProductImageUrl(producto)}
                                 altText={producto.nombre}
                                 title={producto.nombre}
@@ -94,7 +99,12 @@ export const ProductSlider = ({ title, products, onAddToCart }: ProductSliderPro
                 </div>
 
                 <button
-                    className={`slider-btn slider-btn-right ${!showRightBtn ? 'hidden' : ''}`}
+                    type="button"
+                    className={clsx(
+                        styles.navBtn,
+                        styles.navBtnRight,
+                        !showRightBtn && styles.navBtnHidden
+                    )}
                     onClick={() => scroll('right')}
                     aria-label="Ver siguientes"
                 >

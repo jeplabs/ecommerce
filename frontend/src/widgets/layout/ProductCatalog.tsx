@@ -180,7 +180,6 @@ export const ProductCatalog = ({
                             {listaOrdenada.map((producto) => (
                                 <li key={producto.id} className={styles.productGridItem}>
                                     <ProductCard
-                                        className="product-card"
                                         imageSrc={getMainProductImageUrl(producto)}
                                         altText={producto.nombre}
                                         title={producto.nombre}

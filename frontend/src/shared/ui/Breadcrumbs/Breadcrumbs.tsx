@@ -1,5 +1,6 @@
+import clsx from 'clsx';
 import { Link } from 'react-router-dom';
-import './Breadcrumbs.css';
+import styles from './Breadcrumbs.module.css';
 
 export type CategoryBreadcrumbItem = {
     label: string;
@@ -15,23 +16,20 @@ export default function Breadcrumbs({ items, className }: BreadcrumbsProps) {
     if (!items || items.length === 0) return null;
 
     return (
-        <nav
-            className={className ? `${className} pd-breadcrumbs` : 'pd-breadcrumbs'}
-            aria-label="Ruta de navegación"
-        >
+        <nav className={clsx(styles.breadcrumbs, className)} aria-label="Ruta de navegación">
             {items.map((crumb, index) => {
                 const isLast = index === items.length - 1;
                 return (
-                    <div key={index} className="bc-item">
+                    <div key={index} className={styles.item}>
                         {!isLast ? (
                             <>
-                                <Link to={crumb.path ?? ''} className="bc-link">
+                                <Link to={crumb.path ?? ''} className={styles.link}>
                                     {crumb.label}
                                 </Link>
-                                <span className="bc-separator"> /</span>
+                                <span className={styles.separator}> /</span>
                             </>
                         ) : (
-                            <span className="bc-current" aria-current="page">
+                            <span className={styles.current} aria-current="page">
                                 {crumb.label}
                             </span>
                         )}

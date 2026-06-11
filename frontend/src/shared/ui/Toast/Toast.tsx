@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
+import clsx from 'clsx';
 import type { ToastItem, ToastType } from '@/app/providers/ToastProvider';
-import './Toast.css';
+import styles from './Toast.module.css';
 
 type ToastProps = {
     message: string;
     type?: ToastType;
     duration?: number;
     onClose: () => void;
+};
+
+const TYPE_CLASS: Record<ToastType, string> = {
+    success: styles.success,
+    error: styles.error,
+    warning: styles.warning,
+    info: styles.info,
 };
 
 export const Toast = ({ message, type = 'success', duration = 4000, onClose }: ToastProps) => {
@@ -21,23 +29,21 @@ export const Toast = ({ message, type = 'success', duration = 4000, onClose }: T
         return () => clearTimeout(timer);
     }, [duration, onClose]);
 
-    const getToastClass = () => {
-        switch (type) {
-            case 'success':
-                return 'toast-success';
-            case 'error':
-                return 'toast-error';
-            case 'warning':
-                return 'toast-warning';
-            default:
-                return 'toast-info';
-        }
-    };
-
     return (
-        <div className={`toast ${getToastClass()} ${isVisible ? 'toast-visible' : 'toast-hidden'}`}>
+        <div
+            className={clsx(
+                styles.toast,
+                TYPE_CLASS[type] ?? styles.info,
+                isVisible ? styles.visible : styles.hidden
+            )}
+        >
             <span>{message}</span>
-            <button className="toast-close" onClick={() => setIsVisible(false)}>
+            <button
+                type="button"
+                className={styles.close}
+                onClick={() => setIsVisible(false)}
+                aria-label="Cerrar notificación"
+            >
                 ×
             </button>
         </div>
@@ -51,7 +57,7 @@ type ToastContainerProps = {
 
 export const ToastContainer = ({ toasts, removeToast }: ToastContainerProps) => {
     return (
-        <div className="toast-container">
+        <div className={styles.container}>
             {toasts.map((toast) => (
                 <Toast
                     key={toast.id}

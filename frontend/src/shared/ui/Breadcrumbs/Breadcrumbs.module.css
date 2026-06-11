@@ -1,31 +1,37 @@
-/* BREADCRUMBS */
-.pd-breadcrumbs {
+.breadcrumbs {
+    --pd-text-muted: #94a3b8;
+    --pd-text-main: #f8fafc;
+    --pd-accent: #3b82f6;
+
     display: flex;
     align-items: center;
     line-height: normal;
     gap: 0.5rem;
-    /* margin-bottom: 2rem; */
     font-size: 0.9rem;
     color: var(--pd-text-muted);
     flex-wrap: wrap;
 }
 
-.bc-link {
+.link {
     color: var(--pd-text-muted);
     text-decoration: none;
     transition: color 0.2s;
 }
 
-.bc-link:hover {
+.link:hover {
     color: var(--pd-accent);
 }
 
-.bc-current {
+.current {
     color: var(--pd-text-main);
     font-weight: 500;
 }
 
-.bc-icon {
-    font-size: 18px;
+.separator {
     color: var(--pd-text-muted);
+}
+
+.item {
+    display: inline-flex;
+    align-items: center;
 }

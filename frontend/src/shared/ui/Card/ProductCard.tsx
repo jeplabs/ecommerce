@@ -1,4 +1,5 @@
-import './ProductCard.css';
+import clsx from 'clsx';
+import styles from './ProductCard.module.css';
 
 const MAX_TITLE_LENGTH = 50;
 
@@ -16,7 +17,7 @@ type ProductCardProps = {
 };
 
 export const ProductCard = ({
-    className = '',
+    className,
     imageSrc,
     altText,
     title,
@@ -31,26 +32,27 @@ export const ProductCard = ({
         title?.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
 
     return (
-        <article className={`product-card ${className}`.trim()}>
-            <figure className="card-preview">
+        <article className={clsx(styles.card, className)}>
+            <figure className={styles.preview}>
                 <img
                     src={imageSrc}
                     alt={altText || title}
-                    className="product-image"
+                    className={styles.image}
                     loading="lazy"
                     onClick={onAction}
                     aria-label={`Ver detalles de ${title}`}
                 />
-                {price && <span className="product-price-tag">${price}</span>}
+                {price && <span className={styles.priceTag}>${price}</span>}
             </figure>
 
-            <div className="card-body">
-                <h3 className="card-name">{displayedTitle}</h3>
-                <p className="card-desc">{description}</p>
+            <div className={styles.body}>
+                <h3 className={styles.name}>{displayedTitle}</h3>
+                <p className={styles.desc}>{description}</p>
 
-                <div className="card-actions">
+                <div className={styles.actions}>
                     <button
-                        className="product-btn secondary"
+                        type="button"
+                        className={clsx(styles.actionBtn, styles.actionBtnSecondary)}
                         onClick={onAction}
                         aria-label={`Ver detalles de ${title}`}
                     >
@@ -58,7 +60,8 @@ export const ProductCard = ({
                     </button>
                     {onAddToCart && (
                         <button
-                            className="product-btn primary"
+                            type="button"
+                            className={clsx(styles.actionBtn, styles.actionBtnPrimary)}
                             onClick={onAddToCart}
                             aria-label={`Agregar ${title} al carrito`}
                         >
