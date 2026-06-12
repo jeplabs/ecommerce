@@ -167,11 +167,11 @@ export const ProductForm = ({
                 const rama = [raiz.id];
 
                 // Buscar hijo
-                let hijo = todosLosNodos.find(n => n.parentId === raiz.id && idsDisponibles.includes(n.id));
+                const hijo = todosLosNodos.find(n => n.parentId === raiz.id && idsDisponibles.includes(n.id));
                 if (hijo) {
                     rama.push(hijo.id);
                     // Buscar nieto
-                    let nieto = todosLosNodos.find(n => n.parentId === hijo.id && idsDisponibles.includes(n.id));
+                    const nieto = todosLosNodos.find(n => n.parentId === hijo.id && idsDisponibles.includes(n.id));
                     if (nieto) rama.push(nieto.id);
                 }
                 return rama;

@@ -36,7 +36,7 @@ SPA de comercio electrónico construida con **React 19**, **TypeScript**, **Vite
 | Formularios | [React Hook Form 7](https://react-hook-form.com/) + `@hookform/resolvers` |
 | Estilos | CSS Modules + design tokens globales |
 | Utilidades UI | [clsx](https://github.com/lukeed/clsx) |
-| Lint | ESLint 9 (flat config) |
+| Lint | ESLint 9 + typescript-eslint + React Hooks (flat config en `eslint.config.ts`) |
 | Gestor de paquetes | [pnpm](https://pnpm.io/) |
 
 ---
@@ -44,7 +44,7 @@ SPA de comercio electrónico construida con **React 19**, **TypeScript**, **Vite
 ## Requisitos
 
 - **Node.js** 18 LTS o superior (recomendado 20+)
-- **pnpm** 9+ (instalación detallada en [Documentación pnpm.md](./Documentación%20pnpm.md))
+- **pnpm** 9+ (instalación detallada en [docs/pnpm.md](./docs/pnpm.md))
 - Backend Spring Boot en ejecución (por defecto `http://localhost:8080`)
 
 ---
@@ -63,7 +63,7 @@ pnpm run dev
 ```
 
 > **Instalación de pnpm, migración desde npm, approve-builds y troubleshooting:**  
-> consulta **[Documentación pnpm.md](./Documentación%20pnpm.md)** en este mismo directorio.
+> consulta **[docs/pnpm.md](./docs/pnpm.md)**.
 
 ---
 
@@ -74,7 +74,7 @@ pnpm run dev
 | `pnpm run dev` | Servidor de desarrollo con HMR (puerto 5173) |
 | `pnpm run build` | Build de producción en `dist/` |
 | `pnpm run preview` | Sirve el build local para pruebas |
-| `pnpm run lint` | ESLint sobre el proyecto |
+| `pnpm run lint` | ESLint sobre `**/*.{ts,tsx}` (typescript-eslint + React Hooks) |
 
 ---
 
@@ -132,7 +132,7 @@ El código sigue **[Feature-Sliced Design](https://feature-sliced.design/)**: ca
 - Los **widgets** no usan `useParams` ni `useLocation`; reciben datos por props.
 - El **shell** (Navbar, Footer, nav de categorías) vive en **layouts** dentro de `widgets/layout/`, no se repite en cada page.
 
-Documentación de migración y mapeo legacy → FSD: **[src/FSD.md](./src/FSD.md)**.
+Documentación de migración y mapeo legacy → FSD: **[docs/architecture-fsd.md](./docs/architecture-fsd.md)**.
 
 ---
 
@@ -191,16 +191,18 @@ frontend/
 │   │
 │   ├── assets/             # Imágenes importadas por componentes
 │   ├── App.tsx             # AppProviders + AppRouter
-│   ├── main.tsx            # Punto de entrada React
-│   └── FSD.md              # Referencia detallada de arquitectura
+│   └── main.tsx            # Punto de entrada React
+│
+├── docs/                   # Documentación detallada (ver docs/README.md)
+│   ├── architecture-fsd.md
+│   └── pnpm.md
 │
 ├── index.html
-├── vite.config.js
+├── vite.config.ts
+├── eslint.config.ts
 ├── tsconfig.json
-├── eslint.config.js
 ├── package.json
 ├── pnpm-lock.yaml
-├── Documentación pnpm.md   # Guía de pnpm del proyecto
 └── README.md               # Este archivo
 ```
 
@@ -503,8 +505,10 @@ En producción, definir `VITE_API_URL` apuntando al backend desplegado.
 
 | Documento | Contenido |
 |-----------|-----------|
-| [Documentación pnpm.md](./Documentación%20pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
-| [src/FSD.md](./src/FSD.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
+| [docs/pnpm.md](./docs/pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
+| [docs/eslint-warnings.md](./docs/eslint-warnings.md) | Warnings ESLint: inventario, rendimiento y seguimiento de mejoras |
+| [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
+| [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
 ---
 
