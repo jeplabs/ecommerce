@@ -3,8 +3,7 @@ import { cartApi } from '../api';
 import { mapCartApiToUiItems } from './mappers';
 import type { CartActionResult, CartItemUiView } from './types';
 import type { ProductApi } from '@/entities/product';
-import { useAuth } from '@/app/providers/AuthProvider';
-import { useProduct } from '@/app/providers/ProductProvider';
+import { useAuth, useProduct } from '@/app/providers';
 function toErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Error desconocido';
 }

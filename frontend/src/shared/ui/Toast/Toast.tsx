@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
-import type { ToastItem, ToastType } from '@/app/providers/ToastProvider';
+import type { ToastItem, ToastType } from '@/app/providers';
 import styles from './Toast.module.css';
 
 type ToastProps = {

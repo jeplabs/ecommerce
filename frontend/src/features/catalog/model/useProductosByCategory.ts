@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { productApi } from '@/entities/product/api';
 import type { ProductApi } from '@/entities/product';
-import { useCategorias } from '@/app/providers/CategoriasProvider';
+import { useCategorias } from '@/app/providers';
 import { findCategoryByPath } from '../lib/category-path';
 
 function toErrorMessage(error: unknown): string {

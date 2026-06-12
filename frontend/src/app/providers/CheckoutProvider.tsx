@@ -1,22 +1,8 @@
-import { createContext, useContext, type ReactNode } from 'react';
-import { useCart } from '@/app/providers/CartProvider';
+import { type ReactNode } from 'react';
+import { useCart } from '@/app/providers/useCart';
 import { EnvioOpcionesProvider } from '@/app/providers/EnvioOpcionesProvider';
 import { useCheckoutLogic } from '@/features/checkout/model/useCheckoutLogic';
-
-export type CheckoutContextValue = ReturnType<typeof useCheckoutLogic> & {
-    cartLoading: boolean;
-    isEmpty: boolean;
-};
-
-const CheckoutContext = createContext<CheckoutContextValue | null>(null);
-
-export const useCheckout = (): CheckoutContextValue => {
-    const context = useContext(CheckoutContext);
-    if (!context) {
-        throw new Error('useCheckout debe usarse dentro de CheckoutProvider');
-    }
-    return context;
-};
+import { CheckoutContext } from './checkout-context';
 
 type CheckoutProviderInnerProps = {
     children: ReactNode;

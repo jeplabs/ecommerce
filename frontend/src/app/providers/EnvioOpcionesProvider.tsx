@@ -1,17 +1,7 @@
-import { createContext, useContext, type ReactNode } from 'react';
-import { useCart } from '@/app/providers/CartProvider';
+import { type ReactNode } from 'react';
+import { useCart } from '@/app/providers/useCart';
 import { useEnvioOpciones } from '@/entities/shipping/model/useEnvioOpciones';
-import type { UseEnvioOpcionesResult } from '@/entities/shipping';
-
-const EnvioOpcionesContext = createContext<UseEnvioOpcionesResult | null>(null);
-
-export const useEnvioOpcionesContext = (): UseEnvioOpcionesResult => {
-    const context = useContext(EnvioOpcionesContext);
-    if (!context) {
-        throw new Error('useEnvioOpcionesContext debe usarse dentro de EnvioOpcionesProvider');
-    }
-    return context;
-};
+import { EnvioOpcionesContext } from './envio-opciones-context';
 
 type EnvioOpcionesProviderProps = {
     children: ReactNode;

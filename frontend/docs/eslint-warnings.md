@@ -2,7 +2,7 @@
 
 Documento vivo para revisar los warnings de `pnpm run lint`, priorizar mejoras de rendimiento y registrar avances del equipo.
 
-**Última auditoría:** 2026-06-12 · **Errores:** 0 · **Warnings:** 32
+**Última auditoría:** 2026-06-12 · **Errores:** 0 · **Warnings:** 21
 
 ---
 
@@ -24,12 +24,12 @@ Tras configurar **typescript-eslint** y **eslint-plugin-react-hooks v7** (React 
 
 | Regla | Cant. | Prioridad revisión | Riesgo funcional | Riesgo rendimiento |
 |-------|------:|--------------------|------------------|-------------------|
-| [`react-hooks/set-state-in-effect`](#1-react-hooksset-state-in-effect-21) | 21 | Media (gradual) | Bajo | Medio (re-renders / fetch en cadena) |
-| [`react-refresh/only-export-components`](#2-react-refreshonly-export-components-8) | 8 | Baja | Ninguno | Bajo (solo HMR en dev) |
+| [`react-hooks/set-state-in-effect`](#1-react-hooksset-state-in-effect-21) | 21 | Media (Fase 2) | Bajo | Medio (re-renders / fetch en cadena) |
+| [`react-refresh/only-export-components`](#2-react-refreshonly-export-components-0) | **0** | ~~Baja~~ **Cerrada** | — | — |
 | [`react-hooks/exhaustive-deps`](#3-react-hooksexhaustive-deps-0) | **0** | ~~Alta~~ **Cerrada** | — | — |
-| [`react-hooks/preserve-manual-memoization`](#4-react-hookspreserve-manual-memoization-3) | 3 | Baja | Bajo | Bajo (hasta usar React Compiler) |
+| [`react-hooks/preserve-manual-memoization`](#4-react-hookspreserve-manual-memoization-0) | **0** | ~~Baja~~ **Cerrada** | — | — |
 
-**Conclusión:** la arquitectura FSD y la organización por capas **no están en cuestión**. Los **`exhaustive-deps` de Fase 1 están resueltos** (2026-06-12). Quedan patrones React clásicos (`set-state-in-effect`) y avisos de HMR/compiler pendientes de revisión gradual.
+**Conclusión:** Fases **1, 3 y 4** cerradas. Quedan **21** avisos `set-state-in-effect` — objetivo de **Fase 2** (TanStack Query o refactors graduales de fetching).
 
 ---
 
@@ -127,24 +127,19 @@ pnpm exec eslint . 2>&1 | tail -3   # resumen final
 
 ---
 
-### 2. `react-refresh/only-export-components` (8)
+### 2. `react-refresh/only-export-components` (0 — Fase 3 completada)
 
-**Qué detecta:** el archivo exporta componentes y **no-componentes** (p. ej. `useAuth` junto a `AuthProvider`).
+**Estado:** ✅ **Resuelto** (2026-06-12). Hooks separados de componentes Provider.
 
-**Impacto:** HMR en dev; **cero en producción**.
+Patrón aplicado en `app/providers/`:
 
-**Alternativa:** separar hook en `useAuth.ts` / provider en `AuthProvider.tsx`.
+| Archivo | Rol |
+|---------|-----|
+| `*-context.ts` | `createContext` + tipos |
+| `use*.ts` | hook (`useAuth`, `useCart`, …) |
+| `*Provider.tsx` | solo componente Provider |
 
-| Estado | Archivo | Línea |
-|:------:|---------|------:|
-| ⬜ | `app/providers/AuthProvider.tsx` | 8 |
-| ⬜ | `app/providers/CartProvider.tsx` | 8 |
-| ⬜ | `app/providers/CategoriasProvider.tsx` | 30 |
-| ⬜ | `app/providers/CheckoutProvider.tsx` | 13 |
-| ⬜ | `app/providers/EnvioOpcionesProvider.tsx` | 8 |
-| ⬜ | `app/providers/ProductProvider.tsx` | 8 |
-| ⬜ | `app/providers/ProfileProvider.tsx` | 25 |
-| ⬜ | `app/providers/ToastProvider.tsx` | 28 |
+Imports públicos siguen en `@/app/providers` (barrel `index.ts`).
 
 ---
 
@@ -164,17 +159,14 @@ pnpm exec eslint . 2>&1 | tail -3   # resumen final
 
 ---
 
-### 4. `react-hooks/preserve-manual-memoization` (3)
+### 4. `react-hooks/preserve-manual-memoization` (0 — Fase 4 completada)
 
-**Qué detecta:** deps manuales de `useCallback` no coinciden con lo que inferiría el **React Compiler** (p. ej. `[user?.token]` vs uso de `user` completo).
+**Estado:** ✅ **Resuelto** (2026-06-12).
 
-**Impacto hoy:** ninguno si no usáis React Compiler. **Impacto futuro:** optimizaciones del compiler podrían divergir de la memoización manual.
-
-| Estado | Archivo | Línea | Callback |
-|:------:|---------|------:|----------|
-| ⬜ | `features/admin/model/useAdminOrdersLogic.ts` | 100 | `updateEstadoOrden` |
-| ⬜ | `features/auth/model/useAuthLogic.ts` | 217 | `desactivarUsuario` |
-| ⬜ | `features/auth/model/useAuthLogic.ts` | 235 | `activarUsuario` |
+| Estado | Archivo | Fix |
+|:------:|---------|-----|
+| ✅ | `features/auth/model/useAuthLogic.ts` | deps `desactivarUsuario` / `activarUsuario`: `[user]` |
+| ✅ | `features/admin/model/useAdminOrdersLogic.ts` | deps `updateEstadoOrden`: incluye `ordenDetalle` |
 
 ---
 
@@ -186,21 +178,32 @@ pnpm exec eslint . 2>&1 | tail -3   # resumen final
 2. Tras cada fix: `pnpm run lint` + prueba manual del flujo afectado.
 3. Actualizar tabla de estado y [Registro de avances](#registro-de-avances).
 
-### Fase 2 — Optimización de datos (opcional, mayor esfuerzo)
+### Fase 2 — Optimización de datos (en curso — 21 warnings restantes)
 
-1. Evaluar **TanStack Query** para entities con muchos fetch (`cart`, `product`, `order`, `checkout`).
-2. Reduciría warnings `set-state-in-effect` y centralizaría cache/deduplicación.
-3. Documentar decisión del equipo aquí antes de implementar.
+**Objetivo:** reducir `set-state-in-effect` migrando fetch a **TanStack Query** (o refactors equivalentes).
 
-### Fase 3 — Providers y HMR (opcional)
+**Decisión pendiente con el equipo:**
 
-1. Separar hooks de providers solo si el HMR molesta en dev.
-2. Valorar `useMemo` en `value` de contexts muy volátiles (mejora rendimiento, no ESLint).
+| Opción | Pros | Contras |
+|--------|------|---------|
+| TanStack Query | Cache, dedup, menos effects | Nueva dependencia, migración por entity |
+| Mantener `useEffect` + warn | Sin refactor grande | 21 warnings permanecen |
+| Desactivar regla en `*/model/*` | Lint limpio rápido | Oculta deuda sin mejorar runtime |
 
-### Fase 4 — React Compiler (futuro)
+**Candidatos a migrar primero:** `useProducts`, `useCartLogic`, `useProfileLogic`, `useCheckoutLogic`.
 
-1. Revisar los 3 `preserve-manual-memoization` al activar el compiler.
-2. Ajustar deps o eliminar `useCallback` redundantes según recomiende la migración.
+1. ~~Evaluar TanStack Query~~ → documentar decisión arriba.
+2. Piloto sugerido: `entities/product` (`useProducts`).
+3. Tras cada migración: actualizar inventario §1 y registro de avances.
+
+### Fase 3 — Providers y HMR ✅
+
+1. ~~Separar hooks de providers~~ Hecho 2026-06-12 (8 archivos `use*.ts` + `*-context.ts`).
+2. `useMemo` en `value` de contexts volátiles — opcional futuro (Toast ya lo usa).
+
+### Fase 4 — React Compiler ✅
+
+1. ~~Revisar `preserve-manual-memoization`~~ Hecho 2026-06-12 (3 fixes en auth + admin).
 
 ### Política CI (decisión pendiente)
 
@@ -208,7 +211,7 @@ pnpm exec eslint . 2>&1 | tail -3   # resumen final
 |--------|----------------|
 | Actual | `lint` pasa con warnings |
 | Estricto | `eslint . --max-warnings 0` falla hasta limpiar |
-| Intermedio | `--max-warnings 32` y bajar número en cada PR |
+| Intermedio | `--max-warnings 21` y bajar número en cada PR |
 
 ---
 
@@ -218,8 +221,9 @@ Añadir entradas **más recientes arriba**. Incluir PR/commit, regla, archivos y
 
 | Fecha | Autor | Cambio | Warnings restantes |
 |-------|-------|--------|-------------------|
-| 2026-06-12 | — | **Fase 1:** 5× `exhaustive-deps` resueltos (checkout success, carousel, cart drawer + navbar, product catalog + `sort-catalog-products.ts`) | **32** |
-| 2026-05-28 | — | Documento inicial; inventario tras migración ESLint + TS | **37** |
+| 2026-06-12 | — | **Fase 3 + 4:** providers split + `preserve-manual-memoization` (auth, admin) | **21** |
+| 2026-06-12 | — | **Fase 1:** 5× `exhaustive-deps` resueltos | **32** |
+| 2026-05-28 | — | Documento inicial | **37** |
 
 ### Notas de revisión por ítem
 
@@ -231,6 +235,15 @@ Usar esta sección para decisiones (“fix aplicado”, “intencional — eslin
 - **`Carousel.tsx`** — deps `[slides]`. Correcto.
 - **`CartDrawer.tsx`** + **`Navbar.tsx`** — `onClose` estable + Escape con `[isOpen, onClose]`.
 - **`ProductCatalog.tsx`** — `sortCatalogProducts()` en `features/catalog/lib/sort-catalog-products.ts`.
+
+#### `preserve-manual-memoization` ✅ (2026-06-12)
+
+- **`useAuthLogic.ts`** — `[user]` en callbacks admin de usuarios.
+- **`useAdminOrdersLogic.ts`** — `ordenDetalle` completo en deps de `updateEstadoOrden`.
+
+#### `only-export-components` ✅ (2026-06-12)
+
+- Providers refactorizados: ver §2.
 
 #### Otros
 

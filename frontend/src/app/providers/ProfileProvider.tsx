@@ -1,34 +1,8 @@
-import {
-    createContext,
-    useContext,
-    useState,
-    type Dispatch,
-    type ReactNode,
-    type SetStateAction,
-} from 'react';
+import { useState, type ReactNode } from 'react';
 import { useProfileLogic } from '@/entities/user/model/useProfileLogic';
 import { useDireccionesLogic } from '@/entities/address/model/useDireccionesLogic';
 import { useOrdenesLogic } from '@/entities/order/model/useOrdenesLogic';
-
-export type ProfileTabId = 'datos' | 'direcciones' | 'ordenes';
-
-export type ProfileContextValue = {
-    activeTab: ProfileTabId | string;
-    setActiveTab: Dispatch<SetStateAction<ProfileTabId | string>>;
-    profile: ReturnType<typeof useProfileLogic>;
-    direcciones: ReturnType<typeof useDireccionesLogic>;
-    ordenes: ReturnType<typeof useOrdenesLogic>;
-};
-
-const ProfileContext = createContext<ProfileContextValue | null>(null);
-
-export const useProfile = (): ProfileContextValue => {
-    const context = useContext(ProfileContext);
-    if (!context) {
-        throw new Error('useProfile debe usarse dentro de ProfileProvider');
-    }
-    return context;
-};
+import { ProfileContext, type ProfileContextValue, type ProfileTabId } from './profile-context';
 
 type ProfileProviderProps = {
     children: ReactNode;

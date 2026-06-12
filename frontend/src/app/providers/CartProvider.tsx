@@ -1,17 +1,6 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useCartLogic } from '@/entities/cart';
-
-export type CartContextValue = ReturnType<typeof useCartLogic>;
-
-const CartContext = createContext<CartContextValue | null>(null);
-
-export const useCart = (): CartContextValue => {
-    const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCart debe usarse dentro de CartProvider');
-    }
-    return context;
-};
+import { CartContext } from './cart-context';
 
 type CartProviderProps = {
     children: ReactNode;

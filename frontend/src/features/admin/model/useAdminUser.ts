@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/entities/user/api';
 import type { UserApi, UserRole } from '@/entities/user';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
-import { useToast } from '@/app/providers/ToastProvider';
+import { useToast } from '@/app/providers';
 import { ApiError } from '@/shared';
 import type { AdminActionResult, UseAdminUserResult } from './types';
 

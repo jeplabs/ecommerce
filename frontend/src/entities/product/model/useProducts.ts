@@ -10,7 +10,7 @@ import type {
     ProductStatus,
 } from './types';
 import type { ProductImageApi } from './schemas/api';
-import { useAuth } from '@/app/providers/AuthProvider';
+import { useAuth } from '@/app/providers';
 
 function toErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Error desconocido';

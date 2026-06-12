@@ -228,7 +228,7 @@ export function useAuthLogic() {
                 };
             }
         },
-        [user?.token]
+        [user]
     );
 
     const activarUsuario = useCallback(
@@ -246,7 +246,7 @@ export function useAuthLogic() {
                 };
             }
         },
-        [user?.token]
+        [user]
     );
 
     return {

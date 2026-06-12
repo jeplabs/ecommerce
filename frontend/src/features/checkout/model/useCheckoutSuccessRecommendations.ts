@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useProduct } from '@/app/providers/ProductProvider';
+import { useProduct } from '@/app/providers';
 import { pickPostCheckoutProducts } from '@/features/checkout/lib/checkout-recommendations';
 import type { OrderApi } from '@/entities/order';
 import type { ProductApi } from '@/entities/product';

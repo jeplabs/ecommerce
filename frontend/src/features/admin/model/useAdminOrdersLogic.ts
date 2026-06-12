@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { orderApi } from '@/entities/order/api';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
-import { useToast } from '@/app/providers/ToastProvider';
+import { useToast } from '@/app/providers';
 import { ApiError } from '@/shared';
 import type {
     AdminActionResult,
@@ -121,7 +121,7 @@ export function useAdminOrdersLogic(): UseAdminOrdersLogicResult {
                 setUpdatingId(null);
             }
         },
-        [handleAuthError, showSuccess, showError, ordenDetalle?.id]
+        [handleAuthError, showSuccess, showError, ordenDetalle]
     );
 
     const abrirDetalle = useCallback(

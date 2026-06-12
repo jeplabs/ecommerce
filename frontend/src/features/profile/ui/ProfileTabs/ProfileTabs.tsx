@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import type { ProfileTabId } from '@/app/providers/ProfileProvider';
+import type { ProfileTabId } from '@/app/providers';
 import styles from './ProfileTabs.module.css';
 
 const TABS: Array<{ id: ProfileTabId; label: string; icon: string }> = [

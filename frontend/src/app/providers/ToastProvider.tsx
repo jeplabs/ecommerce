@@ -1,37 +1,6 @@
-import {
-    createContext,
-    useContext,
-    useState,
-    useCallback,
-    useMemo,
-    type ReactNode,
-} from 'react';
+import { useState, useCallback, useMemo, type ReactNode } from 'react';
 import { ToastContainer } from '@/shared/ui/Toast/Toast';
-
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
-
-export type ToastItem = {
-    id: number;
-    message: string;
-    type: ToastType;
-};
-
-export type ToastContextValue = {
-    showSuccess: (message: string) => void;
-    showError: (message: string) => void;
-    showWarning: (message: string) => void;
-    showInfo: (message: string) => void;
-};
-
-const ToastContext = createContext<ToastContextValue | null>(null);
-
-export const useToast = (): ToastContextValue => {
-    const context = useContext(ToastContext);
-    if (!context) {
-        throw new Error('useToast debe ser usado dentro de un ToastProvider');
-    }
-    return context;
-};
+import { ToastContext, type ToastItem, type ToastType } from './toast-context';
 
 type ToastProviderProps = {
     children: ReactNode;
