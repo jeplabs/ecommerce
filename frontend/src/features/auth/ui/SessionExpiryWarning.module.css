@@ -1,4 +1,4 @@
-.session-expiry-warning {
+.root {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -15,15 +15,16 @@
     color: var(--text);
     box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
 }
-.session-expiry-warning::backdrop {
+
+.root::backdrop {
     background: rgba(0, 0, 0, 0.45);
 }
 
-.session-expiry-warning__inner {
+.inner {
     padding: 1.35rem 1.4rem 1.25rem;
 }
 
-.session-expiry-warning__title {
+.title {
     margin: 0 0 0.65rem;
     font-family: 'Instrument Serif', serif;
     font-size: 1.25rem;
@@ -32,21 +33,21 @@
     color: var(--text);
 }
 
-.session-expiry-warning__text {
+.text {
     margin: 0 0 1.15rem;
     font-size: 0.9rem;
     line-height: 1.5;
     color: var(--muted);
 }
 
-.session-expiry-warning__actions {
+.actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
     justify-content: flex-end;
 }
 
-.session-expiry-warning__btn {
+.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -61,23 +62,23 @@
     box-sizing: border-box;
 }
 
-.session-expiry-warning__btn--primary {
+.btnPrimary {
     border: none;
     background: linear-gradient(135deg, var(--indigo), var(--violet));
     color: #fff;
 }
 
-.session-expiry-warning__btn--primary:hover {
+.btnPrimary:hover {
     filter: brightness(1.06);
 }
 
-.session-expiry-warning__btn--secondary {
+.btnSecondary {
     border: 1px solid var(--border2);
     background: var(--surface2);
     color: var(--text);
 }
 
-.session-expiry-warning__btn--secondary:hover {
+.btnSecondary:hover {
     border-color: rgba(99, 102, 241, 0.45);
     color: var(--accent);
 }

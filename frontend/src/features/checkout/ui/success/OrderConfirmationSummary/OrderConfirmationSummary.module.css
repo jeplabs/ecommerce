@@ -87,12 +87,6 @@
     font-weight: 500;
 }
 
-.root :global(.order-shipping-summary) {
-    margin-bottom: 1.15rem;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
 .items {
     list-style: none;
     margin: 0 0 1rem;

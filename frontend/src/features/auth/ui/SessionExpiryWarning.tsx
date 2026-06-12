@@ -1,7 +1,8 @@
 import { useAuth } from '@/app/providers';
 import { useEffect, useRef } from 'react';
+import clsx from 'clsx';
 import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
-import './SessionExpiryWarning.css';
+import styles from './SessionExpiryWarning.module.css';
 
 /** Antelación máxima del aviso respecto a `exp` (JWT largos). */
 const WARN_LEAD_MAX_MS = 300 * 1000;
@@ -62,24 +63,24 @@ export default function SessionExpiryWarning() {
     return (
         <dialog
             ref={dialogRef}
-            className="session-expiry-warning"
+            className={styles.root}
             aria-labelledby="session-expiry-title"
             aria-describedby="session-expiry-desc"
         >
-            <div className="session-expiry-warning__inner">
-                <h2 id="session-expiry-title" className="session-expiry-warning__title">
+            <div className={styles.inner}>
+                <h2 id="session-expiry-title" className={styles.title}>
                     Tu sesión está por caducar
                 </h2>
-                <div id="session-expiry-desc" className="session-expiry-warning__text">
+                <div id="session-expiry-desc" className={styles.text}>
                     <p>En <b>5 minutos</b> tendrás que iniciar sesión de nuevo para usar el carrito, el perfil o el checkout.
                     Si tenías cambios sin guardar, conviene hacerlo ahora. </p>
                     <br></br>
                     <p>De todas manera te garantizamos que tus datos y los cambios de tu carrito de compras no se pierden y quedan <b>guardados en tu cuenta</b>.</p>
                 </div>
-                <div className="session-expiry-warning__actions">
+                <div className={styles.actions}>
                     <button
                         type="button"
-                        className="session-expiry-warning__btn session-expiry-warning__btn--primary"
+                        className={clsx(styles.btn, styles.btnPrimary)}
                         onClick={() => dialogRef.current?.close()}
                     >
                         Continuar

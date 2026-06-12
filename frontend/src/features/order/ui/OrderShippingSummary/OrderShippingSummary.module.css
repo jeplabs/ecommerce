@@ -1,16 +1,22 @@
-.order-shipping-summary {
+.root {
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border);
 }
 
-.order-shipping-summary__block + .order-shipping-summary__block {
+.embedded {
+    margin-bottom: 1.15rem;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.block + .block {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border);
 }
 
-.order-shipping-summary__heading {
+.heading {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -18,20 +24,20 @@
     margin: 0 0 0.55rem;
 }
 
-.order-shipping-summary__service {
+.service {
     margin: 0 0 0.65rem;
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--text);
 }
 
-.order-shipping-summary__meta {
+.meta {
     margin: 0;
     display: grid;
     gap: 0.4rem;
 }
 
-.order-shipping-summary__meta-row {
+.metaRow {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -39,24 +45,24 @@
     font-size: 0.88rem;
 }
 
-.order-shipping-summary__meta-row dt {
+.metaRow dt {
     margin: 0;
     color: var(--muted);
     font-weight: 500;
 }
 
-.order-shipping-summary__meta-row dd {
+.metaRow dd {
     margin: 0;
     font-weight: 600;
     color: var(--text);
     text-align: right;
 }
 
-.order-shipping-summary__free {
+.free {
     color: #22c55e;
 }
 
-.order-shipping-summary__contra-note {
+.contraNote {
     font-size: 0.75rem !important;
     font-weight: 500 !important;
     color: var(--muted) !important;
@@ -64,20 +70,20 @@
     max-width: 14rem;
 }
 
-.order-shipping-summary__pickup-note {
+.pickupNote {
     margin: 0.5rem 0 0;
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.45;
 }
 
-.order-shipping-summary__address p {
+.address p {
     margin: 0 0 0.15rem;
     font-size: 0.88rem;
     color: var(--text);
 }
 
-.order-shipping-summary__refs {
+.refs {
     font-style: italic;
     color: var(--muted);
     font-size: 0.82rem;

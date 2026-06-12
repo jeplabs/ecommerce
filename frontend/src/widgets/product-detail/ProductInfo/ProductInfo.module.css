@@ -102,8 +102,9 @@
 
 .favBtn {
     width: 54px;
-    background-color: var(--pd-card-bg);
-    border: 1px solid var(--pd-border);
+    background-color: transparent;
+    /* border: 1px solid var(--pd-border); */
+    border: none;
     color: var(--pd-text-main);
     border-radius: 8px;
     display: flex;
@@ -140,7 +141,7 @@
 
 @media (max-width: 1024px) {
     .actions {
-        flex-direction: column;
+        /* flex-direction: column; */
         gap: 1rem;
         align-items: center;
     }

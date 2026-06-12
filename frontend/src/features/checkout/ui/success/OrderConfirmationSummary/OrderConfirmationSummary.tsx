@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
+import shippingSummaryStyles from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary.module.css';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi } from '@/entities/order';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
@@ -51,7 +52,7 @@ export default function OrderConfirmationSummary({ orden, payment }: OrderConfir
                 </section>
             )}
 
-            <OrderShippingSummary orden={orden} />
+            <OrderShippingSummary orden={orden} className={shippingSummaryStyles.embedded} />
 
             <section aria-labelledby="order-items-title">
                 <h3 id="order-items-title" className={styles.sectionTitle}>
