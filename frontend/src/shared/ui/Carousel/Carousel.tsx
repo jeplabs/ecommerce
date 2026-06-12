@@ -17,7 +17,7 @@ const Carousel = ({ slides }: CarouselProps) => {
             setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
         }, 5000);
         return () => clearInterval(interval);
-    }, [slides.length]);
+    }, [slides]);
 
     const goToSlide = (index: number) => setCurrentIndex(index);
     const nextSlide = () =>

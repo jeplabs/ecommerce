@@ -80,11 +80,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isOpen) handleClose();
+            if (e.key === 'Escape' && isOpen) onClose();
         };
         window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc);
-    }, [isOpen]);
+    }, [isOpen, onClose]);
 
     useEffect(() => {
         if (isOpen) {

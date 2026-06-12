@@ -14,7 +14,7 @@ export function useCheckoutSuccessRecommendations(
     limit = DEFAULT_LIMIT
 ) {
     const { productos, loading } = useProduct();
-    const catalog = (productos ?? []) as ProductApi[];
+    const catalog = useMemo(() => (productos ?? []) as ProductApi[], [productos]);
 
     const recommended = useMemo(
         () => pickPostCheckoutProducts(catalog, orden?.items, limit),

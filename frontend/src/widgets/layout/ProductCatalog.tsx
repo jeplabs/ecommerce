@@ -23,6 +23,7 @@ import {
     buildCatalogSearchParams,
     isFiltrosDefault,
 } from '@/features/catalog/lib/catalog-query-params';
+import { sortCatalogProducts } from '@/features/catalog/lib/sort-catalog-products';
 import styles from './ProductCatalog.module.css';
 
 type ProductCatalogProps = {
@@ -115,30 +116,8 @@ export const ProductCatalog = ({
         [productosAUsar, filtrosActivos, searchTerm]
     );
 
-    const sortProducts = (productos: CatalogProduct[]) => {
-        if (!productos) return [];
-        const ordenados = [...productos];
-        switch (effectiveSort) {
-            case 'price-desc':
-                return ordenados.sort((a, b) => (b.precioVenta || 0) - (a.precioVenta || 0));
-            case 'name-asc':
-                return ordenados.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
-            case 'name-desc':
-                return ordenados.sort((a, b) => (b.nombre || '').localeCompare(a.nombre || ''));
-            case 'newest':
-                return ordenados.sort((a, b) => {
-                    const fechaA = new Date(a.createdAt || a.updatedAt || 0).getTime();
-                    const fechaB = new Date(b.createdAt || b.updatedAt || 0).getTime();
-                    return fechaB - fechaA;
-                });
-            case 'price-asc':
-            default:
-                return ordenados.sort((a, b) => (a.precioVenta || 0) - (b.precioVenta || 0));
-        }
-    };
-
     const listaOrdenada = useMemo(
-        () => sortProducts(productosFiltrados),
+        () => sortCatalogProducts(productosFiltrados, effectiveSort),
         [productosFiltrados, effectiveSort]
     );
 

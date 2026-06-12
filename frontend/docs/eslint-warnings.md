@@ -1,8 +1,8 @@
 # ESLint — Warnings de React Hooks y optimización
 
-Documento vivo para revisar los **37 warnings** actuales de `pnpm run lint`, priorizar mejoras de rendimiento y registrar avances del equipo.
+Documento vivo para revisar los warnings de `pnpm run lint`, priorizar mejoras de rendimiento y registrar avances del equipo.
 
-**Última auditoría:** 2026-05-28 · **Errores:** 0 · **Warnings:** 37
+**Última auditoría:** 2026-06-12 · **Errores:** 0 · **Warnings:** 32
 
 ---
 
@@ -26,10 +26,10 @@ Tras configurar **typescript-eslint** y **eslint-plugin-react-hooks v7** (React 
 |-------|------:|--------------------|------------------|-------------------|
 | [`react-hooks/set-state-in-effect`](#1-react-hooksset-state-in-effect-21) | 21 | Media (gradual) | Bajo | Medio (re-renders / fetch en cadena) |
 | [`react-refresh/only-export-components`](#2-react-refreshonly-export-components-8) | 8 | Baja | Ninguno | Bajo (solo HMR en dev) |
-| [`react-hooks/exhaustive-deps`](#3-react-hooksexhaustive-deps-5) | 5 | **Alta** | Medio | Medio–Alto (fetch duplicados o stale) |
+| [`react-hooks/exhaustive-deps`](#3-react-hooksexhaustive-deps-0) | **0** | ~~Alta~~ **Cerrada** | — | — |
 | [`react-hooks/preserve-manual-memoization`](#4-react-hookspreserve-manual-memoization-3) | 3 | Baja | Bajo | Bajo (hasta usar React Compiler) |
 
-**Conclusión:** la arquitectura FSD y la organización por capas **no están en cuestión**. Parte de los avisos reflejan patrones React clásicos (fetch en `useEffect`); otros (`exhaustive-deps`) sí merecen revisión puntual porque pueden traducirse en **cargas de más** o **datos desactualizados**.
+**Conclusión:** la arquitectura FSD y la organización por capas **no están en cuestión**. Los **`exhaustive-deps` de Fase 1 están resueltos** (2026-06-12). Quedan patrones React clásicos (`set-state-in-effect`) y avisos de HMR/compiler pendientes de revisión gradual.
 
 ---
 
@@ -148,20 +148,19 @@ pnpm exec eslint . 2>&1 | tail -3   # resumen final
 
 ---
 
-### 3. `react-hooks/exhaustive-deps` (5)
+### 3. `react-hooks/exhaustive-deps` (0 — Fase 1 completada)
 
-**Qué detecta:** el array de dependencias de `useEffect` / `useMemo` / `useCallback` no incluye valores usados dentro del hook.
+**Estado:** ✅ **Resuelto** (2026-06-12). Antes: 5 warnings en 4 archivos.
 
-**Prioridad:** **alta** — aquí sí puede haber fetch de más, closures obsoletas o UI desincronizada.
+| Estado | Archivo | Fix aplicado |
+|:------:|---------|--------------|
+| ✅ | `features/checkout/model/useCheckoutSuccessRecommendations.ts` | `useMemo` en `catalog` para evitar `[]` nuevo en cada render |
+| ✅ | `shared/ui/Carousel/Carousel.tsx` | deps del autoplay: `[slides]` en lugar de `[slides.length]` |
+| ✅ | `widgets/cart/CartDrawer.tsx` | listener Escape usa `onClose` con deps `[isOpen, onClose]` |
+| ✅ | `widgets/layout/Navbar/Navbar.tsx` | `closeCart` estable con `useCallback` (alimenta `onClose` del drawer) |
+| ✅ | `widgets/layout/ProductCatalog.tsx` | orden extraído a `features/catalog/lib/sort-catalog-products.ts` |
 
-| Estado | Archivo | Línea | Detalle |
-|:------:|---------|------:|---------|
-| ⬜ | `features/checkout/model/useCheckoutSuccessRecommendations.ts` | 17 | expresión `catalog` en deps de `useMemo` (×2 warnings) |
-| ⬜ | `shared/ui/Carousel/Carousel.tsx` | 20 | falta `slides` en deps de `useEffect` |
-| ⬜ | `widgets/cart/CartDrawer.tsx` | 87 | falta `handleClose` en deps de `useEffect` |
-| ⬜ | `widgets/layout/ProductCatalog.tsx` | 142 | falta `sortProducts` en deps de `useMemo` |
-
-> **Siguiente paso del equipo:** revisar estos 5 casos uno a uno (ver [Registro de avances](#registro-de-avances)).
+**Prueba manual sugerida:** checkout success (recomendaciones), home (carousel), catálogo (orden + filtros), carrito drawer (Escape + animación cierre).
 
 ---
 
@@ -181,11 +180,11 @@ pnpm exec eslint . 2>&1 | tail -3   # resumen final
 
 ## Plan de acción recomendado
 
-### Fase 1 — Revisión puntual (impacto real)
+### Fase 1 — Revisión puntual (impacto real) ✅
 
-1. Corregir o documentar los **5 `exhaustive-deps`**.
+1. ~~Corregir los **5 `exhaustive-deps`**.~~ Hecho 2026-06-12.
 2. Tras cada fix: `pnpm run lint` + prueba manual del flujo afectado.
-3. Actualizar tabla de estado (⬜ → ✅) y [Registro de avances](#registro-de-avances).
+3. Actualizar tabla de estado y [Registro de avances](#registro-de-avances).
 
 ### Fase 2 — Optimización de datos (opcional, mayor esfuerzo)
 
@@ -209,7 +208,7 @@ pnpm exec eslint . 2>&1 | tail -3   # resumen final
 |--------|----------------|
 | Actual | `lint` pasa con warnings |
 | Estricto | `eslint . --max-warnings 0` falla hasta limpiar |
-| Intermedio | `--max-warnings 37` y bajar número en cada PR |
+| Intermedio | `--max-warnings 32` y bajar número en cada PR |
 
 ---
 
@@ -219,19 +218,19 @@ Añadir entradas **más recientes arriba**. Incluir PR/commit, regla, archivos y
 
 | Fecha | Autor | Cambio | Warnings restantes |
 |-------|-------|--------|-------------------|
+| 2026-06-12 | — | **Fase 1:** 5× `exhaustive-deps` resueltos (checkout success, carousel, cart drawer + navbar, product catalog + `sort-catalog-products.ts`) | **32** |
 | 2026-05-28 | — | Documento inicial; inventario tras migración ESLint + TS | **37** |
-| | | | |
 
 ### Notas de revisión por ítem
 
 Usar esta sección para decisiones (“fix aplicado”, “intencional — eslint-disable con comentario”, “pospuesto a Fase 2”).
 
-#### `exhaustive-deps`
+#### `exhaustive-deps` ✅ (2026-06-12)
 
-- **`useCheckoutSuccessRecommendations.ts`** — _pendiente_
-- **`Carousel.tsx`** — _pendiente_
-- **`CartDrawer.tsx`** — _pendiente_
-- **`ProductCatalog.tsx`** — _pendiente_
+- **`useCheckoutSuccessRecommendations.ts`** — `useMemo(() => (productos ?? []), [productos])`. Correcto.
+- **`Carousel.tsx`** — deps `[slides]`. Correcto.
+- **`CartDrawer.tsx`** + **`Navbar.tsx`** — `onClose` estable + Escape con `[isOpen, onClose]`.
+- **`ProductCatalog.tsx`** — `sortCatalogProducts()` en `features/catalog/lib/sort-catalog-products.ts`.
 
 #### Otros
 

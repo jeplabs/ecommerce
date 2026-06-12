@@ -30,9 +30,9 @@ export default function Navbar() {
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const closeMenu = () => setIsMenuOpen(false);
 
-    const openCart = () => setIsCartOpen(true);
-    const closeCart = () => setIsCartOpen(false);
-    const toggleCart = () => setIsCartOpen(!isCartOpen);
+    const openCart = useCallback(() => setIsCartOpen(true), []);
+    const closeCart = useCallback(() => setIsCartOpen(false), []);
+    const toggleCart = useCallback(() => setIsCartOpen((open) => !open), []);
 
     useEffect(() => {
         if (isCatalogSearch) {
