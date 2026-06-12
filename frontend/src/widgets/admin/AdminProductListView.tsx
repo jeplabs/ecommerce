@@ -2,7 +2,7 @@ import { useProduct, useToast } from '@/app/providers';
 import type { NavigateFunction } from 'react-router-dom';
 import type { ProductAdminApi, ProductApi } from '@/entities/product';
 import { Button } from '@/shared/ui/Button';
-import './AdminProductListView.css';
+import styles from './AdminProductListView.module.css';
 
 type AdminProductListViewProps = {
     onNavigate: NavigateFunction;
@@ -75,14 +75,14 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
     };
 
     const renderProductCard = (producto: AdminListProduct, showImage = true) => (
-        <article key={producto.id} className="product-card">
+        <article key={producto.id} className={styles.productCard}>
             {showImage && (
-                <div className="card-preview">
+                <div className={styles.cardPreview}>
                     {getProductImageSrc(producto) ? (
                         <img
                             src={getProductImageSrc(producto)}
                             alt={producto.nombre}
-                            className="product-image"
+                            className={styles.productImage}
                             onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 console.warn('Error cargando imagen:', producto.nombre, target.src);
@@ -90,38 +90,38 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
                             }}
                         />
                     ) : (
-                        <div className="product-image-placeholder">
+                        <div className={styles.productImagePlaceholder}>
                             <span>Sin imagen</span>
                         </div>
                     )}
-                    <div className="product-price-tag">${producto.precioVenta || 'N/A'}</div>
+                    <div className={styles.productPriceTag}>${producto.precioVenta || 'N/A'}</div>
                 </div>
             )}
 
-            <div className="card-body">
-                <h3 className="card-name">
+            <div className={styles.cardBody}>
+                <h3 className={styles.cardName}>
                     {showImage && producto.nombre.length > 25
                         ? `${producto.nombre.slice(0, 25)}...`
                         : producto.nombre}
                 </h3>
                 {!showImage && (
-                    <p className="card-desc">{producto.descripcion || 'Sin descripción'}</p>
+                    <p className={styles.cardDesc}>{producto.descripcion || 'Sin descripción'}</p>
                 )}
 
-                <div className="product-info">
-                    <span className="product-sku">SKU: {producto.sku}</span>
+                <div className={styles.productInfo}>
+                    <span className={styles.productSku}>SKU: {producto.sku}</span>
                     {showImage && (
-                        <span className="product-stock">Stock: {producto.stock || 0}</span>
+                        <span className={styles.productStock}>Stock: {producto.stock || 0}</span>
                     )}
                     {!showImage && producto.stock != null && (
-                        <span className="product-stock">Stock: {producto.stock || 0}</span>
+                        <span className={styles.productStock}>Stock: {producto.stock || 0}</span>
                     )}
-                    <span className="product-status" data-status={producto.estado || 'desconocido'}>
+                    <span className={styles.productStatus} data-status={producto.estado || 'desconocido'}>
                         {formatEstado(producto.estado)}
                     </span>
                 </div>
 
-                <div className="product-actions">
+                <div className={styles.productActions}>
                     <Button
                         type="button"
                         variant="outlinePrimary"
@@ -144,12 +144,12 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
     );
 
     return (
-        <main className="admin-product-list-view">
+        <main className={styles.root}>
             <h1>Admin: Productos y Categorías</h1>
 
-            {loading && <div className="admin-product-list-view__loading">Cargando datos...</div>}
+            {loading && <div className={styles.loading}>Cargando datos...</div>}
 
-            <div className="admin-product-list-view__actions">
+            <div className={styles.actions}>
                 <Button type="button" variant="primary" onClick={() => onNavigate('/admin/products/new')}>
                     Agregar Producto
                 </Button>
@@ -161,7 +161,7 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
             <h2>Productos Disponibles</h2>
             <section>
                 {productos?.length > 0 ? (
-                    <div className="admin-product-list-view__grid">
+                    <div className={styles.grid}>
                         {(productos as AdminListProduct[]).map((producto) =>
                             renderProductCard(producto, true)
                         )}
@@ -174,7 +174,7 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
             <h2>Productos Ocultos</h2>
             <section>
                 {productosOcultos?.length > 0 ? (
-                    <div className="admin-product-list-view__grid">
+                    <div className={styles.grid}>
                         {(productosOcultos as AdminListProduct[]).map((producto) =>
                             renderProductCard(producto, false)
                         )}
@@ -187,18 +187,18 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
             <h2>Productos Descontinuados</h2>
             <section>
                 {productosDescontinuados?.length > 0 ? (
-                    <div className="admin-product-list-view__grid">
+                    <div className={styles.grid}>
                         {(productosDescontinuados as AdminListProduct[]).map((producto) => (
-                            <article key={producto.id} className="product-card">
-                                <div className="card-body">
-                                    <h3 className="card-name">{producto.nombre}</h3>
-                                    <p className="card-desc">
+                            <article key={producto.id} className={styles.productCard}>
+                                <div className={styles.cardBody}>
+                                    <h3 className={styles.cardName}>{producto.nombre}</h3>
+                                    <p className={styles.cardDesc}>
                                         {producto.descripcion || 'Sin descripción'}
                                     </p>
-                                    <div className="product-info">
-                                        <span className="product-sku">SKU: {producto.sku}</span>
+                                    <div className={styles.productInfo}>
+                                        <span className={styles.productSku}>SKU: {producto.sku}</span>
                                         <span
-                                            className="product-status"
+                                            className={styles.productStatus}
                                             data-status={producto.estado || 'desconocido'}
                                         >
                                             {formatEstado(producto.estado)}

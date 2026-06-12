@@ -71,7 +71,8 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
     };
 
     return (
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.shell}>
+            <form className={styles.form} onSubmit={handleSubmit}>
             <h3 className={styles.title}>
                 {isEditing ? 'Editar dirección' : 'Nueva dirección'}
             </h3>
@@ -79,7 +80,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
             {error && <p className={styles.error} role="alert">{error}</p>}
 
             <div className={styles.row}>
-                <FormField label="Alias" htmlFor="alias">
+                <FormField label="Alias" htmlFor="alias" className={styles.field}>
                     <Input
                         id="alias"
                         name="alias"
@@ -90,7 +91,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                         required
                     />
                 </FormField>
-                <FormField label="Teléfono" htmlFor="telefono">
+                <FormField label="Teléfono" htmlFor="telefono" className={styles.field}>
                     <Input
                         id="telefono"
                         name="telefono"
@@ -103,7 +104,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                 </FormField>
             </div>
 
-            <FormField label="Calle y número" htmlFor="direccion">
+            <FormField label="Calle y número" htmlFor="direccion" className={styles.field}>
                 <Input
                     id="direccion"
                     name="direccion"
@@ -115,7 +116,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
             </FormField>
 
             <div className={styles.row}>
-                <FormField label="Ciudad" htmlFor="ciudad">
+                <FormField label="Ciudad" htmlFor="ciudad" className={styles.field}>
                     <Input
                         id="ciudad"
                         name="ciudad"
@@ -125,7 +126,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                         required
                     />
                 </FormField>
-                <FormField label="Estado" htmlFor="estado">
+                <FormField label="Estado" htmlFor="estado" className={styles.field}>
                     <Input
                         id="estado"
                         name="estado"
@@ -138,7 +139,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
             </div>
 
             <div className={styles.row}>
-                <FormField label="Código postal" htmlFor="codigoPostal">
+                <FormField label="Código postal" htmlFor="codigoPostal" className={styles.field}>
                     <Input
                         id="codigoPostal"
                         name="codigoPostal"
@@ -147,7 +148,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                         onChange={handleChange}
                     />
                 </FormField>
-                <FormField label="País" htmlFor="pais">
+                <FormField label="País" htmlFor="pais" className={styles.field}>
                     <Input
                         id="pais"
                         name="pais"
@@ -159,7 +160,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                 </FormField>
             </div>
 
-            <FormField label="Referencias (opcional)" htmlFor="referencias">
+            <FormField label="Referencias (opcional)" htmlFor="referencias" className={styles.field}>
                 <Textarea
                     id="referencias"
                     name="referencias"
@@ -185,6 +186,7 @@ export default function AddressForm({ initialData, onSubmit, onCancel, saving }:
                     Cancelar
                 </Button>
             </div>
-        </form>
+            </form>
+        </div>
     );
 }

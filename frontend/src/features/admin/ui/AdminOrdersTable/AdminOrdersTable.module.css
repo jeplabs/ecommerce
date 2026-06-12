@@ -1,4 +1,4 @@
-.admin-orders-table {
+.root {
     width: 100%;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -7,13 +7,13 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
-.admin-orders-table__scroll {
+.scroll {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.admin-orders-table__grid {
+.grid {
     width: 100%;
     min-width: 0;
     max-width: 100%;
@@ -22,11 +22,11 @@
     font-size: 0.86rem;
 }
 
-.admin-orders-table__grid thead {
+.grid thead {
     background: rgba(99, 102, 241, 0.06);
 }
 
-.admin-orders-table__grid th {
+.grid th {
     padding: 0.75rem 0.9rem;
     text-align: left;
     font-size: 0.62rem;
@@ -38,46 +38,46 @@
     vertical-align: middle;
 }
 
-.admin-orders-table__col-narrow {
+.colNarrow {
     width: 4rem;
     text-align: center;
 }
 
-.admin-orders-table__grid th.admin-orders-table__col-narrow {
+.grid th.colNarrow {
     text-align: center;
 }
 
-.admin-orders-table__col-action {
+.colAction {
     width: 1%;
     white-space: nowrap;
 }
 
-.admin-orders-table__grid td {
+.grid td {
     padding: 0.7rem 0.9rem;
     border-bottom: 1px solid var(--border);
     color: var(--text);
     vertical-align: middle;
 }
 
-.admin-orders-table__row:last-child td {
+.row:last-child td {
     border-bottom: none;
 }
 
-.admin-orders-table__row:hover td {
+.row:hover td {
     background: rgba(99, 102, 241, 0.04);
 }
 
-.admin-orders-table__cell-items {
+.cellItems {
     text-align: center;
     font-variant-numeric: tabular-nums;
 }
 
-.admin-orders-table__cell-total {
+.cellTotal {
     font-variant-numeric: tabular-nums;
     font-weight: 600;
 }
 
-.admin-orders-table__pill {
+.pill {
     display: inline-block;
     padding: 0.12rem 0.4rem;
     border-radius: 6px;
@@ -86,38 +86,38 @@
     flex-shrink: 0;
 }
 
-.admin-orders-table__pill--pending {
+.pillPending {
     background: rgba(234, 179, 8, 0.18);
     color: #fbbf24;
 }
 
-.admin-orders-table__pill--confirmed {
+.pillConfirmed {
     background: rgba(99, 102, 241, 0.18);
     color: var(--accent);
 }
 
-.admin-orders-table__pill--processing {
+.pillProcessing {
     background: rgba(168, 85, 247, 0.18);
     color: #c084fc;
 }
 
-.admin-orders-table__pill--shipped {
+.pillShipped {
     background: rgba(56, 189, 248, 0.15);
     color: #38bdf8;
 }
 
-.admin-orders-table__pill--delivered {
+.pillDelivered {
     background: rgba(34, 197, 94, 0.15);
     color: #4ade80;
 }
 
-.admin-orders-table__pill--cancelled {
+.pillCancelled {
     background: rgba(239, 68, 68, 0.12);
     color: #f87171;
 }
 
 /* Estado: desktop = badge + select + guardar en una fila (top-line usa display:contents) */
-.admin-orders-table__status-body {
+.statusBody {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -126,54 +126,50 @@
     min-width: 0;
 }
 
-.admin-orders-table__status-top-line {
+.statusTopLine {
     display: contents;
 }
 
-.admin-orders-table__select-field {
+.selectField {
     min-width: 0;
 }
 
-.admin-orders-table__select-field .admin-orders-table__select {
+.selectField .select {
     width: 100%;
 }
 
 /* Escritorio: select acotado; “Ver detalle” en una sola línea */
 @media (min-width: 1101px) {
-    .admin-orders-table__select-field {
+    .selectField {
         width: auto;
         max-width: 11.5rem;
     }
 
-    .admin-orders-table__select-field .admin-orders-table__select {
+    .selectField .select {
         width: auto;
         max-width: 11.5rem;
         min-width: 0;
     }
 
-    .admin-orders-table__btn-detail {
+    .btnDetail {
         white-space: nowrap;
         min-width: 8.75rem;
         padding-inline: 0.85rem;
     }
 }
 
-.admin-orders-table__select {
-    padding: 0.35rem 0.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    color: var(--text);
+.select {
     font-size: 0.78rem;
-    font-family: inherit;
+    border-radius: 8px;
+    background-color: var(--surface2);
 }
 
-.admin-orders-table__select:disabled {
+.select:disabled {
     opacity: 0.65;
     cursor: not-allowed;
 }
 
-.admin-orders-table__btn-save {
+.btnSave {
     padding: 0.35rem 0.65rem;
     border-radius: 8px;
     border: 1px solid rgba(34, 197, 94, 0.4);
@@ -186,16 +182,16 @@
     transition: background 0.15s;
 }
 
-.admin-orders-table__btn-save:hover:not(:disabled) {
+.btnSave:hover:not(:disabled) {
     background: rgba(34, 197, 94, 0.28);
 }
 
-.admin-orders-table__btn-save:disabled {
+.btnSave:disabled {
     opacity: 0.45;
     cursor: not-allowed;
 }
 
-.admin-orders-table__btn-detail {
+.btnDetail {
     padding: 0.35rem 0.65rem;
     border-radius: 8px;
     border: 1px solid var(--border2);
@@ -207,12 +203,12 @@
     cursor: pointer;
 }
 
-.admin-orders-table__btn-detail:hover {
+.btnDetail:hover {
     border-color: var(--indigo);
     background: rgba(99, 102, 241, 0.08);
 }
 
-.admin-orders-table__sr-only {
+.srOnly {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -224,33 +220,33 @@
     border: 0;
 }
 
-.admin-orders-table__state {
+.state {
     padding: 2rem 1.25rem;
     text-align: center;
     border-radius: 16px;
     border: 1px dashed var(--border2);
 }
 
-.admin-orders-table__state--loading {
+.stateLoading {
     color: var(--muted);
 }
 
-.admin-orders-table__state--error {
+.stateError {
     color: var(--error);
     background: rgba(239, 68, 68, 0.06);
     border-color: rgba(239, 68, 68, 0.25);
 }
 
-.admin-orders-table__state--empty {
+.stateEmpty {
     color: var(--muted);
 }
 
 @media (max-width: 1100px) {
-    .admin-orders-table__row {
+    .row {
         --admin-order-ctrl-width: min(18rem, 100%);
     }
 
-    .admin-orders-table {
+    .root {
         background: transparent;
         border: none;
         box-shadow: none;
@@ -258,24 +254,24 @@
         overflow: visible;
     }
 
-    .admin-orders-table__scroll {
+    .scroll {
         overflow-x: visible;
     }
 
-    .admin-orders-table__grid {
+    .grid {
         display: block;
         min-width: 0;
     }
 
-    .admin-orders-table__grid thead {
+    .grid thead {
         display: none;
     }
 
-    .admin-orders-table__grid tbody {
+    .grid tbody {
         display: block;
     }
 
-    .admin-orders-table__row {
+    .row {
         display: block;
         margin-bottom: 0.75rem;
         border: 1px solid var(--border);
@@ -284,11 +280,11 @@
         overflow: hidden;
     }
 
-    .admin-orders-table__row:hover td {
+    .row:hover td {
         background: transparent;
     }
 
-    .admin-orders-table__grid td {
+    .grid td {
         display: grid;
         grid-template-columns: minmax(6.25rem, 30%) 1fr;
         gap: 0.45rem 0.65rem;
@@ -299,11 +295,11 @@
         text-align: left;
     }
 
-    .admin-orders-table__grid td:last-child {
+    .grid td:last-child {
         border-bottom: none;
     }
 
-    .admin-orders-table__grid td::before {
+    .grid td::before {
         content: attr(data-label);
         font-size: 0.6rem;
         text-transform: uppercase;
@@ -312,15 +308,15 @@
         color: var(--muted);
     }
 
-    .admin-orders-table__cell-items {
+    .cellItems {
         text-align: left;
     }
 
-    .admin-orders-table__grid td > * {
+    .grid td > * {
         min-width: 0;
     }
 
-    .admin-orders-table__cell-status > .admin-orders-table__status-body {
+    .cellStatus > .statusBody {
         grid-column: 2;
         width: 100%;
         max-width: var(--admin-order-ctrl-width);
@@ -331,7 +327,7 @@
     }
 
     /* Tablet/móvil: badge + select en la misma fila; guardar debajo */
-    .admin-orders-table__status-top-line {
+    .statusTopLine {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
@@ -340,26 +336,26 @@
         width: 100%;
     }
 
-    .admin-orders-table__select-field {
+    .selectField {
         flex: 1;
         min-width: 0;
         max-width: none;
     }
 
-    .admin-orders-table__select-field .admin-orders-table__select {
+    .selectField .select {
         width: 100%;
         min-width: 0;
         max-width: none;
     }
 
-    .admin-orders-table__btn-save {
+    .btnSave {
         width: 100%;
         max-width: var(--admin-order-ctrl-width);
         align-self: flex-start;
         box-sizing: border-box;
     }
 
-    .admin-orders-table__cell-action .admin-orders-table__btn-detail {
+    .cellAction .btnDetail {
         justify-self: start;
         width: 100%;
         max-width: var(--admin-order-ctrl-width);
@@ -369,7 +365,7 @@
 }
 
 @media (max-width: 640px) {
-    .admin-orders-table__row {
+    .row {
         --admin-order-ctrl-width: min(15rem, 88vw);
     }
 }

@@ -244,19 +244,15 @@ export const ProductForm = ({
             //     }
             // }
 
-            if (initialData && initialData.specs) {
-                if (specs.length === 0) {
-                    if (initialData.specs && Object.keys(initialData.specs).length > 0) {
-                        const specsArray = Object.entries(initialData.specs).map(([k, v], idx) => ({
-                            id: `spec_${Date.now()}_${idx}`,
-                            key: k,
-                            value: v
-                        }));
-                        setSpecs(specsArray);
-                    } else {
-                        setSpecs([]);
-                    }       
-                }
+            if (initialData.specs && Object.keys(initialData.specs).length > 0) {
+                const specsArray = Object.entries(initialData.specs).map(([k, v], idx) => ({
+                    id: `spec_${Date.now()}_${idx}`,
+                    key: k,
+                    value: v,
+                }));
+                setSpecs(specsArray);
+            } else {
+                setSpecs([]);
             }
             
             // setFormData({

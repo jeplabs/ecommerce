@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 import type { UserApi, UserRole } from '@/entities/user';
-import './AdminUsersTable.css';
+import styles from './AdminUsersTable.module.css';
 
 const formatRol = (rol: UserRole | null | undefined): string => {
     if (!rol) return '—';
@@ -13,6 +14,11 @@ const getInitials = (nombre: string | undefined, apellido: string | undefined): 
     const n = (nombre || '').charAt(0);
     const a = (apellido || '').charAt(0);
     return `${n}${a}`.toUpperCase() || '?';
+};
+
+const getBadgeClass = (rol: UserRole | null | undefined) => {
+    if (rol === 'ROLE_ADMIN') return styles.badgeAdmin;
+    return styles.badgeCustomer;
 };
 
 type AdminUsersTableProps = {
@@ -64,7 +70,7 @@ export default function AdminUsersTable({
 
     if (loading) {
         return (
-            <div className="admin-users-table__state admin-users-table__state--loading">
+            <div className={clsx(styles.state, styles.stateLoading)}>
                 <p>Cargando usuarios…</p>
             </div>
         );
@@ -72,7 +78,7 @@ export default function AdminUsersTable({
 
     if (error) {
         return (
-            <div className="admin-users-table__state admin-users-table__state--error" role="alert">
+            <div className={clsx(styles.state, styles.stateError)} role="alert">
                 <p>{error}</p>
             </div>
         );
@@ -80,91 +86,92 @@ export default function AdminUsersTable({
 
     if (!users || users.length === 0) {
         return (
-            <div className="admin-users-table__state admin-users-table__state--empty">
+            <div className={clsx(styles.state, styles.stateEmpty)}>
                 <p>No hay usuarios registrados.</p>
             </div>
         );
     }
 
     return (
-        <section className="admin-users-table" aria-label="Listado de usuarios">
-            <header className="admin-users-table__toolbar">
+        <section className={styles.root} aria-label="Listado de usuarios">
+            <header className={styles.toolbar}>
                 <div>
-                    <h2 className="admin-users-table__title">Usuarios</h2>
-                    <p className="admin-users-table__subtitle">
+                    <h2 className={styles.title}>Usuarios</h2>
+                    <p className={styles.subtitle}>
                         {users.length} usuario{users.length !== 1 ? 's' : ''} en el sistema
                     </p>
                 </div>
             </header>
 
-            <div className="admin-users-table__scroll">
-                <table className="admin-users-table__grid">
+            <div className={styles.scroll}>
+                <table className={styles.grid}>
                     <thead>
                         <tr>
-                            <th scope="col" className="admin-users-table__col-user">Usuario</th>
-                            <th scope="col" className="admin-users-table__col-email">Email</th>
+                            <th scope="col" className={styles.colUser}>Usuario</th>
+                            <th scope="col" className={styles.colEmail}>Email</th>
                             <th scope="col">País</th>
-                            <th scope="col" className="admin-users-table__col-role">Rol</th>
+                            <th scope="col" className={styles.colRole}>Rol</th>
                             <th scope="col">Estado</th>
-                            <th scope="col" className="admin-users-table__col-numeric">Intentos</th>
-                            <th scope="col" className="admin-users-table__col-actions">Acciones</th>
+                            <th scope="col" className={styles.colNumeric}>Intentos</th>
+                            <th scope="col" className={styles.colActions}>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map((user) => (
-                            <tr key={user.id} className="admin-users-table__row">
-                                <td className="admin-users-table__cell-user" data-label="Usuario">
-                                    <div className="admin-users-table__user">
-                                        <span className="admin-users-table__avatar" aria-hidden="true">
+                            <tr key={user.id} className={styles.row}>
+                                <td className={styles.cellUser} data-label="Usuario">
+                                    <div className={styles.user}>
+                                        <span className={styles.avatar} aria-hidden="true">
                                             {getInitials(user.nombre, user.apellido)}
                                         </span>
-                                        <div className="admin-users-table__user-text">
-                                            <span className="admin-users-table__name">
+                                        <div className={styles.userText}>
+                                            <span className={styles.name}>
                                                 {user.nombre} {user.apellido}
                                             </span>
-                                            <span className="admin-users-table__id">ID {user.id}</span>
+                                            <span className={styles.id}>ID {user.id}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="admin-users-table__cell-email" data-label="Email">
+                                <td className={styles.cellEmail} data-label="Email">
                                     {user.email}
                                 </td>
                                 <td data-label="País">{user.pais || '—'}</td>
                                 <td
-                                    className="admin-users-table__cell-role"
+                                    className={styles.cellRole}
                                     data-label="Rol"
                                 >
-                                    <span
-                                        className={`admin-users-table__badge admin-users-table__badge--${(user.rol || 'user').toLowerCase().replace('role_', '')}`}
-                                    >
+                                    <span className={clsx(styles.badge, getBadgeClass(user.rol))}>
                                         {formatRol(user.rol)}
                                     </span>
                                 </td>
                                 <td data-label="Estado">
-                                    <div className="admin-users-table__status-wrap">
+                                    <div className={styles.statusWrap}>
                                         <span
-                                            className={`admin-users-table__pill ${user.activo ? 'admin-users-table__pill--ok' : 'admin-users-table__pill--off'}`}
+                                            className={clsx(
+                                                styles.pill,
+                                                user.activo ? styles.pillOk : styles.pillOff
+                                            )}
                                         >
                                             {user.activo ? 'Activo' : 'Inactivo'}
                                         </span>
                                         {user.bloqueado && (
-                                            <span className="admin-users-table__pill admin-users-table__pill--warn">
+                                            <span className={clsx(styles.pill, styles.pillWarn)}>
                                                 Bloqueado
                                             </span>
                                         )}
                                     </div>
                                 </td>
                                 <td
-                                    className="admin-users-table__cell-numeric"
+                                    className={styles.cellNumeric}
                                     data-label="Intentos fallidos"
                                 >
                                     {user.intentosFallidos ?? 0}
                                 </td>
-                                <td className="admin-users-table__cell-actions" data-label="Acciones">
-                                    <div className="admin-users-table__actions">
+                                <td className={styles.cellActions} data-label="Acciones">
+                                    <div className={styles.actions}>
                                         <button
                                             type="button"
-                                            className="admin-users-table__btn admin-users-table__btn--secondary"
+                                            className={clsx(styles.btn, styles.btnSecondary)}
                                             onClick={() => handleEdit(user.id)}
                                         >
                                             Editar
@@ -172,7 +179,7 @@ export default function AdminUsersTable({
                                         {user.activo ? (
                                             <button
                                                 type="button"
-                                                className="admin-users-table__btn admin-users-table__btn--danger"
+                                                className={clsx(styles.btn, styles.btnDanger)}
                                                 onClick={() => handleDesactivar(user)}
                                             >
                                                 Desactivar
@@ -180,7 +187,7 @@ export default function AdminUsersTable({
                                         ) : (
                                             <button
                                                 type="button"
-                                                className="admin-users-table__btn admin-users-table__btn--primary"
+                                                className={clsx(styles.btn, styles.btnPrimary)}
                                                 onClick={() => handleActivar(user)}
                                             >
                                                 Activar

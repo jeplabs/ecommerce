@@ -5,7 +5,7 @@ import type { ProductAdminApi, ProductApi, ProductStatus } from '@/entities/prod
 import { ProductForm } from '@/features/admin/ui/ProductForm';
 import { FieldError } from '@/shared/ui/FormField';
 import { Button } from '@/shared/ui/Button';
-import './AdminProductEditView.css';
+import styles from './AdminProductEditView.module.css';
 import type {
     ProductFormInitialData,
     ProductFormSubmitPayload,
@@ -30,12 +30,24 @@ function toNumericProductId(productId: string | number): number {
     return typeof productId === 'number' ? productId : Number(productId);
 }
 
+function normalizeFormSpecs(
+    specs: Record<string, unknown> | null | undefined
+): Record<string, string> | undefined {
+    if (!specs) return undefined;
+    const entries = Object.entries(specs).filter(([key]) => key.trim() !== '');
+    if (entries.length === 0) return undefined;
+    return Object.fromEntries(
+        entries.map(([key, value]) => [key, value == null ? '' : String(value)])
+    );
+}
+
 function mapLoadedProductToFormData(
     product: ProductApi | ProductAdminApi,
     images: AdminImageApiSource[]
 ): ProductFormInitialData {
     const categorias = 'categorias' in product ? product.categorias : [];
     const descripcion = 'descripcion' in product ? product.descripcion ?? '' : '';
+    const specs = 'specs' in product ? normalizeFormSpecs(product.specs) : undefined;
 
     return {
         nombre: product.nombre,
@@ -46,6 +58,7 @@ function mapLoadedProductToFormData(
         estado: product.estado,
         moneda: product.moneda,
         categorias,
+        specs,
         images,
     };
 }
@@ -81,7 +94,7 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
 
                 const adminProduct = adminRes.status === 'fulfilled' ? adminRes.value : null;
                 const publicProduct = publicRes.status === 'fulfilled' ? publicRes.value : null;
-                const baseProduct = publicProduct || adminProduct;
+                const baseProduct = publicProduct ?? adminProduct;
                 const imagesMeta = baseProduct ? await getProductImages(numericProductId) : [];
                 const images = Array.isArray(imagesMeta) ? imagesMeta : [];
 
@@ -227,7 +240,7 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
 
     if (error) {
         return (
-            <main className="admin-product-edit">
+            <main className={styles.root}>
                 <h1>Error al cargar producto</h1>
                 <FieldError>{error}</FieldError>
                 <Button type="button" variant="secondary" onClick={() => onNavigate('/admin/products')}>
@@ -239,14 +252,14 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
 
     if (loading || !productData) {
         return (
-            <main className="admin-product-edit">
-                <div className="admin-product-edit__loading">Cargando producto...</div>
+            <main className={styles.root}>
+                <div className={styles.loading}>Cargando producto...</div>
             </main>
         );
     }
 
     return (
-        <main className="admin-product-edit">
+        <main className={styles.root}>
             <h1>Editar Producto</h1>
             <ProductForm
                 initialData={productData}

@@ -5,7 +5,8 @@ import OrderDetailModal from '@/features/profile/ui/OrderDetailModal/OrderDetail
 import { useAdminOrdersLogic } from '@/features/admin';
 import type { AdminOrderStatusFilter } from '@/features/admin/model/types';
 import { ORDEN_ESTADOS_FILTRO } from '@/entities/order';
-import './AdminOrdersView.css';
+import { Select } from '@/shared/ui/Select';
+import styles from './AdminOrdersView.module.css';
 
 export default function AdminOrdersView() {
     const {
@@ -39,27 +40,27 @@ export default function AdminOrdersView() {
 
     return (
         <>
-            <main className="admin-orders-page">
-                <header className="admin-orders-page__header">
+            <main className={styles.page}>
+                <header className={styles.header}>
                     <div>
-                        <Link to="/admin" className="admin-orders-page__back">
+                        <Link to="/admin" className={styles.back}>
                             ← Volver al panel
                         </Link>
                         <h1>Historial de pedidos</h1>
-                        <p className="admin-orders-page__lead">
+                        <p className={styles.lead}>
                             Gestiona el estado de las compras de los clientes
                         </p>
                     </div>
-                    <div className="admin-orders-page__filters">
+                    <div className={styles.filters}>
                         <label
-                            className="admin-orders-page__filter-label"
+                            className={styles.filterLabel}
                             htmlFor="filtro-estado-orden"
                         >
                             Filtrar por estado
                         </label>
-                        <select
+                        <Select
                             id="filtro-estado-orden"
-                            className="admin-orders-page__filter-select"
+                            className={styles.filterSelect}
                             value={estadoFiltro}
                             onChange={(e) =>
                                 setEstadoFiltro(e.target.value as AdminOrderStatusFilter)
@@ -70,12 +71,12 @@ export default function AdminOrdersView() {
                                     {opt.label}
                                 </option>
                             ))}
-                        </select>
+                        </Select>
                     </div>
                 </header>
 
                 {totalElements > 0 && (
-                    <p className="admin-orders-page__count">
+                    <p className={styles.count}>
                         {totalElements} pedido{totalElements !== 1 ? 's' : ''} en total
                     </p>
                 )}
@@ -90,10 +91,10 @@ export default function AdminOrdersView() {
                 />
 
                 {totalPages > 1 && (
-                    <div className="admin-orders-page__pagination">
+                    <div className={styles.pagination}>
                         <button
                             type="button"
-                            className="admin-orders-page__page-btn"
+                            className={styles.pageBtn}
                             onClick={() => irAPagina(page - 1)}
                             disabled={page === 0 || loading}
                         >
@@ -104,7 +105,7 @@ export default function AdminOrdersView() {
                         </span>
                         <button
                             type="button"
-                            className="admin-orders-page__page-btn"
+                            className={styles.pageBtn}
                             onClick={() => irAPagina(page + 1)}
                             disabled={page >= totalPages - 1 || loading}
                         >

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import type { UserRole } from '@/entities/user';
 import { useAdminUser } from '@/features/admin';
-import './AdminUserEditView.css';
+import { Select } from '@/shared/ui/Select';
+import styles from './AdminUserEditView.module.css';
 
 const ROLES: { value: UserRole; label: string }[] = [
     { value: 'ROLE_CUSTOMER', label: 'Cliente' },
@@ -24,8 +25,8 @@ export default function AdminUserEditView({ userId }: AdminUserEditViewProps) {
 
     if (loading) {
         return (
-            <main className="admin-user-edit">
-                <p className="admin-user-edit__loading">Cargando usuario…</p>
+            <main className={styles.root}>
+                <p className={styles.loading}>Cargando usuario…</p>
             </main>
         );
     }
@@ -33,18 +34,18 @@ export default function AdminUserEditView({ userId }: AdminUserEditViewProps) {
     if (!user) return null;
 
     return (
-        <main className="admin-user-edit">
-            <Link to="/admin/users" className="admin-user-edit__back">
+        <main className={styles.root}>
+            <Link to="/admin/users" className={styles.back}>
                 ← Volver a usuarios
             </Link>
             <h1>Editar usuario</h1>
-            <p className="admin-user-edit__lead">
+            <p className={styles.lead}>
                 {user.nombre} {user.apellido} ·{' '}
-                <span className="admin-user-edit__mono">{user.email}</span>
+                <span className={styles.mono}>{user.email}</span>
             </p>
 
-            <div className="admin-user-edit__card">
-                <dl className="admin-user-edit__meta">
+            <div className={styles.card}>
+                <dl className={styles.meta}>
                     <div>
                         <dt>País</dt>
                         <dd>{user.pais || '—'}</dd>
@@ -62,13 +63,13 @@ export default function AdminUserEditView({ userId }: AdminUserEditViewProps) {
                     </div>
                 </dl>
 
-                <form className="admin-user-edit__form" onSubmit={handleSubmit}>
-                    <label className="admin-user-edit__label" htmlFor="user-rol">
+                <form className={styles.form} onSubmit={handleSubmit}>
+                    <label className={styles.label} htmlFor="user-rol">
                         Rol en el sistema
                     </label>
-                    <select
+                    <Select
                         id="user-rol"
-                        className="admin-user-edit__select"
+                        className={styles.select}
                         value={rol}
                         onChange={(e) => setRol(e.target.value as UserRole)}
                     >
@@ -77,10 +78,10 @@ export default function AdminUserEditView({ userId }: AdminUserEditViewProps) {
                                 {r.label}
                             </option>
                         ))}
-                    </select>
+                    </Select>
                     <button
                         type="submit"
-                        className="admin-user-edit__submit"
+                        className={styles.submit}
                         disabled={saving || rol === user.rol}
                     >
                         {saving ? 'Guardando…' : 'Guardar rol'}

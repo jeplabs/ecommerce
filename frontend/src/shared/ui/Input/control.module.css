@@ -16,6 +16,8 @@
         box-shadow 0.25s,
         background 0.25s;
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .control::placeholder {
@@ -28,16 +30,22 @@
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
 }
 
-/* Select nativo: sin color-scheme/option el OS pinta fondo claro (p. ej. Windows) */
+/* Select nativo: flecha del SO oculta; icono en Select.module.css (.chevron) */
 select.control {
     color-scheme: dark;
     cursor: pointer;
-    padding-right: 2.25rem;
+    padding-right: 2.75rem;
     background-color: var(--surface);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.85rem center;
-    background-size: 12px;
+}
+
+select.control::-ms-expand {
+    display: none;
+}
+
+select.control:focus {
+    border-color: var(--indigo);
+    background-color: rgba(99, 102, 241, 0.05);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
 }
 
 select.control option {

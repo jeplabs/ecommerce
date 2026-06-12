@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import clsx from 'clsx';
 import {
     formatCurrency,
     formatDateTime,
@@ -6,15 +7,16 @@ import {
 } from '@/shared/lib/format';
 import { getOpcionesEstadoAdmin } from '@/entities/order';
 import type { OrderApi, OrderStatus } from '@/entities/order';
-import './AdminOrdersTable.css';
+import { Select } from '@/shared/ui/Select';
+import styles from './AdminOrdersTable.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
-    PENDIENTE: 'admin-orders-table__pill--pending',
-    CONFIRMADA: 'admin-orders-table__pill--confirmed',
-    EN_PROCESO: 'admin-orders-table__pill--processing',
-    ENVIADA: 'admin-orders-table__pill--shipped',
-    ENTREGADA: 'admin-orders-table__pill--delivered',
-    CANCELADA: 'admin-orders-table__pill--cancelled',
+    PENDIENTE: styles.pillPending,
+    CONFIRMADA: styles.pillConfirmed,
+    EN_PROCESO: styles.pillProcessing,
+    ENVIADA: styles.pillShipped,
+    ENTREGADA: styles.pillDelivered,
+    CANCELADA: styles.pillCancelled,
 };
 
 type AdminOrderRowProps = {
@@ -37,38 +39,38 @@ function AdminOrderRow({ orden, onSaveEstado, updating, onVerDetalle }: AdminOrd
     const itemsCount = orden.items?.length ?? 0;
 
     return (
-        <tr className="admin-orders-table__row">
-            <td className="admin-orders-table__cell-id" data-label="Pedido">
+        <tr className={styles.row}>
+            <td className={styles.cellId} data-label="Pedido">
                 #{orden.id}
             </td>
-            <td className="admin-orders-table__cell-date" data-label="Fecha">
+            <td className={styles.cellDate} data-label="Fecha">
                 {formatDateTime(orden.creadoAt)}
             </td>
-            <td className="admin-orders-table__cell-items" data-label="Ítems">
+            <td className={styles.cellItems} data-label="Ítems">
                 {itemsCount}
             </td>
-            <td className="admin-orders-table__cell-total" data-label="Total">
+            <td className={styles.cellTotal} data-label="Total">
                 {formatCurrency(orden.total)}
             </td>
-            <td className="admin-orders-table__cell-status" data-label="Estado">
-                <div className="admin-orders-table__status-body">
-                    <div className="admin-orders-table__status-top-line">
+            <td className={styles.cellStatus} data-label="Estado">
+                <div className={styles.statusBody}>
+                    <div className={styles.statusTopLine}>
                         <span
-                            className={`admin-orders-table__pill ${ESTADO_CLASS[orden.estado] || ''}`}
+                            className={clsx(styles.pill, ESTADO_CLASS[orden.estado])}
                             aria-hidden="true"
                         >
                             {formatEstadoOrden(orden.estado)}
                         </span>
-                        <div className="admin-orders-table__select-field">
+                        <div className={styles.selectField}>
                             <label
-                                className="admin-orders-table__sr-only"
+                                className={styles.srOnly}
                                 htmlFor={`estado-orden-${orden.id}`}
                             >
                                 Cambiar estado del pedido {orden.id}
                             </label>
-                            <select
+                            <Select
                                 id={`estado-orden-${orden.id}`}
-                                className="admin-orders-table__select"
+                                className={styles.select}
                                 value={selectedEstado}
                                 disabled={!puedeCambiar || updating}
                                 onChange={(e) => setSelectedEstado(e.target.value as OrderStatus)}
@@ -78,12 +80,12 @@ function AdminOrderRow({ orden, onSaveEstado, updating, onVerDetalle }: AdminOrd
                                         {formatEstadoOrden(val)}
                                     </option>
                                 ))}
-                            </select>
+                            </Select>
                         </div>
                     </div>
                     <button
                         type="button"
-                        className="admin-orders-table__btn-save"
+                        className={styles.btnSave}
                         disabled={!dirty || updating || !puedeCambiar}
                         onClick={() => onSaveEstado(orden.id, selectedEstado)}
                     >
@@ -91,10 +93,10 @@ function AdminOrderRow({ orden, onSaveEstado, updating, onVerDetalle }: AdminOrd
                     </button>
                 </div>
             </td>
-            <td className="admin-orders-table__cell-action" data-label="Detalle">
+            <td className={styles.cellAction} data-label="Detalle">
                 <button
                     type="button"
-                    className="admin-orders-table__btn-detail"
+                    className={styles.btnDetail}
                     onClick={() => onVerDetalle(orden.id)}
                 >
                     Ver detalle
@@ -126,7 +128,7 @@ export default function AdminOrdersTable({
 }: AdminOrdersTableProps) {
     if (loading && (!ordenes || ordenes.length === 0)) {
         return (
-            <div className="admin-orders-table__state admin-orders-table__state--loading">
+            <div className={clsx(styles.state, styles.stateLoading)}>
                 <p>Cargando pedidos…</p>
             </div>
         );
@@ -134,7 +136,7 @@ export default function AdminOrdersTable({
 
     if (error) {
         return (
-            <div className="admin-orders-table__state admin-orders-table__state--error" role="alert">
+            <div className={clsx(styles.state, styles.stateError)} role="alert">
                 <p>{error}</p>
             </div>
         );
@@ -142,26 +144,26 @@ export default function AdminOrdersTable({
 
     if (!ordenes || ordenes.length === 0) {
         return (
-            <div className="admin-orders-table__state admin-orders-table__state--empty">
+            <div className={clsx(styles.state, styles.stateEmpty)}>
                 <p>No hay pedidos con el criterio seleccionado.</p>
             </div>
         );
     }
 
     return (
-        <section className="admin-orders-table" aria-label="Pedidos de clientes">
-            <div className="admin-orders-table__scroll">
-                <table className="admin-orders-table__grid">
+        <section className={styles.root} aria-label="Pedidos de clientes">
+            <div className={styles.scroll}>
+                <table className={styles.grid}>
                     <thead>
                         <tr>
                             <th scope="col">Pedido</th>
                             <th scope="col">Fecha</th>
-                            <th scope="col" className="admin-orders-table__col-narrow">
+                            <th scope="col" className={styles.colNarrow}>
                                 Ítems
                             </th>
                             <th scope="col">Total</th>
                             <th scope="col">Estado</th>
-                            <th scope="col" className="admin-orders-table__col-action">
+                            <th scope="col" className={styles.colAction}>
                                 Detalle
                             </th>
                         </tr>

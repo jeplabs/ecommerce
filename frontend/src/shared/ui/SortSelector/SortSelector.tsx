@@ -1,5 +1,6 @@
 import type { ChangeEvent } from 'react';
 import type { CatalogSortOrder } from '@/features/catalog/model/types';
+import { Select } from '@/shared/ui/Select';
 import styles from './SortSelector.module.css';
 
 type SortSelectorProps = {
@@ -21,7 +22,7 @@ export const SortSelector = ({ sortOption, onChange }: SortSelectorProps) => {
             <label htmlFor="sort-products" className={styles.label}>
                 Ordenar por:
             </label>
-            <select
+            <Select
                 id="sort-products"
                 value={sortOption}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>
@@ -35,7 +36,7 @@ export const SortSelector = ({ sortOption, onChange }: SortSelectorProps) => {
                         {option.label}
                     </option>
                 ))}
-            </select>
+            </Select>
         </div>
     );
 };
