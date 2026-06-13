@@ -508,6 +508,7 @@ En producción, definir `VITE_API_URL` apuntando al backend desplegado.
 | [docs/pnpm.md](./docs/pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
 | [docs/eslint-warnings.md](./docs/eslint-warnings.md) | Warnings ESLint: inventario, rendimiento y seguimiento de mejoras |
 | [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
+| [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (Stripe, Webpay Plus, Mercado Pago) |
 | [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
 ---

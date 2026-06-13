@@ -7,6 +7,7 @@ Guías complementarias al [README](../README.md) principal.
 | [architecture-fsd.md](./architecture-fsd.md) | Arquitectura Feature-Sliced Design, capas, entities, mapeo legacy y convenciones del código |
 | [pnpm.md](./pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
 | [eslint-warnings.md](./eslint-warnings.md) | Inventario de warnings ESLint (React Hooks), impacto en rendimiento y registro de avances |
+| [payment-gateways.md](./payment-gateways.md) | Pasarelas de pago: demo (Stripe, Webpay, Mercado Pago) e integración real |
 
 ## Convención
 

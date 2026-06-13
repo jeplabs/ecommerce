@@ -19,6 +19,25 @@ function toErrorStatus(error: unknown): number | undefined {
     return error instanceof ApiError ? error.status : undefined;
 }
 
+function mergeDetalleCache(
+    prev: Record<number, OrderApi>,
+    ordenes: OrderApi[]
+): Record<number, OrderApi> {
+    if (ordenes.length === 0) return prev;
+
+    let changed = false;
+    const next = { ...prev };
+
+    for (const orden of ordenes) {
+        if (next[orden.id] !== orden) {
+            next[orden.id] = orden;
+            changed = true;
+        }
+    }
+
+    return changed ? next : prev;
+}
+
 export function useOrdenesLogic() {
     const navigate = useNavigate();
     const [ordenes, setOrdenes] = useState<OrderApi[]>([]);
@@ -28,11 +47,30 @@ export function useOrdenesLogic() {
     const [loading, setLoading] = useState(false);
     const [detailLoading, setDetailLoading] = useState(false);
     const [ordenSeleccionada, setOrdenSeleccionada] = useState<OrderApi | null>(null);
+    const [detalleById, setDetalleById] = useState<Record<number, OrderApi>>({});
     const [error, setError] = useState<string | null>(null);
 
     const handleAuthError = useCallback(
         (status: number | undefined) => redirectUnauthorized(status, navigate),
         [navigate]
+    );
+
+    const rememberDetalle = useCallback((orden: OrderApi) => {
+        setOrdenSeleccionada(orden);
+        setDetalleById((prev) => {
+            if (prev[orden.id] === orden) return prev;
+            return { ...prev, [orden.id]: orden };
+        });
+    }, []);
+
+    const obtenerDetalleLocal = useCallback(
+        (ordenId: number): OrderApi | null => {
+            const fromList = ordenes.find((orden) => orden.id === ordenId);
+            if (fromList) return fromList;
+            if (ordenSeleccionada?.id === ordenId) return ordenSeleccionada;
+            return detalleById[ordenId] ?? null;
+        },
+        [ordenes, ordenSeleccionada, detalleById]
     );
 
     const fetchOrdenes = useCallback(
@@ -41,7 +79,9 @@ export function useOrdenesLogic() {
             setError(null);
             try {
                 const data = await orderApi.listarMisOrdenes(pageNum, PAGE_SIZE);
-                setOrdenes(data.content ?? []);
+                const content = data.content ?? [];
+                setOrdenes(content);
+                setDetalleById((prev) => mergeDetalleCache(prev, content));
                 setPage(data.number ?? pageNum);
                 setTotalPages(data.totalPages ?? 0);
                 setTotalElements(data.totalElements ?? 0);
@@ -58,12 +98,17 @@ export function useOrdenesLogic() {
 
     const cargarDetalle = useCallback(
         async (ordenId: number): Promise<OrderActionResult<OrderApi>> => {
+            const local = obtenerDetalleLocal(ordenId);
+            if (local) {
+                rememberDetalle(local);
+                return { success: true, data: local };
+            }
+
             setDetailLoading(true);
-            setOrdenSeleccionada(null);
             setError(null);
             try {
                 const data = await orderApi.obtenerOrden(ordenId);
-                setOrdenSeleccionada(data);
+                rememberDetalle(data);
                 return { success: true, data };
             } catch (err) {
                 if (handleAuthError(toErrorStatus(err))) {
@@ -75,7 +120,7 @@ export function useOrdenesLogic() {
                 setDetailLoading(false);
             }
         },
-        [handleAuthError]
+        [handleAuthError, obtenerDetalleLocal, rememberDetalle]
     );
 
     const cerrarDetalle = useCallback(() => {
@@ -86,7 +131,7 @@ export function useOrdenesLogic() {
         async (ordenId: number): Promise<OrderActionResult<OrderApi>> => {
             try {
                 const data = await orderApi.cancelarOrden(ordenId);
-                setOrdenSeleccionada(data);
+                rememberDetalle(data);
                 await fetchOrdenes(page);
                 return { success: true, data };
             } catch (err) {
@@ -96,7 +141,7 @@ export function useOrdenesLogic() {
                 return { success: false, error: toErrorMessage(err) };
             }
         },
-        [fetchOrdenes, page, handleAuthError]
+        [fetchOrdenes, page, handleAuthError, rememberDetalle]
     );
 
     const irAPagina = useCallback(
@@ -121,5 +166,7 @@ export function useOrdenesLogic() {
         cerrarDetalle,
         cancelarOrden,
         irAPagina,
+        obtenerDetalleLocal,
+        rememberDetalle,
     };
 }

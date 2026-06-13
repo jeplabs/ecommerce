@@ -37,3 +37,8 @@
     color: var(--text);
     font-weight: 600;
 }
+
+.iconPending {
+    background: rgba(234, 179, 8, 0.15);
+    color: #fbbf24;
+}

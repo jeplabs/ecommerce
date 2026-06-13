@@ -31,7 +31,7 @@ export default function ReviewAndShippingStep() {
                 <p className={styles.hint}>
                     Agrega una dirección en tu perfil para continuar con la compra.
                 </p>
-                <Link to="/profile" className={clsx(sharedStyles.btn, sharedStyles.btnPrimary)}>
+                <Link to="/profile/direcciones" className={clsx(sharedStyles.btn, sharedStyles.btnPrimary)}>
                     Ir a mis direcciones
                 </Link>
             </div>
@@ -94,7 +94,7 @@ export default function ReviewAndShippingStep() {
                 />
             </div>
 
-            <Link to="/profile" className={styles.link}>
+            <Link to="/profile/direcciones" className={styles.link}>
                 Gestionar direcciones en mi perfil
             </Link>
         </div>

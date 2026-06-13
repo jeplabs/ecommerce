@@ -1,10 +1,6 @@
 import clsx from 'clsx';
 import { formatCurrency } from '@/shared/lib/format';
-import {
-    formatFormaPagoEnvio,
-    isPickupFromServicioNombre,
-} from '@/entities/order';
-import { FORMA_PAGO_ENVIO } from '@/entities/order';
+import { isPickupFromServicioNombre } from '@/entities/order';
 import type { OrderApi } from '@/entities/order';
 import styles from './OrderShippingSummary.module.css';
 
@@ -23,7 +19,6 @@ export default function OrderShippingSummary({ orden, className }: OrderShipping
     const direccion = orden.direccionEnvio;
     const costoEnvio = Number(orden.costoEnvio ?? 0);
     const envioGratis = costoEnvio === 0 && orden.servicioEnvio;
-    const envioContraEntrega = orden.formaPago === FORMA_PAGO_ENVIO.CONTRA_ENTREGA;
 
     return (
         <div className={clsx(styles.root, className)}>
@@ -36,10 +31,6 @@ export default function OrderShippingSummary({ orden, className }: OrderShipping
                 </p>
                 <dl className={styles.meta}>
                     <div className={styles.metaRow}>
-                        <dt>Pago del envío</dt>
-                        <dd>{formatFormaPagoEnvio(orden.formaPago)}</dd>
-                    </div>
-                    <div className={styles.metaRow}>
                         <dt>Costo de envío</dt>
                         <dd className={clsx(envioGratis && styles.free)}>
                             {orden.servicioEnvio
@@ -49,14 +40,6 @@ export default function OrderShippingSummary({ orden, className }: OrderShipping
                                 : '—'}
                         </dd>
                     </div>
-                    {envioContraEntrega && !envioGratis && costoEnvio > 0 && (
-                        <div className={styles.metaRow}>
-                            <dt> </dt>
-                            <dd className={styles.contraNote}>
-                                Incluye tarifa y recargo contra entrega · se paga al recibir
-                            </dd>
-                        </div>
-                    )}
                 </dl>
                 {pickup && (
                     <p className={styles.pickupNote}>

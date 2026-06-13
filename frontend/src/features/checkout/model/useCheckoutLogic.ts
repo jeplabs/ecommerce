@@ -6,6 +6,8 @@ import { orderApi, FORMA_PAGO_ENVIO } from '@/entities/order';
 import type { OrderApi } from '@/entities/order';
 import { paymentApi, PAYMENT_METHODS } from '@/features/checkout/api';
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
+import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
+import { markOrderAsBankTransfer } from '@/features/checkout/lib/transfer-order-storage';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { ApiError } from '@/shared';
 import {
@@ -33,7 +35,12 @@ export type CheckoutLogicParams = {
 };
 
 export type CheckoutCompleteResult =
-    | { success: true; orden: OrderApi; payment: PaymentSuccessResult }
+    | {
+          success: true;
+          orden: OrderApi;
+          payment: PaymentSuccessResult | null;
+          isBankTransfer: boolean;
+      }
     | { success: false; error?: string };
 
 function toErrorMessage(error: unknown): string {
@@ -206,7 +213,9 @@ export function useCheckoutLogic({
         servicios.length > 0;
 
     const canContinuePayment =
+        isBankTransferPaymentMethod(paymentMethod) ||
         paymentMethod === PAYMENT_METHODS.WEBPAY ||
+        paymentMethod === PAYMENT_METHODS.MERCADOPAGO ||
         (paymentMethod === PAYMENT_METHODS.STRIPE &&
             Boolean(cardData.cardholder) &&
             Boolean(cardData.cardNumber) &&
@@ -244,22 +253,28 @@ export function useCheckoutLogic({
         setError(null);
 
         const orderReference = `CHK-${Date.now()}`;
+        const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
 
         try {
-            const payment = await paymentApi.processPayment({
-                method: paymentMethod,
-                amount: orderTotal,
-                orderReference,
-                cardData:
-                    paymentMethod === PAYMENT_METHODS.STRIPE ? cardData : undefined,
-            });
+            let payment: PaymentSuccessResult | null = null;
 
-            if (!payment.success) {
-                setError(payment.error);
-                return { success: false, error: payment.error };
+            if (!isBankTransfer) {
+                const paymentResult = await paymentApi.processPayment({
+                    method: paymentMethod,
+                    amount: orderTotal,
+                    orderReference,
+                    cardData:
+                        paymentMethod === PAYMENT_METHODS.STRIPE ? cardData : undefined,
+                });
+
+                if (!paymentResult.success) {
+                    setError(paymentResult.error);
+                    return { success: false, error: paymentResult.error };
+                }
+
+                payment = paymentResult;
+                setPaymentResult(paymentResult);
             }
-
-            setPaymentResult(payment);
 
             const orden = await orderApi.crearOrden({
                 direccionId: selectedAddressId,
@@ -267,6 +282,10 @@ export function useCheckoutLogic({
                 formaPago: formaPagoEnvio,
                 notas: notas.trim() || null,
             });
+
+            if (isBankTransfer) {
+                markOrderAsBankTransfer(orden.id);
+            }
 
             checkoutCompletedRef.current = true;
             setCheckoutCompleted(true);
@@ -276,6 +295,7 @@ export function useCheckoutLogic({
                 success: true,
                 orden,
                 payment,
+                isBankTransfer,
             };
         } catch (err) {
             if (handleAuthError(toErrorStatus(err))) {

@@ -17,11 +17,16 @@ const STRIPE_TEST_CARDS = {
 
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
+const TRANSACTION_PREFIX: Record<PaymentMethod, string> = {
+    [PAYMENT_METHODS.STRIPE]: 'pi_sim',
+    [PAYMENT_METHODS.WEBPAY]: 'WP_SIM',
+    [PAYMENT_METHODS.MERCADOPAGO]: 'MP_SIM',
+    [PAYMENT_METHODS.BANK_TRANSFER]: 'TRF_SIM',
+};
+
 const generateTransactionId = (provider: PaymentMethod): string => {
     const suffix = Math.random().toString(36).slice(2, 10).toUpperCase();
-    return provider === PAYMENT_METHODS.WEBPAY
-        ? `WP_SIM_${Date.now()}_${suffix}`
-        : `pi_sim_${Date.now()}_${suffix}`;
+    return `${TRANSACTION_PREFIX[provider]}_${Date.now()}_${suffix}`;
 };
 
 const validateStripeCard = (cardData: StripeCardFormValues | undefined) => {
@@ -41,14 +46,29 @@ const validateStripeCard = (cardData: StripeCardFormValues | undefined) => {
     return { valid: true as const, number };
 };
 
+const SIMULATED_DELAY_MS: Record<PaymentMethod, number> = {
+    [PAYMENT_METHODS.STRIPE]: 1600,
+    [PAYMENT_METHODS.WEBPAY]: 2200,
+    [PAYMENT_METHODS.MERCADOPAGO]: 1900,
+    [PAYMENT_METHODS.BANK_TRANSFER]: 0,
+};
+
 /**
  * Simula el flujo de pago antes de crear la orden en el backend.
- * Sustituir por Stripe.js o Webpay Plus en producción.
+ * Sustituir por Stripe.js, Webpay Plus o Mercado Pago en producción.
+ * Ver `frontend/docs/payment-gateways.md`.
  */
 export async function processPayment(params: ProcessPaymentInput): Promise<PaymentResult> {
     const { method, amount, orderReference, cardData } = processPaymentInputSchema.parse(params);
 
-    await delay(method === PAYMENT_METHODS.WEBPAY ? 2200 : 1600);
+    await delay(SIMULATED_DELAY_MS[method]);
+
+    if (method === PAYMENT_METHODS.BANK_TRANSFER) {
+        return {
+            success: false,
+            error: 'La transferencia bancaria no usa processPayment; confirma el pedido directamente.',
+        };
+    }
 
     if (method === PAYMENT_METHODS.STRIPE) {
         const validation = validateStripeCard(cardData);
@@ -89,6 +109,17 @@ export async function processPayment(params: ProcessPaymentInput): Promise<Payme
             amount,
             orderReference,
             authorizationCode: `AUTH${Date.now().toString().slice(-8)}`,
+        };
+    }
+
+    if (method === PAYMENT_METHODS.MERCADOPAGO) {
+        return {
+            success: true,
+            transactionId: generateTransactionId(PAYMENT_METHODS.MERCADOPAGO),
+            provider: 'Mercado Pago (simulado)',
+            amount,
+            orderReference,
+            authorizationCode: `MP${Date.now().toString().slice(-10)}`,
         };
     }
 

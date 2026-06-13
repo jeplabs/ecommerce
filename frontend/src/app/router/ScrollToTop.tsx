@@ -1,5 +1,13 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+
+/**
+ * Rutas que solo cambian un parámetro interno (p. ej. id de pedido) no deben
+ * resetear scroll ni provocar un “salto” visual en la página de fondo.
+ */
+function scrollResetKey(pathname: string): string {
+    return pathname.replace(/\/profile\/ordenes\/\d+$/, '/profile/ordenes');
+}
 
 /**
  * Restaura scroll al inicio en cada cambio de ruta.
@@ -23,9 +31,17 @@ function resetPageScroll() {
 
 export default function ScrollToTop() {
     const { pathname, hash } = useLocation();
+    const prevPathRef = useRef(pathname);
 
     useLayoutEffect(() => {
         if (hash) return;
+
+        const prevPath = prevPathRef.current;
+        prevPathRef.current = pathname;
+
+        if (scrollResetKey(prevPath) === scrollResetKey(pathname)) {
+            return;
+        }
 
         resetPageScroll();
     }, [pathname, hash]);

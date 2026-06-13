@@ -1,12 +1,12 @@
 import { ProfileProvider } from '@/app/providers';
 import { useLocation } from 'react-router-dom';
 import ProfileContent from '@/features/profile/ui/ProfileContent/ProfileContent';
+import { getProfileTabFromPath } from '@/features/profile/lib/profileRoutes';
 import styles from '@/widgets/profile/ProfileView.module.css';
 
 export function ProfilePage() {
-    const location = useLocation();
-    const initialTab =
-        (location.state as { tab?: string } | null)?.tab ?? 'datos';
+    const { pathname } = useLocation();
+    const activeTab = getProfileTabFromPath(pathname);
 
     return (
         <main className={styles.page}>
@@ -16,7 +16,7 @@ export function ProfilePage() {
                     <p>Gestiona tu perfil, direcciones y pedidos</p>
                 </header>
 
-                <ProfileProvider initialTab={initialTab}>
+                <ProfileProvider activeTab={activeTab}>
                     <ProfileContent />
                 </ProfileProvider>
             </div>

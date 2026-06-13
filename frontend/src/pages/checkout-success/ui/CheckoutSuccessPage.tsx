@@ -15,12 +15,14 @@ import successStyles from '@/widgets/checkout/checkoutSuccessPage.module.css';
 
 type CheckoutSuccessLocationState = {
     orden?: OrderApi;
-    payment?: PaymentSuccessResult;
+    payment?: PaymentSuccessResult | null;
+    isBankTransfer?: boolean;
 };
 
 export function CheckoutSuccessPage() {
     const location = useLocation();
-    const { orden, payment } = (location.state as CheckoutSuccessLocationState | null) ?? {};
+    const { orden, payment, isBankTransfer = false } =
+        (location.state as CheckoutSuccessLocationState | null) ?? {};
     const { refreshCart } = useCart();
 
     useEffect(() => {
@@ -45,7 +47,11 @@ export function CheckoutSuccessPage() {
                     markCurrentComplete
                 />
 
-                <CheckoutSuccessView orden={orden} payment={payment} />
+                <CheckoutSuccessView
+                    orden={orden}
+                    payment={payment}
+                    isBankTransfer={isBankTransfer}
+                />
             </div>
         </main>
     );

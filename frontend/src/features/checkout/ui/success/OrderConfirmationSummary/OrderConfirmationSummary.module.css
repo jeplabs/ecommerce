@@ -57,6 +57,19 @@
     color: var(--muted);
 }
 
+.transfer {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.15rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.transferNote {
+    margin: 0 0 0.85rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
 .payment {
     margin-bottom: 1.25rem;
     padding-bottom: 1.15rem;

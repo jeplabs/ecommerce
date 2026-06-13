@@ -9,8 +9,7 @@ export default function CheckoutSuccessActions() {
                 Guardamos tu pedido en el historial. Puedes consultar el estado cuando quieras.
             </p>
             <Link
-                to="/profile"
-                state={{ tab: 'ordenes' }}
+                to="/profile/ordenes"
                 className={clsx(styles.btn, styles.btnPrimary)}
             >
                 Ver historial de compras

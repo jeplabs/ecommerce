@@ -1,11 +1,13 @@
 import { useProfile, useToast } from '@/app/providers';
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import clsx from 'clsx';
 
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderStatus } from '@/entities/order';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import { Button } from '@/shared/ui/Button';
+import { profileOrderDetailPath } from '@/features/profile/lib/profileRoutes';
 import styles from './OrdersTab.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
@@ -17,7 +19,21 @@ const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
     CANCELADA: styles.statusCancelled,
 };
 
+function parseOrderIdParam(idParam: string | undefined): number | null {
+    if (!idParam) return null;
+    const parsed = Number(idParam);
+    if (!Number.isFinite(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
+        return null;
+    }
+    return parsed;
+}
+
 export default function OrdersTab() {
+    const navigate = useNavigate();
+    const { id: idParam } = useParams<{ id?: string }>();
+    const orderIdFromUrl = parseOrderIdParam(idParam);
+    const isDetailOpen = orderIdFromUrl != null;
+
     const { ordenes } = useProfile();
     const { showSuccess, showError } = useToast();
 
@@ -35,12 +51,16 @@ export default function OrdersTab() {
         cerrarDetalle,
         cancelarOrden,
         irAPagina,
+        obtenerDetalleLocal,
+        rememberDetalle,
     } = ordenes;
 
     const [cancelling, setCancelling] = useState(false);
     const [loaded, setLoaded] = useState(false);
-    const [detailModalOpen, setDetailModalOpen] = useState(false);
-    const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
+
+    const modalOrden =
+        orderIdFromUrl != null ? obtenerDetalleLocal(orderIdFromUrl) : null;
+    const isFetchingRemote = detailLoading && modalOrden == null;
 
     useEffect(() => {
         if (!loaded) {
@@ -49,29 +69,59 @@ export default function OrdersTab() {
         }
     }, [loaded, fetchOrdenes]);
 
+    useEffect(() => {
+        if (idParam && orderIdFromUrl == null) {
+            navigate('/profile/ordenes', { replace: true });
+            return;
+        }
+
+        if (orderIdFromUrl == null) {
+            cerrarDetalle();
+            return;
+        }
+
+        const local = obtenerDetalleLocal(orderIdFromUrl);
+        if (local) {
+            if (ordenSeleccionada?.id !== orderIdFromUrl) {
+                rememberDetalle(local);
+            }
+            return;
+        }
+
+        void cargarDetalle(orderIdFromUrl).then((res) => {
+            if (!res?.success) {
+                navigate('/profile/ordenes', { replace: true });
+                if (res?.error) {
+                    showError(res.error);
+                }
+            }
+        });
+    }, [
+        idParam,
+        orderIdFromUrl,
+        ordenSeleccionada?.id,
+        obtenerDetalleLocal,
+        rememberDetalle,
+        cargarDetalle,
+        cerrarDetalle,
+        navigate,
+        showError,
+    ]);
+
     const closeDetailModal = () => {
-        setDetailModalOpen(false);
-        setLoadingDetailId(null);
         cerrarDetalle();
+        if (isDetailOpen) {
+            navigate('/profile/ordenes');
+        }
     };
 
-    const handleDetailClick = async (id: number) => {
-        if (detailModalOpen && ordenSeleccionada?.id === id && !detailLoading) {
+    const handleDetailClick = (id: number) => {
+        if (orderIdFromUrl === id && isDetailOpen) {
             closeDetailModal();
             return;
         }
 
-        setDetailModalOpen(true);
-        setLoadingDetailId(id);
-        const res = await cargarDetalle(id);
-        setLoadingDetailId(null);
-
-        if (!res?.success) {
-            setDetailModalOpen(false);
-            if (res?.error) {
-                showError(res.error);
-            }
-        }
+        navigate(profileOrderDetailPath(id));
     };
 
     const handleCancel = async (id: number) => {
@@ -121,10 +171,7 @@ export default function OrdersTab() {
                                     </thead>
                                     <tbody>
                                         {lista.map((orden) => {
-                                            const isRowLoading = loadingDetailId === orden.id && detailLoading;
-                                            const isRowActive =
-                                                ordenSeleccionada?.id === orden.id ||
-                                                (isRowLoading && detailModalOpen);
+                                            const isRowActive = orderIdFromUrl === orden.id;
 
                                             return (
                                                 <tr
@@ -150,13 +197,10 @@ export default function OrdersTab() {
                                                             type="button"
                                                             className={styles.detailBtn}
                                                             onClick={() => handleDetailClick(orden.id)}
-                                                            disabled={isRowLoading}
                                                         >
-                                                            {isRowLoading
-                                                                ? 'Cargando…'
-                                                                : detailModalOpen && ordenSeleccionada?.id === orden.id
-                                                                    ? 'Cerrar detalle'
-                                                                    : 'Ver detalle'}
+                                                            {orderIdFromUrl === orden.id && isDetailOpen
+                                                                ? 'Cerrar detalle'
+                                                                : 'Ver detalle'}
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -195,9 +239,9 @@ export default function OrdersTab() {
             </div>
 
             <OrderDetailModal
-                isOpen={detailModalOpen}
-                loading={detailLoading}
-                orden={ordenSeleccionada}
+                isOpen={isDetailOpen}
+                loading={isFetchingRemote}
+                orden={modalOrden}
                 onClose={closeDetailModal}
                 onCancel={handleCancel}
                 cancelling={cancelling}

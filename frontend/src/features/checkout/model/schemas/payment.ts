@@ -1,14 +1,22 @@
 import { z } from 'zod';
 
 /** Métodos de pasarela simulados en checkout (no confundir con {@code FormaPago} del backend). */
-export const paymentMethodSchema = z.enum(['stripe', 'webpay']);
+export const paymentMethodSchema = z.enum(['stripe', 'webpay', 'mercadopago', 'transferencia']);
 
 export const PAYMENT_METHODS = {
     STRIPE: 'stripe',
     WEBPAY: 'webpay',
+    MERCADOPAGO: 'mercadopago',
+    BANK_TRANSFER: 'transferencia',
 } as const;
 
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
+
+export function isBankTransferPaymentMethod(
+    method: PaymentMethod | null | undefined
+): boolean {
+    return method === PAYMENT_METHODS.BANK_TRANSFER;
+}
 
 export const stripeCardFormSchema = z.object({
     cardholder: z.string(),

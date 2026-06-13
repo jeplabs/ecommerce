@@ -9,15 +9,24 @@ import styles from '@/widgets/checkout/checkoutSuccessPage.module.css';
 type CheckoutSuccessViewProps = {
     orden: OrderApi;
     payment?: PaymentSuccessResult | null;
+    isBankTransfer?: boolean;
 };
 
-export default function CheckoutSuccessView({ orden, payment }: CheckoutSuccessViewProps) {
+export default function CheckoutSuccessView({
+    orden,
+    payment,
+    isBankTransfer = false,
+}: CheckoutSuccessViewProps) {
     return (
         <>
-            <CheckoutSuccessHeader orderId={orden.id} />
+            <CheckoutSuccessHeader orderId={orden.id} isBankTransfer={isBankTransfer} />
 
             <div className={styles.main}>
-                <OrderConfirmationSummary orden={orden} payment={payment} />
+                <OrderConfirmationSummary
+                    orden={orden}
+                    payment={payment}
+                    isBankTransfer={isBankTransfer}
+                />
                 <CheckoutSuccessActions />
             </div>
 

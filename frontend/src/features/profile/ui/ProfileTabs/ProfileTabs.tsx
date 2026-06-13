@@ -9,8 +9,8 @@ const TABS: Array<{ id: ProfileTabId; label: string; icon: string }> = [
 ];
 
 type ProfileTabsProps = {
-    activeTab: ProfileTabId | string;
-    onTabChange: (tabId: ProfileTabId | string) => void;
+    activeTab: ProfileTabId;
+    onTabChange: (tabId: ProfileTabId) => void;
 };
 
 export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {

@@ -4,6 +4,8 @@ import shippingSummaryStyles from '@/features/order/ui/OrderShippingSummary/Orde
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
+import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
+import BankTransferAccounts from '@/features/checkout/ui/BankTransferAccounts/BankTransferAccounts';
 import styles from './OrderConfirmationSummary.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
@@ -18,12 +20,18 @@ const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
 type OrderConfirmationSummaryProps = {
     orden: OrderApi | null | undefined;
     payment?: PaymentSuccessResult | null;
+    isBankTransfer?: boolean;
 };
 
-export default function OrderConfirmationSummary({ orden, payment }: OrderConfirmationSummaryProps) {
+export default function OrderConfirmationSummary({
+    orden,
+    payment,
+    isBankTransfer = false,
+}: OrderConfirmationSummaryProps) {
     if (!orden) return null;
 
     const costoEnvio = Number(orden.costoEnvio ?? 0);
+    const showBankTransfer = isBankTransfer || isBankTransferOrder(orden.id);
 
     return (
         <article className={styles.root} aria-labelledby="order-confirmation-title">
@@ -36,6 +44,19 @@ export default function OrderConfirmationSummary({ orden, payment }: OrderConfir
                     {formatEstadoOrden(orden.estado)}
                 </span>
             </header>
+
+            {showBankTransfer && (
+                <section className={styles.transfer} aria-labelledby="order-transfer-title">
+                    <h3 id="order-transfer-title" className={styles.sectionTitle}>
+                        Datos para transferir
+                    </h3>
+                    <p className={styles.transferNote}>
+                        Tu pedido quedó <strong>pendiente</strong>. Transfiere el monto y sube el
+                        comprobante desde <strong>Mi perfil → Pedidos</strong>.
+                    </p>
+                    <BankTransferAccounts orderId={orden.id} total={orden.total} compact />
+                </section>
+            )}
 
             {payment && (
                 <section className={styles.payment} aria-labelledby="order-payment-title">
@@ -103,7 +124,7 @@ export default function OrderConfirmationSummary({ orden, payment }: OrderConfir
                     <span>{formatCurrency(orden.iva)}</span>
                 </div>
                 <div className={clsx(styles.totalRow, styles.totalRowGrand)}>
-                    <span>Total pagado</span>
+                    <span>{showBankTransfer ? 'Total a transferir' : 'Total pagado'}</span>
                     <span>{formatCurrency(orden.total)}</span>
                 </div>
             </div>

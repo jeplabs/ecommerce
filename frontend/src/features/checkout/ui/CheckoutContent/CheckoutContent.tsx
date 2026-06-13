@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useCheckout, useToast } from '@/app/providers';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
+import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
 
 import CheckoutSteps from '../CheckoutSteps/CheckoutSteps';
 import ReviewAndShippingStep from '../ReviewAndShippingStep/ReviewAndShippingStep';
@@ -37,7 +38,10 @@ export default function CheckoutContent() {
         goNext,
         goBack,
         completeCheckout,
+        paymentMethod,
     } = useCheckout();
+
+    const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
 
     if ((cartLoading || isEmpty) && !processing && !checkoutCompleted) {
         return <p className={pageStyles.loading}>Preparando checkout…</p>;
@@ -56,12 +60,17 @@ export default function CheckoutContent() {
         try {
             const result = await completeCheckout();
             if (result.success) {
-                showSuccess('¡Pedido realizado con éxito!');
+                showSuccess(
+                    result.isBankTransfer
+                        ? 'Pedido registrado. Realiza la transferencia y sube el comprobante desde tu historial.'
+                        : '¡Pedido realizado con éxito!'
+                );
                 navigate('/checkout/success', {
                     replace: true,
                     state: {
                         orden: result.orden,
                         payment: result.payment,
+                        isBankTransfer: result.isBankTransfer,
                     },
                 });
             } else if (result.error) {
@@ -128,7 +137,13 @@ export default function CheckoutContent() {
                                 onClick={handlePay}
                                 disabled={processing || !canContinuePayment}
                             >
-                                {processing ? 'Procesando pago…' : 'Pagar y finalizar'}
+                                {processing
+                                    ? isBankTransfer
+                                        ? 'Registrando pedido…'
+                                        : 'Procesando pago…'
+                                    : isBankTransfer
+                                      ? 'Confirmar pedido'
+                                      : 'Pagar y finalizar'}
                             </button>
                         )}
                     </div>

@@ -89,9 +89,7 @@ export default function OrderDetailModal({
                 tabIndex={-1}
                 onClick={(e) => e.stopPropagation()}
             >
-                {loading && !orden ? (
-                    <p className={styles.loading}>Cargando pedido…</p>
-                ) : orden ? (
+                {orden ? (
                     <OrderDetail
                         orden={orden}
                         onClose={onClose}
@@ -100,7 +98,13 @@ export default function OrderDetailModal({
                         titleId={TITLE_ID}
                         className={detailStyles.detailInModal}
                     />
-                ) : null}
+                ) : (
+                    <div className={styles.skeleton} aria-busy="true" aria-label="Cargando detalle del pedido">
+                        <div className={styles.skeletonLine} />
+                        <div className={styles.skeletonLineShort} />
+                        <div className={styles.skeletonBlock} />
+                    </div>
+                )}
             </div>
         </div>,
         document.body

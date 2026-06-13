@@ -1,5 +1,7 @@
 import clsx from 'clsx';
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
+import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
+import OrderBankTransferSection from '@/features/checkout/ui/OrderBankTransferSection/OrderBankTransferSection';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import { Button } from '@/shared/ui/Button';
@@ -28,6 +30,7 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
 
     const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'CONFIRMADA';
     const costoEnvio = Number(orden.costoEnvio ?? 0);
+    const showBankTransfer = isBankTransferOrder(orden.id);
 
     return (
         <div className={clsx(styles.root, className)}>
@@ -46,6 +49,8 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
             </span>
 
             <OrderShippingSummary orden={orden} />
+
+            {showBankTransfer && <OrderBankTransferSection orden={orden} />}
 
             <div className={styles.section}>
                 <h4>Productos</h4>
@@ -66,6 +71,7 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
             </div>
 
             <div className={styles.totals}>
+                <h4 className={styles.totalsHeading}>Resumen</h4>
                 <div className={styles.totalRow}>
                     <span>Subtotal productos</span>
                     <span>{formatCurrency(orden.subtotal)}</span>
