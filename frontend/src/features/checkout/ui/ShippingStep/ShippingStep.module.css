@@ -13,20 +13,28 @@
 
 .list {
     list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11.5rem), 1fr));
+    gap: 0.6rem;
     margin-bottom: 1.25rem;
 }
 
+.list > li {
+    min-width: 0;
+}
+
 .card {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 6.5rem;
     cursor: pointer;
     border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 10px;
+    padding: 0.65rem 0.7rem;
     background: var(--surface2);
     transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
 }
 
 .card input {
@@ -38,27 +46,51 @@
 .cardSelected {
     border-color: var(--indigo);
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+    background: rgba(99, 102, 241, 0.06);
 }
 
 .cardHeader {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.35rem;
     margin-bottom: 0.35rem;
 }
 
+.cardHeader strong {
+    font-size: 0.88rem;
+    line-height: 1.25;
+}
+
 .badge {
-    font-size: 0.68rem;
-    padding: 0.15rem 0.45rem;
+    font-size: 0.62rem;
+    padding: 0.1rem 0.4rem;
     border-radius: 999px;
     background: rgba(99, 102, 241, 0.2);
     color: var(--accent);
 }
 
-.cardBody p {
-    font-size: 0.85rem;
+.cardBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.cardLine {
+    font-size: 0.76rem;
     color: var(--muted);
-    margin: 0.1rem 0;
+    margin: 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cardMeta {
+    margin-top: 0.25rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.3;
 }
 
 .link {
@@ -70,4 +102,10 @@
 
 .link:hover {
     text-decoration: underline;
+}
+
+@media (min-width: 640px) {
+    .list {
+        grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    }
 }

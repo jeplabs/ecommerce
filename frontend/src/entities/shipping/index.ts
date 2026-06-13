@@ -19,6 +19,12 @@ export {
 
 export {
     isPickupService,
+    isExpressService,
+    qualifiesForFreeShipping,
+    getCheckoutShippingOptions,
+    sortShippingServices,
+    getExpressDeliveryHint,
+    getShippingServiceDescription,
     getShippingServiceCosts,
     getServicioCostos,
     resolveShippingCost,

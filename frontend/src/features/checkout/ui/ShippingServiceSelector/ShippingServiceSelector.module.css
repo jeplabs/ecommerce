@@ -35,38 +35,34 @@
     color: var(--muted);
 }
 
-.groupLabel {
-    margin: 0 0 0.5rem;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-
-.group {
-    margin-bottom: 1.1rem;
-}
-
-.list {
+.optionsRow {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(var(--option-count, 3), minmax(0, 1fr));
     gap: 0.65rem;
+    align-items: stretch;
+}
+
+.optionsRow > li {
+    min-width: 0;
 }
 
 .card {
     display: flex;
-    align-items: flex-start;
-    gap: 0.85rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    min-height: 8rem;
     cursor: pointer;
     border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    padding: 0.65rem 0.55rem;
     background: var(--surface2);
     transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
 }
 
 .card input {
@@ -78,111 +74,114 @@
 .cardSelected {
     border-color: var(--indigo);
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+    background: rgba(99, 102, 241, 0.06);
 }
 
 .cardPickup {
     border-style: dashed;
 }
 
+.cardExpress {
+    border-color: rgba(245, 158, 11, 0.45);
+}
+
+.cardExpress.cardSelected {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+    background: rgba(245, 158, 11, 0.08);
+}
+
 .logo {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--surface);
     flex-shrink: 0;
+    margin-bottom: 0.4rem;
 }
 
 .logoPlaceholder {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 8px;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 6px;
     background: var(--surface);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
+    margin-bottom: 0.4rem;
 }
 
 .body {
     flex: 1;
     min-width: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .nameRow {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.35rem 0.75rem;
+    width: 100%;
 }
 
 .nameRow strong {
-    font-size: 0.95rem;
-}
-
-.costs {
-    margin-top: 0.55rem;
-    padding-top: 0.55rem;
-    border-top: 1px dashed var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-}
-
-.costLine {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.75rem;
-    font-size: 0.78rem;
-}
-
-.costLabel {
-    color: var(--muted);
-}
-
-.costValue {
-    font-weight: 600;
-    text-align: right;
-}
-
-.costStruck {
-    text-decoration: line-through;
-    color: var(--muted);
-    font-weight: 500;
-    margin-right: 0.35rem;
-}
-
-.costFree {
-    color: #22c55e;
+    display: block;
+    font-size: 0.8rem;
+    line-height: 1.25;
     font-weight: 600;
 }
 
-.activeTotal {
-    font-size: 0.82rem;
+.priceTag {
+    display: inline-block;
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--indigo);
-    white-space: nowrap;
 }
 
-.price {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--accent);
-    white-space: nowrap;
+.priceWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    margin-top: 0.35rem;
 }
 
-.priceFree {
+.priceStruck {
+    text-decoration: line-through;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 500;
+}
+
+.priceTagFree {
     color: #22c55e;
+}
+
+.expressNote {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #d97706;
 }
 
 .desc {
-    margin: 0.25rem 0 0;
-    font-size: 0.82rem;
+    margin: 0;
+    font-size: 0.68rem;
     color: var(--muted);
-    line-height: 1.4;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    width: 100%;
 }
 
 .pickupNote {
@@ -217,4 +216,10 @@
 
 .retry:hover {
     border-color: var(--indigo);
+}
+
+@media (max-width: 720px) {
+    .optionsRow {
+        grid-template-columns: 1fr;
+    }
 }

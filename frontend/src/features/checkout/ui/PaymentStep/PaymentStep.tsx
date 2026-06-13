@@ -2,19 +2,21 @@ import { useCheckout } from '@/app/providers';
 import clsx from 'clsx';
 
 import { PAYMENT_METHODS } from '@/features/checkout';
+import { formatCurrency } from '@/shared/lib/format';
 import SimulatedStripeForm from '../SimulatedStripeForm/SimulatedStripeForm';
 import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
 import sharedStyles from '../checkoutShared.module.css';
 import styles from './PaymentStep.module.css';
 
 export default function PaymentStep() {
-    const { paymentMethod, setPaymentMethod } = useCheckout();
+    const { paymentMethod, setPaymentMethod, orderTotal } = useCheckout();
 
     return (
         <div>
             <h2 className={sharedStyles.stepTitle}>Método de pago</h2>
             <p className={sharedStyles.stepSubtitle}>
-                Elige cómo pagar. En este entorno el pago es simulado (sin cargos reales).
+                Total a pagar: <strong>{formatCurrency(orderTotal)}</strong> (productos + envío en
+                línea). El pago es simulado en este entorno (sin cargos reales).
             </p>
 
             <div className={styles.methods}>

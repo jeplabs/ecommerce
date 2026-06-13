@@ -9,11 +9,12 @@ type CheckoutProviderInnerProps = {
 };
 
 function CheckoutProviderInner({ children }: CheckoutProviderInnerProps) {
-    const { items, cartTotal, isEmpty, loading: cartLoading } = useCart();
+    const { items, cartTotal, isEmpty, loading: cartLoading, refreshCart } = useCart();
     const checkout = useCheckoutLogic({
         cartItems: items,
         cartTotal,
         isEmpty,
+        refreshCart,
     });
 
     return (

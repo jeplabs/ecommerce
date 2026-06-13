@@ -1,24 +1,29 @@
 import clsx from 'clsx';
-import type { CheckoutStep } from '@/features/checkout/model/useCheckoutLogic';
+import {
+    CHECKOUT_STEP_LABELS,
+    type CheckoutStep,
+} from '@/features/checkout/model/checkoutSteps';
 import styles from './CheckoutSteps.module.css';
-
-const STEP_LABELS: Record<CheckoutStep, string> = {
-    envio: 'Envío',
-    pago: 'Pago',
-    confirmar: 'Confirmar',
-};
 
 type CheckoutStepsProps = {
     steps: readonly CheckoutStep[];
     currentIndex: number;
+    /** Marca el paso actual como completado (p. ej. confirmación tras el pago). */
+    markCurrentComplete?: boolean;
 };
 
-export default function CheckoutSteps({ steps, currentIndex }: CheckoutStepsProps) {
+export default function CheckoutSteps({
+    steps,
+    currentIndex,
+    markCurrentComplete = false,
+}: CheckoutStepsProps) {
     return (
         <ol className={styles.root} aria-label="Pasos del checkout">
             {steps.map((stepId, index) => {
-                const isActive = index === currentIndex;
-                const isDone = index < currentIndex;
+                const isDone =
+                    index < currentIndex ||
+                    (markCurrentComplete && index === currentIndex);
+                const isActive = index === currentIndex && !markCurrentComplete;
 
                 return (
                     <li
@@ -33,7 +38,7 @@ export default function CheckoutSteps({ steps, currentIndex }: CheckoutStepsProp
                         <span className={styles.number}>
                             {isDone ? '✓' : index + 1}
                         </span>
-                        <span className={styles.label}>{STEP_LABELS[stepId]}</span>
+                        <span className={styles.label}>{CHECKOUT_STEP_LABELS[stepId]}</span>
                     </li>
                 );
             })}

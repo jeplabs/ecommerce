@@ -20,6 +20,13 @@ export {
 } from './model/schemas/payment';
 
 export { useCheckoutLogic } from './model/useCheckoutLogic';
+export {
+    CHECKOUT_STEPS,
+    CHECKOUT_STEP_LABELS,
+    CHECKOUT_SUCCESS_STEP_INDEX,
+    CHECKOUT_FLOW_LAST_INDEX,
+    type CheckoutStep,
+} from './model/checkoutSteps';
 export { useCheckoutSuccessRecommendations } from './model/useCheckoutSuccessRecommendations';
 
 export { pickPostCheckoutProducts } from './lib/checkout-recommendations';
@@ -27,9 +34,9 @@ export { pickPostCheckoutProducts } from './lib/checkout-recommendations';
 export {
     CheckoutContent,
     CheckoutSteps,
-    ShippingStep,
+    ReviewAndShippingStep,
     PaymentStep,
-    ConfirmStep,
+    CheckoutLineItems,
     OrderSummary,
     CheckoutSuccessHeader,
     OrderConfirmationSummary,

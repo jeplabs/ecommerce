@@ -2,9 +2,18 @@ import clsx from 'clsx';
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
 import shippingSummaryStyles from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary.module.css';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
-import type { OrderApi } from '@/entities/order';
+import type { OrderApi, OrderStatus } from '@/entities/order';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
 import styles from './OrderConfirmationSummary.module.css';
+
+const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
+    PENDIENTE: styles.statusPending,
+    CONFIRMADA: styles.statusConfirmed,
+    EN_PROCESO: styles.statusProcessing,
+    ENVIADA: styles.statusShipped,
+    ENTREGADA: styles.statusDelivered,
+    CANCELADA: styles.statusCancelled,
+};
 
 type OrderConfirmationSummaryProps = {
     orden: OrderApi | null | undefined;
@@ -23,7 +32,7 @@ export default function OrderConfirmationSummary({ orden, payment }: OrderConfir
                     <h2 id="order-confirmation-title">Resumen del pedido</h2>
                     <p className={styles.date}>{formatDateTime(orden.creadoAt)}</p>
                 </div>
-                <span className={styles.status}>
+                <span className={clsx(styles.status, ESTADO_CLASS[orden.estado])}>
                     {formatEstadoOrden(orden.estado)}
                 </span>
             </header>

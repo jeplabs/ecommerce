@@ -1,11 +1,11 @@
+import { useRef } from 'react';
 import { useCheckout, useToast } from '@/app/providers';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 
 import CheckoutSteps from '../CheckoutSteps/CheckoutSteps';
-import ShippingStep from '../ShippingStep/ShippingStep';
+import ReviewAndShippingStep from '../ReviewAndShippingStep/ReviewAndShippingStep';
 import PaymentStep from '../PaymentStep/PaymentStep';
-import ConfirmStep from '../ConfirmStep/ConfirmStep';
 import OrderSummary from '../OrderSummary/OrderSummary';
 import sharedStyles from '../checkoutShared.module.css';
 import pageStyles from '@/widgets/checkout/checkoutPage.module.css';
@@ -14,6 +14,7 @@ import styles from './CheckoutContent.module.css';
 export default function CheckoutContent() {
     const navigate = useNavigate();
     const { showSuccess, showError } = useToast();
+    const payingRef = useRef(false);
 
     const {
         steps,
@@ -25,10 +26,10 @@ export default function CheckoutContent() {
         shippingCostInTotal,
         orderTotal,
         envioOpciones,
-        formaPagoEnvio,
         selectedServicioCostos,
         cartLoading,
         isEmpty,
+        checkoutCompleted,
         error,
         processing,
         canContinueShipping,
@@ -38,32 +39,38 @@ export default function CheckoutContent() {
         completeCheckout,
     } = useCheckout();
 
-    if (cartLoading || isEmpty) {
+    if ((cartLoading || isEmpty) && !processing && !checkoutCompleted) {
         return <p className={pageStyles.loading}>Preparando checkout…</p>;
     }
 
-    const handleNext = () => {
-        if (currentStep === 'envio' && !canContinueShipping) return;
-        if (currentStep === 'pago' && !canContinuePayment) return;
+    const isPaymentStep = currentStep === 'pago';
+
+    const handleContinue = () => {
+        if (!canContinueShipping) return;
         goNext();
     };
 
     const handlePay = async () => {
-        const result = await completeCheckout();
-        if (result.success) {
-            showSuccess('¡Pedido realizado con éxito!');
-            navigate('/checkout/success', {
-                state: {
-                    orden: result.orden,
-                    payment: result.payment,
-                },
-            });
-        } else if (result.error) {
-            showError(result.error);
+        if (!canContinuePayment || payingRef.current) return;
+        payingRef.current = true;
+        try {
+            const result = await completeCheckout();
+            if (result.success) {
+                showSuccess('¡Pedido realizado con éxito!');
+                navigate('/checkout/success', {
+                    replace: true,
+                    state: {
+                        orden: result.orden,
+                        payment: result.payment,
+                    },
+                });
+            } else if (result.error) {
+                showError(result.error);
+            }
+        } finally {
+            payingRef.current = false;
         }
     };
-
-    const isLastStep = currentStep === 'confirmar';
 
     return (
         <div>
@@ -77,9 +84,8 @@ export default function CheckoutContent() {
 
             <div className={styles.layout}>
                 <div className={styles.main}>
-                    {currentStep === 'envio' && <ShippingStep />}
+                    {currentStep === 'pedido' && <ReviewAndShippingStep />}
                     {currentStep === 'pago' && <PaymentStep />}
-                    {currentStep === 'confirmar' && <ConfirmStep />}
 
                     <div className={styles.nav}>
                         {step > 0 && (
@@ -97,7 +103,7 @@ export default function CheckoutContent() {
                             </button>
                         )}
 
-                        {!isLastStep ? (
+                        {!isPaymentStep ? (
                             <button
                                 type="button"
                                 className={clsx(
@@ -105,14 +111,10 @@ export default function CheckoutContent() {
                                     sharedStyles.btnPrimary,
                                     styles.navBtn
                                 )}
-                                onClick={handleNext}
-                                disabled={
-                                    processing ||
-                                    (currentStep === 'envio' && !canContinueShipping) ||
-                                    (currentStep === 'pago' && !canContinuePayment)
-                                }
+                                onClick={handleContinue}
+                                disabled={processing || !canContinueShipping}
                             >
-                                Continuar
+                                Continuar al pago
                             </button>
                         ) : (
                             <button
@@ -124,9 +126,9 @@ export default function CheckoutContent() {
                                     styles.navBtn
                                 )}
                                 onClick={handlePay}
-                                disabled={processing}
+                                disabled={processing || !canContinuePayment}
                             >
-                                {processing ? 'Procesando pago…' : 'Pagar y confirmar'}
+                                {processing ? 'Procesando pago…' : 'Pagar y finalizar'}
                             </button>
                         )}
                     </div>
@@ -139,7 +141,6 @@ export default function CheckoutContent() {
                     shippingCostInTotal={shippingCostInTotal}
                     total={orderTotal}
                     envioGratis={envioOpciones?.envioGratis}
-                    formaPagoEnvio={formaPagoEnvio}
                     servicioCostos={selectedServicioCostos}
                 />
             </div>

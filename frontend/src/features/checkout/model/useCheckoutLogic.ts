@@ -1,30 +1,35 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressApi } from '@/entities/address';
 import type { AddressApi } from '@/entities/address';
 import { orderApi, FORMA_PAGO_ENVIO } from '@/entities/order';
-import type { FormaPago, OrderApi } from '@/entities/order';
+import type { OrderApi } from '@/entities/order';
 import { paymentApi, PAYMENT_METHODS } from '@/features/checkout/api';
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { ApiError } from '@/shared';
 import {
     isPickupService,
+    isExpressService,
+    getCheckoutShippingOptions,
     resolveShippingCost,
     resolveShippingCostInTotal,
     getServicioCostos,
 } from '@/entities/shipping';
 import { useEnvioOpcionesContext } from '@/app/providers';
 import type { CartItemUiView } from '@/entities/cart';
+import {
+    CHECKOUT_STEPS,
+    CHECKOUT_FLOW_LAST_INDEX,
+} from './checkoutSteps';
 
-const STEPS = ['envio', 'pago', 'confirmar'] as const;
-
-export type CheckoutStep = (typeof STEPS)[number];
+export type { CheckoutStep } from './checkoutSteps';
 
 export type CheckoutLogicParams = {
     cartItems: CartItemUiView[];
     cartTotal: number;
     isEmpty: boolean;
+    refreshCart: () => Promise<void>;
 };
 
 export type CheckoutCompleteResult =
@@ -39,8 +44,14 @@ function toErrorStatus(error: unknown): number | undefined {
     return error instanceof ApiError ? error.status : undefined;
 }
 
-export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogicParams) {
+export function useCheckoutLogic({
+    cartItems,
+    cartTotal,
+    isEmpty,
+    refreshCart,
+}: CheckoutLogicParams) {
     const navigate = useNavigate();
+    const checkoutCompletedRef = useRef(false);
     const {
         opciones: envioOpciones,
         servicios,
@@ -55,7 +66,8 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
     const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
     const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState<number | null>(null);
-    const [formaPagoEnvio, setFormaPagoEnvio] = useState<FormaPago>(FORMA_PAGO_ENVIO.EN_LINEA);
+    /** Envío siempre en línea: se paga junto con el pedido en el paso de pago. */
+    const formaPagoEnvio = FORMA_PAGO_ENVIO.EN_LINEA;
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
     const [cardData, setCardData] = useState<StripeCardFormValues>({
         cardholder: '',
@@ -67,10 +79,11 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
 
     const [loadingAddresses, setLoadingAddresses] = useState(true);
     const [processing, setProcessing] = useState(false);
+    const [checkoutCompleted, setCheckoutCompleted] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [paymentResult, setPaymentResult] = useState<PaymentSuccessResult | null>(null);
 
-    const currentStep = STEPS[step];
+    const currentStep = CHECKOUT_STEPS[step];
 
     const handleAuthError = useCallback(
         (status: number | undefined) =>
@@ -111,7 +124,7 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
     }, [isEmpty, fetchDirecciones]);
 
     useEffect(() => {
-        if (processing) return;
+        if (processing || checkoutCompletedRef.current) return;
         if (isEmpty) {
             navigate('/cart', { replace: true });
         }
@@ -123,10 +136,15 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
         const stillValid = servicios.some((s) => s.id === selectedServicioEnvioId);
         if (stillValid) return;
 
-        const preferPickup = pickupServices[0];
-        const preferDelivery = deliveryServices[0];
+        const checkoutOptions = getCheckoutShippingOptions(servicios);
+        const preferNormal = checkoutOptions.find(
+            (s) => !isPickupService(s) && !isExpressService(s)
+        );
         const defaultId =
-            preferPickup?.id ?? preferDelivery?.id ?? servicios[0]?.id ?? null;
+            preferNormal?.id ??
+            checkoutOptions[0]?.id ??
+            servicios[0]?.id ??
+            null;
         setSelectedServicioEnvioId(defaultId);
     }, [
         loadingEnvioOpciones,
@@ -197,7 +215,7 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
 
     const goNext = useCallback(() => {
         setError(null);
-        if (step < STEPS.length - 1) {
+        if (step < CHECKOUT_FLOW_LAST_INDEX) {
             setStep((s) => s + 1);
         }
     }, [step]);
@@ -250,6 +268,10 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
                 notas: notas.trim() || null,
             });
 
+            checkoutCompletedRef.current = true;
+            setCheckoutCompleted(true);
+            await refreshCart();
+
             return {
                 success: true,
                 orden,
@@ -275,10 +297,11 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
         formaPagoEnvio,
         notas,
         handleAuthError,
+        refreshCart,
     ]);
 
     return {
-        steps: STEPS,
+        steps: CHECKOUT_STEPS,
         step,
         currentStep,
         direcciones,
@@ -300,7 +323,6 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
         shippingCostInTotal,
         orderTotal,
         formaPagoEnvio,
-        setFormaPagoEnvio,
         FORMA_PAGO_ENVIO,
         paymentMethod,
         setPaymentMethod,
@@ -310,6 +332,7 @@ export function useCheckoutLogic({ cartItems, cartTotal, isEmpty }: CheckoutLogi
         setNotas,
         loadingAddresses,
         processing,
+        checkoutCompleted,
         error,
         setError,
         paymentResult,

@@ -3,11 +3,14 @@ import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 
 import ShippingServiceSelector from '../ShippingServiceSelector/ShippingServiceSelector';
-import ShippingPaymentSelector from '../ShippingPaymentSelector/ShippingPaymentSelector';
 import sharedStyles from '../checkoutShared.module.css';
-import styles from './ShippingStep.module.css';
+import styles from '../ShippingStep/ShippingStep.module.css';
 
-export default function ShippingStep() {
+/**
+ * Paso 1: dirección + servicio de entrega (+ notas).
+ * Los ítems del pedido se muestran en el resumen lateral.
+ */
+export default function ReviewAndShippingStep() {
     const {
         direcciones,
         selectedAddressId,
@@ -37,8 +40,11 @@ export default function ShippingStep() {
 
     return (
         <div>
-            <h2 className={sharedStyles.stepTitle}>Dirección de envío</h2>
-            <p className={sharedStyles.stepSubtitle}>Selecciona dónde quieres recibir tu pedido</p>
+            <h2 className={sharedStyles.stepTitle}>Entrega</h2>
+            <p className={sharedStyles.stepSubtitle}>
+                Selecciona dónde recibir el pedido y cómo enviarlo. El costo de envío se incluye en el
+                pago del siguiente paso.
+            </p>
 
             <ul className={styles.list} role="radiogroup" aria-label="Direcciones de envío">
                 {direcciones.map((dir) => (
@@ -63,16 +69,20 @@ export default function ShippingStep() {
                                         <span className={styles.badge}>Principal</span>
                                     )}
                                 </div>
-                                <p>{dir.direccion}</p>
-                                <p>{dir.ciudad}, {dir.estado} {dir.codigoPostal}</p>
-                                <p>{dir.pais} · {dir.telefono}</p>
+                                <p className={styles.cardLine}>{dir.direccion}</p>
+                                <p className={styles.cardMeta}>
+                                    {dir.ciudad}, {dir.estado} {dir.codigoPostal}
+                                    {dir.telefono ? ` · ${dir.telefono}` : ''}
+                                </p>
                             </div>
                         </label>
                     </li>
                 ))}
             </ul>
 
-            <div className={sharedStyles.field}>
+            <ShippingServiceSelector />
+
+            <div className={clsx(sharedStyles.field, sharedStyles.fieldAfterShipping)}>
                 <label htmlFor="notas">Notas para el pedido (opcional)</label>
                 <textarea
                     id="notas"
@@ -83,10 +93,6 @@ export default function ShippingStep() {
                     maxLength={500}
                 />
             </div>
-
-            <ShippingPaymentSelector />
-
-            <ShippingServiceSelector />
 
             <Link to="/profile" className={styles.link}>
                 Gestionar direcciones en mi perfil

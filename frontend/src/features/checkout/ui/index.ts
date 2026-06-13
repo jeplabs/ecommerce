@@ -1,8 +1,8 @@
 export { default as CheckoutContent } from './CheckoutContent/CheckoutContent';
 export { default as CheckoutSteps } from './CheckoutSteps/CheckoutSteps';
-export { default as ShippingStep } from './ShippingStep/ShippingStep';
+export { default as ReviewAndShippingStep } from './ReviewAndShippingStep/ReviewAndShippingStep';
 export { default as PaymentStep } from './PaymentStep/PaymentStep';
-export { default as ConfirmStep } from './ConfirmStep/ConfirmStep';
+export { default as CheckoutLineItems } from './CheckoutLineItems/CheckoutLineItems';
 export { default as OrderSummary } from './OrderSummary/OrderSummary';
 export { default as CheckoutSuccessHeader } from './success/CheckoutSuccessHeader/CheckoutSuccessHeader';
 export { default as OrderConfirmationSummary } from './success/OrderConfirmationSummary/OrderConfirmationSummary';
