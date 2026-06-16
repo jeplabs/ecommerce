@@ -1,0 +1,152 @@
+.root {
+    animation: fadeUp 0.35s ease both;
+}
+
+.header {
+    margin-bottom: 1.25rem;
+}
+
+.header h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.35rem;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--muted);
+}
+
+.empty p + p {
+    margin-top: 0.5rem;
+    font-size: 0.88rem;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 88px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface2);
+}
+
+.thumbWrap {
+    width: 88px;
+    height: 88px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+}
+
+.thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.thumbPlaceholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 0.35rem;
+}
+
+.info {
+    min-width: 0;
+}
+
+.name {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+}
+
+.price {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--indigo);
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.viewBtn {
+    white-space: nowrap;
+}
+
+.removeBtn {
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.removeBtn:hover {
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+@media (max-width: 640px) {
+    .item {
+        grid-template-columns: 72px 1fr;
+        grid-template-areas:
+            'thumb info'
+            'actions actions';
+    }
+
+    .thumbWrap {
+        grid-area: thumb;
+        width: 72px;
+        height: 72px;
+    }
+
+    .info {
+        grid-area: info;
+    }
+
+    .actions {
+        grid-area: actions;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .viewBtn {
+        flex: 1;
+    }
+}

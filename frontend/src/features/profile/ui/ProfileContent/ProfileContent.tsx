@@ -8,6 +8,7 @@ import ProfileTabs from '../ProfileTabs/ProfileTabs';
 import ProfileDataTab from '../ProfileDataTab/ProfileDataTab';
 import AddressesTab from '../AddressesTab/AddressesTab';
 import OrdersTab from '../OrdersTab/OrdersTab';
+import FavoritesTab from '../FavoritesTab/FavoritesTab';
 
 export default function ProfileContent() {
     const navigate = useNavigate();
@@ -49,6 +50,9 @@ export default function ProfileContent() {
                 </div>
                 <div className={pageStyles.tabPanel} hidden={activeTab !== 'ordenes'}>
                     <OrdersTab />
+                </div>
+                <div className={pageStyles.tabPanel} hidden={activeTab !== 'favoritos'}>
+                    <FavoritesTab />
                 </div>
             </div>
         </>

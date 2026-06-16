@@ -6,6 +6,7 @@ const TABS: Array<{ id: ProfileTabId; label: string; icon: string }> = [
     { id: 'datos', label: 'Mis datos', icon: '👤' },
     { id: 'direcciones', label: 'Direcciones', icon: '📍' },
     { id: 'ordenes', label: 'Mis pedidos', icon: '📦' },
+    { id: 'favoritos', label: 'Favoritos', icon: '❤️' },
 ];
 
 type ProfileTabsProps = {

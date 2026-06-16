@@ -3,6 +3,8 @@ export { AuthProvider } from './AuthProvider';
 export { useAuth, type AuthContextValue } from './useAuth';
 export { CartProvider } from './CartProvider';
 export { useCart, type CartContextValue } from './useCart';
+export { FavoritesProvider } from './FavoritesProvider';
+export { useFavorites, type FavoritesContextValue } from './useFavorites';
 export { ProductProvider } from './ProductProvider';
 export { useProduct, type ProductContextValue } from './useProduct';
 export { CategoriasProvider } from './CategoriasProvider';

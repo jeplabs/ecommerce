@@ -1,12 +1,12 @@
 import { useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-/** Cambios de tab o detalle dentro del perfil no deben resetear scroll. */
+/**
+ * Solo el detalle de pedido dentro de la misma pestaña no resetea scroll
+ * (/profile/ordenes ↔ /profile/ordenes/:id). Cambios de pestaña del perfil sí.
+ */
 function scrollResetKey(pathname: string): string {
-    if (pathname === '/profile' || pathname.startsWith('/profile/')) {
-        return '/profile';
-    }
-    return pathname;
+    return pathname.replace(/\/profile\/ordenes\/\d+$/, '/profile/ordenes');
 }
 
 /**

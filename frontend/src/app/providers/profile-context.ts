@@ -2,7 +2,7 @@ import { createContext } from 'react';
 import type { useProfileLogic } from '@/entities/user/model/useProfileLogic';
 import type { useDireccionesLogic } from '@/entities/address/model/useDireccionesLogic';
 import type { useOrdenesLogic } from '@/entities/order/model/useOrdenesLogic';
-export type ProfileTabId = 'datos' | 'direcciones' | 'ordenes';
+export type ProfileTabId = 'datos' | 'direcciones' | 'ordenes' | 'favoritos';
 
 export type ProfileContextValue = {
     activeTab: ProfileTabId;

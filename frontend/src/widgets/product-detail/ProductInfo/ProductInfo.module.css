@@ -146,8 +146,15 @@
 }
 
 .favBtn:hover {
-    border-color: var(--pd-accent);
-    color: var(--pd-accent);
+    color: #f472b6;
+}
+
+.favBtnActive {
+    color: #f472b6;
+}
+
+.favBtnActive:hover {
+    color: #fb7185;
 }
 
 .trust {

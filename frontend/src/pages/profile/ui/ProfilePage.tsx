@@ -7,7 +7,7 @@ export function ProfilePage() {
             <div className={styles.inner}>
                 <header className={styles.header}>
                     <h1>Mi cuenta</h1>
-                    <p>Gestiona tu perfil, direcciones y pedidos</p>
+                    <p>Gestiona tu perfil, direcciones, pedidos y favoritos</p>
                 </header>
 
                 <ProfileContent />

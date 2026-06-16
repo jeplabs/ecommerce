@@ -3,6 +3,7 @@ import { AuthProvider } from '@/app/providers/AuthProvider';
 import { ProductProvider } from '@/app/providers/ProductProvider';
 import { CartProvider } from '@/app/providers/CartProvider';
 import { CategoriasProvider } from '@/app/providers/CategoriasProvider';
+import { FavoritesProvider } from '@/app/providers/FavoritesProvider';
 import { ToastProvider } from '@/app/providers/ToastProvider';
 
 type AppProvidersProps = {
@@ -18,9 +19,11 @@ export function AppProviders({ children }: AppProvidersProps) {
         <AuthProvider>
             <ProductProvider>
                 <CartProvider>
-                    <CategoriasProvider>
-                        <ToastProvider>{children}</ToastProvider>
-                    </CategoriasProvider>
+                    <FavoritesProvider>
+                        <CategoriasProvider>
+                            <ToastProvider>{children}</ToastProvider>
+                        </CategoriasProvider>
+                    </FavoritesProvider>
                 </CartProvider>
             </ProductProvider>
         </AuthProvider>
