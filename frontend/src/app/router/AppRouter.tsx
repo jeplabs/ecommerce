@@ -4,6 +4,7 @@ import ShopLayout from '@/widgets/layout/ShopLayout/ShopLayout';
 import AdminLayout from '@/widgets/layout/AdminLayout/AdminLayout';
 import PrivateRoute from './PrivateRoute';
 import ScrollToTop from './ScrollToTop';
+import { ProfileProvider } from '@/app/providers';
 
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
@@ -24,12 +25,6 @@ import { AdminUsersPage } from '@/pages/admin/users';
 import { AdminUserEditPage } from '@/pages/admin/user-edit';
 import { AdminOrdersPage } from '@/pages/admin/orders';
 
-const customerProfilePage = (
-    <PrivateRoute requiredRol="ROLE_CUSTOMER">
-        <ProfilePage />
-    </PrivateRoute>
-);
-
 export function AppRouter() {
     return (
         <Router>
@@ -49,10 +44,16 @@ export function AppRouter() {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
-                    <Route path="/profile" element={customerProfilePage} />
-                    <Route path="/profile/direcciones" element={customerProfilePage} />
-                    <Route path="/profile/ordenes" element={customerProfilePage} />
-                    <Route path="/profile/ordenes/:id" element={customerProfilePage} />
+                    <Route
+                        path="/profile/*"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_CUSTOMER">
+                                <ProfileProvider>
+                                    <ProfilePage />
+                                </ProfileProvider>
+                            </PrivateRoute>
+                        }
+                    />
                     <Route
                         path="/cart"
                         element={

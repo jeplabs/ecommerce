@@ -75,6 +75,7 @@ export default function AddressesTab() {
     };
 
     const activeDirecciones = lista.filter((d) => d.activo !== false);
+    const showAddressesLoading = loading && activeDirecciones.length === 0;
 
     return (
         <section className={styles.root} aria-label="Direcciones de envío">
@@ -114,7 +115,7 @@ export default function AddressesTab() {
                 />
             )}
 
-            {loading ? (
+            {showAddressesLoading ? (
                 <p className={styles.loading}>Cargando direcciones…</p>
             ) : activeDirecciones.length === 0 && !showForm ? (
                 <div className={styles.empty}>

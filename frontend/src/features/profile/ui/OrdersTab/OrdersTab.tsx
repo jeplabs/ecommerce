@@ -1,13 +1,13 @@
 import { useProfile, useToast } from '@/app/providers';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderStatus } from '@/entities/order';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import { Button } from '@/shared/ui/Button';
-import { profileOrderDetailPath } from '@/features/profile/lib/profileRoutes';
+import { getOrderIdFromProfilePath, profileOrderDetailPath } from '@/features/profile/lib/profileRoutes';
 import styles from './OrdersTab.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
@@ -19,19 +19,10 @@ const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
     CANCELADA: styles.statusCancelled,
 };
 
-function parseOrderIdParam(idParam: string | undefined): number | null {
-    if (!idParam) return null;
-    const parsed = Number(idParam);
-    if (!Number.isFinite(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
-        return null;
-    }
-    return parsed;
-}
-
 export default function OrdersTab() {
     const navigate = useNavigate();
-    const { id: idParam } = useParams<{ id?: string }>();
-    const orderIdFromUrl = parseOrderIdParam(idParam);
+    const { pathname } = useLocation();
+    const orderIdFromUrl = getOrderIdFromProfilePath(pathname);
     const isDetailOpen = orderIdFromUrl != null;
 
     const { ordenes } = useProfile();
@@ -46,7 +37,6 @@ export default function OrdersTab() {
         detailLoading,
         ordenSeleccionada,
         error,
-        fetchOrdenes,
         cargarDetalle,
         cerrarDetalle,
         cancelarOrden,
@@ -56,21 +46,17 @@ export default function OrdersTab() {
     } = ordenes;
 
     const [cancelling, setCancelling] = useState(false);
-    const [loaded, setLoaded] = useState(false);
 
     const modalOrden =
         orderIdFromUrl != null ? obtenerDetalleLocal(orderIdFromUrl) : null;
     const isFetchingRemote = detailLoading && modalOrden == null;
+    const showOrdersLoading = loading && lista.length === 0;
 
     useEffect(() => {
-        if (!loaded) {
-            fetchOrdenes(0);
-            setLoaded(true);
-        }
-    }, [loaded, fetchOrdenes]);
+        const invalidDetailPath =
+            pathname.startsWith('/profile/ordenes/') && orderIdFromUrl == null;
 
-    useEffect(() => {
-        if (idParam && orderIdFromUrl == null) {
+        if (invalidDetailPath) {
             navigate('/profile/ordenes', { replace: true });
             return;
         }
@@ -97,7 +83,7 @@ export default function OrdersTab() {
             }
         });
     }, [
-        idParam,
+        pathname,
         orderIdFromUrl,
         ordenSeleccionada?.id,
         obtenerDetalleLocal,
@@ -150,7 +136,7 @@ export default function OrdersTab() {
 
             <div className={styles.layout}>
                 <div className={styles.tableWrap}>
-                    {loading ? (
+                    {showOrdersLoading ? (
                         <p className={styles.loading}>Cargando pedidos…</p>
                     ) : lista.length === 0 ? (
                         <div className={styles.empty}>

@@ -1,12 +1,12 @@
 import { useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-/**
- * Rutas que solo cambian un parámetro interno (p. ej. id de pedido) no deben
- * resetear scroll ni provocar un “salto” visual en la página de fondo.
- */
+/** Cambios de tab o detalle dentro del perfil no deben resetear scroll. */
 function scrollResetKey(pathname: string): string {
-    return pathname.replace(/\/profile\/ordenes\/\d+$/, '/profile/ordenes');
+    if (pathname === '/profile' || pathname.startsWith('/profile/')) {
+        return '/profile';
+    }
+    return pathname;
 }
 
 /**

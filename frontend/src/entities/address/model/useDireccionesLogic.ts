@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressApi } from '../api';
 import type { AddressApi } from './schemas/api';
@@ -28,6 +28,8 @@ export function useDireccionesLogic(enabled = true) {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const direccionesCountRef = useRef(0);
+    direccionesCountRef.current = direcciones.length;
 
     const handleAuthError = useCallback(
         (status: number | undefined) => redirectUnauthorized(status, navigate),
@@ -37,7 +39,9 @@ export function useDireccionesLogic(enabled = true) {
     const fetchDirecciones = useCallback(async () => {
         if (!enabled) return;
 
-        setLoading(true);
+        if (direccionesCountRef.current === 0) {
+            setLoading(true);
+        }
         setError(null);
         try {
             const data = await addressApi.listar();

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orderApi } from '../api';
 import type { OrderApi } from './schemas/api';
@@ -49,6 +49,10 @@ export function useOrdenesLogic() {
     const [ordenSeleccionada, setOrdenSeleccionada] = useState<OrderApi | null>(null);
     const [detalleById, setDetalleById] = useState<Record<number, OrderApi>>({});
     const [error, setError] = useState<string | null>(null);
+    const pageRef = useRef(page);
+    const ordenesCountRef = useRef(0);
+    pageRef.current = page;
+    ordenesCountRef.current = ordenes.length;
 
     const handleAuthError = useCallback(
         (status: number | undefined) => redirectUnauthorized(status, navigate),
@@ -75,7 +79,9 @@ export function useOrdenesLogic() {
 
     const fetchOrdenes = useCallback(
         async (pageNum = 0) => {
-            setLoading(true);
+            if (ordenesCountRef.current === 0 || pageNum !== pageRef.current) {
+                setLoading(true);
+            }
             setError(null);
             try {
                 const data = await orderApi.listarMisOrdenes(pageNum, PAGE_SIZE);
@@ -95,6 +101,14 @@ export function useOrdenesLogic() {
         },
         [handleAuthError]
     );
+
+    const initializedRef = useRef(false);
+
+    useEffect(() => {
+        if (initializedRef.current) return;
+        initializedRef.current = true;
+        void fetchOrdenes(0);
+    }, [fetchOrdenes]);
 
     const cargarDetalle = useCallback(
         async (ordenId: number): Promise<OrderActionResult<OrderApi>> => {

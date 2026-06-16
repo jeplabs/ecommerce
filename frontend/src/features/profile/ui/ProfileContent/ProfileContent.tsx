@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/app/providers';
 import pageStyles from '@/widgets/profile/ProfileView.module.css';
-import { PROFILE_TAB_PATHS } from '@/features/profile/lib/profileRoutes';
+import { isProfilePath, PROFILE_TAB_PATHS } from '@/features/profile/lib/profileRoutes';
 import type { ProfileTabId } from '@/app/providers';
 
 import ProfileTabs from '../ProfileTabs/ProfileTabs';
@@ -11,18 +11,24 @@ import OrdersTab from '../OrdersTab/OrdersTab';
 
 export default function ProfileContent() {
     const navigate = useNavigate();
+    const { pathname } = useLocation();
     const { activeTab, profile } = useProfile();
-    const { loading, error } = profile;
+    const { loading, error, usuario } = profile;
 
     const handleTabChange = (tabId: ProfileTabId) => {
+        if (tabId === activeTab) return;
         navigate(PROFILE_TAB_PATHS[tabId]);
     };
 
-    if (loading) {
+    if (!isProfilePath(pathname)) {
+        return <Navigate to="/profile" replace />;
+    }
+
+    if (loading && !usuario) {
         return <p className={pageStyles.loading}>Cargando perfil…</p>;
     }
 
-    if (error) {
+    if (error && !usuario) {
         return (
             <div className={pageStyles.error}>
                 <p>{error}</p>
@@ -35,9 +41,15 @@ export default function ProfileContent() {
             <ProfileTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
             <div className={pageStyles.panel} role="tabpanel">
-                {activeTab === 'datos' && <ProfileDataTab />}
-                {activeTab === 'direcciones' && <AddressesTab />}
-                {activeTab === 'ordenes' && <OrdersTab />}
+                <div className={pageStyles.tabPanel} hidden={activeTab !== 'datos'}>
+                    <ProfileDataTab />
+                </div>
+                <div className={pageStyles.tabPanel} hidden={activeTab !== 'direcciones'}>
+                    <AddressesTab />
+                </div>
+                <div className={pageStyles.tabPanel} hidden={activeTab !== 'ordenes'}>
+                    <OrdersTab />
+                </div>
             </div>
         </>
     );
