@@ -10,7 +10,7 @@ export type BankAccountView = {
 /** Cuentas de demo para transferencia bancaria (configurar en producción vía backend o CMS). */
 export const DEMO_BANK_ACCOUNTS: BankAccountView[] = [
     {
-        banco: 'Banco Estado',
+        banco: 'Banco de Desarrollo Rural',
         titular: 'JEPLabs SpA',
         tipoCuenta: 'Cuenta corriente',
         numeroCuenta: '01234567890',
