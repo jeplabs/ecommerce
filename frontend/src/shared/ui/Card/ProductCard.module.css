@@ -55,6 +55,7 @@
     letter-spacing: 0.05em;
     backdrop-filter: blur(4px);
     border: 1px solid var(--indigo);
+    z-index: 1;
 }
 
 .body {
@@ -134,4 +135,16 @@
     color: #0d0d0d;
     border-color: var(--indigo);
     box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.actionBtn:disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.actionBtnPrimary:disabled {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--muted);
 }

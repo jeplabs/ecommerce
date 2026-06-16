@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
 import styles from './ProductCard.module.css';
 
 const MAX_TITLE_LENGTH = 50;
@@ -10,6 +11,7 @@ type ProductCardProps = {
     title: string;
     description?: string | null;
     price?: number | string;
+    stock?: number;
     actionLabel?: string;
     onAction?: () => void;
     onAddToCart?: () => void;
@@ -23,6 +25,7 @@ export const ProductCard = ({
     title,
     description,
     price,
+    stock,
     actionLabel = 'Ver producto',
     onAction,
     onAddToCart,
@@ -30,6 +33,8 @@ export const ProductCard = ({
 }: ProductCardProps) => {
     const displayedTitle =
         title?.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
+    const outOfStock = typeof stock === 'number' && stock <= 0;
+    const showAddButton = Boolean(onAddToCart);
 
     return (
         <article className={clsx(styles.card, className)}>
@@ -42,6 +47,7 @@ export const ProductCard = ({
                     onClick={onAction}
                     aria-label={`Ver detalles de ${title}`}
                 />
+                {outOfStock && <SoldOutBadge placement="start" />}
                 {price && <span className={styles.priceTag}>${price}</span>}
             </figure>
 
@@ -58,14 +64,19 @@ export const ProductCard = ({
                     >
                         {actionLabel}
                     </button>
-                    {onAddToCart && (
+                    {showAddButton && (
                         <button
                             type="button"
                             className={clsx(styles.actionBtn, styles.actionBtnPrimary)}
                             onClick={onAddToCart}
-                            aria-label={`Agregar ${title} al carrito`}
+                            disabled={outOfStock}
+                            aria-label={
+                                outOfStock
+                                    ? `${title} agotado`
+                                    : `Agregar ${title} al carrito`
+                            }
                         >
-                            {addLabel}
+                            {outOfStock ? 'Agotado' : addLabel}
                         </button>
                     )}
                 </div>

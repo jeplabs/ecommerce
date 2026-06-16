@@ -153,6 +153,18 @@ export function useProducts() {
         return productApi.getByIdAdmin(id);
     };
 
+    const upsertProduct = useCallback((product: ProductApi) => {
+        setProductos((prev) => {
+            const index = prev.findIndex((item) => item.id === product.id);
+            if (index === -1) {
+                return [...prev, product];
+            }
+            const next = [...prev];
+            next[index] = product;
+            return next;
+        });
+    }, []);
+
     return {
         productos,
         productosOcultos,
@@ -169,5 +181,6 @@ export function useProducts() {
         getProductById,
         getProductByIdAdmin,
         reloadProducts,
+        upsertProduct,
     };
 }

@@ -19,6 +19,7 @@ export type { SelectProps } from './Select';
 export { default as Breadcrumbs } from './Breadcrumbs/Breadcrumbs';
 export { default as Carousel } from './Carousel/Carousel';
 export { ProductCard } from './Card/ProductCard';
+export { SoldOutBadge } from './SoldOutBadge/SoldOutBadge';
 export { default as LoginDropdown } from './Dropdown/LoginDropdown';
 export { default as LoginForm } from './Form/LoginForm';
 export { default as RegisterForm } from './Form/RegisterForm';

@@ -1,5 +1,6 @@
 import { useProduct, useCategorias, useCart } from '@/app/providers';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { productApi } from '@/entities/product/api';
 import type { ProductApi } from '@/entities/product';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
 import { Button } from '@/shared/ui/Button';
@@ -15,25 +16,67 @@ type ProductDetailViewProps = {
     onBackHome: () => void;
 };
 
+async function fetchProductBySlug(slug: string): Promise<ProductApi> {
+    try {
+        return await productApi.getBySlug(slug);
+    } catch {
+        const numericId = Number.parseInt(slug, 10);
+        if (Number.isFinite(numericId) && String(numericId) === slug) {
+            return productApi.getById(numericId);
+        }
+        throw new Error('Producto no encontrado');
+    }
+}
+
 export default function ProductDetailView({ slug, onBackHome }: ProductDetailViewProps) {
-    const { productos, loading } = useProduct();
+    const { upsertProduct } = useProduct();
     const { arbolCategorias } = useCategorias();
     const { addToCart } = useCart();
 
     const [producto, setProducto] = useState<ProductApi | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const loadProduct = useCallback(
+        async (options?: { silent?: boolean }) => {
+            if (!slug) {
+                setProducto(null);
+                setLoading(false);
+                return;
+            }
+
+            if (!options?.silent) {
+                setLoading(true);
+            }
+
+            try {
+                const data = await fetchProductBySlug(slug);
+                setProducto(data);
+                upsertProduct(data);
+            } catch {
+                setProducto(null);
+            } finally {
+                setLoading(false);
+            }
+        },
+        [slug, upsertProduct]
+    );
 
     useEffect(() => {
-        if (productos?.length > 0 && slug) {
-            const encontrado = productos.find(
-                (p) => p.slug === slug || p.id === parseInt(slug, 10)
-            );
-            if (encontrado) {
-                setProducto(encontrado);
-            }
-        }
-    }, [slug, productos]);
+        void loadProduct();
+    }, [loadProduct]);
 
-    if (loading) {
+    useEffect(() => {
+        const refreshOnVisible = () => {
+            if (document.visibilityState === 'visible') {
+                void loadProduct({ silent: true });
+            }
+        };
+
+        document.addEventListener('visibilitychange', refreshOnVisible);
+        return () => document.removeEventListener('visibilitychange', refreshOnVisible);
+    }, [loadProduct]);
+
+    if (loading && !producto) {
         return <div className={styles.loadingContainer}>Cargando producto...</div>;
     }
 

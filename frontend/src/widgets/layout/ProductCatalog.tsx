@@ -164,6 +164,7 @@ export const ProductCatalog = ({
                                         title={producto.nombre}
                                         description={producto.descripcion}
                                         price={producto.precioVenta}
+                                        stock={producto.stock}
                                         actionLabel="Ver producto"
                                         onAction={() =>
                                             navigate(`/producto/${producto.slug || producto.id}`)

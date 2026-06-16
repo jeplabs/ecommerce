@@ -30,22 +30,6 @@
     transform: scale(1.05);
 }
 
-.stockBadge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-}
-
-.stockBadgeOut {
-    background-color: var(--pd-danger);
-    color: white;
-}
-
 .thumbnailList {
     display: flex;
     gap: 1rem;

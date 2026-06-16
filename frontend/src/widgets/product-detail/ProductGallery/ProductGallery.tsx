@@ -2,6 +2,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import type { ProductApi } from '@/entities/product';
 import { getProductImageUrls, getMainProductImageUrl } from '@/entities/product';
+import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
 import styles from './ProductGallery.module.css';
 
 type ProductGalleryProps = {
@@ -17,9 +18,7 @@ export default function ProductGallery({ producto }: ProductGalleryProps) {
         <div className={styles.gallery}>
             <div className={styles.mainImageWrapper}>
                 <img src={imagenActiva} alt={producto.nombre} className={styles.mainImg} />
-                {producto.stock === 0 && (
-                    <div className={clsx(styles.stockBadge, styles.stockBadgeOut)}>Agotado</div>
-                )}
+                {producto.stock === 0 && <SoldOutBadge placement="end" />}
             </div>
 
             {tieneVarias && (

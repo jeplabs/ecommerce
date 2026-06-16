@@ -11,8 +11,9 @@
 
 .meta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
     font-size: 0.9rem;
     color: var(--pd-text-muted);
     margin-bottom: 1rem;
@@ -20,14 +21,44 @@
     border-bottom: 1px solid var(--pd-border);
 }
 
-.stockIn {
-    color: var(--pd-success);
+.metaBadges {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.metaBadge {
+    display: inline-block;
+    font-size: 0.82rem;
     font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    line-height: 1.25;
+}
+
+.skuBadge {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.stockIn {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
 }
 
 .stockOut {
-    color: var(--pd-danger);
-    font-weight: 600;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+@media (max-width: 768px) {
+    .metaBadge {
+        font-size: 0.9rem;
+        padding: 0.34rem 0.78rem;
+    }
 }
 
 .price {

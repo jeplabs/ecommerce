@@ -134,6 +134,14 @@ export async function getAdmin(estado: ProductStatus): Promise<ProductAdminApi[]
     return page.content;
 }
 
+/** {@code GET /api/productos/slug/{slug} */
+export async function getBySlug(slug: string): Promise<ProductApi> {
+    const response = await fetch(`${API_URL}/api/productos/slug/${encodeURIComponent(slug)}`, {
+        headers: getAuthHeaders(getToken(), false),
+    });
+    return handleProductJson(response, 'Producto no encontrado');
+}
+
 /** {@code GET /api/productos/{id} */
 export async function getById(id: number): Promise<ProductApi> {
     const response = await fetch(`${API_URL}/api/productos/${id}`, {
@@ -366,6 +374,7 @@ export const productApi = {
     getByCategory,
     getAll,
     getAdmin,
+    getBySlug,
     getById,
     getByIdAdmin,
     create,

@@ -3,6 +3,7 @@ export {
     getByCategory,
     getAll,
     getAdmin,
+    getBySlug,
     getById,
     getByIdAdmin,
     create,

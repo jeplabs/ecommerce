@@ -1,0 +1,32 @@
+.badge {
+    position: absolute;
+    top: 0.65rem;
+    z-index: 2;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    line-height: 1.25;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background-color: var(--error, #ef4444);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+}
+
+.placementStart {
+    left: 0.65rem;
+}
+
+.placementEnd {
+    right: 0.65rem;
+}
+
+@media (max-width: 768px) {
+    .badge {
+        font-size: 0.88rem;
+        padding: 0.38rem 0.8rem;
+    }
+}

@@ -1,5 +1,5 @@
 import { useAuth, useToast } from '@/app/providers';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ProductApi } from '@/entities/product';
 import type { CartActionResult } from '@/entities/cart';
@@ -20,6 +20,13 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
     const { isAuthenticated } = useAuth();
     const { showSuccess, showError } = useToast();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setCantidad((prev) => {
+            if (producto.stock <= 0) return 1;
+            return Math.min(prev, producto.stock);
+        });
+    }, [producto.stock]);
 
     const handleAddToCart = async () => {
         if (!isAuthenticated) {
@@ -49,10 +56,14 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
             <h1 className={styles.title}>{producto.nombre}</h1>
 
             <div className={styles.meta}>
-                <span>SKU: {producto.sku}</span>
-                <span className={clsx(disponible ? styles.stockIn : styles.stockOut)}>
-                    {disponible ? '✓ Disponible' : '✕ Sin Stock'}
-                </span>
+                <div className={styles.metaBadges}>
+                    <span className={clsx(styles.metaBadge, styles.skuBadge)}>SKU: {producto.sku}</span>
+                    <span className={clsx(styles.metaBadge, disponible ? styles.stockIn : styles.stockOut)}>
+                        {disponible
+                            ? `✓ Disponible · ${producto.stock} en stock`
+                            : '✕ Sin stock'}
+                    </span>
+                </div>
             </div>
 
             <div className={styles.price}>{precioFormateado}</div>
@@ -83,8 +94,8 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
                     <button
                         type="button"
                         className={styles.qtyBtn}
-                        onClick={() => setCantidad(cantidad + 1)}
-                        disabled={!disponible || agregando}
+                        onClick={() => setCantidad(Math.min(producto.stock, cantidad + 1))}
+                        disabled={!disponible || agregando || cantidad >= producto.stock}
                         aria-label="Aumentar cantidad"
                     >
                         +
