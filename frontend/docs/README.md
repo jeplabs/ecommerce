@@ -8,6 +8,7 @@ Guías complementarias al [README](../README.md) principal.
 | [pnpm.md](./pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
 | [eslint-warnings.md](./eslint-warnings.md) | Inventario de warnings ESLint (React Hooks), impacto en rendimiento y registro de avances |
 | [payment-gateways.md](./payment-gateways.md) | Pasarelas de pago: demo (Stripe, Webpay, Mercado Pago) e integración real |
+| [testing.md](./testing.md) | Testing: Vitest, React Testing Library, MSW, Cypress, fixtures y TypeScript |
 
 ## Convención
 

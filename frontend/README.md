@@ -21,6 +21,7 @@ SPA de comercio electrónico construida con **React 19**, **TypeScript**, **Vite
 - [API pública (barrels)](#api-pública-barrels)
 - [Buenas prácticas de desarrollo](#buenas-prácticas-de-desarrollo)
 - [Build y despliegue](#build-y-despliegue)
+- [Testing](#testing)
 - [Documentación relacionada](#documentación-relacionada)
 
 ---
@@ -37,6 +38,8 @@ SPA de comercio electrónico construida con **React 19**, **TypeScript**, **Vite
 | Estilos | CSS Modules + design tokens globales |
 | Utilidades UI | [clsx](https://github.com/lukeed/clsx) |
 | Lint | ESLint 9 + typescript-eslint + React Hooks (flat config en `eslint.config.ts`) |
+| Tests unitarios | [Vitest 4](https://vitest.dev/) + [Testing Library](https://testing-library.com/react) + [MSW 2](https://mswjs.io/) |
+| Tests E2E | [Cypress 15](https://www.cypress.io/) |
 | Gestor de paquetes | [pnpm](https://pnpm.io/) |
 
 ---
@@ -75,6 +78,15 @@ pnpm run dev
 | `pnpm run build` | Build de producción en `dist/` |
 | `pnpm run preview` | Sirve el build local para pruebas |
 | `pnpm run lint` | ESLint sobre `**/*.{ts,tsx}` (typescript-eslint + React Hooks) |
+| `pnpm test` | Vitest — tests unitarios e integración (una pasada) |
+| `pnpm test:watch` | Vitest en modo watch |
+| `pnpm test:coverage` | Vitest con reporte de cobertura |
+| `pnpm test:e2e` | Cypress headless (levanta `pnpm dev` automáticamente) |
+| `pnpm test:e2e:open` | Cypress con UI interactiva + dev server |
+| `pnpm cypress:open` | Abre Cypress (servidor de dev debe estar corriendo) |
+| `pnpm cypress:run` | Cypress headless (servidor de dev debe estar corriendo) |
+
+Detalle completo en **[docs/testing.md](./docs/testing.md)**.
 
 ---
 
@@ -189,13 +201,19 @@ frontend/
 │   │   ├── config/         # env.ts
 │   │   └── api/            # Helpers HTTP compartidos
 │   │
+│   ├── test/               # Infraestructura de tests (MSW, setup, utils)
 │   ├── assets/             # Imágenes importadas por componentes
 │   ├── App.tsx             # AppProviders + AppRouter
 │   └── main.tsx            # Punto de entrada React
 │
 ├── docs/                   # Documentación detallada (ver docs/README.md)
 │   ├── architecture-fsd.md
-│   └── pnpm.md
+│   ├── pnpm.md
+│   └── testing.md
+│
+├── cypress/                # Tests E2E (Cypress)
+│   ├── e2e/
+│   └── support/
 │
 ├── index.html
 ├── vite.config.ts
@@ -501,6 +519,36 @@ En producción, definir `VITE_API_URL` apuntando al backend desplegado.
 
 ---
 
+## Testing
+
+El frontend usa una estrategia en dos capas:
+
+| Capa | Herramientas | Qué prueba |
+|------|--------------|------------|
+| Unit / integración | Vitest, React Testing Library, MSW | Helpers, componentes aislados, funciones API |
+| E2E | Cypress | Flujos reales en navegador (catálogo, login, …) |
+
+```bash
+# Tests rápidos (sin backend real — MSW intercepta fetch)
+pnpm test
+
+# Modo watch durante desarrollo
+pnpm test:watch
+
+# E2E: levanta Vite + Cypress (también sin backend — cy.intercept)
+pnpm test:e2e
+```
+
+**Convenciones:**
+
+- Archivos `*.test.ts(x)` colocados junto al código bajo `src/`.
+- Mocks centralizados en `src/test/msw/` (fixtures reutilizados por Cypress).
+- `VITE_API_URL` del `.env` debe coincidir entre app, Vitest y handlers MSW.
+
+Guía completa (handlers, fixtures, comandos Cypress, troubleshooting, TypeScript): **[docs/testing.md](./docs/testing.md)**.
+
+---
+
 ## Documentación relacionada
 
 | Documento | Contenido |
@@ -509,6 +557,7 @@ En producción, definir `VITE_API_URL` apuntando al backend desplegado.
 | [docs/eslint-warnings.md](./docs/eslint-warnings.md) | Warnings ESLint: inventario, rendimiento y seguimiento de mejoras |
 | [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
 | [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (Stripe, Webpay Plus, Mercado Pago) |
+| [docs/testing.md](./docs/testing.md) | Vitest, RTL, MSW, Cypress: scripts, estructura, fixtures y guía para añadir tests |
 | [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
 ---
