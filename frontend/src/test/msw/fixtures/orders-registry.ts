@@ -116,3 +116,59 @@ export function getDynamicOrdersPage(page = 0, size = 10): SpringPage<OrderApi> 
         numberOfElements: content.length,
     };
 }
+
+export function getDynamicOrdersAdminPage(
+    page = 0,
+    size = 10,
+    estado?: OrderApi['estado']
+): SpringPage<OrderApi> {
+    const filtered = estado ? orders.filter((order) => order.estado === estado) : orders;
+    const start = page * size;
+    const content = filtered.slice(start, start + size);
+    const totalPages = filtered.length === 0 ? 0 : Math.ceil(filtered.length / size);
+
+    return {
+        content: content.map((order) => ({ ...order })),
+        totalElements: filtered.length,
+        totalPages,
+        size,
+        number: page,
+        first: page === 0,
+        last: page >= totalPages - 1,
+        empty: content.length === 0,
+        numberOfElements: content.length,
+    };
+}
+
+export function updateDynamicOrderStatusAdmin(
+    id: number,
+    estado: OrderApi['estado']
+): OrderApi {
+    const index = orders.findIndex((order) => order.id === id);
+    if (index === -1) {
+        throw new Error('Orden no encontrada');
+    }
+
+    const current = orders[index]!;
+    const allowed = {
+        PENDIENTE: ['CONFIRMADA', 'CANCELADA'],
+        CONFIRMADA: ['EN_PROCESO', 'CANCELADA'],
+        EN_PROCESO: ['ENVIADA'],
+        ENVIADA: ['ENTREGADA'],
+        ENTREGADA: [],
+        CANCELADA: [],
+    } as const;
+
+    const validTargets = allowed[current.estado as keyof typeof allowed] ?? [];
+    if (estado !== current.estado && !validTargets.includes(estado as never)) {
+        throw new Error('Transición de estado no permitida');
+    }
+
+    const updated = {
+        ...current,
+        estado,
+        actualizadoAt: '2026-05-28T15:00:00',
+    };
+    orders[index] = updated;
+    return { ...updated };
+}

@@ -6,6 +6,8 @@ import { resetDynamicAddresses } from './msw/fixtures/address-registry';
 import { resetDynamicCart } from './msw/fixtures/cart-registry';
 import { resetDynamicOrders } from './msw/fixtures/orders-registry';
 import { resetDynamicProfile } from './msw/fixtures/profile-registry';
+import { resetDynamicProducts } from './msw/fixtures/products-registry';
+import { resetDynamicUsers } from './msw/fixtures/users-registry';
 import { resetMockOrderIds } from './msw/fixtures/orders';
 import { server } from './msw/server';
 
@@ -14,6 +16,8 @@ beforeAll(() => {
     resetDynamicAddresses();
     resetDynamicOrders();
     resetDynamicProfile();
+    resetDynamicProducts();
+    resetDynamicUsers();
 });
 
 afterEach(() => {
@@ -24,6 +28,8 @@ afterEach(() => {
     resetDynamicAddresses();
     resetDynamicOrders();
     resetDynamicProfile();
+    resetDynamicProducts();
+    resetDynamicUsers();
     resetMockOrderIds();
     localStorage.clear();
 });

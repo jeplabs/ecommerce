@@ -18,8 +18,10 @@ import {
     addDynamicOrder,
     cancelDynamicOrder,
     findDynamicOrder,
+    getDynamicOrdersAdminPage,
     getDynamicOrdersPage,
     resetDynamicOrders,
+    updateDynamicOrderStatusAdmin,
 } from './fixtures/orders-registry';
 import type { AddressApi } from '@/entities/address/model/schemas/api';
 import {
@@ -47,13 +49,33 @@ import {
 import { mockCategories } from './fixtures/categories';
 import { mockCreatedOrder, resetMockOrderIds } from './fixtures/orders';
 import {
-    findMockProductBySlug,
-    mockProductsPage,
-    mockProductsPageForCategory,
-} from './fixtures/products';
+    addDynamicProductImages,
+    createDynamicProduct,
+    deleteDynamicProduct,
+    deleteDynamicProductImage,
+    findDynamicProductAdminById,
+    findDynamicProductById,
+    findDynamicProductBySlug,
+    getDynamicProductImages,
+    mockDynamicAdminProductsPage,
+    mockDynamicProductsPage,
+    mockDynamicProductsPageForCategory,
+    resetDynamicProducts,
+    setDynamicProductMainImage,
+    updateDynamicProduct,
+    updateDynamicProductPrice,
+    updateDynamicProductStatus,
+} from './fixtures/products-registry';
+import {
+    findDynamicUser,
+    getDynamicUsers,
+    resetDynamicUsers,
+    updateDynamicUserEstado,
+    updateDynamicUserRol,
+} from './fixtures/users-registry';
 import { mockShippingOptions } from './fixtures/shipping';
 
-export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile };
+export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers };
 
 function resolveLogin(body: { email?: string; password?: string }) {
     if (body.email === MOCK_LOGIN_EMAIL && body.password === MOCK_LOGIN_PASSWORD) {
@@ -83,22 +105,183 @@ export const handlers = [
         if (categoriaId) {
             const id = Number(categoriaId);
             if (Number.isFinite(id)) {
-                return HttpResponse.json(mockProductsPageForCategory(id));
+                return HttpResponse.json(mockDynamicProductsPageForCategory(id));
             }
         }
 
-        return HttpResponse.json(mockProductsPage());
+        return HttpResponse.json(mockDynamicProductsPage());
     }),
 
     http.get(`${API_BASE}/api/productos/slug/:slug`, ({ params }) => {
         const slug = String(params.slug);
-        const product = findMockProductBySlug(slug);
+        const product = findDynamicProductBySlug(slug);
 
         if (product) {
             return HttpResponse.json(product);
         }
 
         return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+    }),
+
+    http.get(`${API_BASE}/api/productos/admin`, ({ request }) => {
+        const url = new URL(request.url);
+        const estado = url.searchParams.get('estado');
+
+        if (!estado) {
+            return HttpResponse.json({ error: 'Estado requerido' }, { status: 400 });
+        }
+
+        return HttpResponse.json(
+            mockDynamicAdminProductsPage(
+                estado as 'DISPONIBLE' | 'SIN_STOCK' | 'OCULTO' | 'DESCONTINUADO'
+            )
+        );
+    }),
+
+    http.get(`${API_BASE}/api/productos/admin/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const product = findDynamicProductAdminById(id);
+
+        if (product) {
+            return HttpResponse.json(product);
+        }
+
+        return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+    }),
+
+    http.get(`${API_BASE}/api/productos/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const product = findDynamicProductById(id);
+
+        if (product) {
+            return HttpResponse.json(product);
+        }
+
+        return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+    }),
+
+    http.post(`${API_BASE}/api/productos`, async ({ request }) => {
+        const body = (await request.json()) as Parameters<typeof createDynamicProduct>[0];
+
+        if (!body.sku || !body.nombre || !body.precio || !body.categoriaIds?.length) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        return HttpResponse.json(createDynamicProduct(body), { status: 201 });
+    }),
+
+    http.patch(`${API_BASE}/api/productos/:id`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as Parameters<typeof updateDynamicProduct>[1];
+
+        try {
+            return HttpResponse.json(updateDynamicProduct(id, body));
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/productos/:id/precio`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as {
+            precioVenta?: number;
+            precioCosto?: number;
+            moneda?: string;
+        };
+
+        if (body.precioVenta == null) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            updateDynamicProductPrice(id, {
+                precioVenta: body.precioVenta,
+                precioCosto: body.precioCosto,
+                moneda: body.moneda,
+            });
+            return HttpResponse.json(findDynamicProductById(id));
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/productos/:id/estado`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as { estado?: string };
+
+        if (!body.estado) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(
+                updateDynamicProductStatus(
+                    id,
+                    body.estado as 'DISPONIBLE' | 'SIN_STOCK' | 'OCULTO' | 'DESCONTINUADO'
+                )
+            );
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.delete(`${API_BASE}/api/productos/:id`, ({ params }) => {
+        const id = Number(params.id);
+
+        try {
+            deleteDynamicProduct(id);
+            return new HttpResponse(null, { status: 204 });
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.get(`${API_BASE}/api/productos/:id/imagenes`, ({ params }) => {
+        const id = Number(params.id);
+
+        try {
+            return HttpResponse.json(getDynamicProductImages(id));
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.post(`${API_BASE}/api/productos/:id/imagenes`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as { imagenesUrl?: string[] };
+
+        if (!body.imagenesUrl?.length) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(addDynamicProductImages(id, body.imagenesUrl), { status: 201 });
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.delete(`${API_BASE}/api/productos/:productId/imagenes/:imageId`, ({ params }) => {
+        const productId = Number(params.productId);
+        const imageId = Number(params.imageId);
+
+        try {
+            deleteDynamicProductImage(productId, imageId);
+            return new HttpResponse(null, { status: 204 });
+        } catch {
+            return HttpResponse.json({ error: 'Imagen no encontrada' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/productos/:productId/imagenes/:imageId/principal`, ({ params }) => {
+        const productId = Number(params.productId);
+        const imageId = Number(params.imageId);
+
+        try {
+            return HttpResponse.json(setDynamicProductMainImage(productId, imageId));
+        } catch {
+            return HttpResponse.json({ error: 'Imagen no encontrada' }, { status: 404 });
+        }
     }),
 
     http.get(`${API_BASE}/api/usuarios/perfil`, () => {
@@ -198,6 +381,62 @@ export const handlers = [
         const page = Number(url.searchParams.get('page') ?? 0);
 
         return HttpResponse.json(getDynamicOrdersPage(page));
+    }),
+
+    http.get(`${API_BASE}/api/ordenes/admin`, ({ request }) => {
+        const url = new URL(request.url);
+        const page = Number(url.searchParams.get('page') ?? 0);
+        const size = Number(url.searchParams.get('size') ?? 10);
+        const estado = url.searchParams.get('estado') as
+            | 'PENDIENTE'
+            | 'CONFIRMADA'
+            | 'EN_PROCESO'
+            | 'ENVIADA'
+            | 'ENTREGADA'
+            | 'CANCELADA'
+            | null;
+
+        return HttpResponse.json(
+            getDynamicOrdersAdminPage(page, size, estado || undefined)
+        );
+    }),
+
+    http.get(`${API_BASE}/api/ordenes/admin/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const order = findDynamicOrder(id);
+
+        if (order) {
+            return HttpResponse.json(order);
+        }
+
+        return HttpResponse.json({ error: 'Orden no encontrada' }, { status: 404 });
+    }),
+
+    http.patch(`${API_BASE}/api/ordenes/admin/:id/estado`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as { estado?: string };
+
+        if (!body.estado) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(
+                updateDynamicOrderStatusAdmin(
+                    id,
+                    body.estado as
+                        | 'PENDIENTE'
+                        | 'CONFIRMADA'
+                        | 'EN_PROCESO'
+                        | 'ENVIADA'
+                        | 'ENTREGADA'
+                        | 'CANCELADA'
+                )
+            );
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Error al actualizar';
+            return HttpResponse.json({ error: message }, { status: 400 });
+        }
     }),
 
     http.get(`${API_BASE}/api/ordenes/:id`, ({ params }) => {
@@ -347,5 +586,52 @@ export const handlers = [
         }
 
         return HttpResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+    }),
+
+    http.get(`${API_BASE}/api/auth/usuarios`, () => {
+        return HttpResponse.json(getDynamicUsers());
+    }),
+
+    http.get(`${API_BASE}/api/auth/usuarios/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const user = findDynamicUser(id);
+
+        if (user) {
+            return HttpResponse.json(user);
+        }
+
+        return HttpResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    }),
+
+    http.patch(`${API_BASE}/api/auth/usuarios/:id/estado`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as { activo?: boolean };
+
+        if (body.activo == null) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(updateDynamicUserEstado(id, body.activo));
+        } catch {
+            return HttpResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/auth/usuarios/:id/rol`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as { rol?: string };
+
+        if (!body.rol) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(
+                updateDynamicUserRol(id, body.rol as 'ROLE_CUSTOMER' | 'ROLE_ADMIN')
+            );
+        } catch {
+            return HttpResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+        }
     }),
 ];

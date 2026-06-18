@@ -156,6 +156,10 @@ Rutas mockeadas actualmente:
 | GET | `/api/direcciones` | `[]` |
 | GET | `/api/ordenes` | Página vacía |
 | GET | `/api/carrito` | Carrito vacío |
+| GET | `/api/productos/admin` | Productos por estado (admin) |
+| POST/PATCH/DELETE | `/api/productos*` | CRUD admin de productos |
+| GET/PATCH | `/api/ordenes/admin*` | Listado y estado de pedidos (admin) |
+| GET/PATCH | `/api/auth/usuarios*` | Usuarios, rol y estado (admin) |
 | POST | `/api/auth/register` | Usuario nuevo o 409 si email ya existe |
 | POST | `/api/auth/login` | Token si credenciales válidas; 401 si no |
 
@@ -201,7 +205,7 @@ it('devuelve 500', async () => {
 | `cy.stubShopApi()` | categorías, productos, producto por slug | `@getCategories`, `@getProducts`, … |
 | `cy.stubAuthApi()` | POST login y registro | `@login`, `@register` |
 | `cy.stubAuthenticatedApi()` | perfil, direcciones, órdenes, carrito | `@getProfile`, … |
-| `cy.stubAdminApi()` | GET usuarios (panel admin) | `@getAdminUsers` |
+| `cy.stubAdminApi()` | productos admin, usuarios, órdenes admin | `@getAdminProducts`, `@getAdminOrders`, `@getAdminUsers`, … |
 | `cy.fillLoginForm(email, password)` | Rellena formulario en `/login` | — |
 | `cy.submitLoginForm()` | Envía formulario de login | — |
 | `cy.fillRegisterForm(data)` | Rellena formulario en `/register` | — |
@@ -242,7 +246,9 @@ Esto evita falsos negativos por superposición de capas, no indica un bug de la 
 | `fixtures/auth.ts` | Tokens JWT fake, perfil, credenciales |
 | `fixtures/categories.ts` | Árbol mínimo de categorías |
 | `fixtures/cart.ts` | `mockEmptyCart` |
-| `fixtures/orders.ts` | `mockOrdersPage()` |
+| `fixtures/orders.ts` | `mockOrdersPage()`, `mockCreatedOrder()` |
+| `fixtures/products-registry.ts` | Catálogo stateful + CRUD admin |
+| `fixtures/users-registry.ts` | Usuarios admin stateful |
 
 Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cypress/support/`.
 
@@ -250,7 +256,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (86 tests)
+### Vitest (97 tests)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
@@ -277,8 +283,11 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `entities/order/model/useOrdenesLogic.test.tsx` | Hook + MSW | Lista, detalle cache, cancelar |
 | `features/favorites/lib/favorites-storage.test.ts` | Unit | Favoritos por JWT `sub`, add/remove |
 | `features/favorites/model/useFavoritesLogic.test.tsx` | Hook | Toggle, persistencia, auth |
+| `entities/product/api/productApi.admin.test.ts` | API + MSW | CRUD admin, imágenes, estado |
+| `entities/user/api/authApi.admin.test.ts` | API + MSW | listUsuarios, rol, activar/desactivar |
+| `features/admin/model/useAdminOrdersLogic.test.tsx` | Hook + MSW | Lista admin, filtro, cambio estado |
 
-### Cypress (24 tests)
+### Cypress (28 tests)
 
 | Spec | Casos |
 |------|-------|
@@ -292,6 +301,9 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `cypress/e2e/profile.cy.ts` | Tabs datos, direcciones, pedidos, favoritos |
 | `cypress/e2e/profile-orders.cy.ts` | Detalle, cancelar pedido, comprobante transferencia |
 | `cypress/e2e/favorites.cy.ts` | Corazón en producto → tab favoritos → quitar |
+| `cypress/e2e/admin-products.cy.ts` | Login admin → listar → crear producto |
+| `cypress/e2e/admin-orders.cy.ts` | Ver pedidos → filtrar → cambiar estado |
+| `cypress/e2e/admin-users.cy.ts` | Listar usuarios → editar rol |
 
 ---
 
@@ -332,7 +344,7 @@ Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efect
 | Pregunta | Respuesta |
 |----------|-----------|
 | ¿Buenas prácticas? | **Sí**, en arquitectura y enfoque general |
-| ¿Efectivos? | **Sí** para auth, catálogo, checkout y perfil (datos, direcciones, pedidos, favoritos); aún **no** cubren admin |
+| ¿Efectivos? | **Sí** para auth, catálogo, checkout, perfil y **admin** (productos, pedidos, usuarios); pendiente Fase 5–6 |
 | ¿Production-grade al 100 %? | **Todavía no** — falta volumen y algún refinamiento (providers, selectores, CI) |
 
 No hay anti-patrones graves (no se testean detalles privados de React, no hay sleeps arbitrarios, no hay dependencia del backend real). Lo pendiente es **ampliar cobertura** siguiendo el mismo estilo.
@@ -447,7 +459,17 @@ Objetivo: datos personales, direcciones, pedidos y favoritos sin regresiones.
 
 **Fixtures:** `profile-registry.ts`, `address-registry.ts`, `orders-registry.ts` (pedidos #501–503 con estados variados).
 
-### Fase 4 — Admin (prioridad media-baja)
+### Fase 4 — Admin ✅ cerrada
+
+Objetivo: panel admin sin regresiones en productos, pedidos y usuarios.
+
+- [x] `productApi` admin: CRUD, imágenes, estado (I)
+- [x] `authApi` admin: listUsuarios, rol, activar/desactivar (I)
+- [x] `useAdminOrdersLogic`: filtro por estado, cambio estado (I)
+- [x] Fixtures: `products-registry`, `users-registry`; órdenes admin en `orders-registry`
+- [x] MSW/Cypress: productos admin, usuarios, órdenes admin
+- [x] `stubAdminApi` ampliado (productos, pedidos, usuarios)
+- [x] E2E: `admin-products.cy.ts`, `admin-orders.cy.ts`, `admin-users.cy.ts`
 
 | Área | Tests sugeridos | Capas |
 |------|-----------------|-------|
@@ -458,7 +480,7 @@ Objetivo: datos personales, direcciones, pedidos y favoritos sin regresiones.
 | **E2E** `admin-orders.cy.ts` | Ver pedidos → cambiar estado | E |
 | **E2E** `admin-users.cy.ts` | Listar usuarios → editar rol | E |
 
-**Fixtures:** productos admin, usuarios, órdenes admin.
+**Fixtures:** `products-registry.ts`, `users-registry.ts`; funciones admin en `orders-registry.ts`.
 
 ### Fase 5 — Auth avanzada y sesión (prioridad media)
 
@@ -482,11 +504,11 @@ Objetivo: datos personales, direcciones, pedidos y favoritos sin regresiones.
 ### Orden de implementación recomendado
 
 ```text
-Fase 0 ✅  →  Fase 1 ✅  →  Fase 2 ✅  →  Fase 3 ✅ (perfil)  →  Fase 4 (admin)
+Fase 0 ✅  →  Fase 1 ✅  →  Fase 2 ✅  →  Fase 3 ✅  →  Fase 4 ✅ (admin)
                     ↓
               Fase 5 (sesión) en paralelo si hay bugs de auth
                     ↓
-              Fase 4 (admin)  →  Fase 6 (UI shared, continuo)
+              Fase 6 (UI shared, continuo)
 ```
 
 ### Criterios para elegir capa

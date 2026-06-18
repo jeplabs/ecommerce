@@ -11,7 +11,6 @@ import {
     createMockRegisteredUser,
     mockAdminAuthTokenResponse,
     mockAuthTokenResponse,
-    mockUsersList,
 } from '../../src/test/msw/fixtures/auth';
 import {
     addDynamicCartItem,
@@ -33,8 +32,10 @@ import {
     addDynamicOrder,
     cancelDynamicOrder,
     findDynamicOrder,
+    getDynamicOrdersAdminPage,
     getDynamicOrdersPage,
     resetDynamicOrders,
+    updateDynamicOrderStatusAdmin,
 } from '../../src/test/msw/fixtures/orders-registry';
 import {
     getDynamicProfile,
@@ -45,10 +46,23 @@ import {
 import { mockCategories } from '../../src/test/msw/fixtures/categories';
 import { mockCreatedOrder } from '../../src/test/msw/fixtures/orders';
 import {
-    findMockProductBySlug,
-    mockProductsPage,
-    mockProductsPageForCategory,
-} from '../../src/test/msw/fixtures/products';
+    createDynamicProduct,
+    deleteDynamicProduct,
+    findDynamicProductAdminById,
+    findDynamicProductBySlug,
+    mockDynamicAdminProductsPage,
+    mockDynamicProductsPage,
+    mockDynamicProductsPageForCategory,
+    resetDynamicProducts,
+    updateDynamicProductStatus,
+} from '../../src/test/msw/fixtures/products-registry';
+import {
+    findDynamicUser,
+    getDynamicUsers,
+    resetDynamicUsers,
+    updateDynamicUserEstado,
+    updateDynamicUserRol,
+} from '../../src/test/msw/fixtures/users-registry';
 import { mockShippingOptions } from '../../src/test/msw/fixtures/shipping';
 
 export type RegisterFormData = {
@@ -81,21 +95,25 @@ Cypress.Commands.add('stubShopApi', () => {
     cy.intercept('GET', '**/api/categorias', mockCategories).as('getCategories');
     cy.intercept('GET', '**/api/productos*', (req) => {
         const url = new URL(req.url);
+        if (url.pathname.includes('/admin') || url.pathname.includes('/slug/')) {
+            return;
+        }
+
         const categoriaId = url.searchParams.get('categoriaId');
 
         if (categoriaId) {
             const id = Number(categoriaId);
             if (Number.isFinite(id)) {
-                req.reply(mockProductsPageForCategory(id));
+                req.reply(mockDynamicProductsPageForCategory(id));
                 return;
             }
         }
 
-        req.reply(mockProductsPage());
+        req.reply(mockDynamicProductsPage());
     }).as('getProducts');
     cy.intercept('GET', '**/api/productos/slug/*', (req) => {
         const slug = req.url.split('/slug/')[1]?.split('?')[0];
-        const product = slug ? findMockProductBySlug(decodeURIComponent(slug)) : undefined;
+        const product = slug ? findDynamicProductBySlug(decodeURIComponent(slug)) : undefined;
 
         if (product) {
             req.reply(product);
@@ -272,7 +290,134 @@ Cypress.Commands.add('stubAuthenticatedApi', () => {
 });
 
 Cypress.Commands.add('stubAdminApi', () => {
-    cy.intercept('GET', '**/api/auth/usuarios', mockUsersList).as('getAdminUsers');
+    resetDynamicProducts();
+    resetDynamicUsers();
+
+    cy.intercept('GET', '**/api/auth/usuarios', (req) => {
+        req.reply(getDynamicUsers());
+    }).as('getAdminUsers');
+    cy.intercept('GET', '**/api/auth/usuarios/*', (req) => {
+        const id = Number(req.url.split('/usuarios/')[1]?.split('?')[0]);
+        const user = findDynamicUser(id);
+        if (user) {
+            req.reply(user);
+            return;
+        }
+        req.reply({ statusCode: 404, body: { error: 'Usuario no encontrado' } });
+    }).as('getAdminUserById');
+    cy.intercept('PATCH', '**/api/auth/usuarios/*/estado', (req) => {
+        const id = Number(req.url.split('/usuarios/')[1]?.split('/')[0]);
+        const body = req.body as { activo?: boolean };
+        try {
+            req.reply(updateDynamicUserEstado(id, body.activo ?? false));
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Usuario no encontrado' } });
+        }
+    }).as('updateUserEstado');
+    cy.intercept('PATCH', '**/api/auth/usuarios/*/rol', (req) => {
+        const id = Number(req.url.split('/usuarios/')[1]?.split('/')[0]);
+        const body = req.body as { rol?: 'ROLE_CUSTOMER' | 'ROLE_ADMIN' };
+        try {
+            req.reply(updateDynamicUserRol(id, body.rol ?? 'ROLE_CUSTOMER'));
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Usuario no encontrado' } });
+        }
+    }).as('updateUserRol');
+
+    cy.intercept('GET', '**/api/productos/admin?*', (req) => {
+        const url = new URL(req.url);
+        const estado = url.searchParams.get('estado') ?? 'DISPONIBLE';
+        req.reply(
+            mockDynamicAdminProductsPage(
+                estado as 'DISPONIBLE' | 'SIN_STOCK' | 'OCULTO' | 'DESCONTINUADO'
+            )
+        );
+    }).as('getAdminProducts');
+    cy.intercept('GET', '**/api/productos/admin/*', (req) => {
+        const id = Number(req.url.split('/admin/')[1]?.split('?')[0]);
+        const product = findDynamicProductAdminById(id);
+        if (product) {
+            req.reply(product);
+            return;
+        }
+        req.reply({ statusCode: 404, body: { error: 'Producto no encontrado' } });
+    }).as('getAdminProductById');
+    cy.intercept('POST', '**/api/productos', (req) => {
+        const body = req.body as Parameters<typeof createDynamicProduct>[0];
+        req.reply({ statusCode: 201, body: createDynamicProduct(body) });
+    }).as('createProduct');
+    cy.intercept('PATCH', '**/api/productos/*/estado', (req) => {
+        const id = Number(req.url.split('/productos/')[1]?.split('/')[0]);
+        const body = req.body as { estado?: string };
+        try {
+            req.reply(
+                updateDynamicProductStatus(
+                    id,
+                    (body.estado ?? 'DISPONIBLE') as
+                        | 'DISPONIBLE'
+                        | 'SIN_STOCK'
+                        | 'OCULTO'
+                        | 'DESCONTINUADO'
+                )
+            );
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Producto no encontrado' } });
+        }
+    }).as('updateProductStatus');
+    cy.intercept('DELETE', '**/api/productos/*', (req) => {
+        const id = Number(req.url.split('/productos/')[1]?.split('?')[0]);
+        try {
+            deleteDynamicProduct(id);
+            req.reply({ statusCode: 204 });
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Producto no encontrado' } });
+        }
+    }).as('deleteProduct');
+
+    cy.intercept('GET', '**/api/ordenes/admin?*', (req) => {
+        const url = new URL(req.url);
+        const page = Number(url.searchParams.get('page') ?? 0);
+        const size = Number(url.searchParams.get('size') ?? 10);
+        const estado = url.searchParams.get('estado') as
+            | 'PENDIENTE'
+            | 'CONFIRMADA'
+            | 'EN_PROCESO'
+            | 'ENVIADA'
+            | 'ENTREGADA'
+            | 'CANCELADA'
+            | null;
+        req.reply(getDynamicOrdersAdminPage(page, size, estado || undefined));
+    }).as('getAdminOrders');
+    cy.intercept('GET', '**/api/ordenes/admin/*', (req) => {
+        const id = Number(req.url.split('/admin/')[1]?.split('?')[0]);
+        const order = findDynamicOrder(id);
+        if (order) {
+            req.reply(order);
+            return;
+        }
+        req.reply({ statusCode: 404, body: { error: 'Orden no encontrada' } });
+    }).as('getAdminOrderById');
+    cy.intercept('PATCH', '**/api/ordenes/admin/*/estado', (req) => {
+        const id = Number(req.url.split('/ordenes/')[1]?.split('/')[0]);
+        const body = req.body as { estado?: string };
+        try {
+            req.reply(
+                updateDynamicOrderStatusAdmin(
+                    id,
+                    (body.estado ?? 'PENDIENTE') as
+                        | 'PENDIENTE'
+                        | 'CONFIRMADA'
+                        | 'EN_PROCESO'
+                        | 'ENVIADA'
+                        | 'ENTREGADA'
+                        | 'CANCELADA'
+                )
+            );
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Error al actualizar';
+            req.reply({ statusCode: 400, body: { error: message } });
+        }
+    }).as('updateAdminOrderStatus');
 });
 
 Cypress.Commands.add('stubAuthApi', () => {
