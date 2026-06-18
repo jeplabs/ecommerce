@@ -11,7 +11,6 @@ import {
     createMockRegisteredUser,
     mockAdminAuthTokenResponse,
     mockAuthTokenResponse,
-    mockUserProfile,
     mockUsersList,
 } from '../../src/test/msw/fixtures/auth';
 import {
@@ -22,9 +21,29 @@ import {
     resetDynamicCart,
     updateDynamicCartItem,
 } from '../../src/test/msw/fixtures/cart-registry';
+import {
+    createDynamicAddress,
+    deleteDynamicAddress,
+    getDynamicAddresses,
+    resetDynamicAddresses,
+    setDynamicPrincipal,
+    updateDynamicAddress,
+} from '../../src/test/msw/fixtures/address-registry';
+import {
+    addDynamicOrder,
+    cancelDynamicOrder,
+    findDynamicOrder,
+    getDynamicOrdersPage,
+    resetDynamicOrders,
+} from '../../src/test/msw/fixtures/orders-registry';
+import {
+    getDynamicProfile,
+    resetDynamicProfile,
+    updateDynamicProfile,
+    updateDynamicPassword,
+} from '../../src/test/msw/fixtures/profile-registry';
 import { mockCategories } from '../../src/test/msw/fixtures/categories';
-import { mockAddresses } from '../../src/test/msw/fixtures/addresses';
-import { mockCreatedOrder, mockOrdersPage } from '../../src/test/msw/fixtures/orders';
+import { mockCreatedOrder } from '../../src/test/msw/fixtures/orders';
 import {
     findMockProductBySlug,
     mockProductsPage,
@@ -89,10 +108,85 @@ Cypress.Commands.add('stubShopApi', () => {
 
 Cypress.Commands.add('stubAuthenticatedApi', () => {
     resetDynamicCart();
+    resetDynamicAddresses();
+    resetDynamicOrders();
+    resetDynamicProfile();
 
-    cy.intercept('GET', '**/api/usuarios/perfil', mockUserProfile).as('getProfile');
-    cy.intercept('GET', '**/api/direcciones', mockAddresses).as('getAddresses');
-    cy.intercept('GET', '**/api/ordenes*', mockOrdersPage()).as('getOrders');
+    cy.intercept('GET', '**/api/usuarios/perfil', (req) => {
+        req.reply(getDynamicProfile());
+    }).as('getProfile');
+    cy.intercept('PATCH', '**/api/usuarios/perfil', (req) => {
+        const body = req.body as { nombre?: string; apellido?: string; pais?: string };
+        req.reply(
+            updateDynamicProfile({
+                nombre: body.nombre ?? '',
+                apellido: body.apellido ?? '',
+                pais: body.pais ?? '',
+            })
+        );
+    }).as('updateProfile');
+    cy.intercept('PATCH', '**/api/usuarios/perfil/password', (req) => {
+        const body = req.body as { passwordActual?: string; password?: string };
+        try {
+            req.reply(updateDynamicPassword(body.passwordActual ?? '', body.password ?? ''));
+        } catch {
+            req.reply({ statusCode: 400, body: { error: 'Contraseña actual incorrecta' } });
+        }
+    }).as('updatePassword');
+    cy.intercept('GET', '**/api/direcciones', (req) => {
+        req.reply(getDynamicAddresses());
+    }).as('getAddresses');
+    cy.intercept('POST', '**/api/direcciones', (req) => {
+        req.reply({ statusCode: 201, body: createDynamicAddress(req.body) });
+    }).as('createAddress');
+    cy.intercept('PATCH', '**/api/direcciones/*/principal', (req) => {
+        const id = Number(req.url.split('/direcciones/')[1]?.split('/')[0]);
+        try {
+            req.reply(setDynamicPrincipal(id));
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Dirección no encontrada' } });
+        }
+    }).as('setPrincipalAddress');
+    cy.intercept('PATCH', '**/api/direcciones/*', (req) => {
+        const id = Number(req.url.split('/direcciones/')[1]?.split('/')[0]?.split('?')[0]);
+        try {
+            req.reply(updateDynamicAddress(id, req.body));
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Dirección no encontrada' } });
+        }
+    }).as('updateAddress');
+    cy.intercept('DELETE', '**/api/direcciones/*', (req) => {
+        const id = Number(req.url.split('/direcciones/')[1]?.split('?')[0]);
+        try {
+            deleteDynamicAddress(id);
+            req.reply({ statusCode: 204 });
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Dirección no encontrada' } });
+        }
+    }).as('deleteAddress');
+    cy.intercept('GET', '**/api/ordenes?*', (req) => {
+        const url = new URL(req.url);
+        const page = Number(url.searchParams.get('page') ?? 0);
+        req.reply(getDynamicOrdersPage(page));
+    }).as('getOrders');
+    cy.intercept('GET', '**/api/ordenes/*', (req) => {
+        const id = Number(req.url.split('/ordenes/')[1]?.split('?')[0]);
+        const order = findDynamicOrder(id);
+        if (order) {
+            req.reply(order);
+            return;
+        }
+        req.reply({ statusCode: 404, body: { error: 'Orden no encontrada' } });
+    }).as('getOrderById');
+    cy.intercept('PATCH', '**/api/ordenes/*/cancelar', (req) => {
+        const id = Number(req.url.split('/ordenes/')[1]?.split('/')[0]);
+        try {
+            req.reply(cancelDynamicOrder(id));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Error al cancelar';
+            req.reply({ statusCode: 400, body: { error: message } });
+        }
+    }).as('cancelOrder');
     cy.intercept('GET', '**/api/carrito', (req) => {
         req.reply(getDynamicCart());
     }).as('getCart');
@@ -172,6 +266,7 @@ Cypress.Commands.add('stubAuthenticatedApi', () => {
         });
 
         clearDynamicCart();
+        addDynamicOrder(orden);
         req.reply({ statusCode: 201, body: orden });
     }).as('createOrder');
 });

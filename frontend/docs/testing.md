@@ -250,13 +250,14 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (67 tests)
+### Vitest (86 tests)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
 | `features/profile/lib/profileRoutes.test.ts` | Unit | Rutas y tabs del perfil |
 | `shared/ui/SoldOutBadge/SoldOutBadge.test.tsx` | Componente | Badge "Agotado" |
 | `entities/user/api/authApi.test.ts` | API + MSW | Login, registro, email duplicado, registro → login |
+| `entities/user/api/profileApi.test.ts` | API + MSW | get/update perfil, cambio contraseña |
 | `features/auth/model/useAuthLogic.test.ts` | Hook + MSW | Login, registro, registro → login, logout |
 | `app/router/PrivateRoute.test.tsx` | Componente + providers | Redirección por rol y sesión |
 | `features/catalog/lib/filter-facets.test.ts` | Unit | Facetas, filtros por precio/marca/búsqueda |
@@ -272,8 +273,12 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `features/checkout/lib/bank-transfer-accounts.test.ts` | Unit | Cuentas demo bancarias |
 | `features/checkout/lib/transfer-order-storage.test.ts` | Unit | Marca transferencia, comprobante local |
 | `features/checkout/model/useCheckoutLogic.test.tsx` | Hook + MSW | Pasos, dirección, pago, crear orden |
+| `entities/address/api/addressApi.test.ts` | API + MSW | CRUD direcciones, marcar principal |
+| `entities/order/model/useOrdenesLogic.test.tsx` | Hook + MSW | Lista, detalle cache, cancelar |
+| `features/favorites/lib/favorites-storage.test.ts` | Unit | Favoritos por JWT `sub`, add/remove |
+| `features/favorites/model/useFavoritesLogic.test.tsx` | Hook | Toggle, persistencia, auth |
 
-### Cypress (20 tests)
+### Cypress (24 tests)
 
 | Spec | Casos |
 |------|-------|
@@ -284,6 +289,9 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `cypress/e2e/cart.cy.ts` | Agregar, cambiar cantidad, eliminar ítem |
 | `cypress/e2e/checkout.cy.ts` | Checkout con transferencia bancaria → success |
 | `cypress/e2e/checkout-guest.cy.ts` | Redirige a login al agregar o visitar `/cart` |
+| `cypress/e2e/profile.cy.ts` | Tabs datos, direcciones, pedidos, favoritos |
+| `cypress/e2e/profile-orders.cy.ts` | Detalle, cancelar pedido, comprobante transferencia |
+| `cypress/e2e/favorites.cy.ts` | Corazón en producto → tab favoritos → quitar |
 
 ---
 
@@ -324,7 +332,7 @@ Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efect
 | Pregunta | Respuesta |
 |----------|-----------|
 | ¿Buenas prácticas? | **Sí**, en arquitectura y enfoque general |
-| ¿Efectivos? | **Sí** para auth, catálogo y flujo de compra (carrito + checkout); aún **no** cubren perfil profundo ni admin |
+| ¿Efectivos? | **Sí** para auth, catálogo, checkout y perfil (datos, direcciones, pedidos, favoritos); aún **no** cubren admin |
 | ¿Production-grade al 100 %? | **Todavía no** — falta volumen y algún refinamiento (providers, selectores, CI) |
 
 No hay anti-patrones graves (no se testean detalles privados de React, no hay sleeps arbitrarios, no hay dependencia del backend real). Lo pendiente es **ampliar cobertura** siguiendo el mismo estilo.
@@ -411,7 +419,19 @@ Objetivo: flujo de compra completo (core del ecommerce).
 
 **Fixtures:** `cart-registry.ts`, `addresses.ts`, `shipping.ts`, `mockCreatedOrder()` en `orders.ts`.
 
-### Fase 3 — Perfil de cliente (prioridad media)
+### Fase 3 — Perfil de cliente ✅ cerrada
+
+Objetivo: datos personales, direcciones, pedidos y favoritos sin regresiones.
+
+- [x] `profileApi`: get/update perfil, cambio contraseña (I)
+- [x] `addressApi`: CRUD direcciones, marcar principal (I)
+- [x] `useOrdenesLogic`: lista, detalle cache, cancelar (I)
+- [x] `favorites-storage`: por JWT `sub`, add/remove (U)
+- [x] `useFavoritesLogic`: toggle, persistencia (I)
+- [x] `profileRoutes` *(ya cubierto)* (U)
+- [x] Fixtures: `profile-registry`, `address-registry`, `orders-registry` (pedidos de muestra)
+- [x] Token mock con JWT `sub` para favoritos por usuario
+- [x] E2E: `profile.cy.ts`, `profile-orders.cy.ts`, `favorites.cy.ts`
 
 | Área | Tests sugeridos | Capas |
 |------|-----------------|-------|
@@ -425,7 +445,7 @@ Objetivo: flujo de compra completo (core del ecommerce).
 | **E2E** `profile-orders.cy.ts` | Lista → detalle de pedido; transferencia + comprobante si aplica | E |
 | **E2E** `favorites.cy.ts` | Corazón en producto → tab favoritos → quitar | E |
 
-**Fixtures:** direcciones, órdenes con ítems y estados variados.
+**Fixtures:** `profile-registry.ts`, `address-registry.ts`, `orders-registry.ts` (pedidos #501–503 con estados variados).
 
 ### Fase 4 — Admin (prioridad media-baja)
 
@@ -462,7 +482,7 @@ Objetivo: flujo de compra completo (core del ecommerce).
 ### Orden de implementación recomendado
 
 ```text
-Fase 0 ✅  →  Fase 1 ✅ (catálogo)  →  Fase 2 ✅ (checkout)  →  Fase 3 (perfil)
+Fase 0 ✅  →  Fase 1 ✅  →  Fase 2 ✅  →  Fase 3 ✅ (perfil)  →  Fase 4 (admin)
                     ↓
               Fase 5 (sesión) en paralelo si hay bugs de auth
                     ↓

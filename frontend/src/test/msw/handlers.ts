@@ -13,9 +13,29 @@ import {
     createMockRegisteredUser,
     mockAdminAuthTokenResponse,
     mockAuthTokenResponse,
-    mockUserProfile,
 } from './fixtures/auth';
-import { mockAddresses } from './fixtures/addresses';
+import {
+    addDynamicOrder,
+    cancelDynamicOrder,
+    findDynamicOrder,
+    getDynamicOrdersPage,
+    resetDynamicOrders,
+} from './fixtures/orders-registry';
+import type { AddressApi } from '@/entities/address/model/schemas/api';
+import {
+    createDynamicAddress,
+    deleteDynamicAddress,
+    getDynamicAddresses,
+    resetDynamicAddresses,
+    setDynamicPrincipal,
+    updateDynamicAddress,
+} from './fixtures/address-registry';
+import {
+    getDynamicProfile,
+    resetDynamicProfile,
+    updateDynamicProfile,
+    updateDynamicPassword,
+} from './fixtures/profile-registry';
 import {
     addDynamicCartItem,
     clearDynamicCart,
@@ -25,7 +45,7 @@ import {
     updateDynamicCartItem,
 } from './fixtures/cart-registry';
 import { mockCategories } from './fixtures/categories';
-import { mockCreatedOrder, mockOrdersPage, resetMockOrderIds } from './fixtures/orders';
+import { mockCreatedOrder, resetMockOrderIds } from './fixtures/orders';
 import {
     findMockProductBySlug,
     mockProductsPage,
@@ -33,7 +53,7 @@ import {
 } from './fixtures/products';
 import { mockShippingOptions } from './fixtures/shipping';
 
-export { resetDynamicAuthUsers, resetDynamicCart };
+export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile };
 
 function resolveLogin(body: { email?: string; password?: string }) {
     if (body.email === MOCK_LOGIN_EMAIL && body.password === MOCK_LOGIN_PASSWORD) {
@@ -82,15 +102,125 @@ export const handlers = [
     }),
 
     http.get(`${API_BASE}/api/usuarios/perfil`, () => {
-        return HttpResponse.json(mockUserProfile);
+        return HttpResponse.json(getDynamicProfile());
+    }),
+
+    http.patch(`${API_BASE}/api/usuarios/perfil`, async ({ request }) => {
+        const body = (await request.json()) as {
+            nombre?: string;
+            apellido?: string;
+            pais?: string;
+        };
+
+        if (!body.nombre || !body.apellido || !body.pais) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        return HttpResponse.json(
+            updateDynamicProfile({
+                nombre: body.nombre,
+                apellido: body.apellido,
+                pais: body.pais,
+            })
+        );
+    }),
+
+    http.patch(`${API_BASE}/api/usuarios/perfil/password`, async ({ request }) => {
+        const body = (await request.json()) as {
+            passwordActual?: string;
+            password?: string;
+        };
+
+        if (!body.passwordActual || !body.password) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(
+                updateDynamicPassword(body.passwordActual, body.password)
+            );
+        } catch {
+            return HttpResponse.json(
+                { error: 'Contraseña actual incorrecta' },
+                { status: 400 }
+            );
+        }
     }),
 
     http.get(`${API_BASE}/api/direcciones`, () => {
-        return HttpResponse.json(mockAddresses);
+        return HttpResponse.json(getDynamicAddresses());
     }),
 
-    http.get(`${API_BASE}/api/ordenes`, () => {
-        return HttpResponse.json(mockOrdersPage());
+    http.post(`${API_BASE}/api/direcciones`, async ({ request }) => {
+        const body = (await request.json()) as Omit<AddressApi, 'id'>;
+
+        try {
+            return HttpResponse.json(createDynamicAddress(body), { status: 201 });
+        } catch {
+            return HttpResponse.json({ error: 'Error al crear dirección' }, { status: 400 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/direcciones/:id/principal`, ({ params }) => {
+        const id = Number(params.id);
+
+        try {
+            return HttpResponse.json(setDynamicPrincipal(id));
+        } catch {
+            return HttpResponse.json({ error: 'Dirección no encontrada' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/direcciones/:id`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as Partial<Omit<AddressApi, 'id'>>;
+
+        try {
+            return HttpResponse.json(updateDynamicAddress(id, body));
+        } catch {
+            return HttpResponse.json({ error: 'Dirección no encontrada' }, { status: 404 });
+        }
+    }),
+
+    http.delete(`${API_BASE}/api/direcciones/:id`, ({ params }) => {
+        const id = Number(params.id);
+
+        try {
+            deleteDynamicAddress(id);
+            return new HttpResponse(null, { status: 204 });
+        } catch {
+            return HttpResponse.json({ error: 'Dirección no encontrada' }, { status: 404 });
+        }
+    }),
+
+    http.get(`${API_BASE}/api/ordenes`, ({ request }) => {
+        const url = new URL(request.url);
+        const page = Number(url.searchParams.get('page') ?? 0);
+
+        return HttpResponse.json(getDynamicOrdersPage(page));
+    }),
+
+    http.get(`${API_BASE}/api/ordenes/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const order = findDynamicOrder(id);
+
+        if (order) {
+            return HttpResponse.json(order);
+        }
+
+        return HttpResponse.json({ error: 'Orden no encontrada' }, { status: 404 });
+    }),
+
+    http.patch(`${API_BASE}/api/ordenes/:id/cancelar`, ({ params }) => {
+        const id = Number(params.id);
+
+        try {
+            return HttpResponse.json(cancelDynamicOrder(id));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Error al cancelar';
+            const status = message.includes('no encontrada') ? 404 : 400;
+            return HttpResponse.json({ error: message }, { status });
+        }
     }),
 
     http.post(`${API_BASE}/api/ordenes`, async ({ request }) => {
@@ -117,6 +247,7 @@ export const handlers = [
         });
 
         clearDynamicCart();
+        addDynamicOrder(orden);
 
         return HttpResponse.json(orden, { status: 201 });
     }),

@@ -32,7 +32,7 @@ export const mockAdminUser: UserApi = {
 export const mockUsersList: UserApi[] = [mockUserProfile, mockAdminUser];
 
 export const mockAuthTokenResponse: AuthTokenResponse = {
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.c3Rachel',
     tipo: 'Bearer',
     id: 1,
     nombre: 'Test',
