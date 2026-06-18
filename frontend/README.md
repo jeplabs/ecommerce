@@ -545,7 +545,7 @@ pnpm test:e2e
 - Mocks centralizados en `src/test/msw/` (fixtures reutilizados por Cypress).
 - `VITE_API_URL` del `.env` debe coincidir entre app, Vitest y handlers MSW.
 
-Guía completa (handlers, fixtures, comandos Cypress, troubleshooting, TypeScript): **[docs/testing.md](./docs/testing.md)**.
+Guía completa (handlers, fixtures, comandos Cypress, plan de cobertura, troubleshooting): **[docs/testing.md](./docs/testing.md)**.
 
 ---
 
@@ -557,7 +557,7 @@ Guía completa (handlers, fixtures, comandos Cypress, troubleshooting, TypeScrip
 | [docs/eslint-warnings.md](./docs/eslint-warnings.md) | Warnings ESLint: inventario, rendimiento y seguimiento de mejoras |
 | [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
 | [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (Stripe, Webpay Plus, Mercado Pago) |
-| [docs/testing.md](./docs/testing.md) | Vitest, RTL, MSW, Cypress: scripts, estructura, fixtures y guía para añadir tests |
+| [docs/testing.md](./docs/testing.md) | Vitest, RTL, MSW, Cypress: scripts, fixtures, evaluación de buenas prácticas y plan de cobertura |
 | [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
 ---

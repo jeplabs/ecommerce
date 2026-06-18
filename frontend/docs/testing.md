@@ -16,6 +16,8 @@ Para un resumen rápido, ver la sección [Testing](../README.md#testing) del REA
 - [Tests E2E (Cypress)](#tests-e2e-cypress)
 - [Fixtures compartidos](#fixtures-compartidos)
 - [Tests incluidos](#tests-incluidos)
+- [Evaluación de buenas prácticas](#evaluación-de-buenas-prácticas)
+- [Plan propuesto de cobertura](#plan-propuesto-de-cobertura)
 - [Cómo añadir tests nuevos](#cómo-añadir-tests-nuevos)
 - [TypeScript en Cypress (`cy` en rojo)](#typescript-en-cypress-cy-en-rojo)
 - [Troubleshooting](#troubleshooting)
@@ -70,8 +72,8 @@ start-server-and-test 'pnpm dev' http://localhost:5173 'pnpm cypress:run'
 frontend/
 ├── cypress/
 │   ├── e2e/                    # Specs E2E (*.cy.ts)
-│   │   ├── catalog.cy.ts
-│   │   └── login.cy.ts
+│   │   ├── auth.cy.ts
+│   │   └── catalog.cy.ts
 │   ├── support/
 │   │   ├── e2e.ts              # Carga commands
 │   │   └── commands.ts         # cy.stubShopApi(), stubAuthApi(), …
@@ -261,6 +263,189 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ---
 
+## Evaluación de buenas prácticas
+
+Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efectivos como base**: cubren capas distintas (helper puro, componente, API, hook, E2E), fallan ante regresiones reales y no dependen del backend en ejecución local.
+
+### Lo que está bien hecho
+
+| Práctica | Dónde se aplica | Por qué importa |
+|----------|-----------------|-----------------|
+| **Pirámide de tests** | Vitest (rápidos) + Cypress (flujos críticos) | Feedback rápido en CI y confianza en journeys reales |
+| **Tests colocalizados** | `*.test.ts(x)` junto al código | Fácil de encontrar y mantener al cambiar un módulo |
+| **MSW estricto** | `onUnhandledRequest: 'error'` en `setup.ts` | Obliga a mockear toda llamada HTTP; evita tests que “pasan por suerte” |
+| **Fixtures compartidos** | `src/test/msw/fixtures/` + Cypress commands | Mismos datos en unit y E2E; un solo lugar para actualizar |
+| **Probar comportamiento, no implementación** | E2E: URLs, títulos, mensajes de error; unit: contratos de API | Un refactor interno no rompe tests si la UX sigue igual |
+| **Queries orientadas al usuario** | Cypress: `contains('h1', …)`, `button`, `input[name=…]` | Alineado con [Testing Library](https://testing-library.com/docs/quirks/about/#guiding-principles) y Cypress best practices |
+| **Comandos reutilizables** | `cy.loginAsCustomer()`, `cy.stubShopApi()`, … | Menos duplicación; specs legibles |
+| **Aislamiento entre tests** | `localStorage.clear()`, `server.resetHandlers()`, `cleanup()` | Sin estado residual entre casos |
+| **Tests de helpers puros** | `profileRoutes.test.ts` | Máximo valor/esfuerzo; muy estables |
+| **Tests en el borde HTTP** | `authApi.test.ts` + MSW | Valida parseo Zod, status codes y mensajes de error |
+
+### Limitaciones actuales (aceptables por ahora, mejorables)
+
+| Aspecto | Situación | Recomendación |
+|---------|-----------|---------------|
+| **`{ force: true }` en Cypress** | Necesario por navbar sticky / `body { position: fixed }` | Aceptable documentado; a medio plazo considerar `data-testid` solo en formularios de auth o ajustar z-index en CSS de test |
+| **Clase CSS en SoldOutBadge** | Se asserta `placementStart` en className | Preferible `data-placement` o comprobar posición visual solo en E2E |
+| **Sin `renderWithProviders`** | Hooks se testean aislados; pocos tests de componentes con contexto | Crear helper con `AuthProvider` + `MemoryRouter` cuando crezcan tests de UI |
+| **Sin `getByRole` en RTL** | SoldOutBadge usa `getByText` (válido) | Ir introduciendo roles (`button`, `heading`) donde aplique |
+| **E2E no encadenan registro → login** | Registro y login se prueban por separado | Añadir un caso “me registro y luego entro” cuando el flujo sea crítico |
+| **Cobertura no exigida en CI** | Solo script manual `test:coverage` | Fijar umbral mínimo (p. ej. 60 %) cuando el plan avance |
+| **Vitest en Windows** | A veces timeout con pool `forks` | Si falla intermitente: `pnpm exec vitest run --pool=threads` |
+| **Handlers duplicados** | MSW (Node) y `cy.intercept` (browser) | Trade-off razonable; mantener fixtures como única fuente de verdad |
+
+### Veredicto
+
+| Pregunta | Respuesta |
+|----------|-----------|
+| ¿Buenas prácticas? | **Sí**, en arquitectura y enfoque general |
+| ¿Efectivos? | **Sí** para auth y catálogo básico; aún **no** cubren checkout, carrito, perfil profundo ni admin |
+| ¿Production-grade al 100 %? | **Todavía no** — falta volumen y algún refinamiento (providers, selectores, CI) |
+
+No hay anti-patrones graves (no se testean detalles privados de React, no hay sleeps arbitrarios, no hay dependencia del backend real). Lo pendiente es **ampliar cobertura** siguiendo el mismo estilo.
+
+---
+
+## Plan propuesto de cobertura
+
+Roadmap sugerido por **prioridad de negocio** y **retorno de inversión**. Marca `[x]` lo ya hecho.
+
+**Leyenda de capas**
+
+- **U** = Vitest unitario (helpers, mappers, schemas)
+- **I** = Vitest integración (API + MSW, hooks con `renderHook`)
+- **C** = RTL componente (UI aislada o con providers)
+- **E** = Cypress E2E (flujo en navegador)
+
+### Fase 0 — Infraestructura (hecho)
+
+- [x] Vitest + RTL + MSW + Cypress configurados
+- [x] Fixtures y commands compartidos
+- [x] Auth: registro, login cliente/admin, logout (U/I + E)
+- [x] Catálogo: listado básico (E)
+- [x] Helpers de perfil: rutas (U)
+- [x] Componente SoldOutBadge (C)
+
+### Fase 1 — Catálogo y producto (prioridad alta)
+
+Objetivo: búsqueda, filtros y detalle de producto sin regresiones.
+
+| Área | Tests sugeridos | Capas |
+|------|-----------------|-------|
+| `features/catalog/lib/filter-facets.ts` | `applyProductFilters`, `extractFilterFacets`, defaults | U |
+| `features/catalog/lib/catalog-query-params.ts` | Parse/build de URL (`?search=`, filtros, sort) | U |
+| `features/catalog/lib/sort-catalog-products.ts` | Orden por precio, nombre | U |
+| `features/catalog/lib/category-path.ts` | Construcción de paths de categoría | U |
+| `entities/product/api/productApi.ts` | `getAll`, `getBySlug`, errores 404 | I |
+| `shared/ui/Card/ProductCard.tsx` | Botón deshabilitado si `stock <= 0`, badge agotado | C |
+| `widgets/product-detail/ProductInfo.tsx` | Stock disponible / sin stock, pills SKU | C |
+| **E2E** `product.cy.ts` | Ver detalle desde catálogo; producto agotado no permite agregar | E |
+| **E2E** `catalog.cy.ts` (ampliar) | Filtro por URL; búsqueda `?search=`; ordenación | E |
+| **E2E** `category.cy.ts` | Navegar categoría → productos filtrados | E |
+
+**Fixtures MSW/Cypress a añadir:** productos con distintas categorías, precios y estados.
+
+### Fase 2 — Carrito y checkout (prioridad alta)
+
+Objetivo: flujo de compra completo (core del ecommerce).
+
+| Área | Tests sugeridos | Capas |
+|------|-----------------|-------|
+| `entities/cart/api/cartApi.ts` | add, update qty, remove, clear | I |
+| `entities/cart/model/useCartLogic.ts` | Suma total, vaciar al logout, errores API | I |
+| `entities/shipping/api/shippingApi.ts` | Opciones de envío | I |
+| `features/checkout/model/useCheckoutLogic.ts` | Validación de pasos, dirección, envío | I |
+| `features/checkout/lib/bank-transfer-accounts.ts` | Cuentas válidas por país/moneda | U |
+| `features/checkout/lib/transfer-order-storage.ts` | Persistencia de comprobante local | U |
+| **E2E** `cart.cy.ts` | Login → agregar producto → ver carrito → cambiar cantidad → quitar | E |
+| **E2E** `checkout.cy.ts` | Checkout con tarjeta simulada / transferencia → success | E |
+| **E2E** `checkout-guest.cy.ts` | Redirige a login si no autenticado al agregar | E |
+
+**Fixtures:** carrito con ítems, opciones de envío, respuesta `POST /api/ordenes`.
+
+### Fase 3 — Perfil de cliente (prioridad media)
+
+| Área | Tests sugeridos | Capas |
+|------|-----------------|-------|
+| `entities/user/api/profileApi.ts` | get/update perfil, cambio contraseña | I |
+| `entities/address/api/addressApi.ts` | CRUD direcciones, marcar principal | I |
+| `entities/order/model/useOrdenesLogic.ts` | Lista, detalle desde cache, cancelar | I |
+| `features/favorites/lib/favorites-storage.ts` | Por usuario JWT `sub`, add/remove | U |
+| `features/favorites/model/useFavoritesLogic.ts` | Toggle, persistencia | I |
+| `features/profile/lib/profileRoutes.ts` | *(ya cubierto)* | U |
+| **E2E** `profile.cy.ts` | Tabs datos / direcciones / pedidos / favoritos | E |
+| **E2E** `profile-orders.cy.ts` | Lista → detalle de pedido; transferencia + comprobante si aplica | E |
+| **E2E** `favorites.cy.ts` | Corazón en producto → tab favoritos → quitar | E |
+
+**Fixtures:** direcciones, órdenes con ítems y estados variados.
+
+### Fase 4 — Admin (prioridad media-baja)
+
+| Área | Tests sugeridos | Capas |
+|------|-----------------|-------|
+| `entities/product/api/productApi.ts` | CRUD admin, imágenes, estado | I |
+| `entities/user/api/authApi.ts` | listUsuarios, cambio rol/estado (admin) | I |
+| `features/admin/model/useAdminOrdersLogic.ts` | Filtro por estado, cambio estado | I |
+| **E2E** `admin-products.cy.ts` | Login admin → listar → crear producto | E |
+| **E2E** `admin-orders.cy.ts` | Ver pedidos → cambiar estado | E |
+| **E2E** `admin-users.cy.ts` | Listar usuarios → editar rol | E |
+
+**Fixtures:** productos admin, usuarios, órdenes admin.
+
+### Fase 5 — Auth avanzada y sesión (prioridad media)
+
+| Área | Tests sugeridos | Capas |
+|------|-----------------|-------|
+| `app/router/PrivateRoute.tsx` | Redirige a login; bloquea rol incorrecto | C |
+| `features/auth` | Forgot / reset password (si se usa en prod) | I + E |
+| `shared/lib/jwt-expiry.ts` | Expiración de token | U |
+| `features/auth/ui/SessionExpiryWarning.tsx` | Aviso antes de expirar | C |
+| **E2E** `auth.cy.ts` (ampliar) | Registro → login con mismo email; ruta protegida sin sesión | E |
+
+### Fase 6 — UI compartida y regresiones (prioridad baja, continua)
+
+| Área | Tests sugeridos | Capas |
+|------|-----------------|-------|
+| `shared/lib/format*.ts`, `zod-helpers` | Formato moneda, fechas | U |
+| `shared/ui/Button`, `FormField`, `Input` | Variantes, errores, disabled | C |
+| `widgets/layout/Navbar` | Contador carrito, menú auth logueado/no logueado | C + E smoke |
+| **E2E smoke** `navigation.cy.ts` | Home, footer links, breadcrumbs catálogo | E |
+
+### Orden de implementación recomendado
+
+```text
+Fase 0 ✓  →  Fase 1 (catálogo)  →  Fase 2 (checkout)  →  Fase 3 (perfil)
+                    ↓
+              Fase 5 (sesión) en paralelo si hay bugs de auth
+                    ↓
+              Fase 4 (admin)  →  Fase 6 (UI shared, continuo)
+```
+
+### Criterios para elegir capa
+
+| Si… | Preferir |
+|-----|----------|
+| Función pura sin React ni fetch | **U** — Vitest directo |
+| `*Api.ts` o hook con fetch | **I** — MSW + `renderHook` |
+| Render condicional, props, accesibilidad | **C** — RTL |
+| Varias pantallas, routing, localStorage, navbar | **E** — Cypress (pocos casos, happy path + 1 error) |
+
+**Regla práctica:** por cada feature nueva, mínimo **1 test U o I** + **1 E2E del happy path** si es flujo de usuario crítico.
+
+### Meta de cobertura sugerida (cuando el plan avance)
+
+| Capa | Objetivo orientativo |
+|------|----------------------|
+| `features/*/lib`, `entities/*/model` (helpers) | 80 %+ |
+| `entities/*/api` | Caso feliz + error por endpoint público |
+| Componentes `shared/ui` | Solo los reutilizados y con lógica |
+| E2E | 10–15 specs cubriendo journeys críticos (no duplicar todo en Cypress) |
+
+Ejecutar periódicamente: `pnpm test:coverage` y revisar gaps en checkout, cart y profile.
+
+---
+
 ## Cómo añadir tests nuevos
 
 ### Unit / helper puro
@@ -293,9 +478,8 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ### Qué hicimos en el repo
 
-1. **`cypress/tsconfig.json`** — extiende el tsconfig raíz e incluye `"types": ["cypress", "node"]`.
-2. **Referencia de proyecto** en `tsconfig.json` → `{ "path": "./cypress/tsconfig.json" }`.
-3. **ESLint** — globals `cy`, `Cypress` y Mocha (`describe`, `it`, …) en archivos `cypress/**/*.ts`.
+1. **`cypress/tsconfig.json`** — incluye `"types": ["cypress", "node"]` para specs y support.
+2. **ESLint** — globals `cy`, `Cypress` y Mocha (`describe`, `it`, …) en archivos `cypress/**/*.ts`.
 
 Cypress detecta automáticamente `cypress/tsconfig.json` para type-check de specs y support.
 
@@ -319,6 +503,7 @@ Los archivos bajo `src/**/*.test.ts` usan tipos de **Vitest** (`tsconfig.json` p
 | E2E: inputs no clicables | Navbar sticky / `body { position: fixed }` | Scopear formulario; `{ force: true }` si aplica |
 | E2E usa `npm run` | Script antiguo de `start-server-and-test` | Usar scripts `test:e2e` actuales (con `pnpm dev`) |
 | MSW / app URL distinta | `.env` con otro puerto | Unificar `VITE_API_URL`; Vitest la carga vía `loadEnv` |
+| Vitest en Windows (timeout workers) | Pool `forks` lento o colgado | `pnpm exec vitest run --pool=threads --maxWorkers=1` |
 | Cypress binary missing | `approve-builds` de pnpm | `pnpm exec cypress install` |
 
 ### Artefactos ignorados por git
