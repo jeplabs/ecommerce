@@ -18,7 +18,11 @@ import {
 import { mockEmptyCart } from './fixtures/cart';
 import { mockCategories } from './fixtures/categories';
 import { mockOrdersPage } from './fixtures/orders';
-import { mockProduct, mockProductsPage } from './fixtures/products';
+import {
+    findMockProductBySlug,
+    mockProductsPage,
+    mockProductsPageForCategory,
+} from './fixtures/products';
 
 export { resetDynamicAuthUsers };
 
@@ -43,15 +47,28 @@ export const handlers = [
         return HttpResponse.json(mockCategories);
     }),
 
-    http.get(`${API_BASE}/api/productos`, () => {
+    http.get(`${API_BASE}/api/productos`, ({ request }) => {
+        const url = new URL(request.url);
+        const categoriaId = url.searchParams.get('categoriaId');
+
+        if (categoriaId) {
+            const id = Number(categoriaId);
+            if (Number.isFinite(id)) {
+                return HttpResponse.json(mockProductsPageForCategory(id));
+            }
+        }
+
         return HttpResponse.json(mockProductsPage());
     }),
 
     http.get(`${API_BASE}/api/productos/slug/:slug`, ({ params }) => {
         const slug = String(params.slug);
-        if (slug === mockProduct.slug) {
-            return HttpResponse.json(mockProduct);
+        const product = findMockProductBySlug(slug);
+
+        if (product) {
+            return HttpResponse.json(product);
         }
+
         return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
     }),
 

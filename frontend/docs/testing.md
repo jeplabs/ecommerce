@@ -250,7 +250,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (21 tests)
+### Vitest (47 tests)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
@@ -259,13 +259,22 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `entities/user/api/authApi.test.ts` | API + MSW | Login, registro, email duplicado, registro → login |
 | `features/auth/model/useAuthLogic.test.ts` | Hook + MSW | Login, registro, registro → login, logout |
 | `app/router/PrivateRoute.test.tsx` | Componente + providers | Redirección por rol y sesión |
+| `features/catalog/lib/filter-facets.test.ts` | Unit | Facetas, filtros por precio/marca/búsqueda |
+| `features/catalog/lib/catalog-query-params.test.ts` | Unit | Parse/build de URL (`?search=`, filtros, sort) |
+| `features/catalog/lib/sort-catalog-products.test.ts` | Unit | Orden por precio y nombre |
+| `features/catalog/lib/category-path.test.ts` | Unit | Resolución de paths de categoría |
+| `entities/product/api/productApi.test.ts` | API + MSW | `getAll`, `getBySlug`, `getByCategory`, 404 |
+| `shared/ui/Card/ProductCard.test.tsx` | Componente | Stock agotado, agregar al carrito |
+| `widgets/product-detail/ProductInfo/ProductInfo.test.tsx` | Componente | SKU, stock disponible / sin stock |
 
-### Cypress (10 tests)
+### Cypress (16 tests)
 
 | Spec | Casos |
 |------|-------|
-| `cypress/e2e/catalog.cy.ts` | Catálogo con productos mock |
 | `cypress/e2e/auth.cy.ts` | Registro, registro → login, login cliente/admin, ruta protegida, logout |
+| `cypress/e2e/catalog.cy.ts` | Listado, búsqueda `?search=`, orden `?sort=`, filtro `?precioMax=` |
+| `cypress/e2e/category.cy.ts` | Subcategoría Audio con productos filtrados |
+| `cypress/e2e/product.cy.ts` | Detalle desde catálogo; producto agotado sin añadir |
 
 ---
 
@@ -306,7 +315,7 @@ Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efect
 | Pregunta | Respuesta |
 |----------|-----------|
 | ¿Buenas prácticas? | **Sí**, en arquitectura y enfoque general |
-| ¿Efectivos? | **Sí** para auth y catálogo básico; aún **no** cubren checkout, carrito, perfil profundo ni admin |
+| ¿Efectivos? | **Sí** para auth y catálogo (filtros, categorías, detalle); aún **no** cubren checkout, carrito, perfil profundo ni admin |
 | ¿Production-grade al 100 %? | **Todavía no** — falta volumen y algún refinamiento (providers, selectores, CI) |
 
 No hay anti-patrones graves (no se testean detalles privados de React, no hay sleeps arbitrarios, no hay dependencia del backend real). Lo pendiente es **ampliar cobertura** siguiendo el mismo estilo.
@@ -337,9 +346,18 @@ Roadmap sugerido por **prioridad de negocio** y **retorno de inversión**. Marca
 - [x] Componente SoldOutBadge (C)
 - [x] Vitest estable en Windows (`--pool=threads`)
 
-### Fase 1 — Catálogo y producto (prioridad alta)
+### Fase 1 — Catálogo y producto ✅ cerrada
 
 Objetivo: búsqueda, filtros y detalle de producto sin regresiones.
+
+- [x] Helpers de catálogo: `filter-facets`, `catalog-query-params`, `sort-catalog-products`, `category-path` (U)
+- [x] `productApi`: `getAll`, `getBySlug`, `getByCategory`, 404 (I)
+- [x] `ProductCard` y `ProductInfo` (C)
+- [x] Fixtures ampliados: precios, marcas, categorías Audio (MSW + Cypress)
+- [x] E2E: `catalog.cy.ts` (búsqueda, orden, precio máx.)
+- [x] E2E: `product.cy.ts` (detalle, agotado)
+- [x] E2E: `category.cy.ts` (subcategoría Audio)
+- [x] `renderWithShopProviders()` para componentes con router + providers
 
 | Área | Tests sugeridos | Capas |
 |------|-----------------|-------|
@@ -349,12 +367,12 @@ Objetivo: búsqueda, filtros y detalle de producto sin regresiones.
 | `features/catalog/lib/category-path.ts` | Construcción de paths de categoría | U |
 | `entities/product/api/productApi.ts` | `getAll`, `getBySlug`, errores 404 | I |
 | `shared/ui/Card/ProductCard.tsx` | Botón deshabilitado si `stock <= 0`, badge agotado | C |
-| `widgets/product-detail/ProductInfo.tsx` | Stock disponible / sin stock, pills SKU | C |
+| `widgets/product-detail/ProductInfo/ProductInfo.tsx` | Stock disponible / sin stock, pills SKU | C |
 | **E2E** `product.cy.ts` | Ver detalle desde catálogo; producto agotado no permite agregar | E |
 | **E2E** `catalog.cy.ts` (ampliar) | Filtro por URL; búsqueda `?search=`; ordenación | E |
 | **E2E** `category.cy.ts` | Navegar categoría → productos filtrados | E |
 
-**Fixtures MSW/Cypress a añadir:** productos con distintas categorías, precios y estados.
+**Fixtures MSW/Cypress:** productos con distintas categorías, precios y estados (`mockCatalogProducts`, `mockProductAlpha`, `mockProductBeta`).
 
 ### Fase 2 — Carrito y checkout (prioridad alta)
 
@@ -425,7 +443,7 @@ Objetivo: flujo de compra completo (core del ecommerce).
 ### Orden de implementación recomendado
 
 ```text
-Fase 0 ✅  →  Fase 1 (catálogo)  →  Fase 2 (checkout)  →  Fase 3 (perfil)
+Fase 0 ✅  →  Fase 1 ✅ (catálogo)  →  Fase 2 (checkout)  →  Fase 3 (perfil)
                     ↓
               Fase 5 (sesión) en paralelo si hay bugs de auth
                     ↓

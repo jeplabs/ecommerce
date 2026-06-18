@@ -17,7 +17,11 @@ import {
 import { mockEmptyCart } from '../../src/test/msw/fixtures/cart';
 import { mockCategories } from '../../src/test/msw/fixtures/categories';
 import { mockOrdersPage } from '../../src/test/msw/fixtures/orders';
-import { mockProduct, mockProductsPage } from '../../src/test/msw/fixtures/products';
+import {
+    findMockProductBySlug,
+    mockProductsPage,
+    mockProductsPageForCategory,
+} from '../../src/test/msw/fixtures/products';
 
 export type RegisterFormData = {
     nombre: string;
@@ -47,10 +51,31 @@ function resolveLogin(email: string | undefined, password: string | undefined) {
 /** Intercepta las APIs públicas usadas por la tienda (mismos datos que MSW en Vitest). */
 Cypress.Commands.add('stubShopApi', () => {
     cy.intercept('GET', '**/api/categorias', mockCategories).as('getCategories');
-    cy.intercept('GET', '**/api/productos*', mockProductsPage()).as('getProducts');
-    cy.intercept('GET', `**/api/productos/slug/${mockProduct.slug}`, mockProduct).as(
-        'getProductBySlug'
-    );
+    cy.intercept('GET', '**/api/productos*', (req) => {
+        const url = new URL(req.url);
+        const categoriaId = url.searchParams.get('categoriaId');
+
+        if (categoriaId) {
+            const id = Number(categoriaId);
+            if (Number.isFinite(id)) {
+                req.reply(mockProductsPageForCategory(id));
+                return;
+            }
+        }
+
+        req.reply(mockProductsPage());
+    }).as('getProducts');
+    cy.intercept('GET', '**/api/productos/slug/*', (req) => {
+        const slug = req.url.split('/slug/')[1]?.split('?')[0];
+        const product = slug ? findMockProductBySlug(decodeURIComponent(slug)) : undefined;
+
+        if (product) {
+            req.reply(product);
+            return;
+        }
+
+        req.reply({ statusCode: 404, body: { error: 'Producto no encontrado' } });
+    }).as('getProductBySlug');
 });
 
 Cypress.Commands.add('stubAuthenticatedApi', () => {
