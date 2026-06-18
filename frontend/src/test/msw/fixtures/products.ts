@@ -109,3 +109,7 @@ export function mockProductsPageForCategory(categoriaId: number): SpringPage<Pro
 export function findMockProductBySlug(slug: string): ProductApi | undefined {
     return mockCatalogProducts.find((product) => product.slug === slug);
 }
+
+export function findMockProductById(id: number): ProductApi | undefined {
+    return mockCatalogProducts.find((product) => product.id === id);
+}

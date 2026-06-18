@@ -15,16 +15,25 @@ import {
     mockAuthTokenResponse,
     mockUserProfile,
 } from './fixtures/auth';
-import { mockEmptyCart } from './fixtures/cart';
+import { mockAddresses } from './fixtures/addresses';
+import {
+    addDynamicCartItem,
+    clearDynamicCart,
+    getDynamicCart,
+    removeDynamicCartItem,
+    resetDynamicCart,
+    updateDynamicCartItem,
+} from './fixtures/cart-registry';
 import { mockCategories } from './fixtures/categories';
-import { mockOrdersPage } from './fixtures/orders';
+import { mockCreatedOrder, mockOrdersPage, resetMockOrderIds } from './fixtures/orders';
 import {
     findMockProductBySlug,
     mockProductsPage,
     mockProductsPageForCategory,
 } from './fixtures/products';
+import { mockShippingOptions } from './fixtures/shipping';
 
-export { resetDynamicAuthUsers };
+export { resetDynamicAuthUsers, resetDynamicCart };
 
 function resolveLogin(body: { email?: string; password?: string }) {
     if (body.email === MOCK_LOGIN_EMAIL && body.password === MOCK_LOGIN_PASSWORD) {
@@ -77,15 +86,96 @@ export const handlers = [
     }),
 
     http.get(`${API_BASE}/api/direcciones`, () => {
-        return HttpResponse.json([]);
+        return HttpResponse.json(mockAddresses);
     }),
 
     http.get(`${API_BASE}/api/ordenes`, () => {
         return HttpResponse.json(mockOrdersPage());
     }),
 
+    http.post(`${API_BASE}/api/ordenes`, async ({ request }) => {
+        const body = (await request.json()) as {
+            direccionId?: number;
+            servicioEnvioId?: number;
+            notas?: string | null;
+        };
+
+        if (!body.direccionId || !body.servicioEnvioId) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        const cart = getDynamicCart();
+        if (cart.items.length === 0) {
+            return HttpResponse.json({ error: 'Carrito vacío' }, { status: 400 });
+        }
+
+        const orden = mockCreatedOrder({
+            direccionId: body.direccionId,
+            servicioEnvioId: body.servicioEnvioId,
+            cart,
+            notas: body.notas ?? null,
+        });
+
+        clearDynamicCart();
+
+        return HttpResponse.json(orden, { status: 201 });
+    }),
+
     http.get(`${API_BASE}/api/carrito`, () => {
-        return HttpResponse.json(mockEmptyCart);
+        return HttpResponse.json(getDynamicCart());
+    }),
+
+    http.post(`${API_BASE}/api/carrito/items`, async ({ request }) => {
+        const body = (await request.json()) as { productoId?: number; cantidad?: number };
+
+        if (!body.productoId || !body.cantidad) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(
+                addDynamicCartItem(body.productoId, body.cantidad),
+                { status: 201 }
+            );
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/carrito/items/:itemId`, async ({ params, request }) => {
+        const itemId = Number(params.itemId);
+        const body = (await request.json()) as { cantidad?: number };
+
+        if (!Number.isFinite(itemId) || body.cantidad == null) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        try {
+            return HttpResponse.json(updateDynamicCartItem(itemId, body.cantidad));
+        } catch {
+            return HttpResponse.json({ error: 'Ítem no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.delete(`${API_BASE}/api/carrito/items/:itemId`, ({ params }) => {
+        const itemId = Number(params.itemId);
+
+        if (!Number.isFinite(itemId)) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        return HttpResponse.json(removeDynamicCartItem(itemId));
+    }),
+
+    http.delete(`${API_BASE}/api/carrito`, () => {
+        return HttpResponse.json(clearDynamicCart());
+    }),
+
+    http.get(`${API_BASE}/api/envio/opciones`, ({ request }) => {
+        const url = new URL(request.url);
+        const subtotal = Number(url.searchParams.get('subtotal') ?? 0);
+
+        return HttpResponse.json(mockShippingOptions(subtotal));
     }),
 
     http.post(`${API_BASE}/api/auth/register`, async ({ request }) => {

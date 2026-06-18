@@ -14,14 +14,23 @@ import {
     mockUserProfile,
     mockUsersList,
 } from '../../src/test/msw/fixtures/auth';
-import { mockEmptyCart } from '../../src/test/msw/fixtures/cart';
+import {
+    addDynamicCartItem,
+    clearDynamicCart,
+    getDynamicCart,
+    removeDynamicCartItem,
+    resetDynamicCart,
+    updateDynamicCartItem,
+} from '../../src/test/msw/fixtures/cart-registry';
 import { mockCategories } from '../../src/test/msw/fixtures/categories';
-import { mockOrdersPage } from '../../src/test/msw/fixtures/orders';
+import { mockAddresses } from '../../src/test/msw/fixtures/addresses';
+import { mockCreatedOrder, mockOrdersPage } from '../../src/test/msw/fixtures/orders';
 import {
     findMockProductBySlug,
     mockProductsPage,
     mockProductsPageForCategory,
 } from '../../src/test/msw/fixtures/products';
+import { mockShippingOptions } from '../../src/test/msw/fixtures/shipping';
 
 export type RegisterFormData = {
     nombre: string;
@@ -79,10 +88,92 @@ Cypress.Commands.add('stubShopApi', () => {
 });
 
 Cypress.Commands.add('stubAuthenticatedApi', () => {
+    resetDynamicCart();
+
     cy.intercept('GET', '**/api/usuarios/perfil', mockUserProfile).as('getProfile');
-    cy.intercept('GET', '**/api/direcciones', []).as('getAddresses');
+    cy.intercept('GET', '**/api/direcciones', mockAddresses).as('getAddresses');
     cy.intercept('GET', '**/api/ordenes*', mockOrdersPage()).as('getOrders');
-    cy.intercept('GET', '**/api/carrito', mockEmptyCart).as('getCart');
+    cy.intercept('GET', '**/api/carrito', (req) => {
+        req.reply(getDynamicCart());
+    }).as('getCart');
+    cy.intercept('POST', '**/api/carrito/items', (req) => {
+        const body = req.body as { productoId?: number; cantidad?: number };
+
+        if (!body.productoId || !body.cantidad) {
+            req.reply({ statusCode: 400, body: { error: 'Datos incompletos' } });
+            return;
+        }
+
+        try {
+            req.reply({
+                statusCode: 201,
+                body: addDynamicCartItem(body.productoId, body.cantidad),
+            });
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Producto no encontrado' } });
+        }
+    }).as('addCartItem');
+    cy.intercept('PATCH', '**/api/carrito/items/*', (req) => {
+        const itemId = Number(req.url.split('/items/')[1]?.split('?')[0]);
+        const body = req.body as { cantidad?: number };
+
+        if (!Number.isFinite(itemId) || body.cantidad == null) {
+            req.reply({ statusCode: 400, body: { error: 'Datos incompletos' } });
+            return;
+        }
+
+        try {
+            req.reply(updateDynamicCartItem(itemId, body.cantidad));
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Ítem no encontrado' } });
+        }
+    }).as('updateCartItem');
+    cy.intercept('DELETE', '**/api/carrito/items/*', (req) => {
+        const itemId = Number(req.url.split('/items/')[1]?.split('?')[0]);
+
+        if (!Number.isFinite(itemId)) {
+            req.reply({ statusCode: 400, body: { error: 'Datos incompletos' } });
+            return;
+        }
+
+        req.reply(removeDynamicCartItem(itemId));
+    }).as('removeCartItem');
+    cy.intercept('DELETE', '**/api/carrito', (req) => {
+        req.reply(clearDynamicCart());
+    }).as('clearCart');
+    cy.intercept('GET', '**/api/envio/opciones*', (req) => {
+        const url = new URL(req.url);
+        const subtotal = Number(url.searchParams.get('subtotal') ?? 0);
+        req.reply(mockShippingOptions(subtotal));
+    }).as('getShippingOptions');
+    cy.intercept('POST', '**/api/ordenes', (req) => {
+        const body = req.body as {
+            direccionId?: number;
+            servicioEnvioId?: number;
+            notas?: string | null;
+        };
+
+        if (!body.direccionId || !body.servicioEnvioId) {
+            req.reply({ statusCode: 400, body: { error: 'Datos incompletos' } });
+            return;
+        }
+
+        const cart = getDynamicCart();
+        if (cart.items.length === 0) {
+            req.reply({ statusCode: 400, body: { error: 'Carrito vacío' } });
+            return;
+        }
+
+        const orden = mockCreatedOrder({
+            direccionId: body.direccionId,
+            servicioEnvioId: body.servicioEnvioId,
+            cart,
+            notas: body.notas ?? null,
+        });
+
+        clearDynamicCart();
+        req.reply({ statusCode: 201, body: orden });
+    }).as('createOrder');
 });
 
 Cypress.Commands.add('stubAdminApi', () => {
@@ -185,6 +276,11 @@ Cypress.Commands.add('loginAsAdmin', () => {
     cy.wait('@login');
 });
 
+Cypress.Commands.add('addProductToCart', (productName: string) => {
+    cy.get(`button[aria-label="Agregar ${productName} al carrito"]`).scrollIntoView().click();
+    cy.wait('@addCartItem');
+});
+
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Cypress {
@@ -200,6 +296,7 @@ declare global {
             registerCustomer(data: RegisterFormData): Chainable<void>;
             loginAsCustomer(): Chainable<void>;
             loginAsAdmin(): Chainable<void>;
+            addProductToCart(productName: string): Chainable<void>;
         }
     }
 }

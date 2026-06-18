@@ -250,7 +250,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (47 tests)
+### Vitest (67 tests)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
@@ -266,8 +266,14 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `entities/product/api/productApi.test.ts` | API + MSW | `getAll`, `getBySlug`, `getByCategory`, 404 |
 | `shared/ui/Card/ProductCard.test.tsx` | Componente | Stock agotado, agregar al carrito |
 | `widgets/product-detail/ProductInfo/ProductInfo.test.tsx` | Componente | SKU, stock disponible / sin stock |
+| `entities/cart/api/cartApi.test.ts` | API + MSW | add, update qty, remove, clear |
+| `entities/cart/model/useCartLogic.test.tsx` | Hook + MSW | Total, logout, errores API |
+| `entities/shipping/api/shippingApi.test.ts` | API + MSW | Opciones de envío, envío gratis |
+| `features/checkout/lib/bank-transfer-accounts.test.ts` | Unit | Cuentas demo bancarias |
+| `features/checkout/lib/transfer-order-storage.test.ts` | Unit | Marca transferencia, comprobante local |
+| `features/checkout/model/useCheckoutLogic.test.tsx` | Hook + MSW | Pasos, dirección, pago, crear orden |
 
-### Cypress (16 tests)
+### Cypress (20 tests)
 
 | Spec | Casos |
 |------|-------|
@@ -275,6 +281,9 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `cypress/e2e/catalog.cy.ts` | Listado, búsqueda `?search=`, orden `?sort=`, filtro `?precioMax=` |
 | `cypress/e2e/category.cy.ts` | Subcategoría Audio con productos filtrados |
 | `cypress/e2e/product.cy.ts` | Detalle desde catálogo; producto agotado sin añadir |
+| `cypress/e2e/cart.cy.ts` | Agregar, cambiar cantidad, eliminar ítem |
+| `cypress/e2e/checkout.cy.ts` | Checkout con transferencia bancaria → success |
+| `cypress/e2e/checkout-guest.cy.ts` | Redirige a login al agregar o visitar `/cart` |
 
 ---
 
@@ -315,7 +324,7 @@ Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efect
 | Pregunta | Respuesta |
 |----------|-----------|
 | ¿Buenas prácticas? | **Sí**, en arquitectura y enfoque general |
-| ¿Efectivos? | **Sí** para auth y catálogo (filtros, categorías, detalle); aún **no** cubren checkout, carrito, perfil profundo ni admin |
+| ¿Efectivos? | **Sí** para auth, catálogo y flujo de compra (carrito + checkout); aún **no** cubren perfil profundo ni admin |
 | ¿Production-grade al 100 %? | **Todavía no** — falta volumen y algún refinamiento (providers, selectores, CI) |
 
 No hay anti-patrones graves (no se testean detalles privados de React, no hay sleeps arbitrarios, no hay dependencia del backend real). Lo pendiente es **ampliar cobertura** siguiendo el mismo estilo.
@@ -374,9 +383,19 @@ Objetivo: búsqueda, filtros y detalle de producto sin regresiones.
 
 **Fixtures MSW/Cypress:** productos con distintas categorías, precios y estados (`mockCatalogProducts`, `mockProductAlpha`, `mockProductBeta`).
 
-### Fase 2 — Carrito y checkout (prioridad alta)
+### Fase 2 — Carrito y checkout ✅ cerrada
 
 Objetivo: flujo de compra completo (core del ecommerce).
+
+- [x] `cartApi`: add, update qty, remove, clear (I)
+- [x] `useCartLogic`: total, vaciar al logout, errores API (I)
+- [x] `shippingApi`: opciones de envío (I)
+- [x] `useCheckoutLogic`: pasos, dirección, envío, pago, crear orden (I)
+- [x] `bank-transfer-accounts`, `transfer-order-storage` (U)
+- [x] Fixtures: `cart-registry`, `addresses`, `shipping`, `mockCreatedOrder`
+- [x] MSW/Cypress: carrito stateful, envío, direcciones, `POST /api/ordenes`
+- [x] Comando Cypress `addProductToCart()`
+- [x] E2E: `cart.cy.ts`, `checkout.cy.ts`, `checkout-guest.cy.ts`
 
 | Área | Tests sugeridos | Capas |
 |------|-----------------|-------|
@@ -390,7 +409,7 @@ Objetivo: flujo de compra completo (core del ecommerce).
 | **E2E** `checkout.cy.ts` | Checkout con tarjeta simulada / transferencia → success | E |
 | **E2E** `checkout-guest.cy.ts` | Redirige a login si no autenticado al agregar | E |
 
-**Fixtures:** carrito con ítems, opciones de envío, respuesta `POST /api/ordenes`.
+**Fixtures:** `cart-registry.ts`, `addresses.ts`, `shipping.ts`, `mockCreatedOrder()` en `orders.ts`.
 
 ### Fase 3 — Perfil de cliente (prioridad media)
 
@@ -443,7 +462,7 @@ Objetivo: flujo de compra completo (core del ecommerce).
 ### Orden de implementación recomendado
 
 ```text
-Fase 0 ✅  →  Fase 1 ✅ (catálogo)  →  Fase 2 (checkout)  →  Fase 3 (perfil)
+Fase 0 ✅  →  Fase 1 ✅ (catálogo)  →  Fase 2 ✅ (checkout)  →  Fase 3 (perfil)
                     ↓
               Fase 5 (sesión) en paralelo si hay bugs de auth
                     ↓
