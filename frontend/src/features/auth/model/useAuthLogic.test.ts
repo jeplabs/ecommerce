@@ -61,6 +61,30 @@ describe('useAuthLogic', () => {
         });
     });
 
+    it('register y login con el mismo usuario dejan sesión activa', async () => {
+        const email = 'hook.register-login@example.com';
+        const { result } = renderHook(() => useAuthLogic());
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        await act(async () => {
+            const registerResponse = await result.current.register({
+                ...mockRegisterFormValues,
+                email,
+            });
+            expect(registerResponse.success).toBe(true);
+        });
+
+        await act(async () => {
+            const loginResponse = await result.current.login(email, MOCK_LOGIN_PASSWORD);
+            expect(loginResponse.success).toBe(true);
+        });
+
+        expect(result.current.isAuthenticated).toBe(true);
+        expect(localStorage.getItem('token')).toBeTruthy();
+        expect(localStorage.getItem('rol')).toBe('ROLE_CUSTOMER');
+    });
+
     it('logout limpia la sesión local', async () => {
         localStorage.setItem('token', mockAuthTokenResponse.token);
         localStorage.setItem('rol', 'ROLE_CUSTOMER');

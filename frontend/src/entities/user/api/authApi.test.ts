@@ -59,4 +59,19 @@ describe('authApi.register', () => {
 
         expect(result.data.error).toBe('El email ya está registrado');
     });
+
+    it('permite login tras registrar un usuario nuevo', async () => {
+        const email = 'registro-then-login@example.com';
+        const registerResult = await register({
+            ...mockRegisterFormValues,
+            email,
+        });
+
+        expect(registerResult.ok).toBe(true);
+
+        const loginResult = await login(email, MOCK_LOGIN_PASSWORD);
+
+        expect(loginResult.email).toBe(email);
+        expect(loginResult.rol).toBe('ROLE_CUSTOMER');
+    });
 });

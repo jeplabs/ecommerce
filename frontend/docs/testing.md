@@ -82,12 +82,14 @@ frontend/
 │   ├── test/
 │   │   ├── setup.ts            # jest-dom + lifecycle MSW
 │   │   ├── utils/
-│   │   │   └── render.tsx      # renderWithRouter()
+│   │   │   ├── render.tsx              # renderWithRouter()
+│   │   │   └── renderWithProviders.tsx # AuthProvider + MemoryRouter
 │   │   └── msw/
 │   │       ├── constants.ts    # API_BASE (= VITE_API_URL)
 │   │       ├── handlers.ts     # Rutas mockeadas
 │   │       ├── server.ts       # setupServer para Vitest
 │   │       └── fixtures/       # Datos JSON reutilizables
+│   │           └── auth-registry.ts  # Usuarios dinámicos registro → login
 │   └── **/*.test.{ts,tsx}      # Colocados junto al código bajo prueba
 ├── cypress.config.ts
 └── vite.config.ts              # Bloque `test` de Vitest
@@ -129,7 +131,7 @@ it('navega al hacer clic', () => {
 });
 ```
 
-Para tests que necesiten providers (`AuthProvider`, etc.), envolver en el test o ampliar `render.tsx` según el caso.
+Para tests que necesiten providers (`AuthProvider`, etc.), usar `renderWithProviders()` desde `@/test/utils/renderWithProviders` o ampliar según el caso.
 
 ---
 
@@ -206,6 +208,9 @@ it('devuelve 500', async () => {
 | `cy.submitRegisterForm()` | Envía formulario de registro | — |
 | `cy.loginAsCustomer()` | Visita login y autentica como cliente | `@login` |
 | `cy.loginAsAdmin()` | Visita login y autentica como admin | `@login` |
+| `cy.registerCustomer(data)` | Registro completo en `/register` | `@register` |
+
+Los usuarios creados en registro E2E quedan en **`auth-registry`** (memoria) y pueden hacer login inmediatamente después, igual que en Vitest/MSW.
 
 Ejemplo típico en un spec de ruta autenticada:
 
@@ -245,21 +250,22 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (15 tests)
+### Vitest (21 tests)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
 | `features/profile/lib/profileRoutes.test.ts` | Unit | Rutas y tabs del perfil |
 | `shared/ui/SoldOutBadge/SoldOutBadge.test.tsx` | Componente | Badge "Agotado" |
-| `entities/user/api/authApi.test.ts` | API + MSW | Login cliente/admin, registro, email duplicado |
-| `features/auth/model/useAuthLogic.test.ts` | Hook + MSW | Login, registro, logout y persistencia en `localStorage` |
+| `entities/user/api/authApi.test.ts` | API + MSW | Login, registro, email duplicado, registro → login |
+| `features/auth/model/useAuthLogic.test.ts` | Hook + MSW | Login, registro, registro → login, logout |
+| `app/router/PrivateRoute.test.tsx` | Componente + providers | Redirección por rol y sesión |
 
-### Cypress (8 tests)
+### Cypress (10 tests)
 
 | Spec | Casos |
 |------|-------|
 | `cypress/e2e/catalog.cy.ts` | Catálogo con productos mock |
-| `cypress/e2e/auth.cy.ts` | Registro cliente, login cliente/admin, errores, cerrar sesión |
+| `cypress/e2e/auth.cy.ts` | Registro, registro → login, login cliente/admin, ruta protegida, logout |
 
 ---
 
@@ -288,9 +294,9 @@ Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efect
 |---------|-----------|---------------|
 | **`{ force: true }` en Cypress** | Necesario por navbar sticky / `body { position: fixed }` | Aceptable documentado; a medio plazo considerar `data-testid` solo en formularios de auth o ajustar z-index en CSS de test |
 | **Clase CSS en SoldOutBadge** | Se asserta `placementStart` en className | Preferible `data-placement` o comprobar posición visual solo en E2E |
-| **Sin `renderWithProviders`** | Hooks se testean aislados; pocos tests de componentes con contexto | Crear helper con `AuthProvider` + `MemoryRouter` cuando crezcan tests de UI |
-| **Sin `getByRole` en RTL** | SoldOutBadge usa `getByText` (válido) | Ir introduciendo roles (`button`, `heading`) donde aplique |
-| **E2E no encadenan registro → login** | Registro y login se prueban por separado | Añadir un caso “me registro y luego entro” cuando el flujo sea crítico |
+| **Sin `renderWithProviders`** | *(Resuelto en Fase 0)* | Usar `@/test/utils/renderWithProviders` para rutas con `AuthProvider` |
+| **Sin `getByRole` en RTL** | SoldOutBadge usa `getByText`; PrivateRoute usa roles | Ir extendiendo roles en componentes nuevos |
+| **E2E no encadenaban registro → login** | *(Resuelto en Fase 0)* | `auth-registry` + spec dedicado |
 | **Cobertura no exigida en CI** | Solo script manual `test:coverage` | Fijar umbral mínimo (p. ej. 60 %) cuando el plan avance |
 | **Vitest en Windows** | A veces timeout con pool `forks` | Si falla intermitente: `pnpm exec vitest run --pool=threads` |
 | **Handlers duplicados** | MSW (Node) y `cy.intercept` (browser) | Trade-off razonable; mantener fixtures como única fuente de verdad |
@@ -318,14 +324,18 @@ Roadmap sugerido por **prioridad de negocio** y **retorno de inversión**. Marca
 - **C** = RTL componente (UI aislada o con providers)
 - **E** = Cypress E2E (flujo en navegador)
 
-### Fase 0 — Infraestructura (hecho)
+### Fase 0 — Infraestructura ✅ cerrada
 
 - [x] Vitest + RTL + MSW + Cypress configurados
-- [x] Fixtures y commands compartidos
+- [x] Fixtures y commands compartidos (+ `auth-registry` para registro → login)
 - [x] Auth: registro, login cliente/admin, logout (U/I + E)
+- [x] Auth: registro → login mismo usuario (U/I + E)
+- [x] Auth: ruta protegida sin sesión (E) y `PrivateRoute` (C)
+- [x] `renderWithProviders()` para tests con contexto
 - [x] Catálogo: listado básico (E)
 - [x] Helpers de perfil: rutas (U)
 - [x] Componente SoldOutBadge (C)
+- [x] Vitest estable en Windows (`--pool=threads`)
 
 ### Fase 1 — Catálogo y producto (prioridad alta)
 
@@ -401,7 +411,7 @@ Objetivo: flujo de compra completo (core del ecommerce).
 | `features/auth` | Forgot / reset password (si se usa en prod) | I + E |
 | `shared/lib/jwt-expiry.ts` | Expiración de token | U |
 | `features/auth/ui/SessionExpiryWarning.tsx` | Aviso antes de expirar | C |
-| **E2E** `auth.cy.ts` (ampliar) | Registro → login con mismo email; ruta protegida sin sesión | E |
+| ~~**E2E** `auth.cy.ts` (ampliar)~~ | ~~Registro → login; ruta protegida~~ | *(Fase 0)* |
 
 ### Fase 6 — UI compartida y regresiones (prioridad baja, continua)
 
@@ -415,7 +425,7 @@ Objetivo: flujo de compra completo (core del ecommerce).
 ### Orden de implementación recomendado
 
 ```text
-Fase 0 ✓  →  Fase 1 (catálogo)  →  Fase 2 (checkout)  →  Fase 3 (perfil)
+Fase 0 ✅  →  Fase 1 (catálogo)  →  Fase 2 (checkout)  →  Fase 3 (perfil)
                     ↓
               Fase 5 (sesión) en paralelo si hay bugs de auth
                     ↓

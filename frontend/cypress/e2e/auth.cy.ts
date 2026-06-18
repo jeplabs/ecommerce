@@ -17,9 +17,7 @@ describe('Autenticación', () => {
         it('registra un usuario y redirige al login', () => {
             const email = `cliente-${Date.now()}@example.com`;
 
-            cy.visit('/register');
-            cy.contains('h1', 'Registrarse').should('be.visible');
-            cy.fillRegisterForm({
+            cy.registerCustomer({
                 nombre: 'María',
                 apellido: 'García',
                 pais: 'Argentina',
@@ -27,9 +25,26 @@ describe('Autenticación', () => {
                 password: MOCK_LOGIN_PASSWORD,
                 confirmarPassword: MOCK_LOGIN_PASSWORD,
             });
-            cy.submitRegisterForm();
-            cy.wait('@register');
             cy.url().should('include', '/login');
+        });
+
+        it('registra un usuario y luego inicia sesión con las mismas credenciales', () => {
+            const email = `cliente-${Date.now()}@example.com`;
+
+            cy.registerCustomer({
+                nombre: 'Lucía',
+                apellido: 'Pérez',
+                pais: 'Argentina',
+                email,
+                password: MOCK_LOGIN_PASSWORD,
+                confirmarPassword: MOCK_LOGIN_PASSWORD,
+            });
+            cy.url().should('include', '/login');
+            cy.fillLoginForm(email, MOCK_LOGIN_PASSWORD);
+            cy.submitLoginForm();
+            cy.wait('@login');
+            cy.url().should('include', '/profile');
+            cy.contains('h1', 'Mi cuenta').should('be.visible');
         });
 
         it('muestra error si el email ya está registrado', () => {
@@ -54,6 +69,12 @@ describe('Autenticación', () => {
     });
 
     describe('Iniciar sesión', () => {
+        it('redirige a login al visitar perfil sin sesión', () => {
+            cy.visit('/profile');
+            cy.url().should('include', '/login');
+            cy.contains('h1', 'Iniciar sesión').should('be.visible');
+        });
+
         it('como cliente redirige al perfil', () => {
             cy.loginAsCustomer();
             cy.url().should('include', '/profile');

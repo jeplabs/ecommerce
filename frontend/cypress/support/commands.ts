@@ -1,9 +1,14 @@
 import {
+    isEmailTaken,
+    registerDynamicAuthUser,
+    resetDynamicAuthUsers,
+    tryDynamicLogin,
+} from '../../src/test/msw/fixtures/auth-registry';
+import {
     MOCK_ADMIN_EMAIL,
     MOCK_LOGIN_EMAIL,
     MOCK_LOGIN_PASSWORD,
     createMockRegisteredUser,
-    isRegisteredEmail,
     mockAdminAuthTokenResponse,
     mockAuthTokenResponse,
     mockUserProfile,
@@ -22,6 +27,22 @@ export type RegisterFormData = {
     password: string;
     confirmarPassword: string;
 };
+
+function resolveLogin(email: string | undefined, password: string | undefined) {
+    if (email === MOCK_LOGIN_EMAIL && password === MOCK_LOGIN_PASSWORD) {
+        return mockAuthTokenResponse;
+    }
+
+    if (email === MOCK_ADMIN_EMAIL && password === MOCK_LOGIN_PASSWORD) {
+        return mockAdminAuthTokenResponse;
+    }
+
+    if (email && password) {
+        return tryDynamicLogin(email, password);
+    }
+
+    return null;
+}
 
 /** Intercepta las APIs públicas usadas por la tienda (mismos datos que MSW en Vitest). */
 Cypress.Commands.add('stubShopApi', () => {
@@ -44,30 +65,31 @@ Cypress.Commands.add('stubAdminApi', () => {
 });
 
 Cypress.Commands.add('stubAuthApi', () => {
+    resetDynamicAuthUsers();
+
     cy.intercept('POST', '**/api/auth/register', (req) => {
         const body = req.body as RegisterFormData;
 
-        if (isRegisteredEmail(body.email)) {
+        if (isEmailTaken(body.email)) {
             req.reply({ statusCode: 409, body: { error: 'El email ya está registrado' } });
             return;
         }
 
+        const user = createMockRegisteredUser(body);
+        registerDynamicAuthUser(body.email, body.password, user);
+
         req.reply({
             statusCode: 201,
-            body: createMockRegisteredUser(body),
+            body: user,
         });
     }).as('register');
 
     cy.intercept('POST', '**/api/auth/login', (req) => {
         const { email, password } = req.body as { email?: string; password?: string };
+        const token = resolveLogin(email, password);
 
-        if (email === MOCK_LOGIN_EMAIL && password === MOCK_LOGIN_PASSWORD) {
-            req.reply({ statusCode: 200, body: mockAuthTokenResponse });
-            return;
-        }
-
-        if (email === MOCK_ADMIN_EMAIL && password === MOCK_LOGIN_PASSWORD) {
-            req.reply({ statusCode: 200, body: mockAdminAuthTokenResponse });
+        if (token) {
+            req.reply({ statusCode: 200, body: token });
             return;
         }
 
@@ -117,6 +139,13 @@ Cypress.Commands.add('submitRegisterForm', () => {
         .click({ force: true });
 });
 
+Cypress.Commands.add('registerCustomer', (data: RegisterFormData) => {
+    cy.visit('/register');
+    cy.fillRegisterForm(data);
+    cy.submitRegisterForm();
+    cy.wait('@register');
+});
+
 Cypress.Commands.add('loginAsCustomer', () => {
     cy.visit('/login');
     cy.fillLoginForm(MOCK_LOGIN_EMAIL, MOCK_LOGIN_PASSWORD);
@@ -143,6 +172,7 @@ declare global {
             submitLoginForm(): Chainable<void>;
             fillRegisterForm(data: RegisterFormData): Chainable<void>;
             submitRegisterForm(): Chainable<void>;
+            registerCustomer(data: RegisterFormData): Chainable<void>;
             loginAsCustomer(): Chainable<void>;
             loginAsAdmin(): Chainable<void>;
         }
