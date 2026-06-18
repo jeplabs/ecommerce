@@ -1,8 +1,11 @@
 import { http, HttpResponse } from 'msw';
 import { API_BASE } from './constants';
 import {
+    MOCK_ADMIN_EMAIL,
     MOCK_LOGIN_EMAIL,
     MOCK_LOGIN_PASSWORD,
+    createMockRegisteredUser,
+    isRegisteredEmail,
     mockAdminAuthTokenResponse,
     mockAuthTokenResponse,
     mockUserProfile,
@@ -45,6 +48,32 @@ export const handlers = [
         return HttpResponse.json(mockEmptyCart);
     }),
 
+    http.post(`${API_BASE}/api/auth/register`, async ({ request }) => {
+        const body = (await request.json()) as {
+            nombre?: string;
+            apellido?: string;
+            pais?: string;
+            email?: string;
+        };
+
+        if (!body.email || !body.nombre || !body.apellido || !body.pais) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+
+        if (isRegisteredEmail(body.email)) {
+            return HttpResponse.json({ error: 'El email ya está registrado' }, { status: 409 });
+        }
+
+        return HttpResponse.json(
+            createMockRegisteredUser({
+                nombre: body.nombre,
+                apellido: body.apellido,
+                pais: body.pais,
+                email: body.email,
+            })
+        );
+    }),
+
     http.post(`${API_BASE}/api/auth/login`, async ({ request }) => {
         const body = (await request.json()) as { email?: string; password?: string };
 
@@ -52,7 +81,7 @@ export const handlers = [
             return HttpResponse.json(mockAuthTokenResponse);
         }
 
-        if (body.email === 'admin@example.com' && body.password === MOCK_LOGIN_PASSWORD) {
+        if (body.email === MOCK_ADMIN_EMAIL && body.password === MOCK_LOGIN_PASSWORD) {
             return HttpResponse.json(mockAdminAuthTokenResponse);
         }
 

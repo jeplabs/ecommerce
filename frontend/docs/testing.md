@@ -152,6 +152,7 @@ Rutas mockeadas actualmente:
 | GET | `/api/direcciones` | `[]` |
 | GET | `/api/ordenes` | Página vacía |
 | GET | `/api/carrito` | Carrito vacío |
+| POST | `/api/auth/register` | Usuario nuevo o 409 si email ya existe |
 | POST | `/api/auth/login` | Token si credenciales válidas; 401 si no |
 
 ### Credenciales de prueba (`fixtures/auth.ts`)
@@ -194,8 +195,15 @@ it('devuelve 500', async () => {
 | Comando | Intercepta | Alias |
 |---------|------------|-------|
 | `cy.stubShopApi()` | categorías, productos, producto por slug | `@getCategories`, `@getProducts`, … |
-| `cy.stubAuthApi()` | POST login | `@login` |
+| `cy.stubAuthApi()` | POST login y registro | `@login`, `@register` |
 | `cy.stubAuthenticatedApi()` | perfil, direcciones, órdenes, carrito | `@getProfile`, … |
+| `cy.stubAdminApi()` | GET usuarios (panel admin) | `@getAdminUsers` |
+| `cy.fillLoginForm(email, password)` | Rellena formulario en `/login` | — |
+| `cy.submitLoginForm()` | Envía formulario de login | — |
+| `cy.fillRegisterForm(data)` | Rellena formulario en `/register` | — |
+| `cy.submitRegisterForm()` | Envía formulario de registro | — |
+| `cy.loginAsCustomer()` | Visita login y autentica como cliente | `@login` |
+| `cy.loginAsAdmin()` | Visita login y autentica como admin | `@login` |
 
 Ejemplo típico en un spec de ruta autenticada:
 
@@ -235,20 +243,21 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (8 tests)
+### Vitest (15 tests)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
-| `features/profile/lib/profileRoutes.test.ts` | Unit | `getProfileTabFromPath`, `getOrderIdFromProfilePath`, `isProfilePath`, rutas de tabs |
-| `shared/ui/SoldOutBadge/SoldOutBadge.test.tsx` | Componente | Texto "Agotado", placement `start` |
-| `entities/user/api/authApi.test.ts` | API + MSW | Login OK con credenciales mock; error 401 |
+| `features/profile/lib/profileRoutes.test.ts` | Unit | Rutas y tabs del perfil |
+| `shared/ui/SoldOutBadge/SoldOutBadge.test.tsx` | Componente | Badge "Agotado" |
+| `entities/user/api/authApi.test.ts` | API + MSW | Login cliente/admin, registro, email duplicado |
+| `features/auth/model/useAuthLogic.test.ts` | Hook + MSW | Login, registro, logout y persistencia en `localStorage` |
 
-### Cypress (3 tests)
+### Cypress (8 tests)
 
 | Spec | Casos |
 |------|-------|
-| `cypress/e2e/catalog.cy.ts` | Catálogo muestra productos mock, badge "Agotado" |
-| `cypress/e2e/login.cy.ts` | Login exitoso → `/profile`; credenciales inválidas → mensaje de error |
+| `cypress/e2e/catalog.cy.ts` | Catálogo con productos mock |
+| `cypress/e2e/auth.cy.ts` | Registro cliente, login cliente/admin, errores, cerrar sesión |
 
 ---
 
