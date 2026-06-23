@@ -1,14 +1,21 @@
 import { useRef, useState, type FormEvent } from 'react';
+import { subirComprobanteOrder } from '@/entities/order';
 import type { OrderApi } from '@/entities/order';
-import {
-    getTransferComprobante,
-    saveTransferComprobante,
-    TRANSFER_COMPROBANTE_ACCEPT,
-    TRANSFER_COMPROBANTE_FORMATS_LABEL,
-    TRANSFER_COMPROBANTE_MAX_LABEL,
-} from '@/features/checkout/lib/transfer-order-storage';
+// import {
+//     getTransferComprobante,
+//     saveTransferComprobante,
+//     TRANSFER_COMPROBANTE_ACCEPT,
+//     TRANSFER_COMPROBANTE_FORMATS_LABEL,
+//     TRANSFER_COMPROBANTE_MAX_LABEL,
+// } from '@/features/checkout/lib/transfer-order-storage';
 import BankTransferAccounts from '../BankTransferAccounts/BankTransferAccounts';
 import styles from './OrderBankTransferSection.module.css';
+
+const TRANSFER_COMPROBANTE_ACCEPT = 'image/png,image/jpeg,application/pdf';
+const TRANSFER_COMPROBANTE_MAX_LABEL = '5 MB';
+const TRANSFER_COMPROBANTE_FORMATS_LABEL = 'PNG, JPG o PDF';
+const TRANSFER_COMPROBANTE_MAX_BYTES = 5 * 1024 * 1024;
+
 
 type OrderBankTransferSectionProps = {
     orden: OrderApi;
@@ -29,10 +36,20 @@ export default function OrderBankTransferSection({
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [saved, setSaved] = useState(() => Boolean(getTransferComprobante(orden.id)));
-    const comprobante = getTransferComprobante(orden.id);
+    const [ordenActualizada, setOrdenActualizada] = useState(orden);
+    //const [saved, setSaved] = useState(() => Boolean(getTransferComprobante(orden.id)));
+    //const comprobante = getTransferComprobante(orden.id);
+
+    const comprobanteUrl = ordenActualizada.comprobanteUrl;
+    const comprobanteNombre = ordenActualizada.comprobanteNombre;
+    const comprobanteFecha = ordenActualizada.comprobanteFecha;
 
     const handleFileChange = (next: File | null) => {
+        if (next && next.size > TRANSFER_COMPROBANTE_MAX_BYTES) {
+            setError(`El archivo supera los ${TRANSFER_COMPROBANTE_MAX_LABEL}`);
+            setFile(null);
+            return;
+        }
         setFile(next);
         setError(null);
     };
@@ -46,20 +63,39 @@ export default function OrderBankTransferSection({
 
         setUploading(true);
         setError(null);
-        const result = await saveTransferComprobante(orden.id, file);
-        setUploading(false);
 
-        if (!result.success) {
-            setError(result.error);
-            return;
+        try {
+            const updated = await subirComprobanteOrder(orden.id, file);
+            setOrdenActualizada(updated);
+            setFile(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            onComprobanteSaved?.();
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Error al subir el comprobante'
+            );
+        } finally {
+            setUploading(false);
         }
 
-        setSaved(true);
-        setFile(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-        onComprobanteSaved?.();
+        //const result = await saveTransferComprobante(orden.id, file);
+        //setUploading(false);
+
+        // if (!result.success) {
+        //     setError(result.error);
+        //     return;
+        // }
+
+        // setSaved(true);
+        // setFile(null);
+        // if (fileInputRef.current) {
+        //     fileInputRef.current.value = '';
+        // }
+        // onComprobanteSaved?.();
     };
 
     return (
@@ -119,20 +155,22 @@ export default function OrderBankTransferSection({
                     </div>
                 </div>
 
-                {comprobante && (
+                {comprobanteUrl && (
                     <div className={styles.preview}>
                         <span className={styles.previewLabel}>Comprobante enviado</span>
                         <a
-                            href={comprobante.dataUrl}
+                            href={comprobanteUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={styles.previewLink}
                         >
-                            {comprobante.fileName}
+                            {comprobanteNombre ?? 'Ver Comprobante'}
                         </a>
-                        <p className={styles.previewMeta}>
-                            {new Date(comprobante.uploadedAt).toLocaleString('es-CL')}
-                        </p>
+                        {comprobanteFecha && (
+                            <p className={styles.previewMeta}>
+                                {new Date(comprobanteFecha).toLocaleString('es-CL')}
+                            </p>
+                        )}
                     </div>
                 )}
 
@@ -142,7 +180,7 @@ export default function OrderBankTransferSection({
                     </p>
                 )}
 
-                {saved && !error && (
+                {comprobanteUrl && !error && (
                     <p className={styles.successMsg} role="status">
                         Comprobante guardado. Validaremos tu pago pronto.
                     </p>
@@ -156,9 +194,9 @@ export default function OrderBankTransferSection({
                     >
                         {uploading
                             ? 'Enviando…'
-                            : comprobante
-                              ? 'Actualizar comprobante'
-                              : 'Enviar comprobante'}
+                            : comprobanteUrl
+                            ? 'Actualizar comprobante'
+                            : 'Enviar comprobante'}
                     </button>
                 </div>
             </form>

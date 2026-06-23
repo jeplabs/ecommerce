@@ -7,5 +7,7 @@ export {
     listarOrdenesAdmin,
     obtenerOrdenAdmin,
     actualizarEstadoOrdenAdmin,
+    listarCuentasBancarias,
+    subirComprobanteOrder,
     type ListOrdersAdminParams,
 } from './orderApi';

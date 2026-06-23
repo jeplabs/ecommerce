@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
-import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
+//import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
 import OrderBankTransferSection from '@/features/checkout/ui/OrderBankTransferSection/OrderBankTransferSection';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
@@ -30,7 +30,7 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
 
     const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'CONFIRMADA';
     const costoEnvio = Number(orden.costoEnvio ?? 0);
-    const showBankTransfer = isBankTransferOrder(orden.id);
+    const showBankTransfer = orden.metodoPago === 'TRANSFERENCIA_BANCARIA';
 
     return (
         <div className={clsx(styles.root, className)}>

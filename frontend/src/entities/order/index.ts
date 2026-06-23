@@ -13,6 +13,10 @@ export type {
     OrderListFilters,
 } from './model/types';
 
+export type {
+    BancoAccountApi
+} from './model/schemas/api';
+
 export {
     orderStatusSchema,
     formaPagoSchema,
@@ -53,6 +57,8 @@ export {
     listarOrdenesAdmin,
     obtenerOrdenAdmin,
     actualizarEstadoOrdenAdmin,
+    listarCuentasBancarias,
+    subirComprobanteOrder,
     type ListOrdersAdminParams,
 } from './api';
 

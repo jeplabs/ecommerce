@@ -1,5 +1,8 @@
-import { DEMO_BANK_ACCOUNTS } from '@/features/checkout/lib/bank-transfer-accounts';
+// import { DEMO_BANK_ACCOUNTS } from '@/features/checkout/lib/bank-transfer-accounts';
+import { useState, useEffect } from 'react';
+import { listarCuentasBancarias } from '@/entities/order';
 import { formatCurrency } from '@/shared/lib/format';
+import type { BancoAccountApi } from '@/entities/order/model/schemas/api';
 import styles from './BankTransferAccounts.module.css';
 
 type BankTransferAccountsProps = {
@@ -13,13 +16,34 @@ export default function BankTransferAccounts({
     total,
     compact = false,
 }: BankTransferAccountsProps) {
+    const [cuentas, setCuentas] = useState<BancoAccountApi[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        listarCuentasBancarias()
+            .then(setCuentas)
+            .catch((error => {
+                console.error('Error al listar cuentas bancarias', error);
+                setCuentas([]);
+            }))
+            .finally(() => setLoading(false))
+    }, []);
+
+    if (loading) {
+        return <div className={styles.loader}>Cargando cuentas bancarias…</div>;
+    }
+
     return (
         <div>
             <ul className={styles.list}>
-                {DEMO_BANK_ACCOUNTS.map((cuenta) => (
+                {cuentas.map((cuenta) => (
                     <li key={cuenta.numeroCuenta} className={styles.card}>
                         <h4 className={styles.cardTitle}>{cuenta.banco}</h4>
                         <dl className={styles.rows}>
+                            <div className={styles.row}>
+                                <dt>Banco</dt>
+                                <dd>{cuenta.banco}</dd>
+                            </div>
                             <div className={styles.row}>
                                 <dt>Titular</dt>
                                 <dd>{cuenta.titular}</dd>
@@ -33,12 +57,8 @@ export default function BankTransferAccounts({
                                 <dd>{cuenta.numeroCuenta}</dd>
                             </div>
                             <div className={styles.row}>
-                                <dt>RUT</dt>
-                                <dd>{cuenta.rut}</dd>
-                            </div>
-                            <div className={styles.row}>
-                                <dt>Email</dt>
-                                <dd>{cuenta.email}</dd>
+                                <dt>Moneda</dt>
+                                <dd>{cuenta.moneda}</dd>
                             </div>
                         </dl>
                     </li>

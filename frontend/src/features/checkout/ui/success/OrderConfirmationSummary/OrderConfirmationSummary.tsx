@@ -4,7 +4,7 @@ import shippingSummaryStyles from '@/features/order/ui/OrderShippingSummary/Orde
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
-import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
+//import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
 import BankTransferAccounts from '@/features/checkout/ui/BankTransferAccounts/BankTransferAccounts';
 import styles from './OrderConfirmationSummary.module.css';
 
@@ -20,18 +20,18 @@ const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
 type OrderConfirmationSummaryProps = {
     orden: OrderApi | null | undefined;
     payment?: PaymentSuccessResult | null;
-    isBankTransfer?: boolean;
+    //isBankTransfer?: boolean;
 };
 
 export default function OrderConfirmationSummary({
     orden,
     payment,
-    isBankTransfer = false,
+    //isBankTransfer = false,
 }: OrderConfirmationSummaryProps) {
     if (!orden) return null;
 
     const costoEnvio = Number(orden.costoEnvio ?? 0);
-    const showBankTransfer = isBankTransfer || isBankTransferOrder(orden.id);
+    const showBankTransfer = orden.metodoPago === 'TRANSFERENCIA_BANCARIA';
 
     return (
         <article className={styles.root} aria-labelledby="order-confirmation-title">

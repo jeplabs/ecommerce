@@ -22,6 +22,18 @@ export const formaPagoSchema = z.enum(['EN_LINEA', 'CONTRA_ENTREGA']);
 /** {@code MetodoPago} — método de pago del envío. */
 export const metodoPagoSchema = z.enum(['EN_LINEA', 'CONTRA_ENTREGA', 'TRANSFERENCIA_BANCARIA']);
 
+/** {@code DatosRespuestaBancoAccount} — snapshot en la orden. */
+export const bankAccountApiSchema = z.object({
+    id: z.number().int().positive(),
+    banco: z.string(),
+    titular: z.string(),
+    tipoCuenta: z.string(),
+    numeroCuenta: z.string(),
+    moneda: z.string(),
+    activo: z.boolean(),
+    ordenViualizacion: z.number().nullable().optional(),
+});
+
 /** {@code DatosRespuestaDireccionOrden} — snapshot en la orden. */
 export const orderShippingAddressApiSchema = z.object({
     alias: z.string(),
@@ -56,6 +68,9 @@ export const orderApiSchema = z.object({
     servicioEnvio: z.string().nullable().optional(),
     formaPago: formaPagoSchema,
     metodoPago: metodoPagoSchema,
+    comprobanteUrl: z.string().nullable().optional(),
+    comprobanteNombre: z.string().nullable().optional(),
+    comprobanteFecha: localDateTimeSchema.nullable().optional(),
     items: z.array(orderItemApiSchema).default([]),
     subtotal: moneySchema,
     iva: moneySchema,
@@ -69,6 +84,7 @@ export const orderApiSchema = z.object({
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export type FormaPago = z.infer<typeof formaPagoSchema>;
 export type MetodoPago = z.infer<typeof metodoPagoSchema>;
+export type BancoAccountApi = z.infer<typeof bankAccountApiSchema>;
 export type OrderShippingAddressApi = z.infer<typeof orderShippingAddressApiSchema>;
 export type OrderItemApi = z.infer<typeof orderItemApiSchema>;
 export type OrderApi = z.infer<typeof orderApiSchema>;

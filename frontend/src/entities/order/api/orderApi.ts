@@ -1,9 +1,10 @@
 import { API_URL } from '@/shared/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
-import { orderApiSchema, type OrderApi, type OrderStatus } from '../model/schemas/api';
+import { orderApiSchema, bankAccountApiSchema, type OrderApi, type OrderStatus, type BancoAccountApi } from '../model/schemas/api';
 import { orderPageSchema, type OrderPage } from '../model/types';
 import type { CreateOrderRequest } from '../model/schemas/forms';
+import z from 'zod';
 
 const getToken = () => localStorage.getItem('token');
 
@@ -34,6 +35,14 @@ async function handleOrderPageJson(response: Response, fallback: string): Promis
     }
 
     return parseApi(orderPageSchema, raw);
+}
+
+async function handleBankAccountsJson(response: Response, fallback: string) {
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, fallback);
+    }
+    return parseApi(z.array(bankAccountApiSchema), raw);
 }
 
 export type ListOrdersAdminParams = {
@@ -86,6 +95,28 @@ export async function crearOrden(body: CreateOrderRequest): Promise<OrderApi> {
     return handleOrderJson(response, 'Error al crear la orden');
 }
 
+export async function subirComprobanteOrder(
+    ordenId: number,
+    archivo: File
+): Promise<OrderApi> {
+    const token = getToken();
+    if (!token) {
+        throw new ApiError('No se ha autenticado', 401, null);
+    }
+
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+
+    const response = await fetch(`${API_URL}/api/ordenes/${ordenId}/comprobante`, {
+        method: 'POST',
+        headers: getAuthHeaders(token, false),
+        body: formData,
+    });
+
+    return handleOrderJson(response, 'Error al subir el comprobante');
+}
+
+
 /** {@code GET /api/ordenes/admin} */
 export async function listarOrdenesAdmin({
     page = 0,
@@ -126,6 +157,15 @@ export async function actualizarEstadoOrdenAdmin(
         body: JSON.stringify({ estado }),
     });
     return handleOrderJson(response, 'Error al actualizar el estado de la orden');
+}
+
+/** {@code GET /api/bancos/account} */
+export async function listarCuentasBancarias(): Promise<BancoAccountApi[]> {
+    const response = await fetch(`${API_URL}/api/banco`, {
+        method: 'GET',
+        headers: getAuthHeaders(getToken())
+    });
+    return handleBankAccountsJson(response, 'Error al listar los bancos de cuentas');
 }
 
 export const orderApi = {
