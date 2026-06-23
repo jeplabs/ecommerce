@@ -11,11 +11,15 @@ public record DatosRespuestaOrden(
         DatosRespuestaDireccionOrden direccionEnvio,
         String servicioEnvio,       //  nombre del servicio
         FormaPago formaPago,        // forma de pago
+        com.jeplabs.ecommerce.domain.orden.MetodoPago metodoPago,
         List<DatosRespuestaOrdenItem> items,
         BigDecimal subtotal,
         BigDecimal iva,
         BigDecimal costoEnvio,      // costo de envío
         BigDecimal total,
+        String comprobanteUrl,          // ← nuevo
+        String comprobanteNombre,       // ← nuevo
+        LocalDateTime comprobanteFecha, //
         String notas,
         LocalDateTime creadoAt,
         LocalDateTime actualizadoAt
@@ -28,6 +32,7 @@ public record DatosRespuestaOrden(
                 new DatosRespuestaDireccionOrden(orden),
                 orden.getServicioEnvio() != null ? orden.getServicioEnvio().getNombre() : null,
                 orden.getFormaPago(),
+                orden.getMetodoPago(),
                 orden.getItems().stream()
                         .map(DatosRespuestaOrdenItem::new)
                         .toList(),
@@ -35,6 +40,9 @@ public record DatosRespuestaOrden(
                 orden.getIva(),
                 orden.getCostoEnvio(),
                 orden.getTotal(),
+                orden.getComprobanteUrl(),      // ← nuevo
+                orden.getComprobanteNombre(),   // ← nuevo
+                orden.getComprobanteFecha(),    // ← nuevo
                 orden.getNotas(),
                 orden.getCreadoAt(),
                 orden.getActualizadoAt()

@@ -34,3 +34,14 @@ api.impuestos.iva=0.12
 
 # Servicios de envio
 api.envio.monto-minimo-gratis=500.00
+
+# Storage
+api.storage.provider=local
+api.storage.local.path=uploads/comprobantes
+api.storage.allowed-types=image/png,image/jpeg,application/pdf
+api.storage.max-size-mb=5
+
+# Cloudinary (completar cuando tengas la cuenta)
+# api.storage.cloudinary.cloud-name=tu_cloud_name
+# api.storage.cloudinary.api-key=tu_api_key
+# api.storage.cloudinary.api-secret=tu_api_secret

@@ -2,6 +2,7 @@ package com.jeplabs.ecommerce.domain.usuario;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 // Por medio de JPA, Spring genera toda la implementación SQL automaticamente.
@@ -13,4 +14,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByEmail(String email);
     // Cuenta los admins activos para la validación del último admin
     long countByRolAndActivo(Rol rol, boolean activo);
+
+    List<Usuario> findByRolAndActivo(Rol rol, boolean activo);
 }

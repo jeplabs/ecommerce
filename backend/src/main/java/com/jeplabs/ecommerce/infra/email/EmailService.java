@@ -1,5 +1,6 @@
 package com.jeplabs.ecommerce.infra.email;
 
+import com.jeplabs.ecommerce.domain.banco.DatosRespuestaCuentaBancaria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -139,5 +143,73 @@ public class EmailService {
             </html>
             """.formatted(nombreUsuario, enlace);
         enviar(emailDestino, asunto, contenido);
+    }
+
+    @Async
+    public void enviarDatosBancarios(String emailDestino, String nombreUsuario,
+                                     Long ordenId, BigDecimal total,
+                                     List<DatosRespuestaCuentaBancaria> cuentas) {
+        String asunto = "Datos bancarios para tu orden #" + ordenId;
+
+        StringBuilder cuentasHtml = new StringBuilder();
+        for (DatosRespuestaCuentaBancaria cuenta : cuentas) {
+            cuentasHtml.append("""
+                <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px;">
+                    <p><strong>Banco:</strong> %s</p>
+                    <p><strong>Titular:</strong> %s</p>
+                    <p><strong>Tipo de cuenta:</strong> %s</p>
+                    <p><strong>Número de cuenta:</strong> %s</p>
+                    <p><strong>Moneda:</strong> %s</p>
+                </div>
+                """.formatted(
+                    cuenta.banco(), cuenta.titular(),
+                    cuenta.tipoCuenta(), cuenta.numeroCuenta(), cuenta.moneda()
+            ));
+        }
+
+        String contenido = """
+            <html>
+            <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2>Hola %s,</h2>
+                <p>Tu orden <strong>#%d</strong> ha sido registrada correctamente.</p>
+                <p>Para confirmar tu compra, realiza una transferencia por el monto de
+                   <strong>%s</strong> a una de las siguientes cuentas:</p>
+                %s
+                <p style="color: #e74c3c;"><strong>Importante:</strong> Sube tu comprobante
+                   de pago desde tu historial de pedidos para agilizar la confirmación.</p>
+                <br>
+                <a href="http://localhost:5173/ordenes/%d"
+                   style="background-color: #007bff; color: white;
+                          padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                    Ver mi orden y subir comprobante
+                </a>
+            </body>
+            </html>
+            """.formatted(nombreUsuario, ordenId, total, cuentasHtml, ordenId);
+
+        enviar(emailDestino, asunto, contenido);
+    }
+
+    @Async
+    public void enviarNotificacionComprobante(String emailAdmin, Long ordenId,
+                                              String nombreCliente) {
+        String asunto = "Comprobante subido - Orden #" + ordenId;
+        String contenido = """
+            <html>
+            <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2>Nuevo comprobante de pago</h2>
+                <p>El cliente <strong>%s</strong> ha subido un comprobante para
+                   la orden <strong>#%d</strong>.</p>
+                <br>
+                <a href="http://localhost:5173/admin/ordenes/%d"
+                   style="background-color: #28a745; color: white;
+                          padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                    Ver orden y comprobante
+                </a>
+            </body>
+            </html>
+            """.formatted(nombreCliente, ordenId, ordenId);
+
+        enviar(emailAdmin, asunto, contenido);
     }
 }

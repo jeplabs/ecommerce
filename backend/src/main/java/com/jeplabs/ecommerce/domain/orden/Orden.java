@@ -46,6 +46,19 @@ public class Orden {
     @Enumerated(EnumType.STRING)
     private EstadoOrden estado;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pago")
+    private MetodoPago metodoPago;
+
+    @Column(name = "comprobante_url")
+    private String comprobanteUrl;
+
+    @Column(name = "comprobante_nombre")
+    private String comprobanteNombre;
+
+    @Column(name = "comprobante_fecha")
+    private LocalDateTime comprobanteFecha;
+
     // Copia de datos de dirección
     @Column(name = "direccion_alias")     private String direccionAlias;
     @Column(name = "direccion_calle")     private String direccionCalle;
@@ -69,6 +82,7 @@ public class Orden {
     private LocalDateTime actualizadoAt;
 
     public Orden(Usuario usuario, Direccion direccion, ServicioEnvio servicioEnvio, FormaPago formaPago,
+                 MetodoPago metodoPago,
                  BigDecimal costoEnvio, String notas,
                  BigDecimal subtotal, BigDecimal iva) {
         this.usuario = usuario;
@@ -77,6 +91,7 @@ public class Orden {
         this.formaPago = formaPago;
         this.costoEnvio = costoEnvio;
         this.estado = EstadoOrden.PENDIENTE;
+        this.metodoPago = metodoPago;
 
         // Copia de datos de dirección al momento de la orden
         this.direccionAlias          = direccion.getAlias();
@@ -122,4 +137,12 @@ public class Orden {
         this.total = subtotal.add(costoEnvio); // total = subtotal porque IVA ya está incluido
         this.actualizadoAt = LocalDateTime.now();
     }
+
+    public void agregarComprobante(String url, String nombre) {
+        this.comprobanteUrl    = url;
+        this.comprobanteNombre = nombre;
+        this.comprobanteFecha  = LocalDateTime.now();
+    }
+
+
 }

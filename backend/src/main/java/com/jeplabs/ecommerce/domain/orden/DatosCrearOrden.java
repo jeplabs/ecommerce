@@ -13,5 +13,8 @@ public record DatosCrearOrden(
         @NotNull(message = "La forma de pago es obligatoria")
         FormaPago formaPago,
 
+        @NotNull(message = "El método de pago es obligatorio")
+        com.jeplabs.ecommerce.domain.orden.MetodoPago metodoPago,
+
         String notas
 ) {}

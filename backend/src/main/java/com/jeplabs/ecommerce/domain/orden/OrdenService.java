@@ -1,5 +1,7 @@
 package com.jeplabs.ecommerce.domain.orden;
 
+import com.jeplabs.ecommerce.domain.banco.CuentaBancariaRepository;
+import com.jeplabs.ecommerce.domain.banco.DatosRespuestaCuentaBancaria;
 import com.jeplabs.ecommerce.domain.carrito.*;
 import com.jeplabs.ecommerce.domain.direccion.Direccion;
 import com.jeplabs.ecommerce.domain.direccion.DireccionRepository;
@@ -8,26 +10,28 @@ import com.jeplabs.ecommerce.domain.envio.ServicioEnvio;
 import com.jeplabs.ecommerce.domain.envio.ServicioEnvioRepository;
 import com.jeplabs.ecommerce.domain.producto.Producto;
 import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
-import com.jeplabs.ecommerce.domain.producto.EstadoProducto;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
+import com.jeplabs.ecommerce.domain.usuario.Rol; // ← Importado
 import com.jeplabs.ecommerce.infra.email.EmailService;
 import com.jeplabs.ecommerce.infra.exceptions.CarritoNoEncontradoException;
 import com.jeplabs.ecommerce.infra.exceptions.CarritoVacioException;
 import com.jeplabs.ecommerce.infra.exceptions.OrdenNoEncontradaException;
 import com.jeplabs.ecommerce.infra.exceptions.ProductoNoDisponibleException;
 import com.jeplabs.ecommerce.infra.exceptions.StockInsuficienteException;
+import com.jeplabs.ecommerce.infra.storage.ArchivoValidator;
+import com.jeplabs.ecommerce.infra.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile; // ← Importado
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +48,9 @@ public class OrdenService {
     private final EmailService emailService;
     private final ServicioEnvioRepository servicioEnvioRepositorio;
     private final EnvioCalculator envioCalculator;
+    private final CuentaBancariaRepository cuentaBancariaRepositorio;
+    private final StorageService storageService;
+    private final ArchivoValidator archivoValidator;
 
     // Cliente lista sus propias órdenes
     public Page<DatosRespuestaOrden> listarMisOrdenes(String email, Pageable pageable) {
@@ -58,7 +65,7 @@ public class OrdenService {
         Usuario usuario = buscarUsuario(email);
         return new DatosRespuestaOrden(
                 ordenRepositorio.findByIdAndUsuarioId(ordenId, usuario.getId())
-                        .orElseThrow(() -> new OrdenNoEncontradaException(ordenId)) // ← específica
+                        .orElseThrow(() -> new OrdenNoEncontradaException(ordenId))
         );
     }
 
@@ -70,10 +77,9 @@ public class OrdenService {
 
     // Admin ve cualquier orden
     public DatosRespuestaOrden buscarPorId(Long ordenId) {
-
         return new DatosRespuestaOrden(
                 ordenRepositorio.findById(ordenId)
-                        .orElseThrow(() -> new OrdenNoEncontradaException(ordenId)) // ← específica
+                        .orElseThrow(() -> new OrdenNoEncontradaException(ordenId))
         );
     }
 
@@ -93,57 +99,48 @@ public class OrdenService {
         // Verificar que la dirección existe y pertenece al usuario
         Direccion direccion = direccionRepositorio
                 .findByIdAndUsuarioId(datos.direccionId(), usuario.getId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Dirección no encontrada"));
+                .orElseThrow(() -> new IllegalArgumentException("Dirección no encontrada"));
 
         if (!direccion.isActivo()) {
-            throw new IllegalArgumentException(
-                    "La dirección seleccionada no está disponible");
+            throw new IllegalArgumentException("La dirección seleccionada no está disponible");
         }
 
         // Buscar servicio de envío
         ServicioEnvio servicioEnvio = servicioEnvioRepositorio
                 .findById(datos.servicioEnvioId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Servicio de envío no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Servicio de envío no encontrado"));
 
         if (!servicioEnvio.isActivo()) {
-            throw new IllegalArgumentException(
-                    "El servicio de envío seleccionado no está disponible");
+            throw new IllegalArgumentException("El servicio de envío seleccionado no está disponible");
         }
 
         try {
-            // Verificar stock y preparar items con Optimistic Locking
             List<OrdenItem> ordenItems = new ArrayList<>();
             BigDecimal subtotal = BigDecimal.ZERO;
 
-            // Datos forma de pago
-            BigDecimal costoEnvio = envioCalculator.calcularCostoEnvio(
-                    subtotal, servicioEnvio, datos.formaPago());
+            // Se calcula costo inicial provisional y se mapea completo el constructor incluyendo metodoPago
+            BigDecimal costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPago());
 
-            Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    datos.formaPago(), BigDecimal.ZERO, datos.notas(),
-                    BigDecimal.ZERO, BigDecimal.ZERO);
+            Orden orden = new Orden(
+                    usuario, direccion, servicioEnvio, datos.formaPago(),
+                    datos.metodoPago(), BigDecimal.ZERO, datos.notas(),
+                    BigDecimal.ZERO, BigDecimal.ZERO
+            );
             ordenRepositorio.save(orden);
 
             for (CarritoItem carritoItem : carrito.getItems()) {
                 Producto producto = productoRepositorio
                         .findById(carritoItem.getProducto().getId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "Producto no encontrado"));
+                        .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 
-                // Verificar que el producto sigue disponible
                 if (!producto.getEstado().esComprable()) {
                     throw new ProductoNoDisponibleException(producto.getNombre());
                 }
 
-                // Verificar stock suficiente
                 if (producto.getStock() < carritoItem.getCantidad()) {
-                    throw new StockInsuficienteException( // ← específica
-                            producto.getNombre(), producto.getStock());
+                    throw new StockInsuficienteException(producto.getNombre(), producto.getStock());
                 }
 
-                // Calcular desglose de IVA por item
                 BigDecimal precioUnitario = carritoItem.getPrecioUnitario();
                 BigDecimal precioBase     = ivaCalculator.extraerPrecioBase(precioUnitario);
                 BigDecimal ivaUnitario    = ivaCalculator.extraerIva(precioUnitario);
@@ -154,24 +151,19 @@ public class OrdenService {
                 );
                 ordenItems.add(ordenItem);
 
-                // Descontar stock con Optimistic Locking
                 producto.descontarStock(carritoItem.getCantidad());
                 productoRepositorio.save(producto);
 
                 subtotal = subtotal.add(ordenItem.getSubtotal());
             }
 
-            // A partir de aquí se calculan los totales, hasta la linea orden.getItems().addAll(ordenItems)
-            // Recalcular costo de envío con subtotal real
-            costoEnvio = envioCalculator.calcularCostoEnvio(
-                    subtotal, servicioEnvio, datos.formaPago());
-
-            // Extraer IVA de productos y del costo de envío por separado
+            // Recalcular costo de envío con subtotal real y desglosar IVA
+            costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPago());
             BigDecimal ivaProductos = ivaCalculator.calcularIvaTotal(subtotal);
             BigDecimal ivaEnvio     = ivaCalculator.extraerIva(costoEnvio);
             BigDecimal ivaTotal     = ivaProductos.add(ivaEnvio);
 
-            // Actualizar totales de la orden
+            // Actualizar totales de la orden de forma definitiva
             orden.actualizarTotales(subtotal, ivaTotal, costoEnvio);
 
             itemRepositorio.saveAll(ordenItems);
@@ -182,19 +174,34 @@ public class OrdenService {
             carrito.getItems().clear();
             carrito.marcarComoConvertido();
 
-            // Enviar email de confirmación
-            emailService.enviarConfirmacionOrden(
-                    usuario.getEmail(),
-                    usuario.getNombre(),
-                    orden.getId()
-            );
+            // Lógica de notificaciones unificada después de calcular los montos reales
+            if (datos.metodoPago() == MetodoPago.TRANSFERENCIA_BANCARIA) {
+                List<DatosRespuestaCuentaBancaria> cuentas = cuentaBancariaRepositorio
+                        .findByActivoTrueOrderByOrdenVisualizacionAsc()
+                        .stream()
+                        .map(DatosRespuestaCuentaBancaria::new)
+                        .toList();
 
-            // return new DatosRespuestaOrden(ordenRepositorio.findById(orden.getId()).orElseThrow());
+                emailService.enviarDatosBancarios(
+                        usuario.getEmail(),
+                        usuario.getNombre(),
+                        orden.getId(),
+                        orden.getTotal(),
+                        cuentas
+                );
+            } else {
+                emailService.enviarConfirmacionOrden(
+                        usuario.getEmail(),
+                        usuario.getNombre(),
+                        orden.getId()
+                );
+            }
+
             return new DatosRespuestaOrden(orden);
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new IllegalArgumentException(
-                    "Uno o más productos fueron modificados durante el proceso. " +
-                            "Por favor intenta nuevamente");
+                    "Uno o más productos fueron modificados durante el proceso. Por favor intenta nuevamente"
+            );
         }
     }
 
@@ -203,8 +210,7 @@ public class OrdenService {
     public DatosRespuestaOrden cancelarMiOrden(String email, Long ordenId) {
         Usuario usuario = buscarUsuario(email);
         Orden orden = ordenRepositorio.findByIdAndUsuarioId(ordenId, usuario.getId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Orden no encontrada con ID: " + ordenId));
+                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada con ID: " + ordenId));
         orden.cancelar();
         devolverStock(orden);
         return new DatosRespuestaOrden(orden);
@@ -225,12 +231,10 @@ public class OrdenService {
         return new DatosRespuestaOrden(orden);
     }
 
-    // Devuelve el stock al cancelar una orden
     private void devolverStock(Orden orden) {
         for (OrdenItem item : orden.getItems()) {
             Producto producto = productoRepositorio.findById(item.getProducto().getId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Producto no encontrado"));
+                    .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
             producto.devolverStock(item.getCantidad());
             productoRepositorio.save(producto);
         }
@@ -244,5 +248,38 @@ public class OrdenService {
     private Orden buscarOrden(Long id) {
         return ordenRepositorio.findById(id)
                 .orElseThrow(() -> new OrdenNoEncontradaException(id));
+    }
+
+    // Subir comprobante
+    @Transactional
+    public DatosRespuestaOrden subirComprobante(String email, Long ordenId, MultipartFile archivo) {
+        archivoValidator.validar(archivo);
+
+        Usuario usuario = buscarUsuario(email);
+        Orden orden = ordenRepositorio.findByIdAndUsuarioId(ordenId, usuario.getId())
+                .orElseThrow(() -> new OrdenNoEncontradaException(ordenId));
+
+        if (orden.getEstado() == EstadoOrden.CANCELADA) {
+            throw new IllegalArgumentException("No se puede subir comprobante a una orden cancelada");
+        }
+
+        if (orden.getMetodoPago() != MetodoPago.TRANSFERENCIA_BANCARIA) {
+            throw new IllegalArgumentException("Esta orden no requiere comprobante de transferencia");
+        }
+
+        if (orden.getComprobanteUrl() != null) {
+            storageService.eliminar(orden.getComprobanteUrl());
+        }
+
+        String url = storageService.guardar(archivo, "comprobantes");
+        orden.agregarComprobante(url, archivo.getOriginalFilename());
+
+        usuarioRepositorio.findByRolAndActivo(Rol.ROLE_ADMIN, true)
+                .forEach(admin -> emailService.enviarNotificacionComprobante(
+                        admin.getEmail(), orden.getId(),
+                        usuario.getNombre() + " " + usuario.getApellido()
+                ));
+
+        return new DatosRespuestaOrden(orden);
     }
 }
