@@ -11,7 +11,7 @@ public record DatosRespuestaOrden(
         DatosRespuestaDireccionOrden direccionEnvio,
         String servicioEnvio,       //  nombre del servicio
         FormaPago formaPago,        // forma de pago
-        com.jeplabs.ecommerce.domain.orden.MetodoPago metodoPago,
+        MetodoPago metodoPago,
         List<DatosRespuestaOrdenItem> items,
         BigDecimal subtotal,
         BigDecimal iva,
