@@ -19,6 +19,9 @@ export const orderStatusSchema = z.enum([
 /** {@code FormaPago} — pago del envío / contra entrega (no pasarela simulada). */
 export const formaPagoSchema = z.enum(['EN_LINEA', 'CONTRA_ENTREGA']);
 
+/** {@code MetodoPago} — método de pago del envío. */
+export const metodoPagoSchema = z.enum(['EN_LINEA', 'CONTRA_ENTREGA', 'TRANSFERENCIA_BANCARIA']);
+
 /** {@code DatosRespuestaDireccionOrden} — snapshot en la orden. */
 export const orderShippingAddressApiSchema = z.object({
     alias: z.string(),
@@ -52,6 +55,7 @@ export const orderApiSchema = z.object({
     direccionEnvio: orderShippingAddressApiSchema.nullable().optional(),
     servicioEnvio: z.string().nullable().optional(),
     formaPago: formaPagoSchema,
+    metodoPago: metodoPagoSchema,
     items: z.array(orderItemApiSchema).default([]),
     subtotal: moneySchema,
     iva: moneySchema,
@@ -64,6 +68,7 @@ export const orderApiSchema = z.object({
 
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export type FormaPago = z.infer<typeof formaPagoSchema>;
+export type MetodoPago = z.infer<typeof metodoPagoSchema>;
 export type OrderShippingAddressApi = z.infer<typeof orderShippingAddressApiSchema>;
 export type OrderItemApi = z.infer<typeof orderItemApiSchema>;
 export type OrderApi = z.infer<typeof orderApiSchema>;

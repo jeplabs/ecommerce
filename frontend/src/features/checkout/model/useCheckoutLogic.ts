@@ -275,11 +275,16 @@ export function useCheckoutLogic({
                 payment = paymentResult;
                 setPaymentResult(paymentResult);
             }
+            const metodoPago = 
+                paymentMethod === PAYMENT_METHODS.BANK_TRANSFER
+                    ? 'TRANSFERENCIA_BANCARIA'
+                    : 'EN_LINEA';
 
             const orden = await orderApi.crearOrden({
                 direccionId: selectedAddressId,
                 servicioEnvioId: selectedServicioEnvioId,
                 formaPago: formaPagoEnvio,
+                metodoPago,
                 notas: notas.trim() || null,
             });
 

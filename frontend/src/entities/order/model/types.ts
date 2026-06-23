@@ -18,6 +18,7 @@ export type {
 export {
     orderStatusSchema,
     formaPagoSchema,
+    metodoPagoSchema,
     orderApiSchema,
     orderItemApiSchema,
     orderShippingAddressApiSchema,

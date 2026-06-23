@@ -79,6 +79,7 @@ export async function crearOrden(body: CreateOrderRequest): Promise<OrderApi> {
             direccionId: body.direccionId,
             servicioEnvioId: body.servicioEnvioId,
             formaPago: body.formaPago,
+            metodoPago: body.metodoPago,
             notas: body.notas ?? null,
         }),
     });

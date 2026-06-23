@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import { formaPagoSchema, orderStatusSchema } from './api';
+import { formaPagoSchema, orderStatusSchema, metodoPagoSchema } from './api';
 
 /** {@code DatosCrearOrden} — el carrito se resuelve en servidor. */
 export const createOrderRequestSchema = z.object({
     direccionId: z.number().int().positive(),
     servicioEnvioId: z.number().int().positive(),
     formaPago: formaPagoSchema,
+    metodoPago: metodoPagoSchema,
     notas: z.string().nullable().optional(),
 });
 
@@ -22,6 +23,7 @@ export const checkoutOrderFormSchema = z.object({
     direccionId: z.number().int().positive('Selecciona una dirección'),
     servicioEnvioId: z.number().int().positive('Selecciona un servicio de envío'),
     formaPagoEnvio: formaPagoSchema,
+    metodoPagoEnvio: metodoPagoSchema,
     notas: z.string().max(500).optional(),
 });
 
@@ -34,6 +36,7 @@ export function mapCheckoutFormToCreateOrderRequest(
         direccionId: values.direccionId,
         servicioEnvioId: values.servicioEnvioId,
         formaPago: values.formaPagoEnvio,
+        metodoPago: values.metodoPagoEnvio,
         notas: values.notas?.trim() || null,
     };
 }
