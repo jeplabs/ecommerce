@@ -1,5 +1,6 @@
 package com.jeplabs.ecommerce.domain.orden;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record DatosCrearOrden(
@@ -13,8 +14,8 @@ public record DatosCrearOrden(
         @NotNull(message = "La forma de pago es obligatoria")
         FormaPago formaPago,
 
-        @NotNull(message = "El método de pago es obligatorio")
-        MetodoPago metodoPago,
+        @NotBlank(message = "El método de pago es obligatorio")
+        String metodoPagoCodigo,
 
         String notas
 ) {}

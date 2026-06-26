@@ -8,6 +8,9 @@ import com.jeplabs.ecommerce.domain.direccion.DireccionRepository;
 import com.jeplabs.ecommerce.domain.envio.EnvioCalculator;
 import com.jeplabs.ecommerce.domain.envio.ServicioEnvio;
 import com.jeplabs.ecommerce.domain.envio.ServicioEnvioRepository;
+import com.jeplabs.ecommerce.domain.pago.MetodoPago;
+import com.jeplabs.ecommerce.domain.pago.MetodoPagoService;
+import com.jeplabs.ecommerce.domain.pago.TipoMetodoPago;
 import com.jeplabs.ecommerce.domain.producto.Producto;
 import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
@@ -51,6 +54,7 @@ public class OrdenService {
     private final CuentaBancariaRepository cuentaBancariaRepositorio;
     private final StorageService storageService;
     private final ArchivoValidator archivoValidator;
+    private final MetodoPagoService metodoPagoService;
 
     // Cliente lista sus propias órdenes
     public Page<DatosRespuestaOrden> listarMisOrdenes(String email, Pageable pageable) {
@@ -114,6 +118,13 @@ public class OrdenService {
             throw new IllegalArgumentException("El servicio de envío seleccionado no está disponible");
         }
 
+        MetodoPago metodoPago = metodoPagoService.buscarPorCodigo(datos.metodoPagoCodigo());
+
+        if (!metodoPago.isActivo()) {
+            throw new IllegalArgumentException(
+                    "El método de pago seleccionado no está disponible");
+        }
+
         try {
             List<OrdenItem> ordenItems = new ArrayList<>();
             BigDecimal subtotal = BigDecimal.ZERO;
@@ -123,7 +134,8 @@ public class OrdenService {
 
             Orden orden = new Orden(
                     usuario, direccion, servicioEnvio, datos.formaPago(),
-                    datos.metodoPago(), BigDecimal.ZERO, datos.notas(),
+                    datos.metodoPagoCodigo(),
+                    BigDecimal.ZERO, datos.notas(),
                     BigDecimal.ZERO, BigDecimal.ZERO
             );
             ordenRepositorio.save(orden);
@@ -175,7 +187,7 @@ public class OrdenService {
             carrito.marcarComoConvertido();
 
             // Lógica de notificaciones unificada después de calcular los montos reales
-            if (datos.metodoPago() == MetodoPago.TRANSFERENCIA_BANCARIA) {
+            if (metodoPago.getTipo() == TipoMetodoPago.TRANSFERENCIA) {
                 List<DatosRespuestaCuentaBancaria> cuentas = cuentaBancariaRepositorio
                         .findByActivoTrueOrderByOrdenVisualizacionAsc()
                         .stream()
@@ -198,6 +210,7 @@ public class OrdenService {
             }
 
             return new DatosRespuestaOrden(orden);
+
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new IllegalArgumentException(
                     "Uno o más productos fueron modificados durante el proceso. Por favor intenta nuevamente"
@@ -263,8 +276,10 @@ public class OrdenService {
             throw new IllegalArgumentException("No se puede subir comprobante a una orden cancelada");
         }
 
-        if (orden.getMetodoPago() != MetodoPago.TRANSFERENCIA_BANCARIA) {
-            throw new IllegalArgumentException("Esta orden no requiere comprobante de transferencia");
+        if (orden.getMetodoPago() == null ||
+                orden.getMetodoPago().getTipo() != TipoMetodoPago.TRANSFERENCIA) {
+            throw new IllegalArgumentException(
+                    "Esta orden no requiere comprobante de transferencia");
         }
 
         if (orden.getComprobanteUrl() != null) {

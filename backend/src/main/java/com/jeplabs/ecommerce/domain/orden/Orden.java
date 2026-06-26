@@ -2,6 +2,8 @@ package com.jeplabs.ecommerce.domain.orden;
 
 import com.jeplabs.ecommerce.domain.direccion.Direccion;
 import com.jeplabs.ecommerce.domain.envio.ServicioEnvio;
+import com.jeplabs.ecommerce.domain.pago.MetodoPago;
+import com.jeplabs.ecommerce.domain.pago.TipoMetodoPago;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.infra.exceptions.EstadoInvalidoException;
 import jakarta.persistence.*;
@@ -46,9 +48,13 @@ public class Orden {
     @Enumerated(EnumType.STRING)
     private EstadoOrden estado;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "metodo_pago")
-    private MetodoPago metodoPago;
+    private String metodoPagoCodigo; // ← código del método elegido
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "metodo_pago", referencedColumnName = "codigo",
+            insertable = false, updatable = false)
+            MetodoPago metodoPago; // ← referencia
 
     @Column(name = "comprobante_url")
     private String comprobanteUrl;
@@ -82,7 +88,7 @@ public class Orden {
     private LocalDateTime actualizadoAt;
 
     public Orden(Usuario usuario, Direccion direccion, ServicioEnvio servicioEnvio, FormaPago formaPago,
-                 MetodoPago metodoPago,
+                 String metodoPagoCodigo,
                  BigDecimal costoEnvio, String notas,
                  BigDecimal subtotal, BigDecimal iva) {
         this.usuario = usuario;
@@ -91,7 +97,7 @@ public class Orden {
         this.formaPago = formaPago;
         this.costoEnvio = costoEnvio;
         this.estado = EstadoOrden.PENDIENTE;
-        this.metodoPago = metodoPago;
+        this.metodoPagoCodigo = metodoPagoCodigo;
 
         // Copia de datos de dirección al momento de la orden
         this.direccionAlias          = direccion.getAlias();
@@ -144,5 +150,8 @@ public class Orden {
         this.comprobanteFecha  = LocalDateTime.now();
     }
 
+    public TipoMetodoPago getTipoMetodoPago() {
+        return metodoPago != null ? metodoPago.getTipo() : null;
+    }
 
 }

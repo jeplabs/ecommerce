@@ -1,5 +1,7 @@
 package com.jeplabs.ecommerce.domain.orden;
 
+import com.jeplabs.ecommerce.domain.pago.TipoMetodoPago;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +13,9 @@ public record DatosRespuestaOrden(
         DatosRespuestaDireccionOrden direccionEnvio,
         String servicioEnvio,       //  nombre del servicio
         FormaPago formaPago,        // forma de pago
-        MetodoPago metodoPago,
+        String metodoPago,              // ← código del método
+        String metodoPagoNombre,        // ← nombre legible
+        TipoMetodoPago tipoMetodoPago,  // ← tipo para lógica en frontend
         List<DatosRespuestaOrdenItem> items,
         BigDecimal subtotal,
         BigDecimal iva,
@@ -32,7 +36,9 @@ public record DatosRespuestaOrden(
                 new DatosRespuestaDireccionOrden(orden),
                 orden.getServicioEnvio() != null ? orden.getServicioEnvio().getNombre() : null,
                 orden.getFormaPago(),
-                orden.getMetodoPago(),
+                orden.getMetodoPagoCodigo(),
+                orden.getMetodoPago() != null ? orden.getMetodoPago().getNombre() : null,
+                orden.getTipoMetodoPago(),
                 orden.getItems().stream()
                         .map(DatosRespuestaOrdenItem::new)
                         .toList(),

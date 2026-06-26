@@ -1,0 +1,1 @@
+UPDATE ordenes SET metodo_pago = 'CONTRA_ENTREGA' WHERE metodo_pago IS NULL;

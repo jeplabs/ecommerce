@@ -46,6 +46,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll() // ← público
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // ← público
                         .requestMatchers(HttpMethod.GET, "/api/banco").permitAll() // ← nuevo
+                        .requestMatchers(HttpMethod.GET, "/api/pagos/metodos").permitAll() // ← nuevo
                         .requestMatchers("/api/usuarios/perfil").authenticated()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
