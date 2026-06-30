@@ -19,8 +19,14 @@ export const orderStatusSchema = z.enum([
 /** {@code FormaPago} — pago del envío / contra entrega (no pasarela simulada). */
 export const formaPagoSchema = z.enum(['EN_LINEA', 'CONTRA_ENTREGA']);
 
-/** {@code MetodoPago} — método de pago del envío. */
-export const metodoPagoSchema = z.enum(['EN_LINEA', 'CONTRA_ENTREGA', 'TRANSFERENCIA_BANCARIA']);
+/** {@code MetodoPago} — código del método de pago usado en la orden. */
+export const metodoPagoSchema = z.enum([
+    'CONTRA_ENTREGA',
+    'STRIPE',
+    'WEBPAY',
+    'MERCADO_PAGO',
+    'TRANSFERENCIA',
+]);
 
 /** {@code DatosRespuestaBancoAccount} — snapshot en la orden. */
 export const bankAccountApiSchema = z.object({

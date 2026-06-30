@@ -30,7 +30,9 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
 
     const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'CONFIRMADA';
     const costoEnvio = Number(orden.costoEnvio ?? 0);
-    const showBankTransfer = orden.metodoPago === 'TRANSFERENCIA_BANCARIA';
+    const showBankTransfer =
+        orden.metodoPago === 'TRANSFERENCIA' ||
+        orden.metodoPago === 'TRANSFERENCIA_BANCARIA';
 
     return (
         <div className={clsx(styles.root, className)}>

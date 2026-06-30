@@ -61,6 +61,7 @@ export function mockCreatedOrder({
         },
         servicioEnvio: servicio.nombre,
         formaPago: 'EN_LINEA',
+        metodoPago: 'STRIPE',
         items: cart.items.map((item, index) => ({
             id: index + 1,
             productoId: item.productoId,
