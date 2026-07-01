@@ -45,3 +45,17 @@ api.storage.max-size-mb=5
 # api.storage.cloudinary.cloud-name=CLOUDINARY_CLOUD_NAME
 # api.storage.cloudinary.api-key=CLOUDINARY_API_KEY
 # api.storage.cloudinary.api-secret=CLOUDINARY_API_SECRET
+
+# Moneda
+api.moneda.codigo=GTQ
+api.moneda.simbolo=Q
+api.moneda.nombre=Quetzal
+api.moneda.locale=es-GT
+api.moneda.decimales=2
+
+# Moneda - Peso chileno
+api.moneda.codigo=CLP
+api.moneda.simbolo=$
+api.moneda.nombre=Peso Chileno
+api.moneda.locale=es-CL
+api.moneda.decimales=0

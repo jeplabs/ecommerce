@@ -1,6 +1,7 @@
 package com.jeplabs.ecommerce.infra.email;
 
 import com.jeplabs.ecommerce.domain.banco.DatosRespuestaCuentaBancaria;
+import com.jeplabs.ecommerce.infra.config.MonedaFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,6 +20,7 @@ import java.util.List;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final MonedaFormatter monedaFormatter; // ← inyectar
 
     @Value("${spring.mail.username}")
     private String emailOrigen;
@@ -185,7 +187,7 @@ public class EmailService {
                 </a>
             </body>
             </html>
-            """.formatted(nombreUsuario, ordenId, total, cuentasHtml, ordenId);
+            """.formatted(nombreUsuario, ordenId, monedaFormatter.formatear(total), cuentasHtml, ordenId);
 
         enviar(emailDestino, asunto, contenido);
     }
