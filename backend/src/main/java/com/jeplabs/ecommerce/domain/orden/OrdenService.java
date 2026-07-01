@@ -130,10 +130,11 @@ public class OrdenService {
             BigDecimal subtotal = BigDecimal.ZERO;
 
             // Se calcula costo inicial provisional y se mapea completo el constructor incluyendo metodoPago
-            BigDecimal costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPago());
+            BigDecimal costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPagoEnvio());
 
             Orden orden = new Orden(
-                    usuario, direccion, servicioEnvio, datos.formaPago(),
+                    usuario, direccion, servicioEnvio,
+                    datos.formaPagoEnvio(),
                     datos.metodoPagoCodigo(),
                     BigDecimal.ZERO, datos.notas(),
                     BigDecimal.ZERO, BigDecimal.ZERO
@@ -170,7 +171,7 @@ public class OrdenService {
             }
 
             // Recalcular costo de envío con subtotal real y desglosar IVA
-            costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPago());
+            costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPagoEnvio());
             BigDecimal ivaProductos = ivaCalculator.calcularIvaTotal(subtotal);
             BigDecimal ivaEnvio     = ivaCalculator.extraerIva(costoEnvio);
             BigDecimal ivaTotal     = ivaProductos.add(ivaEnvio);

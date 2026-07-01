@@ -1,6 +1,6 @@
 package com.jeplabs.ecommerce.domain.envio;
 
-import com.jeplabs.ecommerce.domain.orden.FormaPago;
+import com.jeplabs.ecommerce.domain.orden.FormaPagoEnvio;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,8 +42,8 @@ public class ServicioEnvio {
     public void desactivar() { this.activo = false; }
 
     // Calcula el costo total según la forma de pago
-    public BigDecimal calcularCostoTotal(FormaPago formaPago) {
-        if (formaPago == FormaPago.CONTRA_ENTREGA) {
+    public BigDecimal calcularCostoTotal(FormaPagoEnvio formaPagoEnvio) {
+        if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
             return this.tarifa.add(this.recargoContraEntrega);
         }
         return this.tarifa;

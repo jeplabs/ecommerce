@@ -12,7 +12,7 @@ public record DatosCrearOrden(
         Long servicioEnvioId,
 
         @NotNull(message = "La forma de pago es obligatoria")
-        FormaPago formaPago,
+        FormaPagoEnvio formaPagoEnvio,
 
         @NotBlank(message = "El método de pago es obligatorio")
         String metodoPagoCodigo,

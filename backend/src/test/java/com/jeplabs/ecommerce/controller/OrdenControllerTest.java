@@ -109,7 +109,7 @@ class OrdenControllerTest {
                         "Casa", "5ta Avenida 10-20", "Guatemala",
                         null, null, "Guatemala", "+50212345678", null),
                 "Guatex",
-                FormaPago.EN_LINEA,
+                FormaPagoEnvio.EN_LINEA,
                 List.of(),
                 new BigDecimal("2799.00"),
                 new BigDecimal("299.89"),
@@ -120,7 +120,7 @@ class OrdenControllerTest {
                 LocalDateTime.now()
         );
 
-        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPago.EN_LINEA, null);
+        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPagoEnvio.EN_LINEA, null);
     }
 
     @Nested
@@ -260,7 +260,7 @@ class OrdenControllerTest {
             DatosRespuestaOrden ordenConfirmada = new DatosRespuestaOrden(
                     1L, EstadoOrden.CONFIRMADA, 1L,
                     ordenRespuesta.direccionEnvio(), "Guatex",
-                    FormaPago.EN_LINEA, List.of(),
+                    FormaPagoEnvio.EN_LINEA, List.of(),
                     new BigDecimal("2799.00"), new BigDecimal("299.89"),
                     new BigDecimal("45.00"), new BigDecimal("2844.00"),
                     null, LocalDateTime.now(), LocalDateTime.now()
@@ -318,7 +318,7 @@ class OrdenControllerTest {
             DatosRespuestaOrden ordenCancelada = new DatosRespuestaOrden(
                     1L, EstadoOrden.CANCELADA, 1L,
                     ordenRespuesta.direccionEnvio(), "Guatex",
-                    FormaPago.EN_LINEA, List.of(),
+                    FormaPagoEnvio.EN_LINEA, List.of(),
                     new BigDecimal("2799.00"), new BigDecimal("299.89"),
                     new BigDecimal("45.00"), new BigDecimal("2844.00"),
                     null, LocalDateTime.now(), LocalDateTime.now()

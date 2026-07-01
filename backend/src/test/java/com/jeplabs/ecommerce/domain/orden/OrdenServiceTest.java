@@ -9,7 +9,6 @@ import com.jeplabs.ecommerce.domain.envio.ServicioEnvioRepository;
 import com.jeplabs.ecommerce.domain.producto.EstadoProducto;
 import com.jeplabs.ecommerce.domain.producto.Producto;
 import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
-import com.jeplabs.ecommerce.domain.producto.PrecioHistorialRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import com.jeplabs.ecommerce.infra.email.EmailService;
@@ -21,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.*;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -102,7 +100,7 @@ class OrdenServiceTest {
         when(carrito.getItems()).thenReturn(new ArrayList<>(List.of(carritoItem)));
 
         // DTO de creación
-        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPago.EN_LINEA, null);
+        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPagoEnvio.EN_LINEA, null);
 
         // Mocks de repositorios
         when(usuarioRepositorio.findByEmail("usuario@test.com"))
@@ -132,7 +130,7 @@ class OrdenServiceTest {
         when(ordenRepositorio.findById(any()))
                 .thenAnswer(invocation -> {
                     Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                            FormaPago.EN_LINEA, new BigDecimal("45.00"),
+                            FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
                             null, new BigDecimal("5598.00"), new BigDecimal("599.78"));
                     return Optional.of(orden);
                 });
@@ -317,7 +315,7 @@ class OrdenServiceTest {
         @DisplayName("Cambio de estado válido PENDIENTE a CONFIRMADA")
         void cambiarEstado_transicionValida_debeActualizarEstado() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPago.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             when(ordenRepositorio.findById(1L)).thenReturn(Optional.of(orden));
@@ -332,7 +330,7 @@ class OrdenServiceTest {
         @DisplayName("Transición inválida PENDIENTE a ENTREGADA lanza EstadoInvalidoException")
         void cambiarEstado_transicionInvalida_debeLanzarExcepcion() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPago.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             when(ordenRepositorio.findById(1L)).thenReturn(Optional.of(orden));
@@ -365,7 +363,7 @@ class OrdenServiceTest {
         @DisplayName("Cancelar orden en PENDIENTE devuelve stock y cambia estado")
         void cancelar_ordenPendiente_debeDevolverStockYCambiarEstado() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPago.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             OrdenItem ordenItem = new OrdenItem(orden, producto, 2,
@@ -389,7 +387,7 @@ class OrdenServiceTest {
         @DisplayName("Cancelar orden ENVIADA lanza EstadoInvalidoException")
         void cancelar_ordenEnviada_debeLanzarExcepcion() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPago.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             // Avanzar estado hasta ENVIADA
@@ -412,7 +410,7 @@ class OrdenServiceTest {
         when(orden.getEstado()).thenReturn(EstadoOrden.PENDIENTE);
         when(orden.getDireccion()).thenReturn(direccion);
         when(orden.getServicioEnvio()).thenReturn(servicioEnvio);
-        when(orden.getFormaPago()).thenReturn(FormaPago.EN_LINEA);
+        when(orden.getFormaPagoEnvio()).thenReturn(FormaPagoEnvio.EN_LINEA);
         when(orden.getItems()).thenReturn(new ArrayList<>());
         when(orden.getSubtotal()).thenReturn(new BigDecimal("2799.00"));
         when(orden.getIva()).thenReturn(new BigDecimal("299.89"));

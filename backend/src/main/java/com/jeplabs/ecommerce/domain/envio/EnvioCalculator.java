@@ -1,6 +1,6 @@
 package com.jeplabs.ecommerce.domain.envio;
 
-import com.jeplabs.ecommerce.domain.orden.FormaPago;
+import com.jeplabs.ecommerce.domain.orden.FormaPagoEnvio;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,11 +20,11 @@ public class EnvioCalculator {
     // Calcula el costo de envío considerando envío gratis
     public BigDecimal calcularCostoEnvio(BigDecimal subtotal,
                                          ServicioEnvio servicio,
-                                         FormaPago formaPago) {
+                                         FormaPagoEnvio formaPagoEnvio) {
         if (aplicaEnvioGratis(subtotal)) {
             return BigDecimal.ZERO;
         }
-        return servicio.calcularCostoTotal(formaPago);
+        return servicio.calcularCostoTotal(formaPagoEnvio);
     }
 
     public BigDecimal getMontoMinimoGratis() {

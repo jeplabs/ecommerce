@@ -39,8 +39,8 @@ public class Orden {
     private ServicioEnvio servicioEnvio;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "forma_pago")
-    private FormaPago formaPago;
+    @Column(name = "forma_pago_envio")
+    private FormaPagoEnvio formaPagoEnvio;
 
     @Column(name = "costo_envio", precision = 10, scale = 2)
     private BigDecimal costoEnvio;
@@ -87,14 +87,14 @@ public class Orden {
     private LocalDateTime creadoAt;
     private LocalDateTime actualizadoAt;
 
-    public Orden(Usuario usuario, Direccion direccion, ServicioEnvio servicioEnvio, FormaPago formaPago,
+    public Orden(Usuario usuario, Direccion direccion, ServicioEnvio servicioEnvio, FormaPagoEnvio formaPagoEnvio,
                  String metodoPagoCodigo,
                  BigDecimal costoEnvio, String notas,
                  BigDecimal subtotal, BigDecimal iva) {
         this.usuario = usuario;
         this.direccion = direccion;
         this.servicioEnvio = servicioEnvio;
-        this.formaPago = formaPago;
+        this.formaPagoEnvio = formaPagoEnvio;
         this.costoEnvio = costoEnvio;
         this.estado = EstadoOrden.PENDIENTE;
         this.metodoPagoCodigo = metodoPagoCodigo;

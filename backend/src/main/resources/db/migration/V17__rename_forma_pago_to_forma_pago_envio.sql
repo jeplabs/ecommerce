@@ -1,0 +1,1 @@
+ALTER TABLE ordenes RENAME COLUMN forma_pago TO forma_pago_envio;

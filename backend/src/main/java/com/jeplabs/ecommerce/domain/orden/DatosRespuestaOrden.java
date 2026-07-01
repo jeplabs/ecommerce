@@ -12,7 +12,7 @@ public record DatosRespuestaOrden(
         Long direccionId, // null si la dirección fue eliminada
         DatosRespuestaDireccionOrden direccionEnvio,
         String servicioEnvio,       //  nombre del servicio
-        FormaPago formaPago,        // forma de pago
+        FormaPagoEnvio formaPagoEnvio,        // forma de pago
         String metodoPago,              // ← código del método
         String metodoPagoNombre,        // ← nombre legible
         TipoMetodoPago tipoMetodoPago,  // ← tipo para lógica en frontend
@@ -35,7 +35,7 @@ public record DatosRespuestaOrden(
                 orden.getDireccion() != null ? orden.getDireccion().getId() : null,
                 new DatosRespuestaDireccionOrden(orden),
                 orden.getServicioEnvio() != null ? orden.getServicioEnvio().getNombre() : null,
-                orden.getFormaPago(),
+                orden.getFormaPagoEnvio(),
                 orden.getMetodoPagoCodigo(),
                 orden.getMetodoPago() != null ? orden.getMetodoPago().getNombre() : null,
                 orden.getTipoMetodoPago(),

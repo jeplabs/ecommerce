@@ -1,6 +1,6 @@
 package com.jeplabs.ecommerce.domain.envio;
 
-import com.jeplabs.ecommerce.domain.orden.FormaPago;
+import com.jeplabs.ecommerce.domain.orden.FormaPagoEnvio;
 
 import java.math.BigDecimal;
 
@@ -21,8 +21,8 @@ public record DatosRespuestaServicioEnvio(
                 servicio.getDescripcion(),
                 servicio.getTarifa(),
                 servicio.getRecargoContraEntrega(),
-                servicio.calcularCostoTotal(FormaPago.EN_LINEA),
-                servicio.calcularCostoTotal(FormaPago.CONTRA_ENTREGA),
+                servicio.calcularCostoTotal(FormaPagoEnvio.EN_LINEA),
+                servicio.calcularCostoTotal(FormaPagoEnvio.CONTRA_ENTREGA),
                 servicio.getLogoUrl()
         );
     }
