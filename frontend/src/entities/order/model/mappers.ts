@@ -21,7 +21,7 @@ export const ORDER_STATUS_LABELS: Record<OrderApi['estado'], string> = {
     CANCELADA: 'Cancelada',
 };
 
-export const FORMA_PAGO_LABELS: Record<OrderApi['formaPago'], string> = {
+export const FORMA_PAGO_LABELS: Record<OrderApi['formaPagoEnvio'], string> = {
     EN_LINEA: 'Envío pagado en línea',
     CONTRA_ENTREGA: 'Envío contra entrega',
 };
@@ -30,7 +30,7 @@ export function formatOrderStatus(estado: OrderApi['estado']): string {
     return ORDER_STATUS_LABELS[estado] ?? estado;
 }
 
-export function formatFormaPago(formaPago: OrderApi['formaPago']): string {
+export function formatFormaPago(formaPago: OrderApi['formaPagoEnvio']): string {
     return FORMA_PAGO_LABELS[formaPago] ?? formaPago;
 }
 

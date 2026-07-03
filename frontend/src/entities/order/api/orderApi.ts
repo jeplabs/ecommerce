@@ -87,7 +87,7 @@ export async function crearOrden(body: CreateOrderRequest): Promise<OrderApi> {
         body: JSON.stringify({
             direccionId: body.direccionId,
             servicioEnvioId: body.servicioEnvioId,
-            formaPago: body.formaPago,
+            formaPagoEnvio: body.formaPagoEnvio,
             metodoPagoCodigo: body.metodoPagoCodigo,
             notas: body.notas ?? null,
         }),

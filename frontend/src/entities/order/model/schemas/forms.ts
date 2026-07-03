@@ -14,7 +14,7 @@ const metodoPagoCodigoSchema = z.enum([
 export const createOrderRequestSchema = z.object({
     direccionId: z.number().int().positive(),
     servicioEnvioId: z.number().int().positive(),
-    formaPago: formaPagoSchema,
+    formaPagoEnvio: formaPagoSchema,
     metodoPagoCodigo: metodoPagoCodigoSchema,
     notas: z.string().nullable().optional(),
 });
@@ -44,7 +44,7 @@ export function mapCheckoutFormToCreateOrderRequest(
     return {
         direccionId: values.direccionId,
         servicioEnvioId: values.servicioEnvioId,
-        formaPago: values.formaPagoEnvio,
+        formaPagoEnvio: values.formaPagoEnvio,
         metodoPagoCodigo:
             values.metodoPagoEnvio === 'transferencia'
                 ? 'TRANSFERENCIA'

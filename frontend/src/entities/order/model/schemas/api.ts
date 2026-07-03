@@ -72,7 +72,7 @@ export const orderApiSchema = z.object({
     direccionId: z.number().int().positive().nullable().optional(),
     direccionEnvio: orderShippingAddressApiSchema.nullable().optional(),
     servicioEnvio: z.string().nullable().optional(),
-    formaPago: formaPagoSchema,
+    formaPagoEnvio: formaPagoSchema,
     metodoPago: metodoPagoSchema,
     comprobanteUrl: z.string().nullable().optional(),
     comprobanteNombre: z.string().nullable().optional(),

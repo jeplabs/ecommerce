@@ -288,7 +288,7 @@ export function useCheckoutLogic({
             const orden = await orderApi.crearOrden({
                 direccionId: selectedAddressId,
                 servicioEnvioId: selectedServicioEnvioId,
-                formaPago: formaPagoEnvio,
+                formaPagoEnvio: formaPagoEnvio,
                 metodoPagoCodigo,
                 notas: notas.trim() || null,
             });
