@@ -26,7 +26,6 @@ export type ShippingOptionsApi = z.infer<typeof shippingOptionsApiSchema>;
 
 export type ShippingServiceCosts = {
     tarifa: number;
-    recargo: number;
     enLinea: number;
     contraEntrega: number;
 };

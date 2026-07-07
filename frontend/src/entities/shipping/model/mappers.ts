@@ -4,7 +4,6 @@ import type { ShippingOptionsView, ShippingServiceCosts, ShippingServiceView } f
 
 const EMPTY_SHIPPING_COSTS: ShippingServiceCosts = {
     tarifa: 0,
-    recargo: 0,
     enLinea: 0,
     contraEntrega: 0,
 };
@@ -27,11 +26,9 @@ export function isExpressService(
 /** Retiro y envío normal pueden quedar gratis; express siempre se cobra. */
 export function qualifiesForFreeShipping(
     opciones: Pick<ShippingOptionsApi, 'envioGratis'>,
-    servicio: ShippingServiceApi | null | undefined,
-    formaPago: FormaPago = 'EN_LINEA'
+    servicio: ShippingServiceApi | null | undefined
 ): boolean {
     if (!servicio || !opciones.envioGratis) return false;
-    if (formaPago === 'CONTRA_ENTREGA') return false;
     if (isExpressService(servicio)) return false;
     return !isPickupService(servicio);
 }
@@ -88,11 +85,8 @@ export function getShippingServiceCosts(
     servicio: ShippingServiceApi | null | undefined
 ): ShippingServiceCosts {
     if (!servicio) return EMPTY_SHIPPING_COSTS;
-    const tarifa = servicio.tarifa;
-    const recargo = servicio.recargoContraEntrega;
     return {
-        tarifa,
-        recargo,
+        tarifa: servicio.tarifa,
         enLinea: servicio.costoEnLinea,
         contraEntrega: servicio.costoContraEntrega,
     };
@@ -108,11 +102,10 @@ export function resolveShippingCost(
 ): number {
     if (!servicio) return 0;
 
-    const { tarifa, recargo, enLinea } = getShippingServiceCosts(servicio);
-    const baseCost =
-        formaPago === 'CONTRA_ENTREGA' ? tarifa + recargo : enLinea;
+    const { enLinea, contraEntrega } = getShippingServiceCosts(servicio);
+    const baseCost = formaPago === 'CONTRA_ENTREGA' ? contraEntrega : enLinea;
 
-    if (qualifiesForFreeShipping(opciones, servicio, formaPago)) {
+    if (qualifiesForFreeShipping(opciones, servicio)) {
         return 0;
     }
 

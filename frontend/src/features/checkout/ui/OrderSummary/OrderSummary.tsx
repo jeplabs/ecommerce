@@ -7,10 +7,8 @@ import styles from './OrderSummary.module.css';
 type OrderSummaryProps = {
     items: CartItemUiView[];
     subtotal: number;
-    shippingCostDisplay?: number;
     shippingCostInTotal?: number;
     total?: number;
-    envioGratis?: boolean;
     servicioCostos?: ShippingServiceCosts | null;
     compact?: boolean;
     /** Oculta la lista de ítems (p. ej. paso 1 con revisión en la columna principal). */
@@ -22,15 +20,14 @@ export default function OrderSummary({
     subtotal,
     shippingCostInTotal = 0,
     total,
-    envioGratis = false,
     servicioCostos = null,
     compact = false,
     totalsOnly = false,
 }: OrderSummaryProps) {
     const displayTotal = total ?? subtotal + shippingCostInTotal;
-    const { tarifa = 0 } = servicioCostos || {};
+    const { enLinea = 0 } = servicioCostos || {};
     const shippingIsFree = shippingCostInTotal === 0;
-    const showShippingStruck = envioGratis && !shippingIsFree && tarifa > 0;
+    const showStruckListPrice = shippingIsFree && enLinea > 0;
 
     return (
         <aside className={clsx(styles.root, compact && styles.compact)}>
@@ -67,26 +64,19 @@ export default function OrderSummary({
                 </div>
 
                 <div className={clsx(styles.row, styles.rowEnvio)}>
-                    <dt>Envío (pago en línea)</dt>
+                    <dt>Envío</dt>
                     <dd>
                         {shippingIsFree ? (
                             <span className={styles.freeWrap}>
-                                {envioGratis && tarifa > 0 && (
+                                {showStruckListPrice && (
                                     <span className={styles.struck}>
-                                        {formatCurrency(tarifa)}
+                                        {formatCurrency(enLinea)}
                                     </span>
                                 )}
                                 <span className={styles.free}>Gratis</span>
                             </span>
                         ) : (
-                            <span className={styles.freeWrap}>
-                                {showShippingStruck && (
-                                    <span className={styles.struck}>
-                                        {formatCurrency(tarifa)}
-                                    </span>
-                                )}
-                                {formatCurrency(shippingCostInTotal)}
-                            </span>
+                            formatCurrency(shippingCostInTotal)
                         )}
                     </dd>
                 </div>

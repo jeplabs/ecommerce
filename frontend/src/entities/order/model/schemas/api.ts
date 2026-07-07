@@ -26,6 +26,7 @@ export const metodoPagoSchema = z.enum([
     'WEBPAY',
     'MERCADO_PAGO',
     'TRANSFERENCIA',
+    'TRANSFERENCIA_BANCARIA',
 ]);
 
 /** {@code DatosRespuestaBancoAccount} — snapshot en la orden. */

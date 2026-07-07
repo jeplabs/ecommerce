@@ -1,22 +1,17 @@
-import { formatCurrency } from '@/shared/lib/format';
+import styles from './ContraEntregaForm.module.css';
 
-type ContraEntregaFormProps = {
-    recargo: number;
-};
-
-export default function ContraEntregaForm({ recargo }: ContraEntregaFormProps) {
+export default function ContraEntregaForm() {
     return (
-        <div>
-            <h2>Contra entrega</h2>
-            <p>
+        <div className={styles.root}>
+            <div className={styles.banner}>
+                <span className={styles.logo}>Contra entrega</span>
+                <span className={styles.badge}>Pago pendiente</span>
+            </div>
+
+            <p className={styles.text}>
                 El pedido se enviará a la dirección de entrega indicada en la sección de
-                direcciones.
+                direcciones, y <strong>se cobrara el pago al momento de recibir el pedido</strong>. 
             </p>
-            <p>
-                El pago se realizará en efectivo al recibir el pedido, aplicando el recargo por
-                contra entrega.
-            </p>
-            <p>Recargo por pago contra entrega: {formatCurrency(recargo)}</p>
         </div>
     );
 }

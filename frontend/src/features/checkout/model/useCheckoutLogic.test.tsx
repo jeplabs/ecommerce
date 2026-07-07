@@ -87,7 +87,7 @@ describe('useCheckoutLogic', () => {
         expect(result.current.canContinuePayment).toBe(true);
     });
 
-    it('mantiene el envío sin recargo en el paso 1 y lo suma solo en el paso 2 para contraentrega', async () => {
+    it('mantiene el mismo costo de envío en paso 1 y paso 2 para contraentrega', async () => {
         seedCustomerSession();
         addDynamicCartItem(mockProduct.id, 1);
 
@@ -102,7 +102,6 @@ describe('useCheckoutLogic', () => {
         });
 
         expect(result.current.currentStep).toBe('pedido');
-        expect(result.current.shippingCostInTotal).toBeLessThan(result.current.orderTotal);
         expect(result.current.shippingCostInTotal).toBe(5.99);
 
         act(() => {
@@ -110,8 +109,7 @@ describe('useCheckoutLogic', () => {
         });
 
         expect(result.current.currentStep).toBe('pago');
-        expect(result.current.shippingCostInTotal).toBe(8.49);
-        expect(result.current.orderTotal).toBeGreaterThan(5.99);
+        expect(result.current.shippingCostInTotal).toBe(5.99);
     });
 
     it('completa checkout con contraentrega sin pasar por la pasarela simulada', async () => {

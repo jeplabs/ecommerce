@@ -21,7 +21,7 @@ export default function PaymentStep() {
             <p className={sharedStyles.stepSubtitle}>
                 Total a pagar: <strong>{formatCurrency(orderTotal)}</strong>
                 {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
-                    ? ' (productos + envío con recargo por contraentrega).'
+                    ? ' (productos + envío, pago al recibir).'
                     : ' (productos + envío en línea).'}
                 {isBankTransferPaymentMethod(paymentMethod)
                     ? ' Con transferencia el pedido queda pendiente hasta validar el comprobante.'
@@ -87,7 +87,7 @@ export default function PaymentStep() {
                     <span className={styles.methodIcon}>🏛️</span>
                     <span className={styles.methodInfo}>
                         <strong>Transferencia bancaria</strong>
-                        <small>Depósito · Pago pendiente y envío de comprobante</small>
+                        <small>Depósito · Pago pendiente, enviar comprobante</small>
                     </span>
                 </button>
                 <button
@@ -101,7 +101,7 @@ export default function PaymentStep() {
                     <span className={styles.methodIcon}>✉️</span>
                     <span className={styles.methodInfo}>
                         <strong>Contra entrega</strong>
-                        <small>Entrega en destino · Pago en efectivo con recargo</small>
+                        <small>Entrega en destino · Pago al recibir el pedido</small>
                     </span>
                 </button>
             </div>
@@ -110,9 +110,7 @@ export default function PaymentStep() {
             {paymentMethod === PAYMENT_METHODS.WEBPAY && <SimulatedWebpayForm />}
             {paymentMethod === PAYMENT_METHODS.MERCADOPAGO && <SimulatedMercadoPagoForm />}
             {paymentMethod === PAYMENT_METHODS.BANK_TRANSFER && <SimulatedBankTransferForm />}
-            {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA && (
-                <ContraEntregaForm recargo={selectedServicioCostos.recargo} />
-            )}
+            {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA && <ContraEntregaForm />}
         </div>
     );
 }

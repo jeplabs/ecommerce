@@ -3,6 +3,7 @@ import { AuthSessionListeners } from '@/features/auth';
 import ShopLayout from '@/widgets/layout/ShopLayout/ShopLayout';
 import AdminLayout from '@/widgets/layout/AdminLayout/AdminLayout';
 import PrivateRoute from './PrivateRoute';
+import GuestRoute from './GuestRoute';
 import ScrollToTop from './ScrollToTop';
 import { ProfileProvider } from '@/app/providers';
 
@@ -41,7 +42,14 @@ export function AppRouter() {
 
                 {/* Tienda: nav + footer (sin barra de categorías) */}
                 <Route element={<ShopLayout showCategoriasNav={false} />}>
-                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/login"
+                        element={
+                            <GuestRoute>
+                                <LoginPage />
+                            </GuestRoute>
+                        }
+                    />
                     <Route path="/register" element={<RegisterPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route

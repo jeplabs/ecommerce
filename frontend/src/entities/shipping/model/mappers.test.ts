@@ -7,9 +7,9 @@ const normalService: ShippingServiceApi = {
     nombre: 'Envío estándar',
     descripcion: 'Entrega en 3 a 5 días',
     tarifa: 10,
-    recargoContraEntrega: 3,
+    recargoContraEntrega: 0,
     costoEnLinea: 10,
-    costoContraEntrega: 13,
+    costoContraEntrega: 10,
     logoUrl: null,
 };
 
@@ -18,23 +18,32 @@ const expressService: ShippingServiceApi = {
     nombre: 'Envío express',
     descripcion: 'Entrega en 24 horas',
     tarifa: 55,
-    recargoContraEntrega: 15,
+    recargoContraEntrega: 0,
     costoEnLinea: 55,
-    costoContraEntrega: 70,
+    costoContraEntrega: 55,
     logoUrl: null,
 };
 
 describe('resolveShippingCost', () => {
-    it('no aplica envío gratis para contraentrega', () => {
+    it('aplica envío gratis en contraentrega cuando el subtotal alcanza el mínimo', () => {
         const result = resolveShippingCost(
             { envioGratis: true },
             normalService,
             'CONTRA_ENTREGA'
         );
 
-        expect(result).toBe(13);
+        expect(result).toBe(0);
     });
 
+    it('cobra envío normal en contraentrega si no alcanza el mínimo', () => {
+        const result = resolveShippingCost(
+            { envioGratis: false },
+            normalService,
+            'CONTRA_ENTREGA'
+        );
+
+        expect(result).toBe(10);
+    });
     it('no deja gratis el express aunque haya envío gratis global', () => {
         const result = resolveShippingCost(
             { envioGratis: true },
@@ -42,7 +51,7 @@ describe('resolveShippingCost', () => {
             'CONTRA_ENTREGA'
         );
 
-        expect(result).toBe(70);
+        expect(result).toBe(55);
     });
 
     it('mantiene el costo base para envío express en línea', () => {
