@@ -27,11 +27,13 @@ export function isExpressService(
 /** Retiro y envío normal pueden quedar gratis; express siempre se cobra. */
 export function qualifiesForFreeShipping(
     opciones: Pick<ShippingOptionsApi, 'envioGratis'>,
-    servicio: ShippingServiceApi | null | undefined
+    servicio: ShippingServiceApi | null | undefined,
+    formaPago: FormaPago = 'EN_LINEA'
 ): boolean {
     if (!servicio || !opciones.envioGratis) return false;
+    if (formaPago === 'CONTRA_ENTREGA') return false;
     if (isExpressService(servicio)) return false;
-    return true;
+    return !isPickupService(servicio);
 }
 
 const SERVICE_SORT_ORDER = {
@@ -105,9 +107,16 @@ export function resolveShippingCost(
     formaPago: FormaPago = 'EN_LINEA'
 ): number {
     if (!servicio) return 0;
-    if (qualifiesForFreeShipping(opciones, servicio)) return 0;
-    const { enLinea, contraEntrega } = getShippingServiceCosts(servicio);
-    return formaPago === 'CONTRA_ENTREGA' ? contraEntrega : enLinea;
+
+    const { tarifa, recargo, enLinea } = getShippingServiceCosts(servicio);
+    const baseCost =
+        formaPago === 'CONTRA_ENTREGA' ? tarifa + recargo : enLinea;
+
+    if (qualifiesForFreeShipping(opciones, servicio, formaPago)) {
+        return 0;
+    }
+
+    return baseCost;
 }
 
 export function resolveShippingCostInTotal(
@@ -116,8 +125,7 @@ export function resolveShippingCostInTotal(
     formaPagoEnvio: FormaPago
 ): number {
     if (!servicio) return 0;
-    if (formaPagoEnvio === 'CONTRA_ENTREGA') return 0;
-    return resolveShippingCost(opciones, servicio, 'EN_LINEA');
+    return resolveShippingCost(opciones, servicio, formaPagoEnvio);
 }
 
 export function mapShippingServiceToView(servicio: ShippingServiceApi): ShippingServiceView {

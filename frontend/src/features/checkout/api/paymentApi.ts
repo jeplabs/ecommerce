@@ -22,6 +22,7 @@ const TRANSACTION_PREFIX: Record<PaymentMethod, string> = {
     [PAYMENT_METHODS.WEBPAY]: 'WP_SIM',
     [PAYMENT_METHODS.MERCADOPAGO]: 'MP_SIM',
     [PAYMENT_METHODS.BANK_TRANSFER]: 'TRF_SIM',
+    [PAYMENT_METHODS.CONTRA_ENTREGA]: 'CE_SIM',
 };
 
 const generateTransactionId = (provider: PaymentMethod): string => {
@@ -51,6 +52,7 @@ const SIMULATED_DELAY_MS: Record<PaymentMethod, number> = {
     [PAYMENT_METHODS.WEBPAY]: 2200,
     [PAYMENT_METHODS.MERCADOPAGO]: 1900,
     [PAYMENT_METHODS.BANK_TRANSFER]: 0,
+    [PAYMENT_METHODS.CONTRA_ENTREGA]: 0,
 };
 
 /**
@@ -122,7 +124,18 @@ export async function processPayment(params: ProcessPaymentInput): Promise<Payme
             authorizationCode: `MP${Date.now().toString().slice(-10)}`,
         };
     }
-
+    
+    if (method === PAYMENT_METHODS.CONTRA_ENTREGA) {
+        return {
+            success: true,
+            transactionId: generateTransactionId(PAYMENT_METHODS.CONTRA_ENTREGA),
+            provider: 'Contra entrega (simulado)',
+            amount,
+            orderReference,
+            authorizationCode: `CE${Date.now().toString().slice(-10)}`,
+        };
+    }
+    
     return { success: false, error: 'Método de pago no soportado' };
 }
 

@@ -3,6 +3,7 @@ import { useCheckout, useToast } from '@/app/providers';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
+import { PAYMENT_METHODS } from '@/features/checkout';
 
 import CheckoutSteps from '../CheckoutSteps/CheckoutSteps';
 import ReviewAndShippingStep from '../ReviewAndShippingStep/ReviewAndShippingStep';
@@ -42,6 +43,7 @@ export default function CheckoutContent() {
     } = useCheckout();
 
     const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
+    const isContraEntrega = paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA;
 
     if ((cartLoading || isEmpty) && !processing && !checkoutCompleted) {
         return <p className={pageStyles.loading}>Preparando checkout…</p>;
@@ -63,7 +65,9 @@ export default function CheckoutContent() {
                 showSuccess(
                     result.isBankTransfer
                         ? 'Pedido registrado. Realiza la transferencia y sube el comprobante desde tu historial.'
-                        : '¡Pedido realizado con éxito!'
+                        : isContraEntrega
+                          ? '¡Pedido realizado con éxito! Se pagará contraentrega al recibirlo.'
+                          : '¡Pedido realizado con éxito!'
                 );
                 navigate('/checkout/success', {
                     replace: true,
@@ -140,10 +144,14 @@ export default function CheckoutContent() {
                                 {processing
                                     ? isBankTransfer
                                         ? 'Registrando pedido…'
-                                        : 'Procesando pago…'
+                                        : isContraEntrega
+                                          ? 'Registrando pedido…'
+                                          : 'Procesando pago…'
                                     : isBankTransfer
                                       ? 'Confirmar pedido'
-                                      : 'Pagar y finalizar'}
+                                      : isContraEntrega
+                                        ? 'Confirmar pedido'
+                                        : 'Pagar y finalizar'}
                             </button>
                         )}
                     </div>

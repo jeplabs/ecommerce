@@ -73,9 +73,16 @@ export function useCheckoutLogic({
     const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
     const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState<number | null>(null);
-    /** Envío siempre en línea: se paga junto con el pedido en el paso de pago. */
-    const formaPagoEnvio = FORMA_PAGO_ENVIO.EN_LINEA;
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
+    const currentStep = CHECKOUT_STEPS[step];
+    const isPaymentStep = currentStep === 'pago';
+    const formaPagoEnvio = useMemo(
+        () =>
+            isPaymentStep && paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
+                ? FORMA_PAGO_ENVIO.CONTRA_ENTREGA
+                : FORMA_PAGO_ENVIO.EN_LINEA,
+        [isPaymentStep, paymentMethod]
+    );
     const [cardData, setCardData] = useState<StripeCardFormValues>({
         cardholder: '',
         cardNumber: '',
@@ -89,8 +96,6 @@ export function useCheckoutLogic({
     const [checkoutCompleted, setCheckoutCompleted] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [paymentResult, setPaymentResult] = useState<PaymentSuccessResult | null>(null);
-
-    const currentStep = CHECKOUT_STEPS[step];
 
     const handleAuthError = useCallback(
         (status: number | undefined) =>
@@ -214,6 +219,7 @@ export function useCheckoutLogic({
 
     const canContinuePayment =
         isBankTransferPaymentMethod(paymentMethod) ||
+        paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA ||
         paymentMethod === PAYMENT_METHODS.WEBPAY ||
         paymentMethod === PAYMENT_METHODS.MERCADOPAGO ||
         (paymentMethod === PAYMENT_METHODS.STRIPE &&
@@ -254,11 +260,13 @@ export function useCheckoutLogic({
 
         const orderReference = `CHK-${Date.now()}`;
         const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
+        const isContraEntrega = paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA;
+        const needsGatewaySimulation = !isBankTransfer && !isContraEntrega;
 
         try {
             let payment: PaymentSuccessResult | null = null;
 
-            if (!isBankTransfer) {
+            if (needsGatewaySimulation) {
                 const paymentResult = await paymentApi.processPayment({
                     method: paymentMethod,
                     amount: orderTotal,
@@ -274,11 +282,15 @@ export function useCheckoutLogic({
 
                 payment = paymentResult;
                 setPaymentResult(paymentResult);
+            } else {
+                setPaymentResult(null);
             }
 
             const metodoPagoCodigo =
                 paymentMethod === PAYMENT_METHODS.BANK_TRANSFER
                     ? 'TRANSFERENCIA'
+                    : paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
+                    ? 'CONTRA_ENTREGA'
                     : paymentMethod === PAYMENT_METHODS.WEBPAY
                     ? 'WEBPAY'
                     : paymentMethod === PAYMENT_METHODS.MERCADOPAGO

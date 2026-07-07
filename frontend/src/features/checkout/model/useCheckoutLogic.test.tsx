@@ -87,6 +87,64 @@ describe('useCheckoutLogic', () => {
         expect(result.current.canContinuePayment).toBe(true);
     });
 
+    it('mantiene el envío sin recargo en el paso 1 y lo suma solo en el paso 2 para contraentrega', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+
+        act(() => {
+            result.current.setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA);
+        });
+
+        expect(result.current.currentStep).toBe('pedido');
+        expect(result.current.shippingCostInTotal).toBeLessThan(result.current.orderTotal);
+        expect(result.current.shippingCostInTotal).toBe(5.99);
+
+        act(() => {
+            result.current.goNext();
+        });
+
+        expect(result.current.currentStep).toBe('pago');
+        expect(result.current.shippingCostInTotal).toBe(8.49);
+        expect(result.current.orderTotal).toBeGreaterThan(5.99);
+    });
+
+    it('completa checkout con contraentrega sin pasar por la pasarela simulada', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA);
+        });
+
+        expect(result.current.canContinuePayment).toBe(true);
+        expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
+
+        let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
+
+        await act(async () => {
+            checkoutResult = await result.current.completeCheckout();
+        });
+
+        expect(checkoutResult?.success).toBe(true);
+        if (checkoutResult?.success) {
+            expect(checkoutResult.orden.formaPagoEnvio).toBe('CONTRA_ENTREGA');
+            expect(checkoutResult.payment).toBeNull();
+        }
+    });
+
     it('completa checkout con transferencia bancaria', async () => {
         seedCustomerSession();
         addDynamicCartItem(mockProduct.id, 1);

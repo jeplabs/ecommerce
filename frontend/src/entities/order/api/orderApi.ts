@@ -1,7 +1,7 @@
 import { API_URL } from '@/shared/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
-import { orderApiSchema, bankAccountApiSchema, type OrderApi, type OrderStatus, type BancoAccountApi } from '../model/schemas/api';
+import { orderApiSchema, bankAccountApiSchema, type OrderApi, type OrderStatus, type BancoAccountApi, metodoPagoApiSchema, type MetodoPagoApi, type MetodoPago } from '../model/schemas/api';
 import { orderPageSchema, type OrderPage } from '../model/types';
 import type { CreateOrderRequest } from '../model/schemas/forms';
 import z from 'zod';
@@ -45,11 +45,21 @@ async function handleBankAccountsJson(response: Response, fallback: string) {
     return parseApi(z.array(bankAccountApiSchema), raw);
 }
 
+async function handleMetodosPagoJson(response: Response, fallback: string) {
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, fallback);
+    }
+    return parseApi(z.array(metodoPagoApiSchema), raw);
+}
+
 export type ListOrdersAdminParams = {
     page?: number;
     size?: number;
     estado?: OrderStatus;
 };
+
+
 
 /** {@code GET /api/ordenes} */
 export async function listarMisOrdenes(page = 0, size = 10): Promise<OrderPage> {
@@ -95,6 +105,7 @@ export async function crearOrden(body: CreateOrderRequest): Promise<OrderApi> {
     return handleOrderJson(response, 'Error al crear la orden');
 }
 
+/** {@code POST /api/ordenes/id/comprobante} */
 export async function subirComprobanteOrder(
     ordenId: number,
     archivo: File
@@ -115,7 +126,6 @@ export async function subirComprobanteOrder(
 
     return handleOrderJson(response, 'Error al subir el comprobante');
 }
-
 
 /** {@code GET /api/ordenes/admin} */
 export async function listarOrdenesAdmin({
@@ -166,6 +176,15 @@ export async function listarCuentasBancarias(): Promise<BancoAccountApi[]> {
         headers: getAuthHeaders(getToken())
     });
     return handleBankAccountsJson(response, 'Error al listar los bancos de cuentas');
+}
+
+/** {@code GET /api/pagos/metodos} */
+export async function listarMetodosPago(): Promise<MetodoPagoApi[]> {
+    const response = await fetch(`${API_URL}/api/pagos/metodos`, {
+        method: 'GET',
+        headers: getAuthHeaders(getToken())
+    });
+    return handleMetodosPagoJson(response, 'Error al listar los metodos de pago');
 }
 
 export const orderApi = {

@@ -16,9 +16,9 @@ export const mockShippingServices: ShippingServiceApi[] = [
         nombre: 'Envío estándar',
         descripcion: 'Entrega en 3 a 5 días hábiles',
         tarifa: 5.99,
-        recargoContraEntrega: 0,
+        recargoContraEntrega: 2.5,
         costoEnLinea: 5.99,
-        costoContraEntrega: 5.99,
+        costoContraEntrega: 8.49,
         logoUrl: null,
     },
     {
@@ -26,9 +26,9 @@ export const mockShippingServices: ShippingServiceApi[] = [
         nombre: 'Envío express',
         descripcion: 'Entrega en 24 horas',
         tarifa: 9.99,
-        recargoContraEntrega: 0,
+        recargoContraEntrega: 4.5,
         costoEnLinea: 9.99,
-        costoContraEntrega: 9.99,
+        costoContraEntrega: 14.49,
         logoUrl: null,
     },
 ];

@@ -40,6 +40,18 @@ export const bankAccountApiSchema = z.object({
     ordenViualizacion: z.number().nullable().optional(),
 });
 
+/** {@code DatosRespuestaMetodoPago} — snapshot en la orden. */
+export const metodoPagoApiSchema = z.object({
+    id: z.number().int().positive(),
+    codigo: z.string(),
+    nombre: z.string(),
+    descripcion: z.string().nullable().optional(),
+    activo: z.boolean(),
+    tipo: z.string(),
+    ordenVisualizacion: z.number(),
+    configuracion: z.json().nullable().optional(),
+});
+
 /** {@code DatosRespuestaDireccionOrden} — snapshot en la orden. */
 export const orderShippingAddressApiSchema = z.object({
     alias: z.string(),
@@ -90,6 +102,7 @@ export const orderApiSchema = z.object({
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export type FormaPago = z.infer<typeof formaPagoSchema>;
 export type MetodoPago = z.infer<typeof metodoPagoSchema>;
+export type MetodoPagoApi = z.infer<typeof metodoPagoApiSchema>;
 export type BancoAccountApi = z.infer<typeof bankAccountApiSchema>;
 export type OrderShippingAddressApi = z.infer<typeof orderShippingAddressApiSchema>;
 export type OrderItemApi = z.infer<typeof orderItemApiSchema>;

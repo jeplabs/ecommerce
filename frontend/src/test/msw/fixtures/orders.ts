@@ -29,6 +29,8 @@ type CreateMockOrderParams = {
     servicioEnvioId: number;
     cart: CartApi;
     notas?: string | null;
+    formaPagoEnvio?: OrderApi['formaPagoEnvio'];
+    metodoPago?: OrderApi['metodoPago'];
 };
 
 export function mockCreatedOrder({
@@ -36,6 +38,8 @@ export function mockCreatedOrder({
     servicioEnvioId,
     cart,
     notas = null,
+    formaPagoEnvio = 'EN_LINEA',
+    metodoPago = 'STRIPE',
 }: CreateMockOrderParams): OrderApi {
     const address = mockAddresses.find((entry) => entry.id === direccionId) ?? mockAddresses[0];
     const servicio = findMockShippingService(servicioEnvioId) ?? findMockShippingService(2)!;
@@ -60,8 +64,8 @@ export function mockCreatedOrder({
             referencias: address.referencias ?? null,
         },
         servicioEnvio: servicio.nombre,
-        formaPago: 'EN_LINEA',
-        metodoPago: 'STRIPE',
+        formaPagoEnvio,
+        metodoPago,
         items: cart.items.map((item, index) => ({
             id: index + 1,
             productoId: item.productoId,

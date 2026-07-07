@@ -467,6 +467,8 @@ export const handlers = [
             direccionId?: number;
             servicioEnvioId?: number;
             notas?: string | null;
+            formaPagoEnvio?: string;
+            metodoPagoCodigo?: string;
         };
 
         if (!body.direccionId || !body.servicioEnvioId) {
@@ -483,6 +485,18 @@ export const handlers = [
             servicioEnvioId: body.servicioEnvioId,
             cart,
             notas: body.notas ?? null,
+            formaPagoEnvio:
+                body.formaPagoEnvio === 'CONTRA_ENTREGA' ? 'CONTRA_ENTREGA' : 'EN_LINEA',
+            metodoPago:
+                body.metodoPagoCodigo === 'CONTRA_ENTREGA'
+                    ? 'CONTRA_ENTREGA'
+                    : body.metodoPagoCodigo === 'TRANSFERENCIA'
+                    ? 'TRANSFERENCIA'
+                    : body.metodoPagoCodigo === 'WEBPAY'
+                    ? 'WEBPAY'
+                    : body.metodoPagoCodigo === 'MERCADO_PAGO'
+                    ? 'MERCADO_PAGO'
+                    : 'STRIPE',
         });
 
         clearDynamicCart();
