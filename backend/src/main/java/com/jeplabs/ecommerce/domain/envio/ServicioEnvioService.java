@@ -44,7 +44,8 @@ public class ServicioEnvioService {
                 datos.tarifa(),
                 datos.recargoContraEntrega(),
                 true,
-                datos.logoUrl()
+                datos.logoUrl(),
+                datos.servicioExpress()
         );
         repositorio.save(servicio);
         return new DatosRespuestaServicioEnvio(servicio);

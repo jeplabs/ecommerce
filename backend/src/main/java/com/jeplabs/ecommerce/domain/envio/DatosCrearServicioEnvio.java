@@ -21,5 +21,6 @@ public record DatosCrearServicioEnvio(
         @DecimalMin(value = "0.0", message = "El recargo no puede ser negativo")
         BigDecimal recargoContraEntrega,
 
-        String logoUrl
+        String logoUrl,
+        boolean servicioExpress
 ) {}

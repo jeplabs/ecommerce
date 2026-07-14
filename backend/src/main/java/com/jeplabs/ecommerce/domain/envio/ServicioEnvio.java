@@ -29,6 +29,7 @@ public class ServicioEnvio {
 
     private boolean activo;
     private String logoUrl;
+    private boolean servicioExpress;
 
     public void actualizar(DatosActualizarServicioEnvio datos) {
         if (datos.nombre() != null)                 this.nombre = datos.nombre();
@@ -36,6 +37,7 @@ public class ServicioEnvio {
         if (datos.tarifa() != null)                 this.tarifa = datos.tarifa();
         if (datos.recargoContraEntrega() != null)   this.recargoContraEntrega = datos.recargoContraEntrega();
         if (datos.logoUrl() != null)                this.logoUrl = datos.logoUrl();
+        if (datos.servicioExpress() != null)        this.servicioExpress = datos.servicioExpress();
     }
 
     public void activar()    { this.activo = true; }
