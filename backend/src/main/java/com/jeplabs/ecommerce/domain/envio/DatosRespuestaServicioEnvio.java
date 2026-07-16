@@ -13,7 +13,8 @@ public record DatosRespuestaServicioEnvio(
         BigDecimal costoEnLinea,
         BigDecimal costoContraEntrega,
         String logoUrl,
-        boolean servicioExpress
+        boolean servicioExpress,
+        String notaExpress
 ) {
     public DatosRespuestaServicioEnvio(ServicioEnvio servicio) {
         this(
@@ -25,7 +26,10 @@ public record DatosRespuestaServicioEnvio(
                 servicio.calcularCostoTotal(FormaPagoEnvio.EN_LINEA),
                 servicio.calcularCostoTotal(FormaPagoEnvio.CONTRA_ENTREGA),
                 servicio.getLogoUrl(),
+                servicio.isServicioExpress(),
                 servicio.isServicioExpress()
+                        ? "No aplica para contra entrega"
+                        : null
         );
     }
 }

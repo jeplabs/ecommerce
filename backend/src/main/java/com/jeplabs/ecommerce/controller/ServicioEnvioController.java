@@ -1,6 +1,7 @@
 package com.jeplabs.ecommerce.controller;
 
 import com.jeplabs.ecommerce.domain.envio.*;
+import com.jeplabs.ecommerce.domain.orden.FormaPagoEnvio;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,9 @@ public class ServicioEnvioController {
     // Público - opciones de envío con costos calculados según subtotal
     @GetMapping("/opciones")
     public ResponseEntity<DatosRespuestaOpcionesEnvio> listarOpciones(
-            @RequestParam(defaultValue = "0") BigDecimal subtotal) {
-        return ResponseEntity.ok(service.listarOpcionesEnvio(subtotal));
+            @RequestParam(defaultValue = "0") BigDecimal subtotal,
+            @RequestParam(defaultValue = "EN_LINEA") FormaPagoEnvio formaPagoEnvio) {
+        return ResponseEntity.ok(service.listarOpcionesEnvio(subtotal, formaPagoEnvio));
     }
 
     // Admin - crear servicio -  Estos endpoints de admin no se implementaran en el frontend

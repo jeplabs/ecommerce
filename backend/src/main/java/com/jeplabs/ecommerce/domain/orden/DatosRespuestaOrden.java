@@ -20,6 +20,7 @@ public record DatosRespuestaOrden(
         BigDecimal subtotal,
         BigDecimal iva,
         BigDecimal costoEnvio,      // costo de envío
+        String notaEnvio,
         BigDecimal total,
         String comprobanteUrl,          // ← nuevo
         String comprobanteNombre,       // ← nuevo
@@ -45,6 +46,7 @@ public record DatosRespuestaOrden(
                 orden.getSubtotal(),
                 orden.getIva(),
                 orden.getCostoEnvio(),
+                orden.getNotaEnvio(),
                 orden.getTotal(),
                 orden.getComprobanteUrl(),      // ← nuevo
                 orden.getComprobanteNombre(),   // ← nuevo

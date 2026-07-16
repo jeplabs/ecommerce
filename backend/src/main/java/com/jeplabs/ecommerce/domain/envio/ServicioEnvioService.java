@@ -1,5 +1,6 @@
 package com.jeplabs.ecommerce.domain.envio;
 
+import com.jeplabs.ecommerce.domain.orden.FormaPagoEnvio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +16,19 @@ public class ServicioEnvioService {
     private final EnvioCalculator envioCalculator;
 
     // Lista servicios activos con costos calculados según subtotal
-    public DatosRespuestaOpcionesEnvio listarOpcionesEnvio(BigDecimal subtotal) {
-        List<ServicioEnvio> servicios = repositorio.findByActivoTrue();
-        boolean envioGratis = envioCalculator.aplicaEnvioGratis(subtotal);
+    public DatosRespuestaOpcionesEnvio listarOpcionesEnvio(BigDecimal subtotal, FormaPagoEnvio formaPagoEnvio) {
+        List<ServicioEnvio> servicios = repositorio.findByActivoTrueOrderByIdAsc();
+
+        // Si es contra entrega, excluir servicios express
+        if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
+            servicios = servicios.stream()
+                    .filter(s -> !s.isServicioExpress())
+                    .toList();
+        }
+
+        boolean envioGratis = servicios.stream()
+                .anyMatch(s -> envioCalculator.aplicaEnvioGratis(
+                        subtotal, s, formaPagoEnvio));
 
         List<DatosRespuestaServicioEnvio> opciones = servicios.stream()
                 .map(DatosRespuestaServicioEnvio::new)

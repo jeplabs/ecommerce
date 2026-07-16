@@ -50,4 +50,12 @@ public class ServicioEnvio {
         }
         return this.tarifa;
     }
+
+    // Metodo que valida si el servicio está disponible para una forma de pago
+    public void validarDisponibilidad(FormaPagoEnvio formaPagoEnvio) {
+        if (this.servicioExpress && formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
+            throw new IllegalArgumentException(
+                    "El servicio express no está disponible para pago contra entrega");
+        }
+    }
 }

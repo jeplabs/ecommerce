@@ -65,6 +65,9 @@ public class Orden {
     @Column(name = "comprobante_fecha")
     private LocalDateTime comprobanteFecha;
 
+    @Column(name = "nota_envio")
+    private String notaEnvio;
+
     // Copia de datos de dirección
     @Column(name = "direccion_alias")     private String direccionAlias;
     @Column(name = "direccion_calle")     private String direccionCalle;
@@ -96,6 +99,7 @@ public class Orden {
         this.servicioEnvio = servicioEnvio;
         this.formaPagoEnvio = formaPagoEnvio;
         this.costoEnvio = costoEnvio;
+        this.notaEnvio = generarNotaEnvio(formaPagoEnvio, servicioEnvio);
         this.estado = EstadoOrden.PENDIENTE;
         this.metodoPagoCodigo = metodoPagoCodigo;
 
@@ -152,6 +156,17 @@ public class Orden {
 
     public TipoMetodoPago getTipoMetodoPago() {
         return metodoPago != null ? metodoPago.getTipo() : null;
+    }
+
+    private String generarNotaEnvio(FormaPagoEnvio formaPagoEnvio,
+                                    ServicioEnvio servicioEnvio) {
+        if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
+            return "El envío se paga de manera adicional al valor de la compra al recibir el producto";
+        }
+        if (servicioEnvio.isServicioExpress()) {
+            return "Servicio express - entrega prioritaria";
+        }
+        return null;
     }
 
 }

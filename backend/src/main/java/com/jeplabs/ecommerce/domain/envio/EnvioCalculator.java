@@ -12,19 +12,34 @@ public class EnvioCalculator {
     @Value("${api.envio.monto-minimo-gratis}")
     private BigDecimal montoMinimoGratis;
 
-    // Verifica si el subtotal califica para envío gratis
-    public boolean aplicaEnvioGratis(BigDecimal subtotal) {
+    public boolean aplicaEnvioGratis(BigDecimal subtotal, ServicioEnvio servicio,
+                                     FormaPagoEnvio formaPagoEnvio) {
+        // Contra entrega nunca aplica envío gratis
+        // Express nunca aplica envío gratis
+        // Solo aplica si es pago en línea/transferencia, servicio normal y supera el mínimo
+        if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) return false;
+        if (servicio.isServicioExpress()) return false;
         return subtotal.compareTo(montoMinimoGratis) >= 0;
     }
 
-    // Calcula el costo de envío considerando envío gratis
-    public BigDecimal calcularCostoEnvio(BigDecimal subtotal,
-                                         ServicioEnvio servicio,
+    public BigDecimal calcularCostoEnvio(BigDecimal subtotal, ServicioEnvio servicio,
                                          FormaPagoEnvio formaPagoEnvio) {
-        if (aplicaEnvioGratis(subtotal)) {
+        // Contra entrega → costo cero en el sistema (lo cobra el servicio físicamente)
+        if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
             return BigDecimal.ZERO;
         }
-        return servicio.calcularCostoTotal(formaPagoEnvio);
+
+        // Express → siempre se cobra sin importar el subtotal
+        if (servicio.isServicioExpress()) {
+            return servicio.getTarifa();
+        }
+
+        // Normal en línea/transferencia → gratis si supera el mínimo
+        if (aplicaEnvioGratis(subtotal, servicio, formaPagoEnvio)) {
+            return BigDecimal.ZERO;
+        }
+
+        return servicio.getTarifa();
     }
 
     public BigDecimal getMontoMinimoGratis() {

@@ -118,6 +118,9 @@ public class OrdenService {
             throw new IllegalArgumentException("El servicio de envío seleccionado no está disponible");
         }
 
+        // Validar que express no se use con contra entrega
+        servicioEnvio.validarDisponibilidad(datos.formaPagoEnvio());
+
         MetodoPago metodoPago = metodoPagoService.buscarPorCodigo(datos.metodoPagoCodigo());
 
         if (!metodoPago.isActivo()) {
