@@ -8,6 +8,7 @@ const EMPTY_OPCIONES: EnvioOpcionesState = {
     costoEnvio: null,
     montoMinimoGratis: null,
     servicios: [],
+    formaPagoEnvio: 'EN_LINEA',
 };
 
 function toErrorMessage(error: unknown): string {
@@ -15,10 +16,19 @@ function toErrorMessage(error: unknown): string {
 }
 
 /**
- * Carga opciones de envío desde el API según el subtotal del carrito.
+ * Carga opciones de envío desde el API según el subtotal del carrito y la forma de pago del envío.
  */
-export function useEnvioOpciones(subtotal: number): UseEnvioOpcionesResult {
-    const [opciones, setOpciones] = useState<EnvioOpcionesState>(EMPTY_OPCIONES);
+export function useEnvioOpciones(
+    subtotal: number,
+    initialFormaPagoEnvio: 'EN_LINEA' | 'CONTRA_ENTREGA' = 'EN_LINEA'
+): UseEnvioOpcionesResult {
+    const [opciones, setOpciones] = useState<EnvioOpcionesState>({
+        ...EMPTY_OPCIONES,
+        formaPagoEnvio: initialFormaPagoEnvio,
+    });
+    const [formaPagoEnvio, setFormaPagoEnvio] = useState<
+        'EN_LINEA' | 'CONTRA_ENTREGA'
+    >(initialFormaPagoEnvio);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -26,20 +36,21 @@ export function useEnvioOpciones(subtotal: number): UseEnvioOpcionesResult {
         setLoading(true);
         setError(null);
         try {
-            const data = await shippingApi.getOpciones(subtotal);
+            const data = await shippingApi.getOpciones(subtotal, formaPagoEnvio);
             setOpciones({
                 envioGratis: Boolean(data.envioGratis),
                 costoEnvio: data.costoEnvio ?? null,
                 montoMinimoGratis: data.montoMinimoGratis ?? null,
                 servicios: Array.isArray(data.servicios) ? data.servicios : [],
+                formaPagoEnvio,
             });
         } catch (err) {
             setError(toErrorMessage(err) || 'No se pudieron cargar los servicios de envío');
-            setOpciones(EMPTY_OPCIONES);
+            setOpciones({ ...EMPTY_OPCIONES, formaPagoEnvio });
         } finally {
             setLoading(false);
         }
-    }, [subtotal]);
+    }, [subtotal, formaPagoEnvio]);
 
     useEffect(() => {
         void fetchOpciones();
@@ -58,5 +69,7 @@ export function useEnvioOpciones(subtotal: number): UseEnvioOpcionesResult {
         loading,
         error,
         refetch: fetchOpciones,
+        formaPagoEnvio,
+        setFormaPagoEnvio,
     };
 }

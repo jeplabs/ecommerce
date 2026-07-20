@@ -41,3 +41,7 @@ export function isPickupFromServicioNombre(nombre: string | null | undefined): b
     if (!nombre) return false;
     return nombre.toLowerCase().includes('retiro');
 }
+
+export function getContraEntregaShippingNote(servicioEnvio: string): string {
+    return `El envío se paga de manera adicional al valor de la compra al recibir el producto. El valor del envío lo puedes consultar directamente con ${servicioEnvio}.`;
+}

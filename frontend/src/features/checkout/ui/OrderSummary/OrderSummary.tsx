@@ -13,6 +13,8 @@ type OrderSummaryProps = {
     compact?: boolean;
     /** Oculta la lista de ítems (p. ej. paso 1 con revisión en la columna principal). */
     totalsOnly?: boolean;
+    /** Si es true, muestra el mensaje de contra entrega en vez de precio de envío. */
+    isContraEntrega?: boolean;
 };
 
 export default function OrderSummary({
@@ -23,10 +25,11 @@ export default function OrderSummary({
     servicioCostos = null,
     compact = false,
     totalsOnly = false,
+    isContraEntrega = false,
 }: OrderSummaryProps) {
     const displayTotal = total ?? subtotal + shippingCostInTotal;
     const { enLinea = 0 } = servicioCostos || {};
-    const shippingIsFree = shippingCostInTotal === 0;
+    const shippingIsFree = shippingCostInTotal === 0 && !isContraEntrega;
     const showStruckListPrice = shippingIsFree && enLinea > 0;
 
     return (
@@ -66,7 +69,11 @@ export default function OrderSummary({
                 <div className={clsx(styles.row, styles.rowEnvio)}>
                     <dt>Envío</dt>
                     <dd>
-                        {shippingIsFree ? (
+                        {isContraEntrega ? (
+                            <span className={styles.contraEntregaNote}>
+                                Se paga al recibir
+                            </span>
+                        ) : shippingIsFree ? (
                             <span className={styles.freeWrap}>
                                 {showStruckListPrice && (
                                     <span className={styles.struck}>

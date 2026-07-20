@@ -159,6 +159,16 @@
     color: #22c55e;
 }
 
+.contraEntregaNote {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #92400e;
+    background: #fef3c7;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    line-height: 1.3;
+}
+
 .total {
     display: flex;
     justify-content: space-between;

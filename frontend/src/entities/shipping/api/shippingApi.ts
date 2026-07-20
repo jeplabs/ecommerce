@@ -12,10 +12,16 @@ async function readJson(response: Response): Promise<unknown> {
     return response.json().catch(() => ({}));
 }
 
-/** {@code GET /api/envio/opciones?subtotal=} — requiere JWT de cliente. */
-export async function getOpciones(subtotal = 0): Promise<ShippingOptionsApi> {
+/** {@code GET /api/envio/opciones?subtotal=&formaPagoEnvio=} — requiere JWT de cliente. */
+export async function getOpciones(
+    subtotal = 0,
+    formaPagoEnvio: 'EN_LINEA' | 'CONTRA_ENTREGA' = 'EN_LINEA'
+): Promise<ShippingOptionsApi> {
     const normalized = Math.max(0, Number(subtotal) || 0);
-    const params = new URLSearchParams({ subtotal: String(normalized) });
+    const params = new URLSearchParams({
+        subtotal: String(normalized),
+        formaPagoEnvio,
+    });
 
     const response = await fetch(`${API_URL}/api/envio/opciones?${params}`, {
         method: 'GET',

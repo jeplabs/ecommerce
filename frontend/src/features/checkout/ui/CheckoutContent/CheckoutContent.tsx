@@ -161,6 +161,7 @@ export default function CheckoutContent() {
                     shippingCostInTotal={shippingCostInTotal}
                     total={orderTotal}
                     servicioCostos={selectedServicioCostos}
+                    isContraEntrega={isContraEntrega}
                 />
             </div>
         </div>

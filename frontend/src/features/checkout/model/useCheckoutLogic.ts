@@ -67,6 +67,7 @@ export function useCheckoutLogic({
         refetch: refetchEnvioOpciones,
         pickupServices,
         deliveryServices,
+        setFormaPagoEnvio: setContextFormaPagoEnvio,
     } = useEnvioOpcionesContext();
 
     const [step, setStep] = useState(0);
@@ -83,6 +84,10 @@ export function useCheckoutLogic({
                 : FORMA_PAGO_ENVIO.EN_LINEA,
         [isPaymentStep, paymentMethod]
     );
+
+    useEffect(() => {
+        setContextFormaPagoEnvio(formaPagoEnvio);
+    }, [formaPagoEnvio, setContextFormaPagoEnvio]);
     const [cardData, setCardData] = useState<StripeCardFormValues>({
         cardholder: '',
         cardNumber: '',
@@ -173,6 +178,17 @@ export function useCheckoutLogic({
         () => servicios.find((s) => s.id === selectedServicioEnvioId) ?? null,
         [servicios, selectedServicioEnvioId]
     );
+
+    useEffect(() => {
+        if (selectedServicio && isExpressService(selectedServicio)) {
+            setPaymentMethod((prev) => {
+                if (prev === PAYMENT_METHODS.CONTRA_ENTREGA) {
+                    return PAYMENT_METHODS.STRIPE;
+                }
+                return prev;
+            });
+        }
+    }, [selectedServicio]);
 
     const isPickupSelected = useMemo(
         () => isPickupService(selectedServicio),

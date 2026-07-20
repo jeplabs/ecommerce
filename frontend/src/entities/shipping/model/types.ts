@@ -36,6 +36,7 @@ export type EnvioOpcionesState = {
     costoEnvio: number | null;
     montoMinimoGratis: number | null;
     servicios: ShippingServiceApi[];
+    formaPagoEnvio: 'EN_LINEA' | 'CONTRA_ENTREGA';
 };
 
 export type UseEnvioOpcionesResult = {
@@ -46,4 +47,6 @@ export type UseEnvioOpcionesResult = {
     loading: boolean;
     error: string | null;
     refetch: () => Promise<void>;
+    formaPagoEnvio: 'EN_LINEA' | 'CONTRA_ENTREGA';
+    setFormaPagoEnvio: (fp: 'EN_LINEA' | 'CONTRA_ENTREGA') => void;
 };

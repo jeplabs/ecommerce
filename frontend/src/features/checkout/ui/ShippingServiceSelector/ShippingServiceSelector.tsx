@@ -18,15 +18,17 @@ type ServiceOptionProps = {
     servicio: ShippingServiceApi;
     selectedId: number | null;
     envioGratis: boolean;
+    formaPagoEnvio: 'EN_LINEA' | 'CONTRA_ENTREGA';
     onSelect: (id: number) => void;
 };
 
-function ServiceOption({ servicio, selectedId, envioGratis, onSelect }: ServiceOptionProps) {
+function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSelect }: ServiceOptionProps) {
     const isSelected = selectedId === servicio.id;
     const isPickup = isPickupService(servicio);
     const isExpress = isExpressService(servicio);
     const isFree = qualifiesForFreeShipping({ envioGratis }, servicio);
-    const { enLinea } = getServicioCostos(servicio);
+    const { enLinea, contraEntrega } = getServicioCostos(servicio);
+    const displayCost = formaPagoEnvio === 'CONTRA_ENTREGA' ? contraEntrega : enLinea;
     const description = getShippingServiceDescription(servicio);
     const showStruckPrice = isFree && enLinea > 0;
     const showFreeLabel = isFree || (isPickup && enLinea === 0);
@@ -70,10 +72,13 @@ function ServiceOption({ servicio, selectedId, envioGratis, onSelect }: ServiceO
                                 </span>
                             </span>
                         ) : (
-                            <span className={styles.priceTag}>{formatCurrency(enLinea)}</span>
+                            <span className={styles.priceTag}>{formatCurrency(displayCost)}</span>
                         )}
                     </div>
-                    {isExpress && envioGratis && (
+                    {servicio.notaExpress && (
+                        <span className={styles.expressNote}>{servicio.notaExpress}</span>
+                    )}
+                    {!servicio.notaExpress && isExpress && envioGratis && (
                         <span className={styles.expressNote}>No incluido en envío gratis</span>
                     )}
                     {description && <p className={styles.desc}>{description}</p>}
@@ -95,6 +100,7 @@ export default function ShippingServiceSelector() {
         loadingEnvioOpciones,
         envioOpcionesError,
         refetchEnvioOpciones,
+        formaPagoEnvio,
     } = useCheckout();
 
     const deliveryOptions = useMemo(
@@ -177,6 +183,7 @@ export default function ShippingServiceSelector() {
                         servicio={servicio}
                         selectedId={selectedServicioEnvioId}
                         envioGratis={envioGratis}
+                        formaPagoEnvio={formaPagoEnvio}
                         onSelect={setSelectedServicioEnvioId}
                     />
                 ))}

@@ -49,12 +49,16 @@
     margin: 0;
     color: var(--muted);
     font-weight: 500;
+    flex: 1;
+    min-width: 0;
 }
 
 .metaRow dd {
     margin: 0;
     font-weight: 600;
     color: var(--text);
+    flex: 1;
+    min-width: 0;
     text-align: right;
 }
 
@@ -75,6 +79,7 @@
     font-size: 0.82rem;
     color: var(--muted);
     line-height: 1.45;
+    width: 50%;
 }
 
 .address p {

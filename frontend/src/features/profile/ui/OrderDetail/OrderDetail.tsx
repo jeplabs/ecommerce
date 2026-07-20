@@ -4,6 +4,7 @@ import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/Order
 import OrderBankTransferSection from '@/features/checkout/ui/OrderBankTransferSection/OrderBankTransferSection';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
+import { getContraEntregaShippingNote } from '@/entities/order';
 import { Button } from '@/shared/ui/Button';
 import styles from './OrderDetail.module.css';
 
@@ -52,6 +53,11 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
 
             <OrderShippingSummary orden={orden} />
 
+            <div className={styles.section}>
+                <h4>Método de pago</h4>
+                <p>{orden.metodoPagoNombre ?? orden.metodoPago}</p>
+            </div>
+
             {showBankTransfer && <OrderBankTransferSection orden={orden} />}
 
             <div className={styles.section}>
@@ -82,7 +88,11 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
                     <div className={styles.totalRow}>
                         <span>Envío ({orden.servicioEnvio})</span>
                         <span>
-                            {costoEnvio === 0 ? 'Gratis' : formatCurrency(costoEnvio)}
+                            {orden.formaPagoEnvio === 'CONTRA_ENTREGA' && orden.servicioEnvio
+                                ? getContraEntregaShippingNote(orden.servicioEnvio)
+                                : costoEnvio === 0
+                                  ? 'Gratis'
+                                  : formatCurrency(costoEnvio)}
                         </span>
                     </div>
                 )}

@@ -156,6 +156,15 @@
     color: var(--text);
 }
 
+.totalRow > span {
+    flex: 1;
+    min-width: 0;
+}
+
+.totalRow > span:last-child {
+    text-align: right;
+}
+
 .totalRowGrand {
     font-size: 1.05rem;
     font-weight: 700;

@@ -20,6 +20,7 @@ export type {
 export {
     orderStatusSchema,
     formaPagoSchema,
+    tipoMetodoPagoSchema,
     formaPagoEnvioSchema,
     orderApiSchema,
     orderItemApiSchema,
@@ -44,6 +45,7 @@ export {
     formatFormaPago,
     formatFormaPagoEnvio,
     isPickupFromServicioNombre,
+    getContraEntregaShippingNote,
     ORDER_STATUS_LABELS,
     FORMA_PAGO_LABELS,
 } from './model/mappers';

@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { formatCurrency } from '@/shared/lib/format';
-import { isPickupFromServicioNombre } from '@/entities/order';
+import { isPickupFromServicioNombre, getContraEntregaShippingNote } from '@/entities/order';
 import type { OrderApi } from '@/entities/order';
 import styles from './OrderShippingSummary.module.css';
 
@@ -18,7 +18,8 @@ export default function OrderShippingSummary({ orden, className }: OrderShipping
     const pickup = isPickupFromServicioNombre(orden.servicioEnvio);
     const direccion = orden.direccionEnvio;
     const costoEnvio = Number(orden.costoEnvio ?? 0);
-    const envioGratis = costoEnvio === 0 && orden.servicioEnvio;
+    const isContraEntrega = orden.formaPagoEnvio === 'CONTRA_ENTREGA';
+    const envioGratis = costoEnvio === 0 && orden.servicioEnvio && !isContraEntrega;
 
     return (
         <div className={clsx(styles.root, className)}>
@@ -34,9 +35,11 @@ export default function OrderShippingSummary({ orden, className }: OrderShipping
                         <dt>Costo de envío</dt>
                         <dd className={clsx(envioGratis && styles.free)}>
                             {orden.servicioEnvio
-                                ? envioGratis
-                                    ? 'Gratis'
-                                    : formatCurrency(costoEnvio)
+                                ? isContraEntrega
+                                    ? getContraEntregaShippingNote(orden.servicioEnvio)
+                                    : envioGratis
+                                      ? 'Gratis'
+                                      : formatCurrency(costoEnvio)
                                 : '—'}
                         </dd>
                     </div>

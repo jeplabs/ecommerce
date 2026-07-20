@@ -119,7 +119,13 @@ export default function OrderConfirmationSummary({
                 {orden.servicioEnvio != null && (
                     <div className={styles.totalRow}>
                         <span>Envío ({orden.servicioEnvio})</span>
-                        <span>{costoEnvio === 0 ? 'Gratis' : formatCurrency(costoEnvio)}</span>
+                        <span>
+                            {orden.formaPagoEnvio === 'CONTRA_ENTREGA'
+                                ? 'Contra entrega'
+                                : costoEnvio === 0
+                                  ? 'Gratis'
+                                  : formatCurrency(costoEnvio)}
+                        </span>
                     </div>
                 )}
                 <div className={styles.totalRow}>

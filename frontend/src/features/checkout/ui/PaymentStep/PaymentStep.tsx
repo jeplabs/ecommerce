@@ -2,6 +2,7 @@ import { useCheckout } from '@/app/providers';
 import clsx from 'clsx';
 
 import { PAYMENT_METHODS } from '@/features/checkout';
+import { isExpressService } from '@/entities/shipping';
 import { formatCurrency } from '@/shared/lib/format';
 import SimulatedStripeForm from '../SimulatedStripeForm/SimulatedStripeForm';
 import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
@@ -13,7 +14,8 @@ import sharedStyles from '../checkoutShared.module.css';
 import styles from './PaymentStep.module.css';
 
 export default function PaymentStep() {
-    const { paymentMethod, setPaymentMethod, orderTotal, selectedServicioCostos } = useCheckout();
+    const { paymentMethod, setPaymentMethod, orderTotal, selectedServicio } = useCheckout();
+    const isExpress = isExpressService(selectedServicio);
 
     return (
         <div>
@@ -90,21 +92,29 @@ export default function PaymentStep() {
                         <small>Depósito · Pago pendiente, enviar comprobante</small>
                     </span>
                 </button>
-                <button
-                    type="button"
-                    className={clsx(
-                        styles.method,
-                        paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA && styles.methodActive
-                    )}
-                    onClick={() => setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA)}
-                >
-                    <span className={styles.methodIcon}>✉️</span>
-                    <span className={styles.methodInfo}>
-                        <strong>Contra entrega</strong>
-                        <small>Entrega en destino · Pago al recibir el pedido</small>
-                    </span>
-                </button>
+                {!isExpress && (
+                    <button
+                        type="button"
+                        className={clsx(
+                            styles.method,
+                            paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA && styles.methodActive
+                        )}
+                        onClick={() => setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA)}
+                    >
+                        <span className={styles.methodIcon}>✉️</span>
+                        <span className={styles.methodInfo}>
+                            <strong>Contra entrega</strong>
+                            <small>Entrega en destino · Pago al recibir el pedido</small>
+                        </span>
+                    </button>
+                )}
             </div>
+
+            {isExpress && (
+                <p className={styles.expressNote}>
+                    No aplica para contra entrega
+                </p>
+            )}
 
             {paymentMethod === PAYMENT_METHODS.STRIPE && <SimulatedStripeForm />}
             {paymentMethod === PAYMENT_METHODS.WEBPAY && <SimulatedWebpayForm />}

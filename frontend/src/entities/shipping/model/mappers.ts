@@ -16,9 +16,11 @@ export function isPickupService(
 }
 
 export function isExpressService(
-    servicio: Pick<ShippingServiceApi, 'nombre'> | null | undefined
+    servicio: Pick<ShippingServiceApi, 'nombre' | 'servicioExpress'> | null | undefined
 ): boolean {
-    if (!servicio?.nombre) return false;
+    if (!servicio) return false;
+    if (typeof servicio.servicioExpress === 'boolean') return servicio.servicioExpress;
+    if (!servicio.nombre) return false;
     const nombre = servicio.nombre.toLowerCase();
     return nombre.includes('express') || nombre.includes('expres');
 }
@@ -58,7 +60,7 @@ export function getCheckoutShippingOptions(
 ): ShippingServiceApi[] {
     const sorted = sortShippingServices(servicios);
     const pickup = sorted.find(isPickupService);
-    const express = sorted.find(isExpressService);
+    const express = sorted.find((s) => isExpressService(s) && !isPickupService(s));
     const normal = sorted.find((s) => !isPickupService(s) && !isExpressService(s));
 
     return [pickup, normal, express].filter((s): s is ShippingServiceApi => s != null);
@@ -74,7 +76,7 @@ export function getExpressDeliveryHint(now: Date = new Date()): string {
 }
 
 export function getShippingServiceDescription(servicio: ShippingServiceApi): string | null {
-    if (isExpressService(servicio)) return getExpressDeliveryHint();
+    if (isExpressService(servicio) && !isPickupService(servicio)) return getExpressDeliveryHint();
     if (isPickupService(servicio)) {
         return servicio.descripcion ?? 'Recoge tu pedido en nuestra tienda.';
     }
@@ -102,14 +104,15 @@ export function resolveShippingCost(
 ): number {
     if (!servicio) return 0;
 
-    const { enLinea, contraEntrega } = getShippingServiceCosts(servicio);
-    const baseCost = formaPago === 'CONTRA_ENTREGA' ? contraEntrega : enLinea;
+    if (formaPago === 'CONTRA_ENTREGA') return 0;
+
+    const { enLinea } = getShippingServiceCosts(servicio);
 
     if (qualifiesForFreeShipping(opciones, servicio)) {
         return 0;
     }
 
-    return baseCost;
+    return enLinea;
 }
 
 export function resolveShippingCostInTotal(

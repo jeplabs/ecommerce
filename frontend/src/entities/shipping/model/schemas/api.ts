@@ -6,6 +6,8 @@ export const shippingServiceApiSchema = z.object({
     id: positiveIntSchema,
     nombre: z.string(),
     descripcion: z.string().nullable().optional(),
+    servicioExpress: z.boolean(),
+    notaExpress: z.string().nullable().optional(),
     tarifa: moneySchema,
     recargoContraEntrega: moneySchema,
     costoEnLinea: moneySchema,
