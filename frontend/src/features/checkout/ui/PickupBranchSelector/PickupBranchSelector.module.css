@@ -1,0 +1,66 @@
+.root {
+    margin-top: 1.5rem;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+    gap: 0.65rem;
+}
+
+.list > li {
+    min-width: 0;
+}
+
+.card {
+    display: block;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem;
+    background: var(--surface2);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cardSelected {
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.cardHeader {
+    margin-bottom: 0.35rem;
+}
+
+.cardHeader strong {
+    font-size: 0.88rem;
+    color: var(--text);
+}
+
+.cardLine {
+    margin: 0 0 0.15rem;
+    font-size: 0.82rem;
+    color: var(--text);
+}
+
+.cardMeta {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+@media (max-width: 720px) {
+    .list {
+        grid-template-columns: 1fr;
+    }
+}

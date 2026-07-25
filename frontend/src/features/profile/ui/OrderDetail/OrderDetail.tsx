@@ -29,7 +29,7 @@ type OrderDetailProps = {
 export default function OrderDetail({ orden, onClose, onCancel, cancelling, titleId, className }: OrderDetailProps) {
     if (!orden) return null;
 
-    const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'CONFIRMADA';
+    const canCancel = orden.estado === 'PENDIENTE' || orden.estado === 'EN_PROCESO';
     const costoEnvio = Number(orden.costoEnvio ?? 0);
     const showBankTransfer =
         orden.metodoPago === 'TRANSFERENCIA' ||

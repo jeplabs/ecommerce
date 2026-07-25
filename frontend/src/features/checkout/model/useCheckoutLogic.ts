@@ -147,29 +147,29 @@ export function useCheckoutLogic({
         }
     }, [isEmpty, navigate, processing]);
 
-    useEffect(() => {
-        if (loadingEnvioOpciones || servicios.length === 0) return;
+    // useEffect(() => {
+    //     if (loadingEnvioOpciones || servicios.length === 0) return;
 
-        const stillValid = servicios.some((s) => s.id === selectedServicioEnvioId);
-        if (stillValid) return;
+    //     const stillValid = servicios.some((s) => s.id === selectedServicioEnvioId);
+    //     if (stillValid) return;
 
-        const checkoutOptions = getCheckoutShippingOptions(servicios);
-        const preferNormal = checkoutOptions.find(
-            (s) => !isPickupService(s) && !isExpressService(s)
-        );
-        const defaultId =
-            preferNormal?.id ??
-            checkoutOptions[0]?.id ??
-            servicios[0]?.id ??
-            null;
-        setSelectedServicioEnvioId(defaultId);
-    }, [
-        loadingEnvioOpciones,
-        servicios,
-        pickupServices,
-        deliveryServices,
-        selectedServicioEnvioId,
-    ]);
+    //     const checkoutOptions = getCheckoutShippingOptions(servicios);
+    //     const preferNormal = checkoutOptions.find(
+    //         (s) => !isPickupService(s) && !isExpressService(s)
+    //     );
+    //     const defaultId =
+    //         preferNormal?.id ??
+    //         checkoutOptions[0]?.id ??
+    //         servicios[0]?.id ??
+    //         null;
+    //     setSelectedServicioEnvioId(defaultId);
+    // }, [
+    //     loadingEnvioOpciones,
+    //     servicios,
+    //     pickupServices,
+    //     deliveryServices,
+    //     selectedServicioEnvioId,
+    // ]);
 
     const selectedAddress =
         direcciones.find((d) => d.id === selectedAddressId) ?? null;

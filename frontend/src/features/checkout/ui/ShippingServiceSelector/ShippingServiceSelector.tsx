@@ -156,18 +156,23 @@ export default function ShippingServiceSelector() {
                 Forma de entrega
             </h2>
             <p className={styles.subtitle}>
-                Elige retiro en tienda, envío normal o envío express.
+                Elige cómo quieres recibir tu pedido: retiro en tienda, envío normal o envío express.
             </p>
 
             {envioGratis && (
-                <p className={styles.banner} role="status">
-                    ¡Envío gratis en retiro y envío normal! El envío express se cobra aparte.
-                </p>
+                <div className={styles.bannerContainer}>
+                    <p className={styles.banner} role="status">
+                        ¡Felicidades! ¡Tu pedido tiene envío normal gratis!
+                    </p>
+                    <p className={styles.hintFree}>
+                        El servicio de envío express siempre se cobra.
+                    </p>
+                </div>
             )}
 
             {!envioGratis && montoMinimoGratis != null && Number(montoMinimoGratis) > 0 && (
                 <p className={styles.hintFree}>
-                    Compra desde {formatCurrency(montoMinimoGratis)} y obtén envío normal gratis.
+                    ¡Compra desde <strong>{formatCurrency(montoMinimoGratis)}</strong> y obtén envío normal <strong>gratis</strong>!
                 </p>
             )}
 
@@ -189,12 +194,12 @@ export default function ShippingServiceSelector() {
                 ))}
             </ul>
 
-            {isPickupSelected && (
+            {/* {isPickupSelected && (
                 <p className={styles.pickupNote}>
                     Retirarás el pedido en nuestra tienda. La dirección seleccionada arriba se usa como
                     contacto y referencia del pedido.
                 </p>
-            )}
+            )} */}
         </section>
     );
 }
