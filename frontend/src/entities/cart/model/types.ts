@@ -30,6 +30,7 @@ export type CartSummaryView = {
 export type CartItemUiView = {
     id: number;
     productoId: number;
+    slug: string;
     name: string;
     sku: string;
     price: number;

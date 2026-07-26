@@ -138,7 +138,7 @@ export default function ProductDetailView({ slug, onBackHome }: ProductDetailVie
         <div className={styles.container}>
             <Breadcrumbs items={breadcrumbs} />
             <div className={styles.mainGrid}>
-                <ProductGallery producto={producto} />
+                <ProductGallery key={producto.id} producto={producto} />
                 <ProductInfo
                     producto={producto}
                     precioFormateado={precioFormateado}

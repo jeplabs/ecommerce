@@ -65,11 +65,11 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
             return;
         }
 
-        showSuccess(
-            result.added
-                ? `${producto.nombre} agregado a favoritos`
-                : `${producto.nombre} eliminado de favoritos`
-        );
+        if (result.added) {
+            showSuccess(`${producto.nombre} agregado a favoritos`);
+        } else {
+            showError(`${producto.nombre} eliminado de favoritos`);
+        }
     };
 
     return (

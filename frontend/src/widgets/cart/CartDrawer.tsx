@@ -142,21 +142,20 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <ul className={styles.itemsList}>
                             {items.map((item) => (
                                 <li key={item.id} className={styles.item}>
-                                    <div className={styles.itemDetails}>
-                                        <h4 className={styles.itemName}>{item.name}</h4>
-                                        <p className={styles.itemMeta}>
-                                            {item.quantity} x $
-                                            {item.price.toLocaleString('es-ES', {
-                                                minimumFractionDigits: 2,
-                                            })}
-                                        </p>
-                                        <p className={styles.itemSubtotal}>
-                                            Subtotal: $
-                                            {(item.price * item.quantity).toLocaleString('es-ES', {
-                                                minimumFractionDigits: 2,
-                                            })}
-                                        </p>
+                                    {/* <div className={styles.itemDetails}> */}
+                                    <div className={styles.itemThumbContainer}>
+                                        <Link to={`/producto/${item.slug}`} className={styles.itemLink} onClick={handleClose}>
+                                                <img
+                                                    src={item.imageUrl}
+                                                    alt={item.altText || item.name}
+                                                    className={styles.itemThumb}
+                                                />
+                                        </Link>
+                                        <Link to={`/producto/${item.slug}`} className={styles.itemLink} onClick={handleClose}>
+                                            <h4 className={styles.itemName}>{item.name}</h4>
+                                        </Link>
                                     </div>
+                                    {/* </div> */}
                                     <div className={styles.itemControls}>
                                         <div className={styles.itemActions}>
                                             <button
@@ -193,6 +192,20 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         >
                                             <span className="material-symbols-outlined">delete</span>
                                         </button>
+                                    </div>
+                                    <div className={styles.itemQuantityAndPrice}>
+                                            <p className={styles.itemMeta}>
+                                                {item.quantity} x $
+                                                {item.price.toLocaleString('es-ES', {
+                                                    minimumFractionDigits: 2,
+                                                })}
+                                            </p>
+                                            <p className={styles.itemSubtotal}>
+                                                Subtotal: $
+                                                {(item.price * item.quantity).toLocaleString('es-ES', {
+                                                    minimumFractionDigits: 2,
+                                                })}
+                                            </p>
                                     </div>
                                 </li>
                             ))}

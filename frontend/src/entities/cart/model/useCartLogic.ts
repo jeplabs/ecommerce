@@ -100,6 +100,7 @@ export function useCartLogic() {
             try {
                 const data = await cartApi.updateItemQuantity(itemId, quantity);
                 setItems(mapCartApiToUiItems(data, catalog));
+                setItems(mapCartApiToUiItems(data, catalog).sort((a, b) => a.id - b.id));
                 setError(null);
                 return { success: true };
             } catch (err) {

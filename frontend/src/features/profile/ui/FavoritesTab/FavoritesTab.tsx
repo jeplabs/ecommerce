@@ -6,7 +6,7 @@ import styles from './FavoritesTab.module.css';
 export default function FavoritesTab() {
     const navigate = useNavigate();
     const { favorites, removeFavorite } = useFavorites();
-    const { showSuccess } = useToast();
+    const { showError } = useToast();
 
     const formatPrice = (value: number, moneda: string) =>
         new Intl.NumberFormat('es-CL', {
@@ -16,7 +16,7 @@ export default function FavoritesTab() {
 
     const handleRemove = (productId: number, nombre: string) => {
         removeFavorite(productId);
-        showSuccess(`${nombre} eliminado de favoritos`);
+        showError(`${nombre} eliminado de favoritos`);
     };
 
     return (

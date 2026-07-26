@@ -82,18 +82,23 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                 <article key={item.id} className={styles.tableRow} role="row">
                                     <div className={styles.itemInfo} role="cell">
                                         {item.imageUrl ? (
-                                            <img
-                                                src={item.imageUrl}
-                                                alt={item.altText || item.name}
-                                                className={styles.itemThumb}
-                                            />
+                                            <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                                <img
+                                                    src={item.imageUrl}
+                                                    alt={item.altText || item.name}
+                                                    className={styles.itemThumb}
+                                                    />
+                                            </Link>
                                         ) : (
                                             <div className={styles.itemThumbPlaceholder}>
                                                 Sin imagen
                                             </div>
                                         )}
                                         <div className={styles.itemMeta}>
-                                            <p className={styles.itemName}>{item.name}</p>
+                                            <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                                <p className={styles.itemName}>{item.name}</p>
+                                            </Link>
+                                            
                                             <p className={styles.itemPrice}>
                                                 $
                                                 {item.price.toLocaleString('es-ES', {

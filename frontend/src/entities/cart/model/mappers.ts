@@ -48,6 +48,7 @@ export function mapCartApiToUiItems(
         return {
             id: item.id,
             productoId: item.productoId,
+            slug: producto?.slug ?? String(item.productoId),
             name: item.nombreProducto,
             sku: item.skuProducto,
             price: item.precioUnitario,
