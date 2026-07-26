@@ -4,9 +4,9 @@ import clsx from 'clsx';
 import { PAYMENT_METHODS } from '@/features/checkout';
 import { isExpressService } from '@/entities/shipping';
 import { formatCurrency } from '@/shared/lib/format';
-import SimulatedStripeForm from '../SimulatedStripeForm/SimulatedStripeForm';
+import SimulatedQPayProForm from '../SimulatedQPayProForm/SimulatedQPayProForm';
 import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
-import SimulatedMercadoPagoForm from '../SimulatedMercadoPagoForm/SimulatedMercadoPagoForm';
+// import SimulatedMercadoPagoForm from '../SimulatedMercadoPagoForm/SimulatedMercadoPagoForm';
 import SimulatedBankTransferForm from '../SimulatedBankTransferForm/SimulatedBankTransferForm';
 import ContraEntregaForm from '../ContraEntregaForm/ContraEntregaForm';
 import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
@@ -33,7 +33,7 @@ export default function PaymentStep() {
             </p>
 
             <div className={styles.methods}>
-                <button
+                {/* <button
                     type="button"
                     className={clsx(
                         styles.method,
@@ -46,9 +46,23 @@ export default function PaymentStep() {
                         <strong>Tarjeta (Stripe)</strong>
                         <small>Visa, Mastercard, Amex</small>
                     </span>
+                </button> */}
+                <button
+                    type="button"
+                    className={clsx(
+                        styles.method,
+                        paymentMethod === PAYMENT_METHODS.QPAYPRO && styles.methodActive
+                    )}
+                    onClick={() => setPaymentMethod(PAYMENT_METHODS.QPAYPRO)}
+                >
+                    <span className={styles.methodIcon}>💳</span>
+                    <span className={styles.methodInfo}>
+                        <strong>QPayPro</strong>
+                        <small>Visa, Mastercard · Guatemala</small>
+                    </span>
                 </button>
 
-                <button
+                {/* <button
                     type="button"
                     className={clsx(
                         styles.method,
@@ -61,7 +75,7 @@ export default function PaymentStep() {
                         <strong>Mercado Pago</strong>
                         <small>Latam · Tarjeta o saldo</small>
                     </span>
-                </button>
+                </button> */}
 
                 <button
                     type="button"
@@ -116,9 +130,9 @@ export default function PaymentStep() {
                 </p>
             )}
 
-            {paymentMethod === PAYMENT_METHODS.STRIPE && <SimulatedStripeForm />}
+            {paymentMethod === PAYMENT_METHODS.QPAYPRO && <SimulatedQPayProForm />}
             {paymentMethod === PAYMENT_METHODS.WEBPAY && <SimulatedWebpayForm />}
-            {paymentMethod === PAYMENT_METHODS.MERCADOPAGO && <SimulatedMercadoPagoForm />}
+            {/* {paymentMethod === PAYMENT_METHODS.MERCADOPAGO && <SimulatedMercadoPagoForm />} */}
             {paymentMethod === PAYMENT_METHODS.BANK_TRANSFER && <SimulatedBankTransferForm />}
             {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA && <ContraEntregaForm />}
         </div>

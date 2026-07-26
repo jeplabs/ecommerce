@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
 /** Métodos de pasarela simulados en checkout (no confundir con {@code FormaPago} del backend). */
-export const paymentMethodSchema = z.enum(['stripe', 'webpay', 'mercadopago', 'transferencia', 'contra_entrega']);
+export const paymentMethodSchema = z.enum(['stripe', 'qpaypro', 'webpay', 'mercadopago', 'transferencia', 'contra_entrega']);
 
 export const PAYMENT_METHODS = {
     STRIPE: 'stripe',
+    QPAYPRO: 'qpaypro',
     WEBPAY: 'webpay',
     MERCADOPAGO: 'mercadopago',
     BANK_TRANSFER: 'transferencia',
