@@ -25,8 +25,19 @@ export function useCartLogic() {
             setItems(mapCartApiToUiItems(data, catalog));
             setError(null);
         } catch (err) {
-            setError(toErrorMessage(err));
-            setItems([]);
+            // setError(toErrorMessage(err));
+            // setItems([]);
+            const message = toErrorMessage(err);
+            setError(message);
+            // Si el carrito expiró o no existe, limpiar la UI
+            if (
+                message.toLowerCase().includes('expir') ||
+                message.toLowerCase().includes('no encontrado') ||
+                message.toLowerCase().includes('vacío') ||
+                message.toLowerCase().includes('not found')
+            ) {
+                setItems([]);
+            }
         } finally {
             setLoading(false);
         }
