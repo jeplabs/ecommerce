@@ -153,9 +153,6 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
                 <Button type="button" variant="primary" onClick={() => onNavigate('/admin/products/new')}>
                     Agregar Producto
                 </Button>
-                <Button type="button" variant="primary" onClick={() => onNavigate('/admin')}>
-                    Volver atrás
-                </Button>
             </div>
 
             <h2>Productos Disponibles</h2>

@@ -1,5 +1,4 @@
 import { useAuth, useToast } from '@/app/providers';
-import { Link } from 'react-router-dom';
 import AdminUsersTable from '@/features/admin/ui/AdminUsersTable/AdminUsersTable';
 import { useAdminUsersList } from '@/features/admin';
 import styles from './AdminUsersListView.module.css';
@@ -43,9 +42,6 @@ export default function AdminUsersListView() {
         <main className={styles.page}>
             <header className={styles.header}>
                 <div>
-                    <Link to="/admin" className={styles.back}>
-                        ← Volver al panel
-                    </Link>
                     <h1>Gestión de usuarios</h1>
                     <p className={styles.lead}>
                         Altas, estado de cuenta y roles del sistema

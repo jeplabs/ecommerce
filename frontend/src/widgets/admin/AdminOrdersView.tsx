@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import type { OrderStatus } from '@/entities/order';
 import AdminOrdersTable from '@/features/admin/ui/AdminOrdersTable/AdminOrdersTable';
 import OrderDetailModal from '@/features/profile/ui/OrderDetailModal/OrderDetailModal';
@@ -43,9 +42,6 @@ export default function AdminOrdersView() {
             <main className={styles.page}>
                 <header className={styles.header}>
                     <div>
-                        <Link to="/admin" className={styles.back}>
-                            ← Volver al panel
-                        </Link>
                         <h1>Historial de pedidos</h1>
                         <p className={styles.lead}>
                             Gestiona el estado de las compras de los clientes

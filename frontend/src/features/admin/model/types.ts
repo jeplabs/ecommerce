@@ -2,6 +2,20 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import type { UserApi, UserRole } from '@/entities/user';
 
+export type DashboardStats = {
+    totalUsuarios: number;
+    usuariosActivos: number;
+    productosDisponibles: number;
+    productosOcultos: number;
+    totalOrdenes: number;
+    ordenesPorEstado: Record<OrderStatus, number>;
+    revenueTotal: number;
+    ticketPromedio: number;
+    ultimasOrdenes: OrderApi[];
+    loading: boolean;
+    error: string | null;
+};
+
 export type AdminOrderStatusFilter = '' | OrderStatus;
 
 export type AdminActionResult<T = void> =
