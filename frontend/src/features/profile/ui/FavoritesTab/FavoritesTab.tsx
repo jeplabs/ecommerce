@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useFavorites, useToast } from '@/app/providers';
 import { Button } from '@/shared/ui/Button';
 import styles from './FavoritesTab.module.css';
@@ -37,19 +37,23 @@ export default function FavoritesTab() {
                         <li key={item.productId} className={styles.item}>
                             <div className={styles.thumbWrap}>
                                 {item.imagenUrl ? (
-                                    <img
-                                        src={item.imagenUrl}
-                                        alt=""
-                                        className={styles.thumb}
-                                        loading="lazy"
-                                    />
+                                    <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                        <img
+                                            src={item.imagenUrl}
+                                            alt=""
+                                            className={styles.thumb}
+                                            loading="lazy"
+                                            />
+                                    </Link>        
                                 ) : (
                                     <div className={styles.thumbPlaceholder}>Sin imagen</div>
                                 )}
                             </div>
 
                             <div className={styles.info}>
-                                <h3 className={styles.name}>{item.nombre}</h3>
+                                <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                    <h3 className={styles.name}>{item.nombre}</h3>
+                                </Link>        
                                 <p className={styles.price}>
                                     {formatPrice(item.precioVenta, item.moneda)}
                                 </p>
