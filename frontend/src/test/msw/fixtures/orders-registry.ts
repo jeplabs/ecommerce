@@ -35,7 +35,7 @@ function buildSampleOrder(
             referencias: address.referencias ?? null,
         },
         servicioEnvio: 'Envío estándar',
-        formaPago: 'EN_LINEA',
+        formaPagoEnvio: 'EN_LINEA',
         metodoPago: id === MOCK_ORDER_TRANSFER_ID ? 'TRANSFERENCIA' : 'STRIPE',
         items: [
             {

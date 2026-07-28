@@ -28,6 +28,16 @@ function seedCustomerSession() {
     localStorage.setItem('rol', 'ROLE_CUSTOMER');
 }
 
+async function selectNormalDelivery(result: { current: ReturnType<typeof useCheckout> }) {
+    await waitFor(() => expect(result.current.loadingAddresses).toBe(false));
+    await waitFor(() => expect(result.current.loadingEnvioOpciones).toBe(false));
+
+    act(() => {
+        const normal = result.current.deliveryServices[0];
+        if (normal) result.current.setSelectedServicioEnvioId(normal.id);
+    });
+}
+
 describe('useCheckoutLogic', () => {
     it('selecciona dirección principal y habilita continuar', async () => {
         seedCustomerSession();
@@ -37,7 +47,8 @@ describe('useCheckoutLogic', () => {
             wrapper: createCheckoutWrapper(),
         });
 
-        await waitFor(() => expect(result.current.loadingAddresses).toBe(false));
+        await selectNormalDelivery(result);
+
         await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
 
         expect(result.current.selectedAddressId).toBe(mockAddresses[0]?.id);
@@ -51,6 +62,8 @@ describe('useCheckoutLogic', () => {
         const { result } = renderHook(() => useCheckout(), {
             wrapper: createCheckoutWrapper(),
         });
+
+        await selectNormalDelivery(result);
 
         await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
 
@@ -68,6 +81,8 @@ describe('useCheckoutLogic', () => {
         const { result } = renderHook(() => useCheckout(), {
             wrapper: createCheckoutWrapper(),
         });
+
+        await selectNormalDelivery(result);
 
         await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
 
@@ -87,13 +102,15 @@ describe('useCheckoutLogic', () => {
         expect(result.current.canContinuePayment).toBe(true);
     });
 
-    it('mantiene el mismo costo de envío en paso 1 y paso 2 para contraentrega', async () => {
+    it('cambia a costo 0 en paso de pago al seleccionar contraentrega', async () => {
         seedCustomerSession();
         addDynamicCartItem(mockProduct.id, 1);
 
         const { result } = renderHook(() => useCheckout(), {
             wrapper: createCheckoutWrapper(),
         });
+
+        await selectNormalDelivery(result);
 
         await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
 
@@ -102,14 +119,15 @@ describe('useCheckoutLogic', () => {
         });
 
         expect(result.current.currentStep).toBe('pedido');
-        expect(result.current.shippingCostInTotal).toBe(5.99);
+        expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.EN_LINEA);
 
         act(() => {
             result.current.goNext();
         });
 
         expect(result.current.currentStep).toBe('pago');
-        expect(result.current.shippingCostInTotal).toBe(5.99);
+        expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
+        expect(result.current.shippingCostInTotal).toBe(0);
     });
 
     it('completa checkout con contraentrega sin pasar por la pasarela simulada', async () => {
@@ -119,6 +137,8 @@ describe('useCheckoutLogic', () => {
         const { result } = renderHook(() => useCheckout(), {
             wrapper: createCheckoutWrapper(),
         });
+
+        await selectNormalDelivery(result);
 
         await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
 
@@ -150,6 +170,8 @@ describe('useCheckoutLogic', () => {
         const { result } = renderHook(() => useCheckout(), {
             wrapper: createCheckoutWrapper(),
         });
+
+        await selectNormalDelivery(result);
 
         await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
 
