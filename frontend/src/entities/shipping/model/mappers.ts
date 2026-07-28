@@ -16,10 +16,10 @@ export function isPickupService(
 }
 
 export function isExpressService(
-    servicio: Pick<ShippingServiceApi, 'nombre' | 'servicioExpress'> | null | undefined
+    servicio: Pick<ShippingServiceApi, 'nombre' | 'sinContraEntrega'> | null | undefined
 ): boolean {
     if (!servicio) return false;
-    if (typeof servicio.servicioExpress === 'boolean') return servicio.servicioExpress;
+    if (typeof servicio.sinContraEntrega === 'boolean') return servicio.sinContraEntrega;
     if (!servicio.nombre) return false;
     const nombre = servicio.nombre.toLowerCase();
     return nombre.includes('express') || nombre.includes('expres');
