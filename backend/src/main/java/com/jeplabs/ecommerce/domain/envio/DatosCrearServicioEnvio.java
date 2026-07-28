@@ -22,5 +22,5 @@ public record DatosCrearServicioEnvio(
         BigDecimal recargoContraEntrega,
 
         String logoUrl,
-        boolean servicioExpress
+        boolean sinContraEntrega
 ) {}

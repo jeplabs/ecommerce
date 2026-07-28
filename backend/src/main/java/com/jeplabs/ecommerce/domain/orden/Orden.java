@@ -163,7 +163,7 @@ public class Orden {
         if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
             return "El envío se paga de manera adicional al valor de la compra al recibir el producto";
         }
-        if (servicioEnvio.isServicioExpress()) {
+        if (servicioEnvio.isSinContraEntrega()) {
             return "Servicio express - entrega prioritaria";
         }
         return null;

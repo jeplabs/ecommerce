@@ -22,7 +22,7 @@ public class ServicioEnvioService {
         // Si es contra entrega, excluir servicios express
         if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
             servicios = servicios.stream()
-                    .filter(s -> !s.isServicioExpress())
+                    .filter(s -> !s.isSinContraEntrega())
                     .toList();
         }
 
@@ -56,7 +56,7 @@ public class ServicioEnvioService {
                 datos.recargoContraEntrega(),
                 true,
                 datos.logoUrl(),
-                datos.servicioExpress()
+                datos.sinContraEntrega()
         );
         repositorio.save(servicio);
         return new DatosRespuestaServicioEnvio(servicio);

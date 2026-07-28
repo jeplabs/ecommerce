@@ -18,7 +18,7 @@ public class EnvioCalculator {
         // Express nunca aplica envío gratis
         // Solo aplica si es pago en línea/transferencia, servicio normal y supera el mínimo
         if (formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) return false;
-        if (servicio.isServicioExpress()) return false;
+        if (servicio.isSinContraEntrega()) return false;
         return subtotal.compareTo(montoMinimoGratis) >= 0;
     }
 
@@ -30,7 +30,7 @@ public class EnvioCalculator {
         }
 
         // Express → siempre se cobra sin importar el subtotal
-        if (servicio.isServicioExpress()) {
+        if (servicio.isSinContraEntrega()) {
             return servicio.getTarifa();
         }
 

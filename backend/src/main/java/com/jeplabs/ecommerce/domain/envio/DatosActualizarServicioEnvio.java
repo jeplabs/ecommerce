@@ -16,5 +16,5 @@ public record DatosActualizarServicioEnvio(
         BigDecimal recargoContraEntrega,
 
         String logoUrl,
-        Boolean servicioExpress // Boolean con mayúscula para permitir null
+        Boolean sinContraEntrega // Boolean con mayúscula para permitir null
 ) {}

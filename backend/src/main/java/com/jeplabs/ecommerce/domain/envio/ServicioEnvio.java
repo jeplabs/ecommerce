@@ -29,7 +29,7 @@ public class ServicioEnvio {
 
     private boolean activo;
     private String logoUrl;
-    private boolean servicioExpress;
+    private boolean sinContraEntrega;
 
     public void actualizar(DatosActualizarServicioEnvio datos) {
         if (datos.nombre() != null)                 this.nombre = datos.nombre();
@@ -37,7 +37,7 @@ public class ServicioEnvio {
         if (datos.tarifa() != null)                 this.tarifa = datos.tarifa();
         if (datos.recargoContraEntrega() != null)   this.recargoContraEntrega = datos.recargoContraEntrega();
         if (datos.logoUrl() != null)                this.logoUrl = datos.logoUrl();
-        if (datos.servicioExpress() != null)        this.servicioExpress = datos.servicioExpress();
+        if (datos.sinContraEntrega() != null)        this.sinContraEntrega = datos.sinContraEntrega();
     }
 
     public void activar()    { this.activo = true; }
@@ -53,7 +53,7 @@ public class ServicioEnvio {
 
     // Metodo que valida si el servicio está disponible para una forma de pago
     public void validarDisponibilidad(FormaPagoEnvio formaPagoEnvio) {
-        if (this.servicioExpress && formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
+        if (this.sinContraEntrega && formaPagoEnvio == FormaPagoEnvio.CONTRA_ENTREGA) {
             throw new IllegalArgumentException(
                     "El servicio express no está disponible para pago contra entrega");
         }
