@@ -1,5 +1,8 @@
-Plan: WebPay Plus + QPayPro como pasarelas reales
-Contexto actual (lo que hay que reemplazar)
+# Plan: WebPay Plus + QPayPro como pasarelas reales
+
+> Plan detallado del frontend para **WebPay Plus** (flujo conceptual + paso a paso): [`PLAN_WEBPAY_FRONTEND.md`](./PLAN_WEBPAY_FRONTEND.md)
+
+## Contexto actual (lo que hay que reemplazar)
 Backend solo persiste órdenes con metodoPagoCodigo de texto. No hay PaymentController, ni transacciones, ni webhooks.
 Frontend simula el pago en el navegador (paymentApi.processPayment) y crea la orden después.
 QPayPro ya está en la UI pero muerto: no está en canContinuePayment, no lo maneja processPayment, y manda código 'STRIPE' al backend. Los forms SimulatedQPayProForm/SimulatedWebpayForm son estáticos.
