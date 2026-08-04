@@ -1,0 +1,66 @@
+import { API_URL } from '@/shared/config';
+import {
+    getAuthHeaders,
+    notifyUnauthorizedIfNeeded,
+} from '@/shared/lib/http-session';
+import { ApiError, getErrorMessage, parseApi } from '@/shared';
+import {
+    webpayConfirmResponseSchema,
+    webpayInitResponseSchema,
+    type WebpayConfirmResponse,
+    type WebpayInitResult,
+} from '../model/schemas/payment';
+
+const getToken = () => localStorage.getItem('token');
+
+async function readJson(response: Response): Promise<unknown> {
+    return response.json().catch(() => ({}));
+}
+
+function throwApiError(response: Response, raw: unknown, fallback: string): never {
+    notifyUnauthorizedIfNeeded(response.status);
+    throw new ApiError(getErrorMessage(raw, fallback), response.status, raw);
+}
+
+/** {@code POST /api/pagos/webpay/iniciar} */
+export async function iniciarWebpay(params: {
+    ordenId: number;
+    returnUrl: string;
+}): Promise<WebpayInitResult> {
+    const response = await fetch(`${API_URL}/api/pagos/webpay/iniciar`, {
+        method: 'POST',
+        headers: getAuthHeaders(getToken()),
+        body: JSON.stringify({
+            ordenId: params.ordenId,
+            returnUrl: params.returnUrl,
+        }),
+    });
+
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, 'Error al iniciar el pago Webpay');
+    }
+
+    return parseApi(webpayInitResponseSchema, raw);
+}
+
+/** {@code POST /api/pagos/webpay/confirmar} */
+export async function confirmarWebpay(tokenWs: string): Promise<WebpayConfirmResponse> {
+    const response = await fetch(`${API_URL}/api/pagos/webpay/confirmar`, {
+        method: 'POST',
+        headers: getAuthHeaders(getToken()),
+        body: JSON.stringify({ token_ws: tokenWs }),
+    });
+
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, 'Error al confirmar el pago Webpay');
+    }
+
+    return parseApi(webpayConfirmResponseSchema, raw);
+}
+
+export const paymentGatewayApi = {
+    iniciarWebpay,
+    confirmarWebpay,
+};

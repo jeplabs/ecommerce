@@ -16,6 +16,7 @@ import {
 } from './fixtures/auth';
 import {
     addDynamicOrder,
+    getLatestDynamicOrder, 
     cancelDynamicOrder,
     findDynamicOrder,
     getDynamicOrdersAdminPage,
@@ -503,6 +504,48 @@ export const handlers = [
         addDynamicOrder(orden);
 
         return HttpResponse.json(orden, { status: 201 });
+    }),
+
+    http.post(`${API_BASE}/api/pagos/webpay/iniciar`, async ({ request }) => {
+    const body = (await request.json()) as { ordenId?: number };
+
+    if (!body.ordenId || !Number.isFinite(body.ordenId)) {
+        return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+    }
+
+    return HttpResponse.json({
+        urlRedireccion: 'https://webpay3g.transbank.cl/frontend/d5c0d7e5',
+        token: `tok_test_${body.ordenId}`,
+    });
+}),
+
+    http.post(`${API_BASE}/api/pagos/webpay/confirmar`, () => {
+        const order = getLatestDynamicOrder();
+
+        if (!order) {
+            return HttpResponse.json(
+                { success: false, error: 'Transacción no encontrada' },
+                { status: 404 }
+            );
+        }
+
+        const confirmed = {
+            ...order,
+            estado: 'CONFIRMADA' as const,
+            metodoPago: 'WEBPAY' as const,
+            actualizadoAt: '2026-05-28T15:30:00',
+        };
+        addDynamicOrder(confirmed);
+
+        return HttpResponse.json({
+            success: true,
+            orden: confirmed,
+            payment: {
+                transactionId: 'TX_WEBPAY_001',
+                authorizationCode: 'AUTH123456',
+                amount: confirmed.total,
+            },
+        });
     }),
 
     http.get(`${API_BASE}/api/carrito`, () => {

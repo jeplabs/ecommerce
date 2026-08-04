@@ -173,3 +173,8 @@ export function updateDynamicOrderStatusAdmin(
     orders[index] = updated;
     return { ...updated };
 }
+
+export function getLatestDynamicOrder(): OrderApi | undefined {
+    const latest = orders[0];
+    return latest ? { ...latest } : undefined;
+}

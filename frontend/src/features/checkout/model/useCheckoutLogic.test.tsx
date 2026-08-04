@@ -157,7 +157,7 @@ describe('useCheckoutLogic', () => {
         });
 
         expect(checkoutResult?.success).toBe(true);
-        if (checkoutResult?.success) {
+        if (checkoutResult?.success && !checkoutResult.needsRedirect) {
             expect(checkoutResult.orden.formaPagoEnvio).toBe('CONTRA_ENTREGA');
             expect(checkoutResult.payment).toBeNull();
         }
@@ -189,9 +189,44 @@ describe('useCheckoutLogic', () => {
         });
 
         expect(checkoutResult?.success).toBe(true);
-        if (checkoutResult?.success) {
+        if (checkoutResult?.success && !checkoutResult.needsRedirect) {
             expect(checkoutResult.isBankTransfer).toBe(true);
             expect(checkoutResult.orden.items.length).toBeGreaterThan(0);
         }
+    });
+
+    it('webpay: crea la orden PENDIENTE e inicia la redirección', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.WEBPAY);
+        });
+
+        expect(result.current.canContinuePayment).toBe(true);
+
+        let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
+
+        await act(async () => {
+            checkoutResult = await result.current.completeCheckout();
+        });
+
+        expect(checkoutResult?.success).toBe(true);
+        if (checkoutResult?.success && checkoutResult.needsRedirect) {
+            expect(checkoutResult.urlRedireccion).toContain('https://');
+            expect(checkoutResult.token).toContain('tok_test_');
+            expect(checkoutResult.orden.metodoPago).toBe('WEBPAY');
+            expect(checkoutResult.orden.estado).toBe('PENDIENTE');
+        }
+        expect(result.current.redirectInfo).not.toBeNull();
     });
 });

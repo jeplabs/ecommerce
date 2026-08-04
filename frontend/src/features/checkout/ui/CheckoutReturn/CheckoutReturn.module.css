@@ -1,0 +1,31 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 2rem 1rem;
+}
+
+.title {
+    font-size: 1.25rem;
+}
+
+.text {
+    color: var(--muted);
+    max-width: 34rem;
+    line-height: 1.6;
+}
+
+.link {
+    margin-top: 1rem;
+    color: var(--indigo);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}

@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { orderApiSchema } from '@/entities/order';
+import { moneySchema } from '@/shared';
 
 /** Métodos de pasarela simulados en checkout (no confundir con {@code FormaPago} del backend). */
 export const paymentMethodSchema = z.enum(['stripe', 'qpaypro', 'webpay', 'mercadopago', 'transferencia', 'contra_entrega']);
@@ -61,3 +63,36 @@ export const paymentResultSchema = z.discriminatedUnion('success', [
 export type PaymentSuccessResult = z.infer<typeof paymentSuccessResultSchema>;
 export type PaymentFailureResult = z.infer<typeof paymentFailureResultSchema>;
 export type PaymentResult = z.infer<typeof paymentResultSchema>;
+
+export const webpayInitResponseSchema = z.object({
+    urlRedireccion: z.string().min(1),
+    token: z.string().min(1),
+});
+export type WebpayInitResult = z.infer<typeof webpayInitResponseSchema>;
+
+export const webpayPaymentApiSchema = z.object({
+    transactionId: z.string().min(1),
+    authorizationCode: z.string(),
+    amount: moneySchema,
+});
+export type WebpayPaymentApi = z.infer<typeof webpayPaymentApiSchema>;
+
+export const webpayConfirmSuccessSchema = z.object({
+    success: z.literal(true),
+    orden: orderApiSchema,
+    payment: webpayPaymentApiSchema,
+});
+export type WebpayConfirmSuccess = z.infer<typeof webpayConfirmSuccessSchema>;
+
+export const webpayConfirmFailureSchema = z.object({
+    success: z.literal(false),
+    error: z.string(),
+    motivo: z.enum(['ABORTED', 'TIMEOUT', 'REJECTED']).optional(),
+});
+export type WebpayConfirmFailure = z.infer<typeof webpayConfirmFailureSchema>;
+
+export const webpayConfirmResponseSchema = z.discriminatedUnion('success', [
+    webpayConfirmSuccessSchema,
+    webpayConfirmFailureSchema,
+]);
+export type WebpayConfirmResponse = z.infer<typeof webpayConfirmResponseSchema>;

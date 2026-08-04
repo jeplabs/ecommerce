@@ -4,7 +4,7 @@ import { addressApi } from '@/entities/address';
 import type { AddressApi } from '@/entities/address';
 import { orderApi, FORMA_PAGO_ENVIO } from '@/entities/order';
 import type { OrderApi } from '@/entities/order';
-import { paymentApi, PAYMENT_METHODS } from '@/features/checkout/api';
+import { paymentApi, PAYMENT_METHODS, iniciarWebpay } from '@/features/checkout/api';
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
 import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
 import { markOrderAsBankTransfer } from '@/features/checkout/lib/transfer-order-storage';
@@ -35,8 +35,16 @@ export type CheckoutLogicParams = {
 };
 
 export type CheckoutCompleteResult =
+     | {
+          success: true;
+          needsRedirect: true;
+          urlRedireccion: string;
+          token: string;
+          orden: OrderApi;
+      }
     | {
           success: true;
+          needsRedirect: false;
           orden: OrderApi;
           payment: PaymentSuccessResult | null;
           isBankTransfer: boolean;
@@ -101,6 +109,7 @@ export function useCheckoutLogic({
     const [checkoutCompleted, setCheckoutCompleted] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [paymentResult, setPaymentResult] = useState<PaymentSuccessResult | null>(null);
+    const [redirectInfo, setRedirectInfo] = useState<{ urlRedireccion: string; token: string } | null>(null);
 
     const handleAuthError = useCallback(
         (status: number | undefined) =>
@@ -254,6 +263,7 @@ export function useCheckoutLogic({
     const goBack = useCallback(() => {
         setError(null);
         if (step > 0) {
+            setRedirectInfo(null);
             setStep((s) => s - 1);
         }
     }, [step]);
@@ -264,6 +274,11 @@ export function useCheckoutLogic({
         },
         []
     );
+
+    const changePaymentMethod = useCallback((method: PaymentMethod) => {
+        setRedirectInfo(null);
+        setPaymentMethod(method);
+    }, []);
 
     const completeCheckout = useCallback(async (): Promise<CheckoutCompleteResult> => {
         if (!selectedAddressId || !selectedServicioEnvioId || isEmpty) {
@@ -277,7 +292,8 @@ export function useCheckoutLogic({
         const orderReference = `CHK-${Date.now()}`;
         const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
         const isContraEntrega = paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA;
-        const needsGatewaySimulation = !isBankTransfer && !isContraEntrega;
+        const isWebpay = paymentMethod === PAYMENT_METHODS.WEBPAY;
+        const needsGatewaySimulation = !isBankTransfer && !isContraEntrega && !isWebpay;
 
         try {
             let payment: PaymentSuccessResult | null = null;
@@ -321,6 +337,20 @@ export function useCheckoutLogic({
                 notas: notas.trim() || null,
             });
 
+            if (isWebpay) {
+                const returnUrl = `${window.location.origin}/checkout/retorno?proveedor=webpay`;
+                const init = await iniciarWebpay({ ordenId: orden.id, returnUrl });
+
+                checkoutCompletedRef.current = true;
+                setCheckoutCompleted(true);
+                await refreshCart();
+
+                const redirect = { urlRedireccion: init.urlRedireccion, token: init.token };
+                setRedirectInfo(redirect);
+
+                return { success: true, needsRedirect: true, ...redirect, orden };
+            }
+
             if (isBankTransfer) {
                 markOrderAsBankTransfer(orden.id);
             }
@@ -331,6 +361,7 @@ export function useCheckoutLogic({
 
             return {
                 success: true,
+                needsRedirect: false,
                 orden,
                 payment,
                 isBankTransfer,
@@ -383,7 +414,7 @@ export function useCheckoutLogic({
         formaPagoEnvio,
         FORMA_PAGO_ENVIO,
         paymentMethod,
-        setPaymentMethod,
+        setPaymentMethod: changePaymentMethod,
         cardData,
         updateCardField,
         notas,
@@ -403,5 +434,6 @@ export function useCheckoutLogic({
         cartItems,
         cartTotal,
         PAYMENT_METHODS,
+        redirectInfo,
     };
 }

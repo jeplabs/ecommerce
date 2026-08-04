@@ -12,6 +12,7 @@ import OrderSummary from '../OrderSummary/OrderSummary';
 import sharedStyles from '../checkoutShared.module.css';
 import pageStyles from '@/widgets/checkout/checkoutPage.module.css';
 import styles from './CheckoutContent.module.css';
+import RedirectToWebpay from '../RedirectToWebpay/RedirectToWebpay';
 
 export default function CheckoutContent() {
     const navigate = useNavigate();
@@ -38,13 +39,24 @@ export default function CheckoutContent() {
         goBack,
         completeCheckout,
         paymentMethod,
+        redirectInfo,
     } = useCheckout();
 
     const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
     const isContraEntrega = paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA;
+    const isWebpay = paymentMethod === PAYMENT_METHODS.WEBPAY;
 
     if ((cartLoading || isEmpty) && !processing && !checkoutCompleted) {
         return <p className={pageStyles.loading}>Preparando checkout…</p>;
+    }
+
+    if (redirectInfo) {
+        return (
+            <RedirectToWebpay
+                urlRedireccion={redirectInfo.urlRedireccion}
+                token={redirectInfo.token}
+            />
+        );
     }
 
     const isPaymentStep = currentStep === 'pago';
@@ -59,6 +71,9 @@ export default function CheckoutContent() {
         payingRef.current = true;
         try {
             const result = await completeCheckout();
+            if (result.success && result.needsRedirect) {
+                return;
+            }
             if (result.success) {
                 showSuccess(
                     result.isBankTransfer
@@ -140,16 +155,20 @@ export default function CheckoutContent() {
                                 disabled={processing || !canContinuePayment}
                             >
                                 {processing
-                                    ? isBankTransfer
-                                        ? 'Registrando pedido…'
-                                        : isContraEntrega
-                                          ? 'Registrando pedido…'
-                                          : 'Procesando pago…'
-                                    : isBankTransfer
-                                      ? 'Confirmar pedido'
-                                      : isContraEntrega
-                                        ? 'Confirmar pedido'
-                                        : 'Pagar y finalizar'}
+                                    ? isWebpay
+                                        ? 'Creando pedido…'
+                                        : isBankTransfer
+                                            ? 'Registrando pedido…'
+                                            : isContraEntrega
+                                                ? 'Registrando pedido…'
+                                                : 'Procesando pago…'
+                                    : isWebpay
+                                        ? 'Ir a Webpay Plus'
+                                        : isBankTransfer
+                                            ? 'Confirmar pedido'
+                                            : isContraEntrega
+                                                ? 'Confirmar pedido'
+                                                : 'Pagar y finalizar'}
                             </button>
                         )}
                     </div>

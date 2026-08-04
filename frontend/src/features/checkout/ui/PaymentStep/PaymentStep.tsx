@@ -5,7 +5,7 @@ import { PAYMENT_METHODS } from '@/features/checkout';
 import { isExpressService } from '@/entities/shipping';
 import { formatCurrency } from '@/shared/lib/format';
 import SimulatedQPayProForm from '../SimulatedQPayProForm/SimulatedQPayProForm';
-import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
+// import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
 // import SimulatedMercadoPagoForm from '../SimulatedMercadoPagoForm/SimulatedMercadoPagoForm';
 import SimulatedBankTransferForm from '../SimulatedBankTransferForm/SimulatedBankTransferForm';
 import ContraEntregaForm from '../ContraEntregaForm/ContraEntregaForm';
@@ -26,10 +26,12 @@ export default function PaymentStep() {
                     ? ' (productos + envío, pago al recibir).'
                     : ' (productos + envío en línea).'}
                 {isBankTransferPaymentMethod(paymentMethod)
-                    ? ' Con transferencia el pedido queda pendiente hasta validar el comprobante.'
+                    ? 'Con transferencia el pedido queda pendiente hasta validar el comprobante.'
                     : paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
-                      ? ' El cobro se realiza al entregar el pedido.'
-                      : ' El pago es simulado en este entorno (sin cargos reales).'}
+                    ? 'El cobro se realiza al entregar el pedido.'
+                    : paymentMethod === PAYMENT_METHODS.WEBPAY
+                        ? 'Serás redirigido al sitio seguro de Webpay Plus (Transbank) para completar el pago.'
+                        : 'El pago es simulado en este entorno (sin cargos reales).'}
             </p>
 
             <div className={styles.methods}>
@@ -106,6 +108,7 @@ export default function PaymentStep() {
                         <small>Depósito · Pago pendiente, enviar comprobante</small>
                     </span>
                 </button>
+
                 {!isExpress && (
                     <button
                         type="button"
@@ -131,7 +134,12 @@ export default function PaymentStep() {
             )}
 
             {paymentMethod === PAYMENT_METHODS.QPAYPRO && <SimulatedQPayProForm />}
-            {paymentMethod === PAYMENT_METHODS.WEBPAY && <SimulatedWebpayForm />}
+            {paymentMethod === PAYMENT_METHODS.WEBPAY && (
+                <div className={styles.webpayNote}>
+                    Al confirmar serás redirigido al sitio seguro de <strong>Webpay Plus (Transbank)</strong>.
+                    No ingresas tu tarjeta aquí. Al volver, el resultado se confirmará automáticamente.
+                </div>
+            )}            
             {/* {paymentMethod === PAYMENT_METHODS.MERCADOPAGO && <SimulatedMercadoPagoForm />} */}
             {paymentMethod === PAYMENT_METHODS.BANK_TRANSFER && <SimulatedBankTransferForm />}
             {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA && <ContraEntregaForm />}

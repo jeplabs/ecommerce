@@ -1,0 +1,49 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    gap: 1rem;
+    padding: 2rem 1rem;
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #d62434;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(214, 36, 52, 0.15);
+    color: #f87171;
+}
+
+.text {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.form {
+    display: contents;
+}
+
+.button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    background: #d62434;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+}

@@ -13,7 +13,7 @@ import { RegisterPage } from '@/pages/register';
 import { ResetPasswordPage } from '@/pages/reset-password';
 import { ProfilePage } from '@/pages/profile';
 import { CartPage } from '@/pages/cart';
-import { CheckoutPage } from '@/pages/checkout';
+import { CheckoutPage, CheckoutReturnPage } from '@/pages/checkout';
 import { CheckoutSuccessPage } from '@/pages/checkout-success';
 import { ProductPage } from '@/pages/product';
 import { CatalogPage } from '@/pages/catalog';
@@ -84,6 +84,14 @@ export function AppRouter() {
                         element={
                             <PrivateRoute requiredRol="ROLE_CUSTOMER">
                                 <CheckoutSuccessPage />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/checkout/retorno"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_CUSTOMER">
+                                <CheckoutReturnPage />
                             </PrivateRoute>
                         }
                     />
