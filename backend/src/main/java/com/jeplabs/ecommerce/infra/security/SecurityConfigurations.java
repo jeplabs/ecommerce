@@ -53,6 +53,11 @@ public class SecurityConfigurations {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/index.html").permitAll()
+                        // Confirmar y webhook son públicos porque Transbank los llama sin token JWT
+                        .requestMatchers("/api/pagos/webpay/confirmar").permitAll()
+                        .requestMatchers("/api/pagos/webpay/webhook").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pagos/webpay/estado/**").permitAll()
+                        // Iniciar requiere autenticación (ya cubierto por anyRequest().authenticated())
                         //.requestMatchers(HttpMethod.GET, "/api/auth/usuarios").permitAll()
                         .anyRequest().authenticated()
                 )

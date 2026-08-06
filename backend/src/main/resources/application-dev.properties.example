@@ -59,3 +59,10 @@ api.moneda.simbolo=$
 api.moneda.nombre=Peso Chileno
 api.moneda.locale=es-CL
 api.moneda.decimales=0
+
+# Webpay Plus
+api.webpay.ambiente=integracion
+api.webpay.commerce-code=
+api.webpay.api-key=
+api.webpay.return-url=http://localhost:5173/checkout/webpay/retorno
+api.webpay.webhook-secret=SECRET_WEBHOOK
