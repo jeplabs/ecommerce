@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { orderApiSchema } from '@/entities/order';
+import { orderApiSchema } from '@/entities/order/model/schemas/api';
 import { moneySchema } from '@/shared';
 
 /** Métodos de pasarela simulados en checkout (no confundir con {@code FormaPago} del backend). */
