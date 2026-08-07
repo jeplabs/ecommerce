@@ -65,7 +65,7 @@ export type PaymentFailureResult = z.infer<typeof paymentFailureResultSchema>;
 export type PaymentResult = z.infer<typeof paymentResultSchema>;
 
 export const webpayInitResponseSchema = z.object({
-    urlRedireccion: z.string().min(1),
+    url: z.string().min(1),
     token: z.string().min(1),
 });
 export type WebpayInitResult = z.infer<typeof webpayInitResponseSchema>;

@@ -338,14 +338,14 @@ export function useCheckoutLogic({
             });
 
             if (isWebpay) {
-                const returnUrl = `${window.location.origin}/checkout/retorno?proveedor=webpay`;
+                const returnUrl = `${window.location.origin}/checkout/webpay/retorno`;
                 const init = await iniciarWebpay({ ordenId: orden.id, returnUrl });
 
                 checkoutCompletedRef.current = true;
                 setCheckoutCompleted(true);
                 await refreshCart();
 
-                const redirect = { urlRedireccion: init.urlRedireccion, token: init.token };
+                const redirect = { urlRedireccion: init.url, token: init.token };
                 setRedirectInfo(redirect);
 
                 return { success: true, needsRedirect: true, ...redirect, orden };

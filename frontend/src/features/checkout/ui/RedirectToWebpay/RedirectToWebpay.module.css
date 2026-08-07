@@ -18,15 +18,15 @@
 .logo {
     font-weight: 700;
     font-size: 1.25rem;
-    color: #d62434;
+    color: var(--text);
 }
 
 .badge {
     font-size: 0.7rem;
     padding: 0.2rem 0.5rem;
     border-radius: 6px;
-    background: rgba(214, 36, 52, 0.15);
-    color: #f87171;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
 }
 
 .text {
@@ -42,7 +42,7 @@
     padding: 0.6rem 1.2rem;
     border-radius: 8px;
     border: none;
-    background: #d62434;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
     color: #fff;
     cursor: pointer;
     font-weight: 600;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCart } from '@/app/providers';
 import { confirmarWebpay } from '@/features/checkout/api';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
@@ -87,18 +87,27 @@ export default function CheckoutReturn() {
         <div className={styles.root}>
             {state.status === 'loading' && (
                 <>
-                    <h2 className={styles.title}>Confirmando tu pago…</h2>
-                    <p className={styles.text}>Estamos verificando el resultado con Transbank.</p>
+                    <div className={styles.confirming}>
+                        <h2 className={styles.confirmingTitle}>Confirmando tu pago…</h2>
+                    </div>
+                    <p className={styles.confirmingMessage}>
+                        Estamos verificando el resultado con Transbank.
+                    </p>
+                    <p className={styles.noticeWarning}>
+                        No recargues la página ni vuelvas atrás mientras se confirma tu pago.
+                    </p>
                 </>
             )}
 
             {state.status === 'aborted' && (
                 <>
-                    <h2 className={styles.title}>Pago no completado</h2>
-                    <p className={styles.text}>
-                        No completaste el pago en Webpay Plus. Puedes intentarlo nuevamente desde el
-                        checkout.
-                    </p>
+                    <div className={styles.aborted}>
+                        <h2 className={styles.abortedTitle}>Pago no completado</h2>
+                    </div>
+                    <div className={styles.noticeStack}>
+                        <p>No completaste el pago en Webpay Plus.</p>
+                        <p>Puedes intentarlo nuevamente desde el checkout.</p>
+                    </div>
                 </>
             )}
 
@@ -114,8 +123,10 @@ export default function CheckoutReturn() {
 
             {state.status === 'rejected' && (
                 <>
-                    <h2 className={styles.title}>Pago rechazado</h2>
-                    <p className={styles.text}>Tu tarjeta fue rechazada por el banco.</p>
+                    <div className={styles.rejected}>
+                        <h2 className={styles.rejectedTitle}>Pago rechazado</h2>
+                    </div>
+                    <p className={styles.noticeError}>Tu tarjeta fue rechazada por el banco.</p>
                 </>
             )}
 
@@ -127,9 +138,9 @@ export default function CheckoutReturn() {
             )}
 
             {state.status !== 'loading' && (
-                <a className={styles.link} href="/checkout">
+                <Link className={styles.primaryBtn} to="/checkout">
                     Volver al checkout
-                </a>
+                </Link>
             )}
         </div>
     );

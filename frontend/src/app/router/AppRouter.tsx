@@ -95,6 +95,14 @@ export function AppRouter() {
                             </PrivateRoute>
                         }
                     />
+                    <Route
+                        path="/checkout/webpay/retorno"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_CUSTOMER">
+                                <CheckoutReturnPage />
+                            </PrivateRoute>
+                        }
+                    />
                 </Route>
 
                 {/* Admin */}

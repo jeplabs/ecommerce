@@ -514,7 +514,7 @@ export const handlers = [
     }
 
     return HttpResponse.json({
-        urlRedireccion: 'https://webpay3g.transbank.cl/frontend/d5c0d7e5',
+        url: 'https://webpay3g.transbank.cl/frontend/d5c0d7e5',
         token: `tok_test_${body.ordenId}`,
     });
 }),
