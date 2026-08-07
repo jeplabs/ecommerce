@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { Link } from 'react-router-dom';
 import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
 //import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
 import OrderBankTransferSection from '@/features/checkout/ui/OrderBankTransferSection/OrderBankTransferSection';
@@ -66,7 +67,12 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
                     {orden.items?.map((item) => (
                         <li key={item.id} className={styles.item}>
                             <div>
-                                <span className={styles.itemName}>{item.nombreProducto}</span>
+                                <Link
+                                    to={`/producto/${item.productoId}`}
+                                    className={styles.itemName}
+                                >
+                                    {item.nombreProducto}
+                                </Link>
                                 <span className={styles.itemSku}>SKU: {item.sku}</span>
                             </div>
                             <div className={styles.itemQty}>
