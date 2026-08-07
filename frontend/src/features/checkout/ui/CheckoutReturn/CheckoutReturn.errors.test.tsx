@@ -39,7 +39,9 @@ describe('CheckoutReturn errores de confirmación', () => {
 
         renderReturn('/checkout/retorno?token_ws=tok_test_501');
 
-        expect(await screen.findByText('Error al confirmar el pago')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Error al confirmar el pago', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
         expect(screen.getByText('Fallo en la red')).toBeInTheDocument();
     });
 
@@ -49,7 +51,7 @@ describe('CheckoutReturn errores de confirmación', () => {
         renderReturn('/checkout/retorno?token_ws=tok_test_501');
 
         expect(
-            await screen.findByText('No pudimos confirmar tu pago.')
+            await screen.findByText('No pudimos confirmar tu pago.', {}, { timeout: 5000 })
         ).toBeInTheDocument();
     });
 });

@@ -1,8 +1,9 @@
 import { useCategorias } from '@/app/providers';
 import clsx from 'clsx';
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { CategoryApi } from '@/entities/category';
+import useEscapeKey from '@/shared/lib/useEscapeKey';
 import styles from './CategoriasNav.module.css';
 
 const buildCategoryPath = (parentPath: string, categoria: CategoryApi): string =>
@@ -102,6 +103,51 @@ const DrawerItem = ({ cat, parentPath, onClose }: DrawerItemProps) => {
 const CategoriasNav = () => {
     const { arbolCategorias, loading } = useCategorias();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [openCategory, setOpenCategory] = useState<number | null>(null);
+
+    const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const clearTimers = useCallback(() => {
+        if (openTimerRef.current) {
+            clearTimeout(openTimerRef.current);
+            openTimerRef.current = null;
+        }
+        if (closeTimerRef.current) {
+            clearTimeout(closeTimerRef.current);
+            closeTimerRef.current = null;
+        }
+    }, []);
+
+    const closeMenu = useCallback(() => {
+        clearTimers();
+        setOpenCategory(null);
+    }, [clearTimers]);
+
+    const openMenu = useCallback((catId: number) => {
+        if (openTimerRef.current) clearTimeout(openTimerRef.current);
+        if (closeTimerRef.current) {
+            clearTimeout(closeTimerRef.current);
+            closeTimerRef.current = null;
+        }
+        openTimerRef.current = setTimeout(() => setOpenCategory(catId), 120);
+    }, []);
+
+    const scheduleCloseMenu = useCallback(() => {
+        if (openTimerRef.current) {
+            clearTimeout(openTimerRef.current);
+            openTimerRef.current = null;
+        }
+        if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = setTimeout(closeMenu, 250);
+    }, [closeMenu]);
+
+    useEffect(() => clearTimers, [clearTimers]);
+
+    useEscapeKey(() => {
+        closeMenu();
+        setIsDrawerOpen(false);
+    });
 
     useEffect(() => {
         if (isDrawerOpen) {
@@ -138,13 +184,31 @@ const CategoriasNav = () => {
                 <div className={styles.categoriasContainer}>
                     <ul className={styles.categoriasLista}>
                         {arbolCategorias.map((cat) => (
-                            <li key={cat.id} className={styles.catItem}>
-                                <Link to={`/categoria/${cat.slug || cat.id}`} className={styles.catLink}>
+                            <li
+                                key={cat.id}
+                                className={styles.catItem}
+                                onPointerEnter={() => openMenu(cat.id)}
+                                onPointerLeave={scheduleCloseMenu}
+                            >
+                                <Link
+                                    to={`/categoria/${cat.slug || cat.id}`}
+                                    className={clsx(
+                                        styles.catLink,
+                                        openCategory === cat.id && styles.catLinkOpen
+                                    )}
+                                    onClick={closeMenu}
+                                >
                                     {cat.nombre}
                                 </Link>
 
                                 {cat.subcategorias && cat.subcategorias.length > 0 && (
-                                    <div className={styles.megaPanel}>
+                                    <div
+                                        className={clsx(
+                                            styles.megaPanel,
+                                            openCategory === cat.id && styles.megaPanelOpen
+                                        )}
+                                        onClick={closeMenu}
+                                    >
                                         <div className={styles.megaPanelContent}>
                                             {cat.subcategorias.map((sub) => (
                                                 <MegaMenuColumn

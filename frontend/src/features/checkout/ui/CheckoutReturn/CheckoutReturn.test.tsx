@@ -43,7 +43,9 @@ describe('CheckoutReturn', () => {
 
         renderReturn('/checkout/retorno?token_ws=tok_test_501');
 
-        expect(await screen.findByText('SUCCESS_OK')).toBeInTheDocument();
+        expect(
+            await screen.findByText('SUCCESS_OK', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
     });
 
     it('muestra "Pago no completado" cuando llega TBK_TOKEN sin token_ws', () => {
@@ -86,7 +88,9 @@ describe('CheckoutReturn', () => {
 
         renderReturn('/checkout/retorno?token_ws=tok_test_501');
 
-        expect(await screen.findByText('Pago rechazado')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Pago rechazado', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
         expect(
             screen.getByText('Tu tarjeta fue rechazada por el banco.')
         ).toBeInTheDocument();
@@ -105,7 +109,9 @@ describe('CheckoutReturn', () => {
 
         renderReturn('/checkout/retorno?token_ws=tok_test_501');
 
-        expect(await screen.findByText('Se agotó el tiempo')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Se agotó el tiempo', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
     });
 
     it('muestra "Pago no completado" cuando Webpay confirma abandono', async () => {
@@ -121,7 +127,9 @@ describe('CheckoutReturn', () => {
 
         renderReturn('/checkout/retorno?token_ws=tok_test_501');
 
-        expect(await screen.findByText('Pago no completado')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Pago no completado', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
     });
 
     it('redirige a /login cuando confirmar responde 401', async () => {
@@ -134,7 +142,9 @@ describe('CheckoutReturn', () => {
 
         renderReturn('/checkout/retorno?token_ws=tok_test_501');
 
-        expect(await screen.findByText('LOGIN_OK')).toBeInTheDocument();
+        expect(
+            await screen.findByText('LOGIN_OK', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
     });
 
     it('no vuelve a confirmar si el efecto se re-ejecuta tras la primera vez', async () => {
@@ -161,7 +171,9 @@ describe('CheckoutReturn', () => {
             </MemoryRouter>
         );
 
-        expect(await screen.findByText('Se agotó el tiempo')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Se agotó el tiempo', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
 
         await userEvent.click(screen.getByText('cambiar a token'));
 

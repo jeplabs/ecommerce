@@ -101,12 +101,18 @@
     visibility: hidden;
     pointer-events: auto;
     overflow: visible;
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.catItem:hover .megaPanel {
+.megaPanelOpen {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0);
+}
+
+.catLinkOpen {
+    background-color: var(--cat-hover);
+    color: var(--cat-accent);
 }
 
 .megaPanelContent {
