@@ -553,6 +553,43 @@ thresholds: {
 
 **Nota sobre ramas:** la regla de este plan es perseguir ~100 % en *lines/statements*; el umbral de *branches* se fija más bajo (85 %) porque los operadores ternarios/`switch` largos y guards defensivos generan ramas de baja probabilidad.
 
+#### Qué falta para llegar a ~100 % (por archivo)
+
+El gap restante del alcance de Fase 7 se concentra en pocos archivos:
+
+| Archivo | Líneas | Qué falta cubrir |
+|---------|--------|------------------|
+| `features/checkout/model/useCheckoutLogic.ts` | ~78 % | ~30–40 líneas: flujo de pago completo, fallo al crear la orden, `iniciarWebpay`/`confirmarWebpay` con error, carrito vacío al cargar, reintento/limpieza y validaciones por paso |
+| `features/checkout/lib/transfer-order-storage.ts` | ~91 % | 4 líneas de borde de `localStorage` (marcado/limpieza) |
+| `entities/checkout/api/paymentApi.ts` | ~97.5 % | 1 línea (rama de error/parseo) |
+| `features/checkout/ui/CheckoutContent.tsx` | ~96.8 % stmts | Statements condicionales de orquestación |
+
+Regla: perseguir 100 % en *lines/statements*. Para **código muerto o stubs** (componentes comentados/deshabilitados) usar `/* v8 ignore next */` con justificación, en vez de escribir tests artificiales o marcar un "falso 100 %".
+
+#### Buenas prácticas de configuración
+
+| Práctica | Recomendación |
+|----------|---------------|
+| `coverage.all: true` | Hoy es el default de Vitest; explicitarlo garantiza que todo archivo del `include` cuente aunque no sea importado (si el default cambia de versión, el umbral dejaría de ser real) |
+| Reporter | `['text-summary', 'html', 'lcov']` o `json-summary` para CI/codecov; `text` completo es ruidoso con ~60 archivos |
+| `pool: 'threads'` en config | Hoy es workaround de Windows que se recuerda en docs; en CI conviene que `pnpm test:coverage` lo use por defecto |
+| Margen de umbrales | Dejar 2–3 pt de aire sobre el valor real (hoy: lines 90 vs 93.44, branches 85 vs 88.18); subir `branches` a ~88 cuando `useCheckoutLogic` quede cubierto |
+| `thresholds.autoUpdate` | **No usar**: reescribe el config silenciosamente y enmascara regresiones |
+| `perFile` | Hoy es agregado; para gate por archivo revisar el HTML o un grep per-file antes de activar `perFile: true` (puede ser frágil con stubs nuevos) |
+| `exclude` | Añadir `**/*.d.ts` y `src/vite-env.d.ts` si aparecen en el reporte |
+| Crecimiento incremental | Cada área de Fase 8 entra al `include` **solo con sus tests**; nunca agrandar el glob "para ver qué falta" sin cubrir antes, o el umbral falla y se termina bajando |
+| Gate de CI | Falta un workflow (GitHub Actions) que corra `pnpm test:coverage`; el umbral solo protege si se ejecuta en el pipeline, no en el IDE |
+
+**Hueco de config conocido:** el `include` cubre `features/checkout/{ui,model,lib}/**`, `entities/checkout/api/**` y `entities/order/api/**`, pero **no** `features/checkout/api/**` (`paymentApi.ts`, `paymentGatewayApi.ts`). Esos archivos corren sus tests pero no pesan en el umbral. Decidir: agregarlos al `include` (y cubrirlos) o dejarlos fuera deliberadamente documentado.
+
+#### Impacto en cobertura de retirar Stripe y Mercado Pago
+
+Decisión de equipo: **Stripe y Mercado Pago se retiran del proyecto** (se mantienen QPayPro, WebPay Plus y Transferencia bancaria). Impacto esperado en cobertura al limpiarlos:
+
+- **No baja el coverage; tiende a subirlo levemente.** Se eliminan líneas/ramas sin cubrir de `useCheckoutLogic.ts` (su gap principal) y las ramas al ~50 % de `SimulatedStripeForm`. Los componentes `SimulatedStripeForm`/`SimulatedMercadoPagoForm` están ~100 % cubiertos, así que al borrarlos el ratio global queda igual (numerador y denominador bajan a la vez).
+- **Baja el conteo de tests** (aprox. 326 → ~318–321 según cuántos casos se eliminen) y de archivos de test (67 → 65).
+- La lógica simulada vive sobre todo en `features/checkout/api/paymentApi.ts`, que **no está en el `include`**, así que su limpieza no afecta los umbrales.
+
 ### Fase 5 — Auth avanzada y sesión (prioridad media)
 
 | Área | Tests sugeridos | Capas |
