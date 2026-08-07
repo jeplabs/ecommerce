@@ -256,7 +256,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (97 tests)
+### Vitest (326 tests · 67 archivos)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
@@ -286,6 +286,37 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `entities/product/api/productApi.admin.test.ts` | API + MSW | CRUD admin, imágenes, estado |
 | `entities/user/api/authApi.admin.test.ts` | API + MSW | listUsuarios, rol, activar/desactivar |
 | `features/admin/model/useAdminOrdersLogic.test.tsx` | Hook + MSW | Lista admin, filtro, cambio estado |
+
+#### Cobertura de checkout y pasarelas (Fase C + WebPay)
+
+| Archivo | Tipo | Qué verifica |
+|---------|------|--------------|
+| `features/checkout/lib/payment-methods.test.ts` | Unit | Métodos de pago activos por país, WebPay solo CL |
+| `features/checkout/lib/transfer-order-storage.test.ts` | Unit | Marcado de transferencia, comprobante local |
+| `features/checkout/model/useCheckoutLogic.test.tsx` | Hook + MSW | Pasos, dirección, envío, pago, crear orden, WebPay |
+| `features/checkout/model/useCheckoutSuccessRecommendations.test.tsx` | Hook + MSW | Recomendaciones post-compra |
+| `features/checkout/ui/CheckoutContent.test.tsx` | C | Orquestación de pasos del checkout |
+| `features/checkout/ui/CheckoutLineItems.test.tsx` | C | Ítems, SKU, imágenes, cantidades |
+| `features/checkout/ui/CheckoutReturn/*.test.tsx` | C | Retorno WebPay ok/cancel/error |
+| `features/checkout/ui/OrderSummary/OrderSummary.test.tsx` | C | Resumen de productos, totales |
+| `features/checkout/ui/OrderBankTransferSection/*.test.tsx` | C | Comprobante, 5 MB, error, subida |
+| `features/checkout/ui/PaymentStep/PaymentStep.test.tsx` | C | Métodos de pago, notas por método |
+| `features/checkout/ui/PickupBranchSelector/*.test.tsx` | C | Selección de sucursal de retiro |
+| `features/checkout/ui/ReviewAndShippingStep/*.test.tsx` | C | Dirección, envío, servicios, horario |
+| `features/checkout/ui/ShippingServiceSelector/*.test.tsx` | C | Servicios de envío, gratis |
+| `features/checkout/ui/SimulatedStripeForm/*.test.tsx` | C | Formato de tarjeta, expiración, CVC |
+| `features/checkout/ui/SimulatedQPayProForm/*.test.tsx` | C | Formulario simulado QPayPro |
+| `features/checkout/ui/SimulatedWebpayForm/*.test.tsx` | C | Formulario simulado WebPay (demo) |
+| `features/checkout/ui/BankTransferAccounts/*.test.tsx` | C | Cuentas bancarias por país |
+| `entities/checkout/api/paymentApi.test.ts` | I | Tope de pago, iniciar WebPay, confirmar |
+| `entities/order/api/ordersApi.test.ts` | I + MSW | Crear orden, detalle, comprobante |
+| `entities/shipping/model/*.test.ts` | Unit | Mappers de envío, entrega a domicilio/retiro |
+| `pages/checkout/ui/CheckoutPage.test.tsx` | C | Página de checkout |
+| `pages/checkout-success/ui/CheckoutSuccessPage.test.tsx` | C | Confirmación + recomendaciones |
+| `widgets/checkout/CheckoutSuccessView.test.tsx` | C | Vista de éxito, total, volver a tienda |
+| `shared/api/api-error.test.ts` | Unit | Errores HTTP tipados |
+| `shared/lib/format.test.ts` | Unit | Moneda, fechas, teléfono |
+| `shared/lib/api-url.test.ts` | Unit | Construcción de URLs de API |
 
 ### Cypress (28 tests)
 
@@ -335,7 +366,7 @@ Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efect
 | **Sin `renderWithProviders`** | *(Resuelto en Fase 0)* | Usar `@/test/utils/renderWithProviders` para rutas con `AuthProvider` |
 | **Sin `getByRole` en RTL** | SoldOutBadge usa `getByText`; PrivateRoute usa roles | Ir extendiendo roles en componentes nuevos |
 | **E2E no encadenaban registro → login** | *(Resuelto en Fase 0)* | `auth-registry` + spec dedicado |
-| **Cobertura no exigida en CI** | Solo script manual `test:coverage` | Fijar umbral mínimo (p. ej. 60 %) cuando el plan avance |
+| **Cobertura en CI** | *(Resuelto en Fase 7)* | Umbrales fijados en `vite.config.ts` (ver [Cobertura y umbrales](#cobertura-y-umbrales)); el resto de `src/**` (admin, cart, layout, home, catalog) queda como roadmap en [Fase 8](#fase-8--resto-de-src-roadmap) |
 | **Vitest en Windows** | A veces timeout con pool `forks` | Si falla intermitente: `pnpm exec vitest run --pool=threads` |
 | **Handlers duplicados** | MSW (Node) y `cy.intercept` (browser) | Trade-off razonable; mantener fixtures como única fuente de verdad |
 
@@ -344,8 +375,8 @@ Los tests actuales **sí siguen buenas prácticas en lo esencial** y son **efect
 | Pregunta | Respuesta |
 |----------|-----------|
 | ¿Buenas prácticas? | **Sí**, en arquitectura y enfoque general |
-| ¿Efectivos? | **Sí** para auth, catálogo, checkout, perfil y **admin** (productos, pedidos, usuarios); pendiente Fase 5–6 |
-| ¿Production-grade al 100 %? | **Todavía no** — falta volumen y algún refinamiento (providers, selectores, CI) |
+| ¿Efectivos? | **Sí** para auth, catálogo, checkout, perfil, **admin** y **pasarelas WebPay**; pendiente Fase 5–6 y resto de UI |
+| ¿Production-grade al 100 %? | **Todavía no** — falta volumen en el resto de `src` y algún refinamiento (providers, selectores, CI) |
 
 No hay anti-patrones graves (no se testean detalles privados de React, no hay sleeps arbitrarios, no hay dependencia del backend real). Lo pendiente es **ampliar cobertura** siguiendo el mismo estilo.
 
@@ -482,6 +513,46 @@ Objetivo: panel admin sin regresiones en productos, pedidos y usuarios.
 
 **Fixtures:** `products-registry.ts`, `users-registry.ts`; funciones admin en `orders-registry.ts`.
 
+### Fase 7 — Checkout UI, WebPay Plus y cobertura al 100 % ✅ cerrada
+
+Objetivo: llevar a ~100 % la cobertura de líneas/statements del módulo de checkout y pasarelas (con umbral realista de ramas ~80 %) y fijar el umbral en Vite.
+
+- [x] `features/checkout/ui/**` (PaymentStep, OrderSummary, CheckoutContent, ReviewAndShippingStep, PickupBranchSelector, ShippingServiceSelector, CheckoutLineItems, SimulatedStripeForm, SimulatedQPayProForm, SimulatedWebpayForm, SimulatedMercadoPagoForm, BankTransferAccounts, OrderBankTransferSection, ContraEntregaForm)
+- [x] `features/checkout/model/**` (useCheckoutLogic, useCheckoutSuccessRecommendations, schemas)
+- [x] `features/checkout/lib/**` (payment-methods, bank-transfer-accounts, transfer-order-storage)
+- [x] `entities/checkout/api/**` y `entities/order/api/**` (paymentApi, ordersApi)
+- [x] `entities/shipping/model/**` (mappers de envío)
+- [x] `pages/checkout/**`, `pages/checkout-success/**`, `widgets/checkout/**` (CheckoutPage, CheckoutSuccessPage, CheckoutSuccessView)
+- [x] `shared/lib/**` y `shared/api/**` (format, api-url, api-error)
+- [x] Módulo **WebPay** al 100 % de cobertura (ver [pruebas-webpay-plus.md](pruebas-webpay-plus.md))
+- [x] Umbrales fijados en `vite.config.ts`
+
+#### Cobertura y umbrales
+
+`pnpm test:coverage` mide solo el **alcance de Fase 7** (checkout + pasarelas + shared helpers), no todo `src/**`; así el umbral es exigente y estable aunque widgets sin tests (admin, cart, layout, home, catalog) sigan sin cubrir.
+
+**Valores actuales (Fase 7):**
+
+| Métrica | Valor |
+|---------|-------|
+| Statements | 92.89 % |
+| Branches | 88.18 % |
+| Functions | 93.08 % |
+| Lines | 93.44 % |
+
+**Umbrales en `vite.config.ts`** (impiden regresión en CI):
+
+```ts
+thresholds: {
+    lines: 90,
+    statements: 90,
+    branches: 85,
+    functions: 90,
+},
+```
+
+**Nota sobre ramas:** la regla de este plan es perseguir ~100 % en *lines/statements*; el umbral de *branches* se fija más bajo (85 %) porque los operadores ternarios/`switch` largos y guards defensivos generan ramas de baja probabilidad.
+
 ### Fase 5 — Auth avanzada y sesión (prioridad media)
 
 | Área | Tests sugeridos | Capas |
@@ -506,10 +577,27 @@ Objetivo: panel admin sin regresiones en productos, pedidos y usuarios.
 ```text
 Fase 0 ✅  →  Fase 1 ✅  →  Fase 2 ✅  →  Fase 3 ✅  →  Fase 4 ✅ (admin)
                     ↓
+              Fase 7 ✅ (checkout UI + WebPay + umbrales)  →  Fase 8 (resto de src)
+                    ↓
               Fase 5 (sesión) en paralelo si hay bugs de auth
                     ↓
               Fase 6 (UI shared, continuo)
 ```
+
+### Fase 8 — Resto de `src` (roadmap)
+
+Alcance de cobertura actual de `pnpm test:coverage`: **exclusivamente la Fase 7**. Los widgets/features que quedan fuera del `include` y que son candidatos a siguientes fases:
+
+| Área | Estado |
+|------|--------|
+| `widgets/admin`, `features/admin` UI | Sin cobertura de componente |
+| `widgets/cart`, `features/cart` UI | Sin cobertura de componente |
+| `widgets/layout` (Navbar, Footer) | Sin cobertura de componente |
+| `pages/home`, `pages/catalog`, `widgets/catalog` | Sin cobertura de componente |
+| `entities/user/model` (mappers, profileLogic) | Sin cobertura |
+| `shared/ui/**` (Button, FormField, Input, ProductCard) | Parcial |
+
+Para incorporar un área a la cobertura: agregar su glob a `coverage.include` en `vite.config.ts`, cubrir sus archivos y re-validar que los umbrales sigan pasando.
 
 ### Criterios para elegir capa
 
@@ -530,6 +618,7 @@ Fase 0 ✅  →  Fase 1 ✅  →  Fase 2 ✅  →  Fase 3 ✅  →  Fase 4 ✅ (
 | `entities/*/api` | Caso feliz + error por endpoint público |
 | Componentes `shared/ui` | Solo los reutilizados y con lógica |
 | E2E | 10–15 specs cubriendo journeys críticos (no duplicar todo en Cypress) |
+| Checkout + pasarelas (Fase 7) | **Umbral fijado**: lines/statements 90 %, branches 85 %, functions 90 % |
 
 Ejecutar periódicamente: `pnpm test:coverage` y revisar gaps en checkout, cart y profile.
 

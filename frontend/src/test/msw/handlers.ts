@@ -605,6 +605,21 @@ export const handlers = [
         return HttpResponse.json(mockShippingOptions(subtotal));
     }),
 
+    http.get(`${API_BASE}/api/banco`, () => {
+        return HttpResponse.json([
+            {
+                id: 1,
+                banco: 'Banco Demo',
+                titular: 'JEPLabs',
+                tipoCuenta: 'Corriente',
+                numeroCuenta: '001-002-003',
+                moneda: 'GTQ',
+                activo: true,
+                ordenViualizacion: 1,
+            },
+        ]);
+    }),
+
     http.post(`${API_BASE}/api/auth/register`, async ({ request }) => {
         const body = (await request.json()) as {
             nombre?: string;

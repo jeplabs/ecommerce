@@ -176,3 +176,30 @@ Opciones:
 | `features/checkout/model/schemas/payment.ts` | Schemas Zod (`webpayInitResponseSchema`, `webpayConfirmResponseSchema`) |
 | `features/checkout/ui/CheckoutReturn/CheckoutReturn.tsx` | Procesa el retorno (`token_ws`, `TBK_TOKEN`, `TBK_ORDEN_COMPRA`) |
 | `app/router/AppRouter.tsx` | Ruta de retorno por pasarela: `/checkout/webpay/retorno` |
+
+---
+
+## 8. Cobertura automatizada
+
+> ✅ El módulo **Webpay Plus del frontend está a 100 % de cobertura** en Vitest
+> (`features/checkout/lib/payment-methods.ts`, `entities/checkout/api/paymentApi.ts`,
+> `CheckoutReturn`, `SimulatedWebpayForm`, `useCheckoutLogic` en su rama Webpay), dentro del alcance
+> de la [Fase 7 de `testing.md`](./testing.md#fase-7--checkout-ui-webpay-plus-y-cobertura-al-100--cerrada).
+
+Además de las pruebas manuales de esta guía (con tarjetas de prueba de Transbank en ambiente
+`integracion`), el flujo de Webpay tiene cobertura automatizada:
+
+- **`entities/checkout/api/paymentApi.test.ts`** — `iniciarWebpay`, `confirmarWebpay` ok y fallo
+  (`token_ws`), tope de pago.
+- **`features/checkout/ui/CheckoutReturn/*.test.tsx`** — retorno aprobado (consume `token_ws`),
+  rechazado, abortado (`TBK_TOKEN`) y error genérico con reintento.
+- **`features/checkout/ui/SimulatedWebpayForm/*.test.tsx`** — formulario simulado (demo) con
+  redirección y cancelación.
+- **`features/checkout/lib/payment-methods.test.ts`** — WebPay solo se ofrece en CL (y QPayPro solo
+  en GT); esto protege la regla de negocio por país.
+- **`features/checkout/model/useCheckoutLogic.test.tsx`** — la rama Webpay del hook que crea la orden
+  y prepara la redirección.
+
+Cualquier cambio en los archivos listados arriba queda bajo el umbral de cobertura de
+`vite.config.ts` (lines/statements 90 %, branches 85 %), así que una regresión de estas pruebas
+rompe `pnpm test:coverage`.
