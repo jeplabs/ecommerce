@@ -9,6 +9,7 @@ Guías complementarias al [README](../README.md) principal.
 | [eslint-warnings.md](./eslint-warnings.md) | Inventario de warnings ESLint (React Hooks), impacto en rendimiento y registro de avances |
 | [payment-gateways.md](./payment-gateways.md) | Pasarelas de pago: demo (Stripe, Webpay, Mercado Pago) e integración real |
 | [pruebas-webpay-plus.md](./pruebas-webpay-plus.md) | Guía para probar Webpay Plus real desde el frontend: tarjetas de prueba y flujo |
+| [retirar-stripe-mercadopago.md](./retirar-stripe-mercadopago.md) | Guía operativa para retirar Stripe y Mercado Pago del frontend: checklist, archivos y cobertura |
 | [testing.md](./testing.md) | Testing: stack, buenas prácticas, plan de cobertura por fases, fixtures |
 
 ## Convención
