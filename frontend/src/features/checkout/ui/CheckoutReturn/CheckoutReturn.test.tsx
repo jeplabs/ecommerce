@@ -259,6 +259,32 @@ describe('CheckoutReturn recuperación de pago', () => {
         expect(tbkTokenRecibido).toBe('abc');
     });
 
+    it('notifica el timeout al backend cuando llega TBK_ID_SESION', async () => {
+        let sesionRecibida: string | null = null;
+        let ordenRecibida: string | null = null;
+        server.use(
+            http.get(confirmarPath, ({ request }) => {
+                const url = new URL(request.url);
+                sesionRecibida = url.searchParams.get('TBK_ID_SESION');
+                ordenRecibida = url.searchParams.get('TBK_ORDEN_COMPRA');
+                return HttpResponse.json({
+                    success: false,
+                    error: 'Se agotó el tiempo en Webpay',
+                    motivo: 'TIMEOUT',
+                });
+            })
+        );
+        sessionStorage.setItem('webpay:ordenPendienteId', '501');
+
+        renderReturn('/checkout/retorno?TBK_ID_SESION=sess-1&TBK_ORDEN_COMPRA=501');
+
+        expect(
+            await screen.findByText('Resumen del pedido #501', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
+        expect(sesionRecibida).toBe('sess-1');
+        expect(ordenRecibida).toBe('501');
+    });
+
     it('cancela el pedido y navega a las órdenes', async () => {
         sessionStorage.setItem('webpay:ordenPendienteId', '501');
 

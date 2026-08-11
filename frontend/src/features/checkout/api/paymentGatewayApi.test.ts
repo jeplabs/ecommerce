@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { ZodError } from 'zod';
 import { describe, expect, it } from 'vitest';
-import { confirmarWebpay, iniciarWebpay } from '@/features/checkout/api';
+import { confirmarWebpay, iniciarWebpay, notificarTimeout } from '@/features/checkout/api';
 import { ApiError } from '@/shared';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { API_BASE } from '@/test/msw/constants';
@@ -110,11 +110,42 @@ describe('paymentGatewayApi', () => {
         expect(received).toEqual({ ordenId: 9, returnUrl: 'https://app.test/retorno' });
     });
 
+    it('notifica el timeout enviando TBK_ID_SESION y TBK_ORDEN_COMPRA', async () => {
+        seedSession();
+        let params: URLSearchParams | null = null;
+        server.use(
+            http.get(confirmarPath, ({ request }) => {
+                params = new URL(request.url).searchParams;
+                return HttpResponse.json({
+                    success: false,
+                    error: 'Se agotó el tiempo en Webpay',
+                    motivo: 'TIMEOUT',
+                });
+            })
+        );
+
+        await notificarTimeout('sess-1', '501');
+
+        expect(params?.get('TBK_ID_SESION')).toBe('sess-1');
+        expect(params?.get('TBK_ORDEN_COMPRA')).toBe('501');
+    });
+
     it('expone iniciarWebpay y confirmarWebpay a través de paymentGatewayApi', async () => {
         const { paymentGatewayApi } = await import('@/features/checkout/api');
         expect(paymentGatewayApi.iniciarWebpay).toBe(iniciarWebpay);
         expect(paymentGatewayApi.confirmarWebpay).toBe(confirmarWebpay);
         expect(paymentGatewayApi.iniciarWebpay).toBeTypeOf('function');
         expect(paymentGatewayApi.confirmarWebpay).toBeTypeOf('function');
+    });
+
+    it('lanza ApiError cuando notificarTimeout responde 404', async () => {
+        seedSession();
+        server.use(
+            http.get(confirmarPath, () =>
+                HttpResponse.json({ error: 'Transacción no encontrada' }, { status: 404 })
+            )
+        );
+
+        await expect(notificarTimeout('sess-1')).rejects.toThrow('Transacción no encontrada');
     });
 });

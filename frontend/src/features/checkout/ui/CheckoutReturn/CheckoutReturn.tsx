@@ -2,7 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { useCart } from '@/app/providers';
-import { confirmarWebpay, iniciarWebpay, notificarAbortada } from '@/features/checkout/api';
+import {
+    confirmarWebpay,
+    iniciarWebpay,
+    notificarAbortada,
+    notificarTimeout,
+} from '@/features/checkout/api';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
 import RedirectToWebpay from '@/features/checkout/ui/RedirectToWebpay/RedirectToWebpay';
 import {
@@ -116,6 +121,9 @@ export default function CheckoutReturn() {
                 return;
             }
             if (tbkOrdenCompra || tbkIdSesion) {
+                if (tbkIdSesion) {
+                    void notificarTimeout(tbkIdSesion, tbkOrdenCompra).catch(() => undefined);
+                }
                 void cargarRecuperacion('timeout');
                 return;
             }

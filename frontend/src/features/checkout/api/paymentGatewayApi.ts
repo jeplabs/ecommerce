@@ -72,8 +72,32 @@ export async function notificarAbortada(tbkToken: string): Promise<void> {
     }
 }
 
+/**
+ * {@code GET /api/pagos/webpay/confirmar?TBK_ID_SESION=...&TBK_ORDEN_COMPRA=...}
+ * Marca la transacción como TIMEOUT en backend cuando el pago expiró en Webpay.
+ * En el retorno por timeout Transbank NO envía token, solo TBK_ID_SESION/TBK_ORDEN_COMPRA.
+ */
+export async function notificarTimeout(
+    tbkIdSesion: string,
+    tbkOrdenCompra?: string
+): Promise<void> {
+    const params = new URLSearchParams();
+    params.set('TBK_ID_SESION', tbkIdSesion);
+    if (tbkOrdenCompra) params.set('TBK_ORDEN_COMPRA', tbkOrdenCompra);
+
+    const response = await fetch(
+        `${API_URL}/api/pagos/webpay/confirmar?${params.toString()}`,
+        { method: 'GET', headers: getAuthHeaders(getToken()) }
+    );
+
+    if (!response.ok) {
+        throwApiError(response, await readJson(response), 'Error al notificar pago con timeout');
+    }
+}
+
 export const paymentGatewayApi = {
     iniciarWebpay,
     confirmarWebpay,
     notificarAbortada,
+    notificarTimeout,
 };

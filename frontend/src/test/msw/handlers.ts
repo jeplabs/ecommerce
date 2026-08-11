@@ -551,19 +551,28 @@ export const handlers = [
     http.get(`${API_BASE}/api/pagos/webpay/confirmar`, ({ request }) => {
         const url = new URL(request.url);
         const tbkToken = url.searchParams.get('TBK_TOKEN');
+        const tbkIdSesion = url.searchParams.get('TBK_ID_SESION');
 
-        if (!tbkToken) {
-            return HttpResponse.json(
-                { success: false, error: 'Transacción no encontrada' },
-                { status: 404 }
-            );
+        if (tbkToken) {
+            return HttpResponse.json({
+                success: false,
+                error: 'No completaste el pago',
+                motivo: 'ABORTED',
+            });
         }
 
-        return HttpResponse.json({
-            success: false,
-            error: 'No completaste el pago',
-            motivo: 'ABORTED',
-        });
+        if (tbkIdSesion) {
+            return HttpResponse.json({
+                success: false,
+                error: 'Se agotó el tiempo en Webpay',
+                motivo: 'TIMEOUT',
+            });
+        }
+
+        return HttpResponse.json(
+            { success: false, error: 'Transacción no encontrada' },
+            { status: 404 }
+        );
     }),
 
     http.get(`${API_BASE}/api/carrito`, () => {

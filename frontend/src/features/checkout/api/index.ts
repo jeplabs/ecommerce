@@ -12,4 +12,5 @@ export {
     iniciarWebpay,
     confirmarWebpay,
     notificarAbortada,
+    notificarTimeout,
 } from './paymentGatewayApi';
