@@ -8,6 +8,7 @@ import { paymentApi, PAYMENT_METHODS, iniciarWebpay } from '@/features/checkout/
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
 import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
 import { markOrderAsBankTransfer } from '@/features/checkout/lib/transfer-order-storage';
+import { guardarOrdenWebpayPendiente } from '@/features/checkout/lib/webpay-pending-order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { ApiError } from '@/shared';
 import {
@@ -340,6 +341,7 @@ export function useCheckoutLogic({
             if (isWebpay) {
                 const returnUrl = `${window.location.origin}/checkout/webpay/retorno`;
                 const init = await iniciarWebpay({ ordenId: orden.id, returnUrl });
+                guardarOrdenWebpayPendiente(orden.id);
 
                 checkoutCompletedRef.current = true;
                 setCheckoutCompleted(true);

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, Link } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { CheckoutReturnPage } from '@/pages/checkout';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
@@ -23,6 +23,7 @@ function renderReturn(path: string) {
                 <Routes>
                     <Route path="/checkout/retorno" element={<CheckoutReturnPage />} />
                     <Route path="/checkout/success" element={<div>SUCCESS_OK</div>} />
+                    <Route path="/profile/ordenes" element={<div>ORDENES_OK</div>} />
                     <Route path="/login" element={<div>LOGIN_OK</div>} />
                 </Routes>
             </AppProviders>
@@ -36,6 +37,10 @@ function seedSession() {
 }
 
 describe('CheckoutReturn', () => {
+    beforeEach(() => {
+        sessionStorage.clear();
+    });
+
     it('confirma con token_ws y navega a /checkout/success', async () => {
         seedSession();
         const pending = findDynamicOrder(MOCK_ORDER_PENDING_ID);
@@ -48,20 +53,24 @@ describe('CheckoutReturn', () => {
         ).toBeInTheDocument();
     });
 
-    it('muestra "Pago no completado" cuando llega TBK_TOKEN sin token_ws', () => {
+    it('muestra "Pago no completado" cuando llega TBK_TOKEN sin token_ws', async () => {
         seedSession();
 
         renderReturn('/checkout/retorno?TBK_TOKEN=abc&TBK_ORDEN_COMPRA=501&TBK_ID_SESION=1');
 
-        expect(screen.getByText('Pago no completado')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Pago no completado', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
     });
 
-    it('muestra "Se agotó el tiempo" cuando llega TBK_ORDEN_COMPRA sin token_ws', () => {
+    it('muestra "Se agotó el tiempo" cuando llega TBK_ORDEN_COMPRA sin token_ws', async () => {
         seedSession();
 
         renderReturn('/checkout/retorno?TBK_ORDEN_COMPRA=501');
 
-        expect(screen.getByText('Se agotó el tiempo')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Se agotó el tiempo', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
     });
 
     it('muestra error cuando el retorno no trae datos de Webpay', () => {
@@ -179,5 +188,106 @@ describe('CheckoutReturn', () => {
 
         expect(screen.queryByText('SUCCESS_OK')).not.toBeInTheDocument();
         expect(screen.getByText('Se agotó el tiempo')).toBeInTheDocument();
+    });
+});
+
+describe('CheckoutReturn recuperación de pago', () => {
+    beforeEach(() => {
+        seedSession();
+        sessionStorage.clear();
+    });
+
+    it('muestra el resumen del pedido y las acciones de recuperación', async () => {
+        sessionStorage.setItem('webpay:ordenPendienteId', '501');
+
+        renderReturn('/checkout/retorno?TBK_TOKEN=abc');
+
+        expect(
+            await screen.findByText('Resumen del pedido #501', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: 'Intentar pagar nuevamente' })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: 'Cancelar pedido' })
+        ).toBeInTheDocument();
+        expect(screen.getByText('Tu pedido sigue reservado: puedes reintentar el pago o cancelarlo.')).toBeInTheDocument();
+    });
+
+    it('reintenta el pago redirigiendo de nuevo a Webpay', async () => {
+        const submitSpy = vi
+            .spyOn(HTMLFormElement.prototype, 'submit')
+            .mockImplementation(() => {});
+        sessionStorage.setItem('webpay:ordenPendienteId', '501');
+
+        renderReturn('/checkout/retorno?TBK_TOKEN=abc');
+
+        const retryBtn = await screen.findByRole(
+            'button',
+            { name: 'Intentar pagar nuevamente' },
+            { timeout: 5000 }
+        );
+        await userEvent.click(retryBtn);
+
+        const form = await screen.findByTestId('webpay-redirect-form', {}, { timeout: 5000 });
+        expect(form).toHaveAttribute('method', 'POST');
+        expect(form.querySelector('input[name="token_ws"]')).toHaveValue('tok_test_501');
+
+        submitSpy.mockRestore();
+    });
+
+    it('cancela el pedido y navega a las órdenes', async () => {
+        sessionStorage.setItem('webpay:ordenPendienteId', '501');
+
+        renderReturn('/checkout/retorno?TBK_ORDEN_COMPRA=501');
+
+        const cancelBtn = await screen.findByRole(
+            'button',
+            { name: 'Cancelar pedido' },
+            { timeout: 5000 }
+        );
+        await userEvent.click(cancelBtn);
+
+        expect(
+            await screen.findByText('ORDENES_OK', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
+        expect(sessionStorage.getItem('webpay:ordenPendienteId')).toBeNull();
+    });
+
+    it('redirige a éxito cuando el webhook ya confirmó la orden', async () => {
+        const pending = findDynamicOrder(MOCK_ORDER_PENDING_ID);
+        if (pending) addDynamicOrder({ ...pending, estado: 'CONFIRMADA' });
+        sessionStorage.setItem('webpay:ordenPendienteId', '501');
+
+        renderReturn('/checkout/retorno?TBK_ORDEN_COMPRA=501');
+
+        expect(
+            await screen.findByText('SUCCESS_OK', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
+        expect(sessionStorage.getItem('webpay:ordenPendienteId')).toBeNull();
+    });
+
+    it('muestra el mensaje simple cuando no hay pedido que recuperar', () => {
+        renderReturn('/checkout/retorno?TBK_TOKEN=abc');
+
+        expect(screen.getByText('Pago no completado')).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'Volver al checkout' })
+        ).toBeInTheDocument();
+    });
+
+    it('redirige a /login cuando obtenerOrden responde 401', async () => {
+        sessionStorage.setItem('webpay:ordenPendienteId', '501');
+        server.use(
+            http.get(`${API_BASE}/api/ordenes/501`, () =>
+                HttpResponse.json({ error: 'No autorizado' }, { status: 401 })
+            )
+        );
+
+        renderReturn('/checkout/retorno?TBK_ORDEN_COMPRA=501');
+
+        expect(
+            await screen.findByText('LOGIN_OK', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
     });
 });
