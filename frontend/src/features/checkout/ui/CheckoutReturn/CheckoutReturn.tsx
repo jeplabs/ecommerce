@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { useCart } from '@/app/providers';
-import { confirmarWebpay, iniciarWebpay } from '@/features/checkout/api';
+import { confirmarWebpay, iniciarWebpay, notificarAbortada } from '@/features/checkout/api';
 import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
 import RedirectToWebpay from '@/features/checkout/ui/RedirectToWebpay/RedirectToWebpay';
 import {
@@ -111,6 +111,7 @@ export default function CheckoutReturn() {
 
         if (!tokenWs) {
             if (tbkToken) {
+                void notificarAbortada(tbkToken).catch(() => undefined);
                 void cargarRecuperacion('aborted');
                 return;
             }

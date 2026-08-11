@@ -60,7 +60,20 @@ export async function confirmarWebpay(tokenWs: string): Promise<WebpayConfirmRes
     return parseApi(webpayConfirmResponseSchema, raw);
 }
 
+/** {@code GET /api/pagos/webpay/confirmar?TBK_TOKEN=...} — marca la transacción ABORTADA en backend. */
+export async function notificarAbortada(tbkToken: string): Promise<void> {
+    const response = await fetch(
+        `${API_URL}/api/pagos/webpay/confirmar?TBK_TOKEN=${encodeURIComponent(tbkToken)}`,
+        { method: 'GET', headers: getAuthHeaders(getToken()) }
+    );
+
+    if (!response.ok) {
+        throwApiError(response, await readJson(response), 'Error al notificar pago abandonado');
+    }
+}
+
 export const paymentGatewayApi = {
     iniciarWebpay,
     confirmarWebpay,
+    notificarAbortada,
 };

@@ -236,6 +236,29 @@ describe('CheckoutReturn recuperación de pago', () => {
         submitSpy.mockRestore();
     });
 
+    it('notifica el abandono al backend cuando llega TBK_TOKEN', async () => {
+        let tbkTokenRecibido: string | null = null;
+        server.use(
+            http.get(confirmarPath, ({ request }) => {
+                const url = new URL(request.url);
+                tbkTokenRecibido = url.searchParams.get('TBK_TOKEN');
+                return HttpResponse.json({
+                    success: false,
+                    error: 'No completaste el pago',
+                    motivo: 'ABORTED',
+                });
+            })
+        );
+        sessionStorage.setItem('webpay:ordenPendienteId', '501');
+
+        renderReturn('/checkout/retorno?TBK_TOKEN=abc');
+
+        expect(
+            await screen.findByText('Resumen del pedido #501', {}, { timeout: 5000 })
+        ).toBeInTheDocument();
+        expect(tbkTokenRecibido).toBe('abc');
+    });
+
     it('cancela el pedido y navega a las órdenes', async () => {
         sessionStorage.setItem('webpay:ordenPendienteId', '501');
 

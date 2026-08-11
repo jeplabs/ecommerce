@@ -11,4 +11,5 @@ export {
     paymentGatewayApi,
     iniciarWebpay,
     confirmarWebpay,
+    notificarAbortada,
 } from './paymentGatewayApi';

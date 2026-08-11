@@ -10,9 +10,11 @@ vi.mock('@/features/checkout/api/paymentGatewayApi', () => ({
     paymentGatewayApi: {
         iniciarWebpay: vi.fn(),
         confirmarWebpay: vi.fn(),
+        notificarAbortada: vi.fn(),
     },
     iniciarWebpay: vi.fn(),
     confirmarWebpay: vi.fn(),
+    notificarAbortada: vi.fn(),
 }));
 
 function renderReturn(path: string) {

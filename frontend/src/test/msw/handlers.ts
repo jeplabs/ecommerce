@@ -548,6 +548,24 @@ export const handlers = [
         });
     }),
 
+    http.get(`${API_BASE}/api/pagos/webpay/confirmar`, ({ request }) => {
+        const url = new URL(request.url);
+        const tbkToken = url.searchParams.get('TBK_TOKEN');
+
+        if (!tbkToken) {
+            return HttpResponse.json(
+                { success: false, error: 'Transacción no encontrada' },
+                { status: 404 }
+            );
+        }
+
+        return HttpResponse.json({
+            success: false,
+            error: 'No completaste el pago',
+            motivo: 'ABORTED',
+        });
+    }),
+
     http.get(`${API_BASE}/api/carrito`, () => {
         return HttpResponse.json(getDynamicCart());
     }),
