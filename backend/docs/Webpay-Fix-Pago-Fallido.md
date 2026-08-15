@@ -1,7 +1,8 @@
 # Webpay Plus — Fix del retorno de pago fallido (reintento)
 
-> Complementa a [`Webpay-Contrato-Frontend-Backend.md`](./Webpay-Contrato-Frontend-Backend.md)
-> y a [`Plan-de-integracion-Webpay-Plus.md`](./Plan-de-integracion-Webpay-Plus.md).
+> Complementa a [`Webpay-Contrato-Frontend-Backend.md`](./Webpay-Contrato-Frontend-Backend.md),
+> a [`Plan-de-integracion-Webpay-Plus.md`](./Plan-de-integracion-Webpay-Plus.md) y a
+> [`Webpay-Casos-Borde-Pendientes.md`](./Webpay-Casos-Borde-Pendientes.md).
 >
 > **Estado:** el frontend (Pieza C) está **implementado y testeado**. El backend (Piezas A y B)
 > queda **pendiente de implementar por el equipo backend**, siguiendo las Piezas A y B de este doc.
@@ -400,7 +401,11 @@ mvn -q compile        # o el comando del proyecto (gradle/./mvnw según correspo
   por compatibilidad; revisar si el SPA necesita soportar el retorno por POST para pruebas locales.
 - El caso "el cliente pagó pero perdió conexión antes del retorno (transacción AUTHORIZED sin
   reconocer)" **no** lo resuelven las Piezas A/B: requiere `Transaction.status(token)` con polling
-  (los 7 días de la doc) o un scheduler. Queda como mejora futura fuera de este fix.
+  (los 7 días de la doc) o un scheduler. Ver **Caso 1** en
+  [`Webpay-Casos-Borde-Pendientes.md`](./Webpay-Casos-Borde-Pendientes.md).
+- Expiración automática de órdenes `PENDIENTE`, reembolso autorizado por admin, webhook con secreto,
+  polling del estado y `returnUrl` del request ignorado: ver **Casos 2-8** en
+  [`Webpay-Casos-Borde-Pendientes.md`](./Webpay-Casos-Borde-Pendientes.md).
 - Alternativa más simple si el equipo quiere **cero cambios en frontend**: la **Opción 2** — en
   `iniciar()`, marcar **siempre** la `INICIADA` existente como terminal y crear nueva (elimina la
   reutilización; seguro porque el frontend ya bloquea doble envío con `processing`/
