@@ -96,3 +96,11 @@ export const webpayConfirmResponseSchema = z.discriminatedUnion('success', [
     webpayConfirmFailureSchema,
 ]);
 export type WebpayConfirmResponse = z.infer<typeof webpayConfirmResponseSchema>;
+
+export const webpayEstadoSchema = z.object({
+    ordenId: z.number(),
+    estado: z.enum(['INICIADA', 'APROBADA', 'RECHAZADA', 'ABORTADA', 'TIMEOUT']),
+    motivo: z.enum(['ABORTED', 'TIMEOUT', 'REJECTED']).nullish(),
+});
+
+export type WebpayEstadoSchema = z.infer<typeof webpayEstadoSchema>;

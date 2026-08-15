@@ -575,6 +575,14 @@ export const handlers = [
         );
     }),
 
+    http.get(`${API_BASE}/api/pagos/webpay/estado/:ordenId`, ({ params }) => {
+        return HttpResponse.json({
+            ordenId: Number(params.ordenId),
+            estado: 'INICIADA',
+            motivo: null,
+        });
+    }),
+
     http.get(`${API_BASE}/api/carrito`, () => {
         return HttpResponse.json(getDynamicCart());
     }),

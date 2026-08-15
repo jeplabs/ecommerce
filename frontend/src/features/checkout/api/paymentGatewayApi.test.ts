@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { ZodError } from 'zod';
 import { describe, expect, it } from 'vitest';
-import { confirmarWebpay, iniciarWebpay, notificarTimeout } from '@/features/checkout/api';
+import { confirmarWebpay, consultarEstadoWebpay, iniciarWebpay, notificarTimeout } from '@/features/checkout/api';
 import { ApiError } from '@/shared';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { API_BASE } from '@/test/msw/constants';
@@ -136,6 +136,47 @@ describe('paymentGatewayApi', () => {
         expect(paymentGatewayApi.confirmarWebpay).toBe(confirmarWebpay);
         expect(paymentGatewayApi.iniciarWebpay).toBeTypeOf('function');
         expect(paymentGatewayApi.confirmarWebpay).toBeTypeOf('function');
+    });
+
+    it('consulta el estado Webpay y lo parsea con motivo null', async () => {
+        seedSession();
+        server.use(
+            http.get(`${API_BASE}/api/pagos/webpay/estado/:ordenId`, ({ params }) =>
+                HttpResponse.json({
+                    ordenId: Number(params.ordenId),
+                    estado: 'INICIADA',
+                    motivo: null,
+                })
+            )
+        );
+
+        const estado = await consultarEstadoWebpay(501);
+
+        expect(estado).toEqual({ ordenId: 501, estado: 'INICIADA', motivo: null });
+    });
+
+    it('lanza ApiError cuando consultar el estado responde 404', async () => {
+        seedSession();
+        server.use(
+            http.get(`${API_BASE}/api/pagos/webpay/estado/:ordenId`, () =>
+                HttpResponse.json({ error: 'Transacción no encontrada' }, { status: 404 })
+            )
+        );
+
+        await expect(consultarEstadoWebpay(99999)).rejects.toThrow(
+            'Transacción no encontrada'
+        );
+    });
+
+    it('lanza ZodError cuando el estado trae un valor desconocido', async () => {
+        seedSession();
+        server.use(
+            http.get(`${API_BASE}/api/pagos/webpay/estado/:ordenId`, () =>
+                HttpResponse.json({ ordenId: 1, estado: 'INEXISTENTE' })
+            )
+        );
+
+        await expect(consultarEstadoWebpay(1)).rejects.toBeInstanceOf(ZodError);
     });
 
     it('lanza ApiError cuando notificarTimeout responde 404', async () => {

@@ -4,11 +4,11 @@ import { addressApi } from '@/entities/address';
 import type { AddressApi } from '@/entities/address';
 import { orderApi, FORMA_PAGO_ENVIO } from '@/entities/order';
 import type { OrderApi } from '@/entities/order';
-import { paymentApi, PAYMENT_METHODS, iniciarWebpay } from '@/features/checkout/api';
+import { paymentApi, PAYMENT_METHODS, iniciarWebpay, consultarEstadoWebpay } from '@/features/checkout/api';
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
 import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
 import { markOrderAsBankTransfer } from '@/features/checkout/lib/transfer-order-storage';
-import { guardarOrdenWebpayPendiente } from '@/features/checkout/lib/webpay-pending-order';
+import { guardarOrdenWebpayPendiente, limpiarOrdenWebpayPendiente } from '@/features/checkout/lib/webpay-pending-order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { ApiError } from '@/shared';
 import {
@@ -25,6 +25,9 @@ import {
     CHECKOUT_STEPS,
     CHECKOUT_FLOW_LAST_INDEX,
 } from './checkoutSteps';
+
+export const WEBPAY_POLL_BACKOFF_MS = [2000, 5000, 15000, 30000];
+export const WEBPAY_POLL_TIMEOUT_MS = 5 * 60 * 1000;
 
 export type { CheckoutStep } from './checkoutSteps';
 
@@ -111,6 +114,7 @@ export function useCheckoutLogic({
     const [error, setError] = useState<string | null>(null);
     const [paymentResult, setPaymentResult] = useState<PaymentSuccessResult | null>(null);
     const [redirectInfo, setRedirectInfo] = useState<{ urlRedireccion: string; token: string } | null>(null);
+    const webpayOrdenIdRef = useRef<number | null>(null);
 
     const handleAuthError = useCallback(
         (status: number | undefined) =>
@@ -342,6 +346,7 @@ export function useCheckoutLogic({
                 const returnUrl = `${window.location.origin}/checkout/webpay/retorno`;
                 const init = await iniciarWebpay({ ordenId: orden.id, returnUrl });
                 guardarOrdenWebpayPendiente(orden.id);
+                webpayOrdenIdRef.current = orden.id;
 
                 checkoutCompletedRef.current = true;
                 setCheckoutCompleted(true);
@@ -390,6 +395,83 @@ export function useCheckoutLogic({
         handleAuthError,
         refreshCart,
     ]);
+
+    useEffect(() => {
+        const ordenId = webpayOrdenIdRef.current;
+        if (!ordenId || !redirectInfo) return;
+
+        let activo = true;
+        let detenido = false;
+        let paso = 0;
+        let timerBackoff: ReturnType<typeof setTimeout> | undefined;
+
+        const detener = () => {
+            detenido = true;
+        };
+
+        const tick = async () => {
+            if (!activo || detenido || document.hidden) return;
+
+            try {
+                const estado = await consultarEstadoWebpay(ordenId);
+                if (!activo || detenido || document.hidden) return;
+
+                if (estado.estado === 'APROBADA') {
+                    detener();
+                    webpayOrdenIdRef.current = null;
+                    limpiarOrdenWebpayPendiente();
+                    setRedirectInfo(null);
+
+                    const orden = await orderApi.obtenerOrden(ordenId);
+                    await refreshCart();
+                    navigate('/checkout/success', {
+                        replace: true,
+                        state: { orden, payment: null, isBankTransfer: false },
+                    });
+                    return;
+                }
+
+                if (
+                    estado.estado === 'RECHAZADA' ||
+                    estado.estado === 'ABORTADA' ||
+                    estado.estado === 'TIMEOUT'
+                ) {
+                    detener();
+                    webpayOrdenIdRef.current = null;
+                }
+            } catch {
+                // Error de red: el polling continúa (best-effort) hasta el deadline.
+            }
+        };
+
+        const programar = () => {
+            if (!activo || detenido || document.hidden) return;
+            timerBackoff = setTimeout(async () => {
+                paso = Math.min(paso + 1, WEBPAY_POLL_BACKOFF_MS.length - 1);
+                await tick();
+                if (activo && !detenido) programar();
+            }, WEBPAY_POLL_BACKOFF_MS[paso]);
+        };
+
+        const alCambiarVisibilidad = () => {
+            if (document.hidden) return;
+            paso = 0;
+            void tick();
+            programar();
+        };
+
+        document.addEventListener('visibilitychange', alCambiarVisibilidad);
+        void tick();
+        programar();
+        const timerDeadline = setTimeout(detener, WEBPAY_POLL_TIMEOUT_MS);
+
+        return () => {
+            activo = false;
+            document.removeEventListener('visibilitychange', alCambiarVisibilidad);
+            if (timerBackoff) clearTimeout(timerBackoff);
+            clearTimeout(timerDeadline);
+        };
+    }, [redirectInfo, navigate, refreshCart]);
 
     return {
         steps: CHECKOUT_STEPS,

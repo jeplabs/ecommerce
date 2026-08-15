@@ -162,6 +162,10 @@ Rutas mockeadas actualmente:
 | GET/PATCH | `/api/auth/usuarios*` | Usuarios, rol y estado (admin) |
 | POST | `/api/auth/register` | Usuario nuevo o 409 si email ya existe |
 | POST | `/api/auth/login` | Token si credenciales válidas; 401 si no |
+| POST | `/api/pagos/webpay/iniciar` | Inicia WebPay: ordenId + URL de Transbank, o error si la orden no es `PENDIENTE` |
+| POST | `/api/pagos/webpay/confirmar` | Confirma con `token_ws`; respuesta con estado de la orden |
+| GET | `/api/pagos/webpay/confirmar` | Retorno de Transbank: `TBK_TOKEN` → abortado, `TBK_ID_SESION` → timeout |
+| GET | `/api/pagos/webpay/estado/:ordenId` | Estado de la transacción WebPay (`INICIADA`/`APROBADA`/`RECHAZADA`/`ABORTADA`/`TIMEOUT`), usado por el polling |
 
 ### Credenciales de prueba (`fixtures/auth.ts`)
 
@@ -256,7 +260,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (326 tests · 67 archivos)
+### Vitest (346 tests · 69 archivos)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
@@ -293,7 +297,8 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 |---------|------|--------------|
 | `features/checkout/lib/payment-methods.test.ts` | Unit | Métodos de pago activos por país, WebPay solo CL |
 | `features/checkout/lib/transfer-order-storage.test.ts` | Unit | Marcado de transferencia, comprobante local |
-| `features/checkout/model/useCheckoutLogic.test.tsx` | Hook + MSW | Pasos, dirección, envío, pago, crear orden, WebPay |
+| `features/checkout/model/useCheckoutLogic.test.tsx` | Hook + MSW | Pasos, dirección, envío, pago, crear orden, WebPay; en `APROBADA` limpia el pedido pendiente y navega a success |
+| `features/checkout/model/useCheckoutLogic.polling.test.tsx` | Hook + fake timers | Polling de `estado` con backoff (`2s→5s→15s→30s`) y pausa/reanudación por visibilidad de pestaña |
 | `features/checkout/model/useCheckoutSuccessRecommendations.test.tsx` | Hook + MSW | Recomendaciones post-compra |
 | `features/checkout/ui/CheckoutContent.test.tsx` | C | Orquestación de pasos del checkout |
 | `features/checkout/ui/CheckoutLineItems.test.tsx` | C | Ítems, SKU, imágenes, cantidades |
@@ -308,7 +313,8 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `features/checkout/ui/SimulatedQPayProForm/*.test.tsx` | C | Formulario simulado QPayPro |
 | `features/checkout/ui/SimulatedWebpayForm/*.test.tsx` | C | Formulario simulado WebPay (demo) |
 | `features/checkout/ui/BankTransferAccounts/*.test.tsx` | C | Cuentas bancarias por país |
-| `entities/checkout/api/paymentApi.test.ts` | I | Tope de pago, iniciar WebPay, confirmar |
+| `features/checkout/api/paymentApi.test.ts` | I | Tope de pago, iniciar WebPay, confirmar |
+| `features/checkout/api/paymentGatewayApi.test.ts` | I + MSW | `iniciarWebpay`, `confirmarWebpay`, notificar abortada/timeout, `consultarEstadoWebpay` (estado, 404, error Zod) |
 | `entities/order/api/ordersApi.test.ts` | I + MSW | Crear orden, detalle, comprobante |
 | `entities/shipping/model/*.test.ts` | Unit | Mappers de envío, entrega a domicilio/retiro |
 | `pages/checkout/ui/CheckoutPage.test.tsx` | C | Página de checkout |
@@ -520,7 +526,7 @@ Objetivo: llevar a ~100 % la cobertura de líneas/statements del módulo de chec
 - [x] `features/checkout/ui/**` (PaymentStep, OrderSummary, CheckoutContent, ReviewAndShippingStep, PickupBranchSelector, ShippingServiceSelector, CheckoutLineItems, SimulatedStripeForm, SimulatedQPayProForm, SimulatedWebpayForm, SimulatedMercadoPagoForm, BankTransferAccounts, OrderBankTransferSection, ContraEntregaForm)
 - [x] `features/checkout/model/**` (useCheckoutLogic, useCheckoutSuccessRecommendations, schemas)
 - [x] `features/checkout/lib/**` (payment-methods, bank-transfer-accounts, transfer-order-storage)
-- [x] `entities/checkout/api/**` y `entities/order/api/**` (paymentApi, ordersApi)
+- [x] `entities/order/api/**` (ordersApi). Nota: `paymentApi.ts`/`paymentGatewayApi.ts` viven en `features/checkout/api/**`, que queda **fuera** del `include` (ver «Hueco de config conocido»)
 - [x] `entities/shipping/model/**` (mappers de envío)
 - [x] `pages/checkout/**`, `pages/checkout-success/**`, `widgets/checkout/**` (CheckoutPage, CheckoutSuccessPage, CheckoutSuccessView)
 - [x] `shared/lib/**` y `shared/api/**` (format, api-url, api-error)
@@ -535,10 +541,10 @@ Objetivo: llevar a ~100 % la cobertura de líneas/statements del módulo de chec
 
 | Métrica | Valor |
 |---------|-------|
-| Statements | 92.89 % |
-| Branches | 88.18 % |
-| Functions | 93.08 % |
-| Lines | 93.44 % |
+| Statements | 90.99 % |
+| Branches | 85.48 % |
+| Functions | 92.82 % |
+| Lines | 91.88 % |
 
 **Umbrales en `vite.config.ts`** (impiden regresión en CI):
 
@@ -559,9 +565,8 @@ El gap restante del alcance de Fase 7 se concentra en pocos archivos:
 
 | Archivo | Líneas | Qué falta cubrir |
 |---------|--------|------------------|
-| `features/checkout/model/useCheckoutLogic.ts` | ~78 % | ~30–40 líneas: flujo de pago completo, fallo al crear la orden, `iniciarWebpay`/`confirmarWebpay` con error, carrito vacío al cargar, reintento/limpieza y validaciones por paso |
+| `features/checkout/model/useCheckoutLogic.ts` | ~83 % | Ramas terminales del polling (timeout, `RECHAZADA`/`ABORTADA`, errores de red), fallo al crear la orden, `iniciarWebpay`/`confirmarWebpay` con error, carrito vacío al cargar y validaciones por paso |
 | `features/checkout/lib/transfer-order-storage.ts` | ~91 % | 4 líneas de borde de `localStorage` (marcado/limpieza) |
-| `entities/checkout/api/paymentApi.ts` | ~97.5 % | 1 línea (rama de error/parseo) |
 | `features/checkout/ui/CheckoutContent.tsx` | ~96.8 % stmts | Statements condicionales de orquestación |
 
 Regla: perseguir 100 % en *lines/statements*. Para **código muerto o stubs** (componentes comentados/deshabilitados) usar `/* v8 ignore next */` con justificación, en vez de escribir tests artificiales o marcar un "falso 100 %".
@@ -571,23 +576,23 @@ Regla: perseguir 100 % en *lines/statements*. Para **código muerto o stubs** (c
 | Práctica | Recomendación |
 |----------|---------------|
 | `coverage.all: true` | Hoy es el default de Vitest; explicitarlo garantiza que todo archivo del `include` cuente aunque no sea importado (si el default cambia de versión, el umbral dejaría de ser real) |
-| Reporter | `['text-summary', 'html', 'lcov']` o `json-summary` para CI/codecov; `text` completo es ruidoso con ~60 archivos |
+| Reporter | `['text-summary', 'html', 'lcov']` o `json-summary` para CI/codecov; `text` completo es ruidoso con ~70 archivos |
 | `pool: 'threads'` en config | Hoy es workaround de Windows que se recuerda en docs; en CI conviene que `pnpm test:coverage` lo use por defecto |
-| Margen de umbrales | Dejar 2–3 pt de aire sobre el valor real (hoy: lines 90 vs 93.44, branches 85 vs 88.18); subir `branches` a ~88 cuando `useCheckoutLogic` quede cubierto |
+| Margen de umbrales | Dejar 2–3 pt de aire sobre el valor real (hoy: lines 90 vs 91.88, branches 85 vs 85.48); subir `branches` a ~88 cuando `useCheckoutLogic` quede cubierto |
 | `thresholds.autoUpdate` | **No usar**: reescribe el config silenciosamente y enmascara regresiones |
 | `perFile` | Hoy es agregado; para gate por archivo revisar el HTML o un grep per-file antes de activar `perFile: true` (puede ser frágil con stubs nuevos) |
 | `exclude` | Añadir `**/*.d.ts` y `src/vite-env.d.ts` si aparecen en el reporte |
 | Crecimiento incremental | Cada área de Fase 8 entra al `include` **solo con sus tests**; nunca agrandar el glob "para ver qué falta" sin cubrir antes, o el umbral falla y se termina bajando |
 | Gate de CI | Falta un workflow (GitHub Actions) que corra `pnpm test:coverage`; el umbral solo protege si se ejecuta en el pipeline, no en el IDE |
 
-**Hueco de config conocido:** el `include` cubre `features/checkout/{ui,model,lib}/**`, `entities/checkout/api/**` y `entities/order/api/**`, pero **no** `features/checkout/api/**` (`paymentApi.ts`, `paymentGatewayApi.ts`). Esos archivos corren sus tests pero no pesan en el umbral. Decidir: agregarlos al `include` (y cubrirlos) o dejarlos fuera deliberadamente documentado.
+**Hueco de config conocido:** el `include` cubre `features/checkout/{ui,model,lib}/**` y `entities/order/api/**`, pero **no** `features/checkout/api/**` (`paymentApi.ts`, `paymentGatewayApi.ts`). Esos archivos corren sus tests pero no pesan en el umbral. Decidir: agregarlos al `include` (y cubrirlos) o dejarlos fuera deliberadamente documentado.
 
 #### Impacto en cobertura de retirar Stripe y Mercado Pago
 
 Decisión de equipo: **Stripe y Mercado Pago se retiran del proyecto** (se mantienen QPayPro, WebPay Plus y Transferencia bancaria). Impacto esperado en cobertura al limpiarlos:
 
 - **No baja el coverage; tiende a subirlo levemente.** Se eliminan líneas/ramas sin cubrir de `useCheckoutLogic.ts` (su gap principal) y las ramas al ~50 % de `SimulatedStripeForm`. Los componentes `SimulatedStripeForm`/`SimulatedMercadoPagoForm` están ~100 % cubiertos, así que al borrarlos el ratio global queda igual (numerador y denominador bajan a la vez).
-- **Baja el conteo de tests** (aprox. 326 → ~318–321 según cuántos casos se eliminen) y de archivos de test (67 → 65).
+- **Baja el conteo de tests** (aprox. 346 → ~338–341 según cuántos casos se eliminen) y de archivos de test (69 → 67).
 - La lógica simulada vive sobre todo en `features/checkout/api/paymentApi.ts`, que **no está en el `include`**, así que su limpieza no afecta los umbrales.
 
 ### Fase 5 — Auth avanzada y sesión (prioridad media)
@@ -713,6 +718,7 @@ Los archivos bajo `src/**/*.test.ts` usan tipos de **Vitest** (`tsconfig.json` p
 | Problema | Causa probable | Solución |
 |----------|----------------|----------|
 | Vitest: `Unhandled request` | Falta handler MSW | Añadir ruta en `handlers.ts` o `server.use()` |
+| Vitest: `waitFor` cuelga al usar `vi.useFakeTimers()` | RTL no avanza los timers simulados | Hacer el setup (incl. `waitFor`) con timers reales y activar `vi.useFakeTimers()` justo antes de disparar la acción; ver `useCheckoutLogic.polling.test.tsx` |
 | Vitest: schema Zod falla | Fixture no alineada al backend | Ajustar fixture según `*ApiSchema` |
 | E2E: `cy.wait('@login')` timeout | Intercept no registrado o formulario no enviado | Verificar `stubAuthApi()` y selectores del login |
 | E2E: inputs no clicables | Navbar sticky / `body { position: fixed }` | Scopear formulario; `{ force: true }` si aplica |

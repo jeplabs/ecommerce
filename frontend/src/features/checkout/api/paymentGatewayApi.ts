@@ -6,9 +6,11 @@ import {
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import {
     webpayConfirmResponseSchema,
+    webpayEstadoSchema,
     webpayInitResponseSchema,
     type WebpayConfirmResponse,
     type WebpayInitResult,
+    type WebpayEstadoSchema,
 } from '../model/schemas/payment';
 
 const getToken = () => localStorage.getItem('token');
@@ -95,9 +97,25 @@ export async function notificarTimeout(
     }
 }
 
+/** {@code GET /api/pagos/webpay/estado/{ordenId}} */
+export async function consultarEstadoWebpay(ordenId: number): Promise<WebpayEstadoSchema> {
+    const response = await fetch(`${API_URL}/api/pagos/webpay/estado/${ordenId}`, {
+        method: 'GET',
+        headers: getAuthHeaders(getToken()),
+    });
+
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, 'Error al consultar el estado del pago Webpay');
+    }
+
+    return parseApi(webpayEstadoSchema, raw);
+}
+
 export const paymentGatewayApi = {
     iniciarWebpay,
     confirmarWebpay,
     notificarAbortada,
     notificarTimeout,
+    consultarEstadoWebpay
 };

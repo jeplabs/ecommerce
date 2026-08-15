@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { CheckoutProvider } from '@/app/providers/CheckoutProvider';
@@ -10,6 +11,8 @@ import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { addDynamicCartItem } from '@/test/msw/fixtures/cart-registry';
 import { mockAddresses } from '@/test/msw/fixtures/addresses';
 import { mockProduct } from '@/test/msw/fixtures/products';
+import { API_BASE } from '@/test/msw/constants';
+import { server } from '@/test/msw/server';
 
 function createCheckoutWrapper() {
     return function Wrapper({ children }: { children: ReactNode }) {
@@ -228,5 +231,44 @@ describe('useCheckoutLogic', () => {
             expect(checkoutResult.orden.estado).toBe('PENDIENTE');
         }
         expect(result.current.redirectInfo).not.toBeNull();
+    });
+
+    it('webpay: limpia el pedido pendiente y navega a éxito cuando el estado es APROBADA', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        server.use(
+            http.get(`${API_BASE}/api/pagos/webpay/estado/:ordenId`, ({ params }) =>
+                HttpResponse.json({
+                    ordenId: Number(params.ordenId),
+                    estado: 'APROBADA',
+                    motivo: null,
+                })
+            )
+        );
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.WEBPAY);
+        });
+
+        expect(result.current.canContinuePayment).toBe(true);
+
+        await act(async () => {
+            await result.current.completeCheckout();
+        });
+
+        await waitFor(
+            () => expect(sessionStorage.getItem('webpay:ordenPendienteId')).toBeNull(),
+            { timeout: 5000 }
+        );
     });
 });

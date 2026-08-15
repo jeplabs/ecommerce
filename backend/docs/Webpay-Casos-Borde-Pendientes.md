@@ -301,43 +301,106 @@ antes se reconcilie** con `status()` (Caso 1) para no cancelar una orden efectiv
 
 ## Caso 5 — Polling del estado del pago
 
-**Severidad:** MEDIO · **Backend:** No (endpoint ya existe) · **Frontend:** **DEUDA TÉCNICA**
+**Estado:** ✅ **RESUELTO (frontend implementado)** · **Severidad:** MEDIO · **Backend:** No (endpoint
+ya existe) · **Frontend:** ✅ implementado
 
 ### El problema
 
 `GET /api/pagos/webpay/estado/{ordenId}` (permitAll, SecurityConfigurations:59) y
-`WebpayService.consultarEstado` (122-128) **existen pero el frontend nunca los usa** (verificado: 0
-usos). Si se pierde el redirect de retorno no hay fallback.
+`WebpayService.consultarEstado` (122-128) **existían pero el frontend nunca los usaba** (verificado: 0
+usos). Si se pierde el redirect de retorno no había fallback.
 
-### Solución frontend (pendiente de implementar)
+### Solución implementada (frontend)
 
-1. `paymentGatewayApi.ts`:
+1. **`paymentGatewayApi.ts`** — `consultarEstadoWebpay(ordenId)`:
 
 ```ts
 /** {@code GET /api/pagos/webpay/estado/{ordenId}} */
-export async function consultarEstadoWebpay(ordenId: number): Promise<WebpayEstado> {
+export async function consultarEstadoWebpay(ordenId: number): Promise<WebpayEstadoSchema> {
     const response = await fetch(`${API_URL}/api/pagos/webpay/estado/${ordenId}`, {
         method: 'GET',
         headers: getAuthHeaders(getToken()),
     });
+
     const raw = await readJson(response);
-    if (!response.ok) throwApiError(response, raw, 'Error al consultar el estado del pago');
+    if (!response.ok) {
+        throwApiError(response, raw, 'Error al consultar el estado del pago Webpay');
+    }
+
     return parseApi(webpayEstadoSchema, raw);
 }
 ```
 
-2. Schema `webpayEstadoSchema` en `model/schemas/payment.ts` (`{ ordenId, estado, motivo }`).
-3. `useCheckoutLogic.ts`: tras `iniciarWebpay`, `setInterval` ~4 s consultando estado; si
-   `CONFIRMADA` → completar checkout/navegar a éxito; si terminal → detener y mostrar recuperación;
-   límite ~3 min o al recuperar foco; cleanup con refs.
-4. Tests: handler MSW `GET /estado/:ordenId` + casos en `useCheckoutLogic.test.tsx` y
-   `paymentGatewayApi.test.ts`.
+Exportado desde el barrel `api/index.ts` y agregado al objeto `paymentGatewayApi`.
+
+2. **Schema `webpayEstadoSchema`** en `model/schemas/payment.ts` — **corregido para coincidir con el
+   backend**: el DTO `DatosEstadoWebpay` serializa `EstadoWebpayTransaccion`
+   (`INICIADA | APROBADA | RECHAZADA | ABORTADA | TIMEOUT`) y `MotivoRechazoWebpay` puede venir como
+   `null`:
+
+```ts
+export const webpayEstadoSchema = z.object({
+    ordenId: z.number(),
+    estado: z.enum(['INICIADA', 'APROBADA', 'RECHAZADA', 'ABORTADA', 'TIMEOUT']),
+    motivo: z.enum(['ABORTED', 'TIMEOUT', 'REJECTED']).nullish(),
+});
+```
+
+3. **`useCheckoutLogic.ts`** — efecto de polling (detalle en la siguiente sección).
+4. **`handlers.ts` (MSW)** — `GET /api/pagos/webpay/estado/:ordenId` → `{ ordenId, estado: 'INICIADA',
+   motivo: null }`.
+5. **Tests** — ver "Tests" más abajo.
+
+### Detalle del efecto de polling (`useCheckoutLogic.ts`)
+
+- **Arranque:** cuando `redirectInfo` se setea (justo después de `iniciarWebpay` en la rama Webpay),
+  usando `webpayOrdenIdRef` para recordar el `ordenId`.
+- **Cadencia (backoff):** el **primer tick es inmediato**; los siguientes usan
+  `WEBPAY_POLL_BACKOFF_MS = [2000, 5000, 15000, 30000]` (2 s → 5 s → 15 s → tope 30 s).
+- **Deadline (configurable):** `WEBPAY_POLL_TIMEOUT_MS = 5 * 60 * 1000` (5 min) — alineado con el
+  timeout de sesión de Transbank en producción (**4 min**) más margen.
+- **Pausa por visibilidad:** si `document.hidden`, el tick no consulta y no se reprograman timers;
+  el listener `visibilitychange` al volver la pestaña **visible** hace un **tick inmediato** y
+  reinicia el backoff desde 0.
+- **Estados de la transacción:**
+  - `APROBADA` → limpia el pedido pendiente (`limpiarOrdenWebpayPendiente`), resetea `redirectInfo`,
+    busca la orden (`orderApi.obtenerOrden`) y **navega a `/checkout/success`** con
+    `{ orden, payment: null, isBankTransfer: false }`.
+  - `RECHAZADA` / `ABORTADA` / `TIMEOUT` → **detiene** el polling (la recuperación la maneja la
+    pantalla de retorno `/checkout/webpay/retorno`).
+  - `INICIADA` → sigue esperando.
+  - **Error de red** → se ignora (best-effort hasta el deadline).
+- **Cleanup:** al desmontar, cambiar `redirectInfo` o llegar al deadline: `activo = false`, se remueve
+  el listener y se limpian los timers de backoff y deadline.
+
+### Por qué estos tiempos (mejores prácticas)
+
+- **Backoff en vez de 4 s fijos:** en una ventana completa se pasa de ~46 consultas por checkout
+  (1 inicial + 45 ticks en 3 min) a típicamente **<10**.
+- **Ventana de 5 min en vez de 3 min:** el timeout de Transbank en producción es 4 min; con 3 min el
+  polling se detenía antes de que el webhook pudiera confirmar, dejando el caso sin detectar.
+- **Pausa por visibilidad:** como es una **redirección** a Transbank, la pestaña del SPA queda oculta
+  e inactiva mientras el usuario paga; consultar en segundo plano es trabajo desperdiciado. Al volver
+  el foco hay un check inmediato (UX reactiva).
+- **Endpoint barato:** `consultarEstado` es solo un lookup por PK indexada (`findByOrdenId`). El
+  polling **nunca** llama a `Transaction.status()` de Transbank (caro y con rate limit) — eso es
+  trabajo de la reconciliación programada del Caso 1.
+
+### Tests
+
+- `paymentGatewayApi.test.ts`: parseo con `motivo: null`, `ApiError` en 404, `ZodError` con valor de
+  estado desconocido.
+- `useCheckoutLogic.test.tsx`: estado `APROBADA` → limpia el pedido pendiente.
+- `useCheckoutLogic.polling.test.tsx` (con `vi.useFakeTimers`):
+  - **backoff:** primer tick inmediato y cadencia `2 s → 5 s → 15 s → 30 s → 30 s`;
+  - **visibilidad:** sin consultas mientras la pestaña está oculta y consulta inmediata al volver.
 
 ### Justificación
 
-Refuerza el Caso 1: si el cliente pagó y el retorno se perdió, el polling detecta `CONFIRMADA` y
-lleva al usuario al éxito sin reintentar (evita el doble cobro). Se documenta como deuda técnica de
-frontend para implementar junto con el resto de pendientes de frontend.
+Refuerza el Caso 1: si el cliente pagó y el retorno se perdió, el polling detecta `APROBADA` y lleva
+al usuario al éxito sin reintentar (evita el doble cobro). El polling es **best-effort de UX**; la red
+de seguridad definitiva sigue siendo la **reconciliación programada** del Caso 1 (backend, pendiente
+de implementar).
 
 ---
 
@@ -438,7 +501,7 @@ preferible porque elimina el campo muerto.
 | 2. Webhook sin secreto | ALTO | validar `X-Webhook-Secret` | — | Equipo backend |
 | 3. Reembolso autorizado por admin | ALTO | estados + `refund()` + endpoint admin + correos | UI admin (opcional) | Equipo backend (+ frontend) |
 | 4. Expiración de órdenes | MEDIO | scheduler 10 min + reconciliación | — | Equipo backend |
-| 5. Polling del estado | MEDIO | — (endpoint existe) | deuda técnica: implementar | Equipo frontend |
+| 5. Polling del estado | MEDIO | — (endpoint existe) | ✅ implementado (backoff + visibilidad + 5 min) | ✅ frontend |
 | 6. Retorno POST integración | BAJO | opcional (puente) | limitación documentada | Equipo backend |
 | 7. Validar monto del commit | BAJO | comparar monto | — | Equipo backend |
 | 8. `returnUrl` duplicado | BAJO | — | Opción A: dejar de enviar | Equipo frontend |
@@ -458,7 +521,8 @@ preferible porque elimina el campo muerto.
 | `backend/.../EmailService.java` | 3 |
 | `backend/src/main/resources/application*.properties` | 2, 4 |
 | `frontend/src/features/checkout/api/paymentGatewayApi.ts` | 5, 8 |
+| `frontend/src/features/checkout/api/index.ts` | 5 |
 | `frontend/src/features/checkout/model/useCheckoutLogic.ts` | 5, 8 |
 | `frontend/src/features/checkout/model/schemas/payment.ts` | 5 |
 | `frontend/src/test/msw/handlers.ts` | 5 |
-| Tests frontend (`paymentGatewayApi.test.ts`, `useCheckoutLogic.test.tsx`) | 5, 8 |
+| Tests frontend (`paymentGatewayApi.test.ts`, `useCheckoutLogic.test.tsx`, `useCheckoutLogic.polling.test.tsx`) | 5, 8 |
