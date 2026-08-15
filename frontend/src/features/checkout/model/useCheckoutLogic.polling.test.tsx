@@ -61,6 +61,7 @@ async function prepararCheckoutWebpay(result: { current: ReturnType<typeof useCh
 
 describe('useCheckoutLogic polling Webpay', () => {
     beforeEach(() => {
+        sessionStorage.clear();
         consultarEstadoSpy.consultarEstadoWebpay.mockReset();
         consultarEstadoSpy.consultarEstadoWebpay.mockResolvedValue({
             ordenId: 501,

@@ -8,7 +8,11 @@ import { paymentApi, PAYMENT_METHODS, iniciarWebpay, consultarEstadoWebpay } fro
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
 import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
 import { markOrderAsBankTransfer } from '@/features/checkout/lib/transfer-order-storage';
-import { guardarOrdenWebpayPendiente, limpiarOrdenWebpayPendiente } from '@/features/checkout/lib/webpay-pending-order';
+import {
+    guardarOrdenWebpayPendiente,
+    limpiarOrdenWebpayPendiente,
+    obtenerOrdenWebpayPendiente,
+} from '@/features/checkout/lib/webpay-pending-order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { ApiError } from '@/shared';
 import {
@@ -115,6 +119,15 @@ export function useCheckoutLogic({
     const [paymentResult, setPaymentResult] = useState<PaymentSuccessResult | null>(null);
     const [redirectInfo, setRedirectInfo] = useState<{ urlRedireccion: string; token: string } | null>(null);
     const webpayOrdenIdRef = useRef<number | null>(null);
+    const webpayPollEpochRef = useRef(0);
+    const refreshCartRef = useRef(refreshCart);
+    useEffect(() => {
+        refreshCartRef.current = refreshCart;
+    });
+    const navigateRef = useRef(navigate);
+    useEffect(() => {
+        navigateRef.current = navigate;
+    });
 
     const handleAuthError = useCallback(
         (status: number | undefined) =>
@@ -342,6 +355,10 @@ export function useCheckoutLogic({
                 notas: notas.trim() || null,
             });
 
+            // Invalida cualquier polling reanudado de una orden previa
+            // (p.ej. la recuperación del Caso 5 al volver a /checkout).
+            webpayPollEpochRef.current += 1;
+
             if (isWebpay) {
                 const returnUrl = `${window.location.origin}/checkout/webpay/retorno`;
                 const init = await iniciarWebpay({ ordenId: orden.id, returnUrl });
@@ -397,24 +414,28 @@ export function useCheckoutLogic({
     ]);
 
     useEffect(() => {
-        const ordenId = webpayOrdenIdRef.current;
-        if (!ordenId || !redirectInfo) return;
+        const ordenId = webpayOrdenIdRef.current ?? obtenerOrdenWebpayPendiente();
+        if (!ordenId) return;
 
         let activo = true;
         let detenido = false;
         let paso = 0;
         let timerBackoff: ReturnType<typeof setTimeout> | undefined;
+        const epoch = webpayPollEpochRef.current;
 
         const detener = () => {
             detenido = true;
         };
 
+        const esVigente = () =>
+            activo && !detenido && webpayPollEpochRef.current === epoch;
+
         const tick = async () => {
-            if (!activo || detenido || document.hidden) return;
+            if (!esVigente() || document.hidden) return;
 
             try {
                 const estado = await consultarEstadoWebpay(ordenId);
-                if (!activo || detenido || document.hidden) return;
+                if (!esVigente() || document.hidden) return;
 
                 if (estado.estado === 'APROBADA') {
                     detener();
@@ -423,8 +444,8 @@ export function useCheckoutLogic({
                     setRedirectInfo(null);
 
                     const orden = await orderApi.obtenerOrden(ordenId);
-                    await refreshCart();
-                    navigate('/checkout/success', {
+                    await refreshCartRef.current();
+                    navigateRef.current('/checkout/success', {
                         replace: true,
                         state: { orden, payment: null, isBankTransfer: false },
                     });
@@ -445,11 +466,11 @@ export function useCheckoutLogic({
         };
 
         const programar = () => {
-            if (!activo || detenido || document.hidden) return;
+            if (!esVigente() || document.hidden) return;
             timerBackoff = setTimeout(async () => {
                 paso = Math.min(paso + 1, WEBPAY_POLL_BACKOFF_MS.length - 1);
                 await tick();
-                if (activo && !detenido) programar();
+                if (esVigente()) programar();
             }, WEBPAY_POLL_BACKOFF_MS[paso]);
         };
 
@@ -471,7 +492,7 @@ export function useCheckoutLogic({
             if (timerBackoff) clearTimeout(timerBackoff);
             clearTimeout(timerDeadline);
         };
-    }, [redirectInfo, navigate, refreshCart]);
+    }, [redirectInfo]);
 
     return {
         steps: CHECKOUT_STEPS,

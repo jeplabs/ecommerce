@@ -64,6 +64,7 @@ import {
     updateDynamicUserRol,
 } from '../../src/test/msw/fixtures/users-registry';
 import { mockShippingOptions } from '../../src/test/msw/fixtures/shipping';
+import type { OrderApi } from '../../src/entities/order/model/schemas/api';
 
 export type RegisterFormData = {
     nombre: string;
@@ -196,6 +197,21 @@ Cypress.Commands.add('stubAuthenticatedApi', () => {
         }
         req.reply({ statusCode: 404, body: { error: 'Orden no encontrada' } });
     }).as('getOrderById');
+    cy.intercept('GET', '**/api/pagos/webpay/estado/*', (req) => {
+        const id = Number(req.url.split('/estado/')[1]?.split('?')[0]);
+        const order = findDynamicOrder(id);
+        if (!order) {
+            req.reply({ statusCode: 404, body: { error: 'Transacción no encontrada' } });
+            return;
+        }
+        const estado =
+            order.estado === 'CONFIRMADA'
+                ? 'APROBADA'
+                : order.estado === 'CANCELADA'
+                  ? 'ABORTADA'
+                  : 'INICIADA';
+        req.reply({ ordenId: id, estado, motivo: null });
+    }).as('getWebpayEstado');
     cy.intercept('PATCH', '**/api/ordenes/*/cancelar', (req) => {
         const id = Number(req.url.split('/ordenes/')[1]?.split('/')[0]);
         try {
@@ -521,6 +537,16 @@ Cypress.Commands.add('addProductToCart', (productName: string) => {
     cy.wait('@addCartItem');
 });
 
+/** Agrega un ítem al carrito dinámico directamente (mismo registro que usan los intercepts). */
+Cypress.Commands.add('addCartItemDirect', (productId: number, cantidad = 1) => {
+    addDynamicCartItem(productId, cantidad);
+});
+
+/** Cambia el estado de una orden dinámica directamente (mismo registro que usan los intercepts). */
+Cypress.Commands.add('setOrderEstado', (id: number, estado: OrderApi['estado']) => {
+    updateDynamicOrderStatusAdmin(id, estado);
+});
+
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Cypress {
@@ -537,6 +563,8 @@ declare global {
             loginAsCustomer(): Chainable<void>;
             loginAsAdmin(): Chainable<void>;
             addProductToCart(productName: string): Chainable<void>;
+            addCartItemDirect(productId: number, cantidad?: number): Chainable<void>;
+            setOrderEstado(id: number, estado: OrderApi['estado']): Chainable<void>;
         }
     }
 }

@@ -346,15 +346,30 @@ export const webpayEstadoSchema = z.object({
 });
 ```
 
-3. **`useCheckoutLogic.ts`** — efecto de polling (detalle en la siguiente sección).
-4. **`handlers.ts` (MSW)** — `GET /api/pagos/webpay/estado/:ordenId` → `{ ordenId, estado: 'INICIADA',
-   motivo: null }`.
+3. **`useCheckoutLogic.ts`** — efecto de polling (detalle en la siguiente sección), que **se reanuda al
+   montar `/checkout`** leyendo el id pendiente desde `sessionStorage` (fix del Caso 5, ver
+   "Reanudación al volver al checkout").
+4. **`handlers.ts` (MSW)** — `GET /api/pagos/webpay/estado/:ordenId` conectado al registry de órdenes
+   (`findDynamicOrder`): `CONFIRMADA → APROBADA`, `CANCELADA → ABORTADA`, resto `INICIADA` (404 si no
+   existe). Espejo del estado real del backend para el polling.
 5. **Tests** — ver "Tests" más abajo.
 
 ### Detalle del efecto de polling (`useCheckoutLogic.ts`)
 
 - **Arranque:** cuando `redirectInfo` se setea (justo después de `iniciarWebpay` en la rama Webpay),
-  usando `webpayOrdenIdRef` para recordar el `ordenId`.
+  usando `webpayOrdenIdRef` para recordar el `ordenId`. **Y también al montar `/checkout`**: si no hay
+  `webpayOrdenIdRef`, lee `obtenerOrdenWebpayPendiente()` (clave `webpay:ordenPendienteId` de
+  `sessionStorage`) — así una orden que el cliente ya pagó y cuyo retorno se perdió **se completa sola**
+  al volver al checkout, aunque cierre y reabra la pestaña.
+- **Dependencias estables `[redirectInfo]`:** `refreshCart` y `navigate` se guardan en refs
+  (`refreshCartRef`, `navigateRef`) porque sus identidades cambian en cada render (dependen de
+  `catalog`/`useNavigate`); usarlas como deps reiniciaba el efecto y mataba el loop.
+- **StrictMode (dev):** React monta los componentes dos veces. No hay guard de "claim" de la orden
+  (un flag impedía el segundo arranque y rompía el resume): el cleanup del run 1 desactiva su loop y el
+  run 2 arranca uno nuevo — en dev se disparan dos ticks al montar (aceptable); en producción solo uno.
+- **Epoch (`webpayPollEpochRef`):** se incrementa en `completeCheckout` justo después de `crearOrden`
+  (todos los métodos de pago). Invalida un loop reanudado si el usuario completa un checkout nuevo
+  (p. ej. transferencia bancaria, que no cambia `redirectInfo`).
 - **Cadencia (backoff):** el **primer tick es inmediato**; los siguientes usan
   `WEBPAY_POLL_BACKOFF_MS = [2000, 5000, 15000, 30000]` (2 s → 5 s → 15 s → tope 30 s).
 - **Deadline (configurable):** `WEBPAY_POLL_TIMEOUT_MS = 5 * 60 * 1000` (5 min) — alineado con el
@@ -367,7 +382,8 @@ export const webpayEstadoSchema = z.object({
     busca la orden (`orderApi.obtenerOrden`) y **navega a `/checkout/success`** con
     `{ orden, payment: null, isBankTransfer: false }`.
   - `RECHAZADA` / `ABORTADA` / `TIMEOUT` → **detiene** el polling (la recuperación la maneja la
-    pantalla de retorno `/checkout/webpay/retorno`).
+    pantalla de retorno `/checkout/webpay/retorno`). No borra `sessionStorage`: si el cliente vuelve,
+    el Caso 1 (backend) reconciliará la transacción.
   - `INICIADA` → sigue esperando.
   - **Error de red** → se ignora (best-effort hasta el deadline).
 - **Cleanup:** al desmontar, cambiar `redirectInfo` o llegar al deadline: `activo = false`, se remueve
@@ -394,6 +410,13 @@ export const webpayEstadoSchema = z.object({
 - `useCheckoutLogic.polling.test.tsx` (con `vi.useFakeTimers`):
   - **backoff:** primer tick inmediato y cadencia `2 s → 5 s → 15 s → 30 s → 30 s`;
   - **visibilidad:** sin consultas mientras la pestaña está oculta y consulta inmediata al volver.
+- `useCheckoutLogic.resume.test.tsx` (Caso 5, con MSW y `waitFor` real):
+  - **reanuda al montar** una orden `CONFIRMADA` guardada en `sessionStorage` y **navega a success**
+    (limpia `sessionStorage`); con la orden `INICIADA` no hace nada y sigue esperando.
+- `cypress/e2e/checkout-webpay-polling.cy.ts` (E2E): el cliente vuelve al checkout con una orden ya
+  `CONFIRMADA` en el registry; el SPA reanuda el polling, recibe `APROBADA` y aterriza en
+  `/checkout/success`. Requiere que `main.tsx` tenga `<StrictMode>` (el resume arranca en el segundo
+  montaje en dev).
 
 ### Justificación
 
@@ -501,7 +524,7 @@ preferible porque elimina el campo muerto.
 | 2. Webhook sin secreto | ALTO | validar `X-Webhook-Secret` | — | Equipo backend |
 | 3. Reembolso autorizado por admin | ALTO | estados + `refund()` + endpoint admin + correos | UI admin (opcional) | Equipo backend (+ frontend) |
 | 4. Expiración de órdenes | MEDIO | scheduler 10 min + reconciliación | — | Equipo backend |
-| 5. Polling del estado | MEDIO | — (endpoint existe) | ✅ implementado (backoff + visibilidad + 5 min) | ✅ frontend |
+| 5. Polling del estado | MEDIO | — (endpoint existe) | ✅ implementado (backoff + visibilidad + 5 min + reanudación al volver) | ✅ frontend |
 | 6. Retorno POST integración | BAJO | opcional (puente) | limitación documentada | Equipo backend |
 | 7. Validar monto del commit | BAJO | comparar monto | — | Equipo backend |
 | 8. `returnUrl` duplicado | BAJO | — | Opción A: dejar de enviar | Equipo frontend |
@@ -525,4 +548,6 @@ preferible porque elimina el campo muerto.
 | `frontend/src/features/checkout/model/useCheckoutLogic.ts` | 5, 8 |
 | `frontend/src/features/checkout/model/schemas/payment.ts` | 5 |
 | `frontend/src/test/msw/handlers.ts` | 5 |
-| Tests frontend (`paymentGatewayApi.test.ts`, `useCheckoutLogic.test.tsx`, `useCheckoutLogic.polling.test.tsx`) | 5, 8 |
+| `frontend/src/features/checkout/lib/webpay-pending-order.ts` | 5 (reanudación desde `sessionStorage`) |
+| Tests frontend (`paymentGatewayApi.test.ts`, `useCheckoutLogic.test.tsx`, `useCheckoutLogic.polling.test.tsx`, `useCheckoutLogic.resume.test.tsx`) | 5, 8 |
+| E2E (`cypress/e2e/checkout-webpay-polling.cy.ts` + `cypress/support/commands.ts`) | 5 |

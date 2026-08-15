@@ -211,6 +211,11 @@ Además de las pruebas manuales de esta guía (con tarjetas de prueba de Transba
 - **`features/checkout/model/useCheckoutLogic.polling.test.tsx`** — polling de `GET /estado/{ordenId}`
   con backoff (`2s→5s→15s→30s`) y pausa/reanudación por visibilidad de pestaña; una transacción
   `APROBADA` descubierta por polling completa la orden (limpia el pendiente y navega a `/checkout/success`).
+- **`features/checkout/model/useCheckoutLogic.resume.test.tsx`** — Caso 5: al **volver a `/checkout`**
+  el hook reanuda el polling leyendo `webpay:ordenPendienteId` de `sessionStorage`; si la orden quedó
+  `CONFIRMADA`/`APROBADA` navega a success, y si sigue `INICIADA` no hace nada.
+- **`cypress/e2e/checkout-webpay-polling.cy.ts`** — E2E del Caso 5: cliente vuelve al checkout con la
+  orden ya confirmada → el SPA reanuda el polling y aterriza en `/checkout/success`.
 
 Cualquier cambio en los archivos listados arriba queda bajo el umbral de cobertura de
 `vite.config.ts` (lines/statements 90 %, branches 85 %), así que una regresión de estas pruebas

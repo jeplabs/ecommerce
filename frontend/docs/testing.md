@@ -260,7 +260,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 
 ## Tests incluidos
 
-### Vitest (346 tests · 69 archivos)
+### Vitest (348 tests · 70 archivos)
 
 | Archivo | Tipo | Qué verifica |
 |---------|------|--------------|
@@ -299,6 +299,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `features/checkout/lib/transfer-order-storage.test.ts` | Unit | Marcado de transferencia, comprobante local |
 | `features/checkout/model/useCheckoutLogic.test.tsx` | Hook + MSW | Pasos, dirección, envío, pago, crear orden, WebPay; en `APROBADA` limpia el pedido pendiente y navega a success |
 | `features/checkout/model/useCheckoutLogic.polling.test.tsx` | Hook + fake timers | Polling de `estado` con backoff (`2s→5s→15s→30s`) y pausa/reanudación por visibilidad de pestaña |
+| `features/checkout/model/useCheckoutLogic.resume.test.tsx` | Hook + MSW | Caso 5: al volver a `/checkout` reanuda el polling desde `sessionStorage`; completa la orden si quedó `CONFIRMADA`/`APROBADA` y no hace nada si sigue `INICIADA` |
 | `features/checkout/model/useCheckoutSuccessRecommendations.test.tsx` | Hook + MSW | Recomendaciones post-compra |
 | `features/checkout/ui/CheckoutContent.test.tsx` | C | Orquestación de pasos del checkout |
 | `features/checkout/ui/CheckoutLineItems.test.tsx` | C | Ítems, SKU, imágenes, cantidades |
@@ -324,7 +325,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `shared/lib/format.test.ts` | Unit | Moneda, fechas, teléfono |
 | `shared/lib/api-url.test.ts` | Unit | Construcción de URLs de API |
 
-### Cypress (28 tests)
+### Cypress (29 tests)
 
 | Spec | Casos |
 |------|-------|
@@ -335,12 +336,31 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `cypress/e2e/cart.cy.ts` | Agregar, cambiar cantidad, eliminar ítem |
 | `cypress/e2e/checkout.cy.ts` | Checkout con transferencia bancaria → success |
 | `cypress/e2e/checkout-guest.cy.ts` | Redirige a login al agregar o visitar `/cart` |
+| `cypress/e2e/checkout-webpay-polling.cy.ts` | Caso 5: reanuda el polling desde `sessionStorage` al volver al checkout y completa la orden aprobada |
 | `cypress/e2e/profile.cy.ts` | Tabs datos, direcciones, pedidos, favoritos |
 | `cypress/e2e/profile-orders.cy.ts` | Detalle, cancelar pedido, comprobante transferencia |
 | `cypress/e2e/favorites.cy.ts` | Corazón en producto → tab favoritos → quitar |
 | `cypress/e2e/admin-products.cy.ts` | Login admin → listar → crear producto |
 | `cypress/e2e/admin-orders.cy.ts` | Ver pedidos → filtrar → cambiar estado |
 | `cypress/e2e/admin-users.cy.ts` | Listar usuarios → editar rol |
+
+### Tests E2E pendientes de corregir (stale)
+
+Los siguientes specs fallan **de forma preexistente** (no los causó la implementación de WebPay/polling;
+verificados contra el código previo con `git stash`). Quedan documentados aquí para revisarlos cuando se
+termine la ronda de casos borde de WebPay. Todos fallan contra el código actual de la app (test stale).
+
+| Spec | Test que falla | Causa raíz | Corrección sugerida |
+|------|----------------|------------|---------------------|
+| `auth.cy.ts:88` | "como admin redirige al panel de administración" | `AdminDashboardView.tsx` **no renderiza ningún `<h1>`** (solo `StatCard`s y un `<h2>` "Órdenes por estado"); `cy.contains('h1','Admin')` nunca acierta | Cambiar el aserto a algo real del dashboard (p. ej. `cy.contains('Usuarios')` de una `StatCard`) o añadir un `<h1>` a la vista |
+| `admin-products.cy.ts:32` | "lista productos y crea uno nuevo" | `ProductForm.validateForm` exige **`descripcion`** ("La descripción es obligatoria") y el test nunca la llena → el submit se bloquea → `@createProduct` nunca se dispara | Añadir `cy.get('textarea[name="descripcion"]').type(...)` antes de "Agregar Producto" |
+| `checkout.cy.ts:27` | "completa pedido con transferencia bancaria" | La **auto-selección del servicio de envío está comentada** (`useCheckoutLogic.ts:177-199`); el test no selecciona ninguno → `selectedServicioEnvioId` queda `null` → `canContinueShipping` false → "Continuar al pago" deshabilitado. El stub sí devuelve 3 servicios (`shipping.ts`) | Seleccionar un servicio en el test (p. ej. radio "Envío estándar") **o** restaurar la auto-selección comentada (decisión de producto) |
+| `profile-orders.cy.ts:49` | "sube comprobante en pedido por transferencia" | El upload `POST /api/ordenes/:id/comprobante` **no está interceptado** en `commands.ts` → va al backend real (caído) → error → "Comprobante guardado" nunca aparece. Además siembra la clave vieja `ecommerce:ordenes-transferencia`, que el componente ya **no usa** (migró a `subirComprobanteOrder`; ver código comentado en `OrderBankTransferSection.tsx:4-10`) | Añadir el intercept `POST **/api/ordenes/*/comprobante` en `stubAuthenticatedApi` y quitar el seeding de localStorage |
+| `checkout-guest.cy.ts:24` | "redirige a login al visitar el carrito sin sesión" | **Flaky** (carrera de timing entre cargar `/cart` y el redirect a `/login`): falla intermitente, pasó al re-ejecutar | Opcional: hacerlo más robusto (p. ej. `cy.visit('/cart')` + `cy.contains('h1','Iniciar sesión').should(...)` con reintento implícito) |
+
+> **Contexto:** estos fallos no están relacionados con el polling/reanudación de WebPay del Caso 5
+> (ese flujo sí pasa, ver `checkout-webpay-polling.cy.ts`). El último re-run de la suite E2E dio
+> **25/29**; los 4 restantes + el flaky son los de la tabla.
 
 ---
 

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { CheckoutProvider } from '@/app/providers/CheckoutProvider';
 import { useCheckout } from '@/app/providers';
@@ -42,6 +42,10 @@ async function selectNormalDelivery(result: { current: ReturnType<typeof useChec
 }
 
 describe('useCheckoutLogic', () => {
+    beforeEach(() => {
+        sessionStorage.clear();
+    });
+
     it('selecciona dirección principal y habilita continuar', async () => {
         seedCustomerSession();
         addDynamicCartItem(mockProduct.id, 1);

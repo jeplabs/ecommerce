@@ -576,9 +576,25 @@ export const handlers = [
     }),
 
     http.get(`${API_BASE}/api/pagos/webpay/estado/:ordenId`, ({ params }) => {
+        const ordenId = Number(params.ordenId);
+        const orden = findDynamicOrder(ordenId);
+        if (!orden) {
+            return HttpResponse.json(
+                { error: 'Transacción no encontrada' },
+                { status: 404 }
+            );
+        }
+
+        const estado =
+            orden.estado === 'CONFIRMADA'
+                ? 'APROBADA'
+                : orden.estado === 'CANCELADA'
+                  ? 'ABORTADA'
+                  : 'INICIADA';
+
         return HttpResponse.json({
-            ordenId: Number(params.ordenId),
-            estado: 'INICIADA',
+            ordenId,
+            estado,
             motivo: null,
         });
     }),
