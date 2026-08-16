@@ -27,14 +27,12 @@ function throwApiError(response: Response, raw: unknown, fallback: string): neve
 /** {@code POST /api/pagos/webpay/iniciar} */
 export async function iniciarWebpay(params: {
     ordenId: number;
-    returnUrl: string;
 }): Promise<WebpayInitResult> {
     const response = await fetch(`${API_URL}/api/pagos/webpay/iniciar`, {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
         body: JSON.stringify({
             ordenId: params.ordenId,
-            returnUrl: params.returnUrl,
         }),
     });
 

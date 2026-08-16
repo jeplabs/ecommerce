@@ -20,7 +20,6 @@ describe('paymentGatewayApi', () => {
 
         const result = await iniciarWebpay({
             ordenId: 501,
-            returnUrl: 'http://localhost:5173/checkout/webpay/retorno',
         });
 
         expect(result.url).toContain('https://');
@@ -31,7 +30,7 @@ describe('paymentGatewayApi', () => {
         seedSession();
 
         await expect(
-            iniciarWebpay({ ordenId: Number.NaN, returnUrl: 'x' })
+            iniciarWebpay({ ordenId: Number.NaN })
         ).rejects.toThrow('Datos incompletos');
     });
 
@@ -95,7 +94,7 @@ describe('paymentGatewayApi', () => {
         );
     });
 
-    it('envía el returnUrl y el ordenId al iniciar (assert del body)', async () => {
+    it('envía solo el ordenId al iniciar (el returnUrl lo fija el backend)', async () => {
         seedSession();
         let received: unknown;
         server.use(
@@ -105,9 +104,10 @@ describe('paymentGatewayApi', () => {
             })
         );
 
-        await iniciarWebpay({ ordenId: 9, returnUrl: 'https://app.test/retorno' });
+        await iniciarWebpay({ ordenId: 9 });
 
-        expect(received).toEqual({ ordenId: 9, returnUrl: 'https://app.test/retorno' });
+        expect(received).toEqual({ ordenId: 9 });
+        expect(received as object).not.toHaveProperty('returnUrl');
     });
 
     it('notifica el timeout enviando TBK_ID_SESION y TBK_ORDEN_COMPRA', async () => {

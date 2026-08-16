@@ -471,21 +471,22 @@ tampering), la orden no se confirma.
 
 ## Caso 8 — `returnUrl` del request es ignorado (doble fuente de verdad)
 
-**Severidad:** BAJO · **Backend:** No · **Frontend:** Sí
+**Estado:** ✅ **RESUELTO (frontend, Opción A)** · **Severidad:** BAJO · **Backend:** No · **Frontend:** ✅
+implementado
 
 ### El problema
 
 La `return_url` es la URL a la que Transbank redirige tras el pago (`create(buyOrder, sessionId,
 monto, returnUrl)`). Hay **dos fuentes de verdad**:
 
-- **Frontend**: `useCheckoutLogic.ts:342-343` calcula
-  `returnUrl = ${window.location.origin}/checkout/webpay/retorno` y la envía en el body de
+- **Frontend**: `useCheckoutLogic.ts` calculaba
+  `returnUrl = ${window.location.origin}/checkout/webpay/retorno` y la enviaba en el body de
   `iniciarWebpay` (paymentGatewayApi.ts).
 - **Backend**: `DatosIniciarWebpay` **solo tiene `ordenId`** (líneas 6-9) → el `returnUrl` del JSON se
   **descarta en silencio** (Jackson ignora campos desconocidos). `WebpayService.iniciar()` usa
   `@Value("${api.webpay.return-url}")` (líneas 29-30, 62).
 
-Hoy funciona solo porque la config coincide con la ruta del SPA. Riesgos:
+Funcionaba solo porque la config coincidía con la ruta del SPA. Riesgos:
 
 1. **Deriva silenciosa**: cambias una fuente y no la otra → el cliente paga y Transbank lo manda a
    otra URL → orden `PENDIENTE` sin error visible.
@@ -493,26 +494,22 @@ Hoy funciona solo porque la config coincide con la ruta del SPA. Riesgos:
 3. **Trampa de seguridad si se "arregla" mal**: si el backend honrara el `returnUrl` del request, un
    atacante podría fijar su propia URL de retorno (redirección arbitraria/phishing).
 
-### Solución (Opción A — recomendada)
+### Solución implementada (Opción A — recomendada)
 
 **Frontend deja de enviar `returnUrl`**; el backend sigue usando su config (seguro, una sola fuente
 de verdad):
 
-1. `useCheckoutLogic.ts:343`: `await iniciarWebpay({ ordenId: orden.id });`
-2. `paymentGatewayApi.ts`: quitar `returnUrl` de `iniciarWebpay` (params y body).
-3. `paymentGatewayApi.test.ts:98-111`: actualizar/eliminar el test "envía el returnUrl y el ordenId
-   al iniciar (assert del body)".
-4. Contratos en docs (`Webpay-Contrato-Frontend-Backend.md`): quitar `returnUrl` de `POST /iniciar`.
+1. `paymentGatewayApi.ts`: `iniciarWebpay` ya no recibe ni envía `returnUrl` → el body es solo
+   `{ ordenId }`.
+2. `useCheckoutLogic.ts`: `await iniciarWebpay({ ordenId: orden.id })`.
+3. `CheckoutReturn.tsx` (retry de recuperación): `await iniciarWebpay({ ordenId: state.orden.id })`.
+4. `paymentGatewayApi.test.ts`: los casos ya no envían `returnUrl`; el test del body ahora verifica
+   que **solo** viaja `ordenId` y que **no** hay campo `returnUrl`.
 
 ### Justificación
 
 Mantener la `return_url` fijada en el servidor evita la deriva y el riesgo de redirección arbitraria;
 el backend no cambia.
-
-### Consideración
-
-Alternativa C: no tocar código y solo documentar que el campo es ignorado por diseño. La Opción A es
-preferible porque elimina el campo muerto.
 
 ---
 
@@ -527,7 +524,7 @@ preferible porque elimina el campo muerto.
 | 5. Polling del estado | MEDIO | — (endpoint existe) | ✅ implementado (backoff + visibilidad + 5 min + reanudación al volver) | ✅ frontend |
 | 6. Retorno POST integración | BAJO | opcional (puente) | limitación documentada | Equipo backend |
 | 7. Validar monto del commit | BAJO | comparar monto | — | Equipo backend |
-| 8. `returnUrl` duplicado | BAJO | — | Opción A: dejar de enviar | Equipo frontend |
+| 8. `returnUrl` duplicado | BAJO | — | ✅ implementado (Opción A: el frontend ya no lo envía) | ✅ frontend |
 
 ## Archivos involucrados
 
@@ -544,6 +541,7 @@ preferible porque elimina el campo muerto.
 | `backend/.../EmailService.java` | 3 |
 | `backend/src/main/resources/application*.properties` | 2, 4 |
 | `frontend/src/features/checkout/api/paymentGatewayApi.ts` | 5, 8 |
+| `frontend/src/features/checkout/ui/CheckoutReturn/CheckoutReturn.tsx` | 5, 8 (retry de recuperación sin `returnUrl`) |
 | `frontend/src/features/checkout/api/index.ts` | 5 |
 | `frontend/src/features/checkout/model/useCheckoutLogic.ts` | 5, 8 |
 | `frontend/src/features/checkout/model/schemas/payment.ts` | 5 |

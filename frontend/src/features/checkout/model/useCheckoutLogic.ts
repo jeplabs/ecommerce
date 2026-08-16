@@ -360,8 +360,7 @@ export function useCheckoutLogic({
             webpayPollEpochRef.current += 1;
 
             if (isWebpay) {
-                const returnUrl = `${window.location.origin}/checkout/webpay/retorno`;
-                const init = await iniciarWebpay({ ordenId: orden.id, returnUrl });
+                const init = await iniciarWebpay({ ordenId: orden.id });
                 guardarOrdenWebpayPendiente(orden.id);
                 webpayOrdenIdRef.current = orden.id;
 

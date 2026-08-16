@@ -189,8 +189,7 @@ export default function CheckoutReturn() {
         setActionError(null);
 
         try {
-            const returnUrl = `${window.location.origin}/checkout/webpay/retorno`;
-            const init = await iniciarWebpay({ ordenId: state.orden.id, returnUrl });
+            const init = await iniciarWebpay({ ordenId: state.orden.id });
             setRedirectInfo({ url: init.url, token: init.token });
         } catch (err) {
             if (err instanceof ApiError && err.status === 401) {
