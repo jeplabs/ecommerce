@@ -6,6 +6,7 @@ import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
 import com.jeplabs.ecommerce.domain.producto.PrecioHistorialRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
+import com.jeplabs.ecommerce.infra.exceptions.StockInsuficienteException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -70,6 +71,7 @@ class CarritoServiceTest {
         // Preparar producto de prueba
         producto = mock(Producto.class);
         when(producto.getId()).thenReturn(1L);
+        when(producto.getNombre()).thenReturn("Sony A7 IV");
         when(producto.getStock()).thenReturn(10);
         when(producto.getEstado()).thenReturn(EstadoProducto.DISPONIBLE);
 
@@ -194,8 +196,8 @@ class CarritoServiceTest {
                     carritoService.actualizarCantidad(
                             "usuario@test.com", 1L, new DatosActualizarCantidad(15)
                     ))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Stock insuficiente. Stock disponible: 10");
+                    .isInstanceOf(StockInsuficienteException.class)
+                    .hasMessageContaining("Stock disponible: 10");
         }
 
         @Test
@@ -258,8 +260,8 @@ class CarritoServiceTest {
                     carritoService.actualizarCantidad(
                             "usuario@test.com", 1L, new DatosActualizarCantidad(1)
                     ))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Stock insuficiente. Stock disponible: 0");
+                    .isInstanceOf(StockInsuficienteException.class)
+                    .hasMessageContaining("Stock disponible: 0");
         }
 
         @Test
@@ -281,8 +283,8 @@ class CarritoServiceTest {
                     carritoService.actualizarCantidad(
                             "usuario@test.com", 1L, new DatosActualizarCantidad(2)
                     ))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Stock insuficiente. Stock disponible: 0");
+                    .isInstanceOf(StockInsuficienteException.class)
+                    .hasMessageContaining("Stock disponible: 0");
         }
     }
 }

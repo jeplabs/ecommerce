@@ -146,4 +146,18 @@ public class GestorDeErrores {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", "Acceso denegado: no tienes permisos para realizar esta acción"));
     }
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> manejarTamanoMaximoSuperado(
+            org.springframework.web.multipart.MaxUploadSizeExceededException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", "El archivo supera el tamaño máximo permitido de 5MB"));
+    }
+
+    @ExceptionHandler(java.util.NoSuchElementException.class)
+    public ResponseEntity<Map<String, String>> manejarNoSuchElement(
+            java.util.NoSuchElementException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage() != null ? ex.getMessage() : "Recurso no encontrado"));
+    }
 }

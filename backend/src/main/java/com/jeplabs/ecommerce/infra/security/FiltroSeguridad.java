@@ -31,14 +31,21 @@ public class FiltroSeguridad extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.replace("Bearer ", "");
-            String email = tokenService.getSubject(token);
-
-            UserDetails usuario = usuarioDetailsService.loadUserByUsername(email);
-
-            var auth = new UsernamePasswordAuthenticationToken(
-                    usuario, null, usuario.getAuthorities()
-            );
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            try {
+                String email = tokenService.getSubject(token);
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails usuario = usuarioDetailsService.loadUserByUsername(email);
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                            usuario, null, usuario.getAuthorities()
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+            } catch (Exception e) {
+                // Si el token es inválido o expiró, nos aseguramos de que el contexto esté limpio.
+                // No relanzamos la excepción para que el filtro de seguridad de Spring
+                // invoque JwtAuthenticationEntryPoint (HTTP 401) en endpoints que requieren autenticación.
+                SecurityContextHolder.clearContext();
+            }
         }
 
         filterChain.doFilter(request, response);

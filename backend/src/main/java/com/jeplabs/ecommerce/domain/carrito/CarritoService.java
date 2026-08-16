@@ -6,6 +6,9 @@ import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
 import com.jeplabs.ecommerce.domain.producto.PrecioHistorialRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
+import com.jeplabs.ecommerce.infra.exceptions.CarritoNoEncontradoException;
+import com.jeplabs.ecommerce.infra.exceptions.ProductoNoDisponibleException;
+import com.jeplabs.ecommerce.infra.exceptions.StockInsuficienteException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -130,7 +133,7 @@ public class CarritoService {
         Usuario usuario = buscarUsuario(email);
         return carritoRepositorio
                 .findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
-                .orElseThrow(() -> new IllegalArgumentException("No tienes un carrito activo"));
+                .orElseThrow(CarritoNoEncontradoException::new);
     }
 
     private Producto buscarProductoDisponible(Long productoId) {
@@ -138,16 +141,14 @@ public class CarritoService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Producto no encontrado con ID: " + productoId));
         if (!producto.getEstado().esComprable()) {
-            throw new IllegalArgumentException(
-                    "El producto no está disponible para compra");
+            throw new ProductoNoDisponibleException(producto.getNombre());
         }
         return producto;
     }
 
     private void validarStock(Producto producto, Integer cantidad) {
         if (producto.getStock() < cantidad) {
-            throw new IllegalArgumentException(
-                    "Stock insuficiente. Stock disponible: " + producto.getStock());
+            throw new StockInsuficienteException(producto.getNombre(), producto.getStock());
         }
     }
 
