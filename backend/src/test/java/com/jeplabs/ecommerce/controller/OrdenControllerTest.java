@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jeplabs.ecommerce.domain.orden.*;
 import com.jeplabs.ecommerce.infra.exceptions.*;
 import com.jeplabs.ecommerce.infra.security.*;
+import com.jeplabs.ecommerce.domain.pago.TipoMetodoPago;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +18,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,26 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=none",
-        "spring.flyway.enabled=false",
-        "spring.jpa.open-in-view=false",
-        "spring.mail.host=localhost",
-        "spring.mail.port=25",
-        "api.security.secret=test-secret-key-for-testing-purposes-only",
-        "api.security.expiration=3600",
-        "api.impuestos.iva=0.12",
-        "api.envio.monto-minimo-gratis=500.00",
-        "api.carrito.expiracion-minutos=5",
-        "api.carrito.notificacion-minutos-antes=3",
-        "api.carrito.scheduler-intervalo=PT1H",
-        "api.carrito.scheduler-delay-inicial=PT1H",
-        "api.carrito.lockout-minutes=30"
-})
+@ActiveProfiles("test")
 @DisplayName("Tests de OrdenController")
 class OrdenControllerTest {
 
@@ -110,17 +92,24 @@ class OrdenControllerTest {
                         null, null, "Guatemala", "+50212345678", null),
                 "Guatex",
                 FormaPagoEnvio.EN_LINEA,
+                "TRANSFERENCIA",
+                "Transferencia Bancaria",
+                TipoMetodoPago.TRANSFERENCIA,
                 List.of(),
                 new BigDecimal("2799.00"),
                 new BigDecimal("299.89"),
                 new BigDecimal("45.00"),
+                null,
                 new BigDecimal("2844.00"),
+                null,
+                null,
+                null,
                 null,
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
 
-        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPagoEnvio.EN_LINEA, null);
+        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", null);
     }
 
     @Nested
@@ -260,10 +249,12 @@ class OrdenControllerTest {
             DatosRespuestaOrden ordenConfirmada = new DatosRespuestaOrden(
                     1L, EstadoOrden.CONFIRMADA, 1L,
                     ordenRespuesta.direccionEnvio(), "Guatex",
-                    FormaPagoEnvio.EN_LINEA, List.of(),
+                    FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", "Transferencia Bancaria",
+                    TipoMetodoPago.TRANSFERENCIA, List.of(),
                     new BigDecimal("2799.00"), new BigDecimal("299.89"),
-                    new BigDecimal("45.00"), new BigDecimal("2844.00"),
-                    null, LocalDateTime.now(), LocalDateTime.now()
+                    new BigDecimal("45.00"), null, new BigDecimal("2844.00"),
+                    null, null, null, null,
+                    LocalDateTime.now(), LocalDateTime.now()
             );
 
             when(ordenService.cambiarEstado(eq(1L), any()))
@@ -318,10 +309,12 @@ class OrdenControllerTest {
             DatosRespuestaOrden ordenCancelada = new DatosRespuestaOrden(
                     1L, EstadoOrden.CANCELADA, 1L,
                     ordenRespuesta.direccionEnvio(), "Guatex",
-                    FormaPagoEnvio.EN_LINEA, List.of(),
+                    FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", "Transferencia Bancaria",
+                    TipoMetodoPago.TRANSFERENCIA, List.of(),
                     new BigDecimal("2799.00"), new BigDecimal("299.89"),
-                    new BigDecimal("45.00"), new BigDecimal("2844.00"),
-                    null, LocalDateTime.now(), LocalDateTime.now()
+                    new BigDecimal("45.00"), null, new BigDecimal("2844.00"),
+                    null, null, null, null,
+                    LocalDateTime.now(), LocalDateTime.now()
             );
 
             when(ordenService.cancelarMiOrden(anyString(), eq(1L)))

@@ -24,7 +24,8 @@ import java.util.Map;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @EntityListeners(AuditingEntityListener.class)
-public class Producto {
+public class
+Producto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +46,9 @@ public class Producto {
 
     @Enumerated(EnumType.STRING)
     private EstadoProducto estado;
+
+    @Version
+    private Integer version;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)

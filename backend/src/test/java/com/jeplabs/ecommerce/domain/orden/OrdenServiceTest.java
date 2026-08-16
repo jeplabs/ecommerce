@@ -13,6 +13,12 @@ import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import com.jeplabs.ecommerce.infra.email.EmailService;
 import com.jeplabs.ecommerce.infra.exceptions.*;
+import com.jeplabs.ecommerce.domain.banco.CuentaBancariaRepository;
+import com.jeplabs.ecommerce.domain.pago.MetodoPago;
+import com.jeplabs.ecommerce.domain.pago.MetodoPagoService;
+import com.jeplabs.ecommerce.domain.pago.TipoMetodoPago;
+import com.jeplabs.ecommerce.infra.storage.ArchivoValidator;
+import com.jeplabs.ecommerce.infra.storage.StorageService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -43,6 +49,10 @@ class OrdenServiceTest {
     @Mock private IvaCalculator ivaCalculator;
     @Mock private EnvioCalculator envioCalculator;
     @Mock private EmailService emailService;
+    @Mock private MetodoPagoService metodoPagoService;
+    @Mock private CuentaBancariaRepository cuentaBancariaRepositorio;
+    @Mock private StorageService storageService;
+    @Mock private ArchivoValidator archivoValidator;
 
     @InjectMocks
     private OrdenService ordenService;
@@ -53,6 +63,7 @@ class OrdenServiceTest {
     private Producto producto;
     private Direccion direccion;
     private ServicioEnvio servicioEnvio;
+    private MetodoPago metodoPago;
     private DatosCrearOrden datosCrearOrden;
 
     @BeforeEach
@@ -88,6 +99,14 @@ class OrdenServiceTest {
         when(servicioEnvio.isActivo()).thenReturn(true);
         when(servicioEnvio.calcularCostoTotal(any())).thenReturn(new BigDecimal("45.00"));
 
+        // MetodoPago
+        metodoPago = mock(MetodoPago.class);
+        when(metodoPago.getCodigo()).thenReturn("TRANSFERENCIA");
+        when(metodoPago.getNombre()).thenReturn("Transferencia Bancaria");
+        when(metodoPago.getTipo()).thenReturn(TipoMetodoPago.TRANSFERENCIA);
+        when(metodoPago.isActivo()).thenReturn(true);
+        when(metodoPagoService.buscarPorCodigo(any())).thenReturn(metodoPago);
+
         // CarritoItem
         carritoItem = mock(CarritoItem.class);
         when(carritoItem.getProducto()).thenReturn(producto);
@@ -100,7 +119,7 @@ class OrdenServiceTest {
         when(carrito.getItems()).thenReturn(new ArrayList<>(List.of(carritoItem)));
 
         // DTO de creación
-        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPagoEnvio.EN_LINEA, null);
+        datosCrearOrden = new DatosCrearOrden(1L, 1L, FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", null);
 
         // Mocks de repositorios
         when(usuarioRepositorio.findByEmail("usuario@test.com"))
@@ -130,8 +149,9 @@ class OrdenServiceTest {
         when(ordenRepositorio.findById(any()))
                 .thenAnswer(invocation -> {
                     Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                            FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
-                            null, new BigDecimal("5598.00"), new BigDecimal("599.78"));
+                            FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA",
+                            new BigDecimal("45.00"), null,
+                            new BigDecimal("5598.00"), new BigDecimal("599.78"));
                     return Optional.of(orden);
                 });
     }
@@ -315,7 +335,7 @@ class OrdenServiceTest {
         @DisplayName("Cambio de estado válido PENDIENTE a CONFIRMADA")
         void cambiarEstado_transicionValida_debeActualizarEstado() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             when(ordenRepositorio.findById(1L)).thenReturn(Optional.of(orden));
@@ -330,7 +350,7 @@ class OrdenServiceTest {
         @DisplayName("Transición inválida PENDIENTE a ENTREGADA lanza EstadoInvalidoException")
         void cambiarEstado_transicionInvalida_debeLanzarExcepcion() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             when(ordenRepositorio.findById(1L)).thenReturn(Optional.of(orden));
@@ -363,7 +383,7 @@ class OrdenServiceTest {
         @DisplayName("Cancelar orden en PENDIENTE devuelve stock y cambia estado")
         void cancelar_ordenPendiente_debeDevolverStockYCambiarEstado() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             OrdenItem ordenItem = new OrdenItem(orden, producto, 2,
@@ -387,7 +407,7 @@ class OrdenServiceTest {
         @DisplayName("Cancelar orden ENVIADA lanza EstadoInvalidoException")
         void cancelar_ordenEnviada_debeLanzarExcepcion() {
             Orden orden = new Orden(usuario, direccion, servicioEnvio,
-                    FormaPagoEnvio.EN_LINEA, new BigDecimal("45.00"),
+                    FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", new BigDecimal("45.00"),
                     null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
 
             // Avanzar estado hasta ENVIADA
