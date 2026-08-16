@@ -66,5 +66,13 @@ api.webpay.commerce-code=
 api.webpay.api-key=
 api.webpay.return-url=http://localhost:5173/checkout/webpay/retorno
 api.webpay.webhook-secret=SECRET_WEBHOOK
-api.webpay.scheduler.intervalo=PT1H
-api.webpay.scheduler.delay-inicial=PT1H
+
+# Webpay Plus - Scheduler de Reconciliación
+# Habilita o deshabilita la tarea automática (true por defecto)
+api.webpay.scheduler.enabled=true
+
+# Cada cuánto tiempo se ejecuta la revisión (cada 15 minutos)
+api.webpay.scheduler.intervalo=PT15M
+
+# Cuánto tiempo espera la app tras arrancar antes de la 1ra ejecución (1 minuto)
+api.webpay.scheduler.delay-inicial=PT1M

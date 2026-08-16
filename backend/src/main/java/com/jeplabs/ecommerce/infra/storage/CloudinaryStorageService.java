@@ -49,7 +49,7 @@ public class CloudinaryStorageService implements StorageService {
                     "resource_type","image", // ← imágenes como image
                     "overwrite",    true);
 
-            Map resultado = getCloudinary().uploader()
+            Map<?, ?> resultado = getCloudinary().uploader()
                     .upload(archivo.getBytes(), opciones);
 
             return (String) resultado.get("secure_url");

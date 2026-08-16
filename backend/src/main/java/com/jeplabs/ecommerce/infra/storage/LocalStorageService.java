@@ -30,7 +30,7 @@ public class LocalStorageService implements StorageService {
 
             Files.copy(archivo.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
 
-            return basePath + "/" + carpeta + "/" + subCarpeta + "/" + nombreArchivo;
+            return "/" + basePath.replace("\\", "/") + "/" + carpeta + "/" + subCarpeta + "/" + nombreArchivo;
 
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar el archivo: " + e.getMessage());
