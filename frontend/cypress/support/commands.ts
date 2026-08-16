@@ -35,6 +35,7 @@ import {
     getDynamicOrdersAdminPage,
     getDynamicOrdersPage,
     resetDynamicOrders,
+    updateDynamicOrderComprobante,
     updateDynamicOrderStatusAdmin,
 } from '../../src/test/msw/fixtures/orders-registry';
 import {
@@ -221,6 +222,23 @@ Cypress.Commands.add('stubAuthenticatedApi', () => {
             req.reply({ statusCode: 400, body: { error: message } });
         }
     }).as('cancelOrder');
+    cy.intercept('POST', '**/api/ordenes/*/comprobante', (req) => {
+        const id = Number(req.url.split('/ordenes/')[1]?.split('/')[0]);
+        try {
+            req.reply(
+                updateDynamicOrderComprobante(
+                    id,
+                    'https://cdn.example/comprobante.pdf',
+                    'comprobante.pdf',
+                    '2026-05-28T15:00:00'
+                )
+            );
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : 'Error al subir el comprobante';
+            req.reply({ statusCode: 404, body: { error: message } });
+        }
+    }).as('uploadComprobante');
     cy.intercept('GET', '**/api/carrito', (req) => {
         req.reply(getDynamicCart());
     }).as('getCart');
@@ -303,6 +321,20 @@ Cypress.Commands.add('stubAuthenticatedApi', () => {
         addDynamicOrder(orden);
         req.reply({ statusCode: 201, body: orden });
     }).as('createOrder');
+    cy.intercept('GET', '**/api/banco', (req) => {
+        req.reply([
+            {
+                id: 1,
+                banco: 'Banco Demo',
+                titular: 'JEPLabs',
+                tipoCuenta: 'Corriente',
+                numeroCuenta: '001-002-003',
+                moneda: 'GTQ',
+                activo: true,
+                ordenViualizacion: 1,
+            },
+        ]);
+    }).as('getBankAccounts');
 });
 
 Cypress.Commands.add('stubAdminApi', () => {

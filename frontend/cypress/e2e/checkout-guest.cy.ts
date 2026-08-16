@@ -21,7 +21,7 @@ describe('Checkout invitado', () => {
 
     it('redirige a login al visitar el carrito sin sesión', () => {
         cy.visit('/cart');
-        cy.url().should('include', '/login');
-        cy.contains('h1', 'Iniciar sesión').should('be.visible');
+        cy.get('body').should('contain.text', 'Iniciar sesión');
+        cy.location('pathname').should('eq', '/login');
     });
 });

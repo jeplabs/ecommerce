@@ -6,6 +6,7 @@ import { ProductForm } from '@/features/admin/ui/ProductForm';
 import { FieldError } from '@/shared/ui/FormField';
 import type { ProductFormSubmitPayload } from '@/features/admin/ui/ProductForm';
 import type { AdminProductFormImage } from '@/features/admin/lib/product-image-admin';
+import styles from './AdminProductNewView.module.css';
 
 type AdminProductNewViewProps = {
     onNavigate: NavigateFunction;
@@ -48,6 +49,9 @@ export default function AdminProductNewView({ onNavigate }: AdminProductNewViewP
 
     return (
         <main className="product-new-container">
+            <button type="button" className={styles.back} onClick={handleCancel}>
+                ← Volver a Productos
+            </button>
             <h1>Crear Producto</h1>
             {error && <FieldError>{error}</FieldError>}
             <ProductForm

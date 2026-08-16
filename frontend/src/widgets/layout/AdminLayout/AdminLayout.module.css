@@ -40,7 +40,19 @@
 }
 
 .breadcrumbBar {
-    padding: 1rem 1.25rem;
+    padding: 1rem 2rem;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 1200px) {
+    .breadcrumbBar {
+        padding: 1rem 12rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .breadcrumbBar {
+        padding: 1rem;
+    }
 }

@@ -39,6 +39,7 @@ export default function AdminDashboardView() {
 
     return (
         <div className={styles.page}>
+            <h1>Panel de administración</h1>
             <section className={styles.statGrid}>
                 <StatCard title="Usuarios" value={stats.totalUsuarios} icon="👤" color="var(--indigo)" />
                 {/* <StatCard title="Activos" value={stats.usuariosActivos} icon="✅" color="#22c55e" /> */}

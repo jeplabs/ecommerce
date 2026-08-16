@@ -22,6 +22,7 @@ import {
     getDynamicOrdersAdminPage,
     getDynamicOrdersPage,
     resetDynamicOrders,
+    updateDynamicOrderComprobante,
     updateDynamicOrderStatusAdmin,
 } from './fixtures/orders-registry';
 import type { AddressApi } from '@/entities/address/model/schemas/api';
@@ -460,6 +461,25 @@ export const handlers = [
             const message = error instanceof Error ? error.message : 'Error al cancelar';
             const status = message.includes('no encontrada') ? 404 : 400;
             return HttpResponse.json({ error: message }, { status });
+        }
+    }),
+
+    http.post(`${API_BASE}/api/ordenes/:id/comprobante`, ({ params }) => {
+        const id = Number(params.id);
+
+        try {
+            return HttpResponse.json(
+                updateDynamicOrderComprobante(
+                    id,
+                    'https://cdn.example/comprobante.pdf',
+                    'comprobante.pdf',
+                    '2026-05-28T15:00:00'
+                )
+            );
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : 'Error al subir el comprobante';
+            return HttpResponse.json({ error: message }, { status: 404 });
         }
     }),
 

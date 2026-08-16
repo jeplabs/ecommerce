@@ -85,7 +85,7 @@ describe('Autenticación', () => {
             cy.loginAsAdmin();
             cy.url().should('include', '/admin');
             cy.wait('@getAdminUsers');
-            cy.contains('h1', 'Admin').should('be.visible');
+            cy.contains('h1', /admin/i).should('be.visible');
         });
 
         it('muestra error con credenciales inválidas', () => {

@@ -259,8 +259,12 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
     }
 
     return (
-        <main className={styles.root}>
-            <h1>Editar Producto</h1>
+        <>
+            <button type="button" className={styles.back} onClick={handleCancel}>
+                ← Volver a Productos
+            </button>
+            <main className={styles.root}>
+                <h1>Editar Producto</h1>
             <ProductForm
                 initialData={productData}
                 onSubmit={handleUpdate}
@@ -269,5 +273,6 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
                 arbolCategorias={arbolCategorias}
             />
         </main>
+        </>
     );
 }

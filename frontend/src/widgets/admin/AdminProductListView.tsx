@@ -145,15 +145,14 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
 
     return (
         <main className={styles.root}>
-            <h1>Admin: Productos y Categorías</h1>
-
-            {loading && <div className={styles.loading}>Cargando datos...</div>}
-
-            <div className={styles.actions}>
+            <div className={styles.pageHeader}>
+                <h1>Productos</h1>
                 <Button type="button" variant="primary" onClick={() => onNavigate('/admin/products/new')}>
                     Agregar Producto
                 </Button>
             </div>
+
+            {loading && <div className={styles.loading}>Cargando datos...</div>}
 
             <h2>Productos Disponibles</h2>
             <section>

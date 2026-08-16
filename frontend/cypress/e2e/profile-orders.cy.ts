@@ -26,13 +26,6 @@ describe('Pedidos del perfil', () => {
     });
 
     it('sube comprobante en pedido por transferencia', () => {
-        cy.then(() => {
-            localStorage.setItem(
-                'ecommerce:ordenes-transferencia',
-                JSON.stringify([MOCK_ORDER_TRANSFER_ID])
-            );
-        });
-
         cy.visit(`/profile/ordenes/${MOCK_ORDER_TRANSFER_ID}`);
         cy.wait('@getOrderById');
 

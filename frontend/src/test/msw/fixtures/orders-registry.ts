@@ -81,6 +81,29 @@ export function addDynamicOrder(order: OrderApi) {
     orders = [order, ...orders.filter((entry) => entry.id !== order.id)];
 }
 
+export function updateDynamicOrderComprobante(
+    id: number,
+    comprobanteUrl: string,
+    comprobanteNombre: string,
+    comprobanteFecha: string
+): OrderApi {
+    const index = orders.findIndex((order) => order.id === id);
+    if (index === -1) {
+        throw new Error('Orden no encontrada');
+    }
+
+    const order = orders[index]!;
+    const updated = {
+        ...order,
+        comprobanteUrl,
+        comprobanteNombre,
+        comprobanteFecha,
+        actualizadoAt: comprobanteFecha,
+    };
+    orders[index] = updated;
+    return { ...updated };
+}
+
 export function cancelDynamicOrder(id: number): OrderApi {
     const index = orders.findIndex((order) => order.id === id);
     if (index === -1) {

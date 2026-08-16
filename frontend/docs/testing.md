@@ -344,23 +344,23 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `cypress/e2e/admin-orders.cy.ts` | Ver pedidos → filtrar → cambiar estado |
 | `cypress/e2e/admin-users.cy.ts` | Listar usuarios → editar rol |
 
-### Tests E2E pendientes de corregir (stale)
+### Tests E2E corregidos (antes stale)
 
-Los siguientes specs fallan **de forma preexistente** (no los causó la implementación de WebPay/polling;
-verificados contra el código previo con `git stash`). Quedan documentados aquí para revisarlos cuando se
-termine la ronda de casos borde de WebPay. Todos fallan contra el código actual de la app (test stale).
+Los siguientes specs fallaban **de forma preexistente** (no los causó la implementación de WebPay/polling;
+verificados contra el código previo con `git stash`). Todos quedaron **corregidos** y pasan contra el
+código actual de la app. Referencia rápida de cada causa raíz y su solución:
 
-| Spec | Test que falla | Causa raíz | Corrección sugerida |
-|------|----------------|------------|---------------------|
-| `auth.cy.ts:88` | "como admin redirige al panel de administración" | `AdminDashboardView.tsx` **no renderiza ningún `<h1>`** (solo `StatCard`s y un `<h2>` "Órdenes por estado"); `cy.contains('h1','Admin')` nunca acierta | Cambiar el aserto a algo real del dashboard (p. ej. `cy.contains('Usuarios')` de una `StatCard`) o añadir un `<h1>` a la vista |
-| `admin-products.cy.ts:32` | "lista productos y crea uno nuevo" | `ProductForm.validateForm` exige **`descripcion`** ("La descripción es obligatoria") y el test nunca la llena → el submit se bloquea → `@createProduct` nunca se dispara | Añadir `cy.get('textarea[name="descripcion"]').type(...)` antes de "Agregar Producto" |
-| `checkout.cy.ts:27` | "completa pedido con transferencia bancaria" | La **auto-selección del servicio de envío está comentada** (`useCheckoutLogic.ts:177-199`); el test no selecciona ninguno → `selectedServicioEnvioId` queda `null` → `canContinueShipping` false → "Continuar al pago" deshabilitado. El stub sí devuelve 3 servicios (`shipping.ts`) | Seleccionar un servicio en el test (p. ej. radio "Envío estándar") **o** restaurar la auto-selección comentada (decisión de producto) |
-| `profile-orders.cy.ts:49` | "sube comprobante en pedido por transferencia" | El upload `POST /api/ordenes/:id/comprobante` **no está interceptado** en `commands.ts` → va al backend real (caído) → error → "Comprobante guardado" nunca aparece. Además siembra la clave vieja `ecommerce:ordenes-transferencia`, que el componente ya **no usa** (migró a `subirComprobanteOrder`; ver código comentado en `OrderBankTransferSection.tsx:4-10`) | Añadir el intercept `POST **/api/ordenes/*/comprobante` en `stubAuthenticatedApi` y quitar el seeding de localStorage |
-| `checkout-guest.cy.ts:24` | "redirige a login al visitar el carrito sin sesión" | **Flaky** (carrera de timing entre cargar `/cart` y el redirect a `/login`): falla intermitente, pasó al re-ejecutar | Opcional: hacerlo más robusto (p. ej. `cy.visit('/cart')` + `cy.contains('h1','Iniciar sesión').should(...)` con reintento implícito) |
+| Spec | Causa raíz | Corrección aplicada |
+|------|------------|---------------------|
+| `auth.cy.ts` "como admin redirige al panel de administración" | `AdminDashboardView.tsx` no renderizaba ningún `<h1>`; `cy.contains('h1','Admin')` nunca acertaba | Añadido `<h1>Panel de administración</h1>` a la vista y aserción `cy.contains('h1', /admin/i)` |
+| `admin-products.cy.ts` "lista productos y crea uno nuevo" | `ProductForm.validateForm` exige **`descripcion`** y el test nunca la llenaba → submit bloqueado → `@createProduct` nunca se disparaba | Añadida `descripcion` al form (input de texto) y aserción robusta `cy.get('body').should('contain.text', ...)` |
+| `checkout.cy.ts` "completa pedido con transferencia bancaria" | Auto-selección de envío comentada (`useCheckoutLogic.ts:177-199`) + el `GET /api/banco` de `OrderConfirmationSummary` **no estaba stubeado** → backend real 401 → `invalidateClientSession` → redirect a `/login` antes del success | Test selecciona manualmente "Envío estándar" y "Transferencia bancaria" (nada se autoselecciona); nuevo stub `@getBankAccounts` (misma forma que el fixture MSW, incluido el typo `ordenViualizacion`) |
+| `profile-orders.cy.ts` "sube comprobante en pedido por transferencia" | El upload `POST /api/ordenes/:id/comprobante` **no estaba interceptado** → iba al backend real (caído) → error. Además sembraba la clave vieja `ecommerce:ordenes-transferencia`, que el componente ya no usa | Nuevo `updateDynamicOrderComprobante()` en `orders-registry`, intercept `POST **/api/ordenes/*/comprobante` (`@uploadComprobante`) en `stubAuthenticatedApi` + handler MSW equivalente; eliminado el seeding de localStorage |
+| `checkout-guest.cy.ts` "redirige a login al visitar el carrito sin sesión" | **Flaky** (carrera de timing entre cargar `/cart` y el redirect a `/login`) | Blindado con el patrón de re-query: `cy.get('body').should('contain.text', 'Iniciar sesión')` + `cy.location('pathname').should('eq', '/login')` |
 
-> **Contexto:** estos fallos no están relacionados con el polling/reanudación de WebPay del Caso 5
-> (ese flujo sí pasa, ver `checkout-webpay-polling.cy.ts`). El último re-run de la suite E2E dio
-> **25/29**; los 4 restantes + el flaky son los de la tabla.
+> **Contexto:** estos fallos no estaban relacionados con el polling/reanudación de WebPay del Caso 5
+> (ese flujo siempre pasó, ver `checkout-webpay-polling.cy.ts`). El último re-run completo de la suite
+> E2E tras las correcciones da **29/29**.
 
 ---
 

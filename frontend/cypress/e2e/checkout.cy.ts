@@ -24,8 +24,12 @@ describe('Checkout', () => {
         cy.wait('@getShippingOptions');
 
         cy.contains('h1', 'Checkout').should('be.visible');
+
+        cy.contains('button', 'Continuar al pago').should('be.disabled');
+        cy.contains('label', 'Envío estándar').click();
         cy.contains('button', 'Continuar al pago').should('not.be.disabled').click();
 
+        cy.contains('button', 'Pagar y finalizar').should('be.disabled');
         cy.contains('button', 'Transferencia bancaria').click();
         cy.contains('button', 'Confirmar pedido').should('not.be.disabled').click();
 

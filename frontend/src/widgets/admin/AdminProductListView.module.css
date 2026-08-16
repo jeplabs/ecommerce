@@ -9,16 +9,24 @@
     box-sizing: border-box;
 }
 
+.root h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    text-align: left;
+    margin: 0;
+}
+
+.pageHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
 .loading {
     font-size: 1.1rem;
     color: var(--muted);
-}
-
-.actions {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1rem;
 }
 
 .grid {
@@ -38,11 +46,6 @@
 @media (max-width: 768px) {
     .grid {
         grid-template-columns: repeat(1, minmax(220px, 1fr));
-    }
-
-    .actions {
-        flex-direction: column;
-        align-items: stretch;
     }
 }
 
