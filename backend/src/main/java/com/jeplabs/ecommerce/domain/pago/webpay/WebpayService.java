@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -46,7 +48,14 @@ public class WebpayService {
 
         if (transaccionExistente.isPresent()) {
             WebpayTransaccion tx = transaccionExistente.get();
-            return new DatosRespuestaIniciarWebpay(tx.getToken(), tx.getUrl());
+            // Si fue iniciada hace menos de 10 minutos (tiempo de vida del token Webpay), la reutilizamos
+            if (tx.getCreadoAt().isAfter(LocalDateTime.now().minusMinutes(10))) {
+                return new DatosRespuestaIniciarWebpay(tx.getToken(), tx.getUrl());
+            } else {
+                // Si ya expiró el token de Webpay, marcamos TIMEOUT y permitimos crear una nueva
+                tx.rechazar(MotivoRechazoWebpay.TIMEOUT, null);
+                transaccionRepositorio.save(tx);
+            }
         }
 
         try {
@@ -243,5 +252,19 @@ public class WebpayService {
     private Usuario buscarUsuario(String email) {
         return usuarioRepositorio.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
+    // ─── PRIORIDAD 5: Reconciliación de transacciones abandonadas ────────────
+
+    @Transactional
+    public int reconciliarTransaccionesExpiradas(int minutosExpiracion) {
+        LocalDateTime limite = LocalDateTime.now().minusMinutes(minutosExpiracion);
+        List<WebpayTransaccion> transaccionesExpiradas = transaccionRepositorio
+                .findByEstadoAndCreadoAtBefore(EstadoWebpayTransaccion.INICIADA, limite);
+
+        for (WebpayTransaccion tx : transaccionesExpiradas) {
+            tx.rechazar(MotivoRechazoWebpay.TIMEOUT, null);
+        }
+        return transaccionesExpiradas.size();
     }
 }

@@ -66,3 +66,5 @@ api.webpay.commerce-code=
 api.webpay.api-key=
 api.webpay.return-url=http://localhost:5173/checkout/webpay/retorno
 api.webpay.webhook-secret=SECRET_WEBHOOK
+api.webpay.scheduler.intervalo=PT1H
+api.webpay.scheduler.delay-inicial=PT1H
