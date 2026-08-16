@@ -2,6 +2,10 @@ package com.jeplabs.ecommerce.controller;
 
 import com.jeplabs.ecommerce.domain.envio.*;
 import com.jeplabs.ecommerce.domain.orden.FormaPagoEnvio;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+@Tag(name = "Servicios de Envío", description = "Opciones y tarifas de envío disponibles para el checkout")
 @RestController
 @RequestMapping("/api/envio")
 @RequiredArgsConstructor
@@ -17,7 +22,10 @@ public class ServicioEnvioController {
 
     private final ServicioEnvioService service;
 
-    // Público - opciones de envío con costos calculados según subtotal
+    @Operation(summary = "Listar opciones de envío", description = "Público. Devuelve las opciones de envío con costos calculados según el subtotal y forma de pago.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Opciones de envío retornadas exitosamente")
+    })
     @GetMapping("/opciones")
     public ResponseEntity<DatosRespuestaOpcionesEnvio> listarOpciones(
             @RequestParam(defaultValue = "0") BigDecimal subtotal,
@@ -25,8 +33,12 @@ public class ServicioEnvioController {
         return ResponseEntity.ok(service.listarOpcionesEnvio(subtotal, formaPagoEnvio));
     }
 
-    // Admin - crear servicio -  Estos endpoints de admin no se implementaran en el frontend
-    // seran administrados directamente por el proveedor del servicio de la aplicacion
+    @Operation(summary = "Crear servicio de envío (ADMIN)", description = "Solo ADMIN. Registra una nueva empresa o tipo de envío.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Servicio de envío creado"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaServicioEnvio> crear(
@@ -34,7 +46,13 @@ public class ServicioEnvioController {
         return ResponseEntity.ok(service.crear(datos));
     }
 
-    // Admin - actualizar servicio
+    @Operation(summary = "Actualizar servicio de envío (ADMIN)", description = "Solo ADMIN. Modifica precios o datos del servicio.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Servicio actualizado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Servicio de envío no encontrado")
+    })
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DatosRespuestaServicioEnvio> actualizar(
@@ -43,7 +61,12 @@ public class ServicioEnvioController {
         return ResponseEntity.ok(service.actualizar(id, datos));
     }
 
-    // Admin - desactivar servicio
+    @Operation(summary = "Desactivar servicio de envío (ADMIN)", description = "Solo ADMIN. Desactiva temporalmente el servicio para el checkout.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Servicio desactivado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Servicio no encontrado")
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> desactivar(@PathVariable Long id) {
@@ -51,7 +74,12 @@ public class ServicioEnvioController {
         return ResponseEntity.noContent().build();
     }
 
-    // Admin - reactivar servicio
+    @Operation(summary = "Activar servicio de envío (ADMIN)", description = "Solo ADMIN. Reactiva el servicio para que aparezca en el checkout.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Servicio reactivado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+            @ApiResponse(responseCode = "404", description = "Servicio no encontrado")
+    })
     @PatchMapping("/{id}/activar")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> activar(@PathVariable Long id) {
