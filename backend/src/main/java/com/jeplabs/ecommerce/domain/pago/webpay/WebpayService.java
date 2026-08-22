@@ -2,6 +2,7 @@ package com.jeplabs.ecommerce.domain.pago.webpay;
 
 import cl.transbank.webpay.webpayplus.responses.WebpayPlusTransactionCommitResponse;
 import cl.transbank.webpay.webpayplus.responses.WebpayPlusTransactionCreateResponse;
+import cl.transbank.webpay.webpayplus.responses.WebpayPlusTransactionStatusResponse;
 import com.jeplabs.ecommerce.domain.orden.*;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
@@ -126,14 +127,19 @@ public class WebpayService {
         }
     }
 
-    // ─── PRIORIDAD 3: Estado para polling ────────────────────────────────────
+    // ─── PRIORIDAD 3: Estado para polling y reconciliación en tiempo real ────
 
+    @Transactional
     public DatosEstadoWebpay consultarEstado(Long ordenId) {
-        return transaccionRepositorio.findByOrdenId(ordenId)
-                .map(tx -> new DatosEstadoWebpay(
-                        ordenId, tx.getEstado(), tx.getMotivo()))
+        WebpayTransaccion tx = transaccionRepositorio.findByOrdenId(ordenId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No existe transacción Webpay para la orden: " + ordenId));
+
+        if (tx.estaIniciada()) {
+            verificarYActualizarEstadoTransaccion(tx, 10);
+        }
+
+        return new DatosEstadoWebpay(ordenId, tx.getEstado(), tx.getMotivo());
     }
 
     // ─── PRIORIDAD 4: Webhook (producción) ───────────────────────────────────
@@ -157,7 +163,50 @@ public class WebpayService {
         });
     }
 
+    // ─── PRIORIDAD 5: Reconciliación activa de transacciones abandonadas ─────
+
+    @Transactional
+    public int reconciliarTransaccionesExpiradas(int minutosExpiracion) {
+        LocalDateTime limite = LocalDateTime.now().minusMinutes(minutosExpiracion);
+        List<WebpayTransaccion> transaccionesIniciadas = transaccionRepositorio
+                .findByEstadoAndCreadoAtBefore(EstadoWebpayTransaccion.INICIADA, limite);
+
+        int reconciliadas = 0;
+        for (WebpayTransaccion tx : transaccionesIniciadas) {
+            verificarYActualizarEstadoTransaccion(tx, minutosExpiracion);
+            reconciliadas++;
+        }
+        return reconciliadas;
+    }
+
     // ─── Métodos privados ─────────────────────────────────────────────────────
+
+    private void verificarYActualizarEstadoTransaccion(WebpayTransaccion tx, int minutosExpiracion) {
+        try {
+            WebpayPlusTransactionStatusResponse status =
+                    webpayConfig.crearTransaction().status(tx.getToken());
+
+            if (status != null && "AUTHORIZED".equalsIgnoreCase(status.getStatus())
+                    && status.getResponseCode() == 0) {
+                // Pago completado con éxito
+                procesarAprobadaStatus(tx, status);
+            } else if (status != null && "FAILED".equalsIgnoreCase(status.getStatus())) {
+                // Rechazo explícito en Transbank / Tarjeta rechazada por el banco
+                tx.rechazar(MotivoRechazoWebpay.REJECTED, status.getResponseCode());
+                transaccionRepositorio.save(tx);
+            } else if (tx.getCreadoAt().isBefore(LocalDateTime.now().minusMinutes(minutosExpiracion))) {
+                // Transacción en INITIALIZED (o no completada) que superó el tiempo límite
+                tx.rechazar(MotivoRechazoWebpay.TIMEOUT, null);
+                transaccionRepositorio.save(tx);
+            }
+        } catch (Exception e) {
+            // Si Transbank rechaza la consulta de status (token expirado o no encontrado)
+            if (tx.getCreadoAt().isBefore(LocalDateTime.now().minusMinutes(minutosExpiracion))) {
+                tx.rechazar(MotivoRechazoWebpay.TIMEOUT, null);
+                transaccionRepositorio.save(tx);
+            }
+        }
+    }
 
     private DatosRespuestaConfirmarWebpay procesarAprobada(
             WebpayTransaccion transaccion,
@@ -194,6 +243,34 @@ public class WebpayService {
 
         return DatosRespuestaConfirmarWebpay.exitoso(
                 new DatosRespuestaOrden(orden), payment);
+    }
+
+    private void procesarAprobadaStatus(
+            WebpayTransaccion transaccion,
+            WebpayPlusTransactionStatusResponse response) {
+
+        transaccion.aprobar(
+                response.getBuyOrder(),
+                response.getAuthorizationCode(),
+                response.getCardDetail() != null
+                        ? response.getCardDetail().getCardNumber() : null,
+                response.getPaymentTypeCode(),
+                response.getInstallmentsNumber(),
+                response.getResponseCode()
+        );
+        transaccionRepositorio.save(transaccion);
+
+        Orden orden = transaccion.getOrden();
+        if (orden.getEstado() == EstadoOrden.PENDIENTE) {
+            orden.cambiarEstado(EstadoOrden.CONFIRMADA);
+            ordenRepositorio.save(orden);
+
+            emailService.enviarConfirmacionOrden(
+                    orden.getUsuario().getEmail(),
+                    orden.getUsuario().getNombre(),
+                    orden.getId()
+            );
+        }
     }
 
     private DatosRespuestaConfirmarWebpay procesarRechazada(
@@ -252,19 +329,5 @@ public class WebpayService {
     private Usuario buscarUsuario(String email) {
         return usuarioRepositorio.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-    }
-
-    // ─── PRIORIDAD 5: Reconciliación de transacciones abandonadas ────────────
-
-    @Transactional
-    public int reconciliarTransaccionesExpiradas(int minutosExpiracion) {
-        LocalDateTime limite = LocalDateTime.now().minusMinutes(minutosExpiracion);
-        List<WebpayTransaccion> transaccionesExpiradas = transaccionRepositorio
-                .findByEstadoAndCreadoAtBefore(EstadoWebpayTransaccion.INICIADA, limite);
-
-        for (WebpayTransaccion tx : transaccionesExpiradas) {
-            tx.rechazar(MotivoRechazoWebpay.TIMEOUT, null);
-        }
-        return transaccionesExpiradas.size();
     }
 }
