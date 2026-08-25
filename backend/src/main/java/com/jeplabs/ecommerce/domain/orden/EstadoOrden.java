@@ -8,17 +8,21 @@ public enum EstadoOrden {
     EN_PROCESO,
     ENVIADA,
     ENTREGADA,
-    CANCELADA;
+    CANCELADA,
+    ANULADO,
+    REEMBOLSADO;
 
     // Define desde qué estados se puede transicionar a cada estado
     public boolean puedeTransicionarA(EstadoOrden nuevoEstado) {
         return switch (this) {
             case PENDIENTE   -> Set.of(CONFIRMADA, CANCELADA).contains(nuevoEstado);
-            case CONFIRMADA  -> Set.of(EN_PROCESO, CANCELADA).contains(nuevoEstado);
+            case CONFIRMADA  -> Set.of(EN_PROCESO, ANULADO).contains(nuevoEstado);
             case EN_PROCESO  -> Set.of(ENVIADA).contains(nuevoEstado);
             case ENVIADA     -> Set.of(ENTREGADA).contains(nuevoEstado);
+            case ANULADO     -> Set.of(REEMBOLSADO).contains(nuevoEstado);
             case ENTREGADA,
-                 CANCELADA   -> false; // estados finales, no se puede cambiar
+                 CANCELADA,
+                 REEMBOLSADO -> false; // estados finales, no se puede cambiar
         };
     }
 

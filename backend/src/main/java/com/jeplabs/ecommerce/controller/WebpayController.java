@@ -5,9 +5,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import com.jeplabs.ecommerce.domain.orden.OrdenService;
 
 @RestController
 @RequestMapping("/api/pagos/webpay")
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class WebpayController {
 
     private final WebpayService service;
+    private final OrdenService ordenService;
 
     @PostMapping("/iniciar")
     @Operation(summary = "Iniciar transacción Webpay",
@@ -58,6 +62,24 @@ public class WebpayController {
         return ResponseEntity.ok(service.consultarEstado(ordenId));
     }
 
+    @PostMapping("/{ordenId}/reembolsar")
+    @Operation(summary = "Reembolsar orden confirmada (Admin)",
+            description = "Ejecuta un refund en Transbank y devuelve los productos al inventario")
+    public ResponseEntity<DatosRespuestaRefundWebpay> reembolsar(
+            @PathVariable Long ordenId, Authentication authentication) {
+        
+        // Ejecutar el reembolso en la pasarela
+        DatosRespuestaRefundWebpay respuesta = service.reembolsar(ordenId);
+        
+        // Si no arrojó excepción, fue exitoso. Completamos el flujo en la orden.
+        ordenService.completarReembolso(ordenId);
+        
+        return ResponseEntity.ok(respuesta);
+    }
+
+    @Value("${api.webpay.webhook-secret}")
+    private String webhookSecret;
+
     // Webhook de Transbank - público, validado por secret
     @PostMapping("/webhook")
     @Operation(summary = "Webhook de Transbank",
@@ -65,8 +87,12 @@ public class WebpayController {
     public ResponseEntity<Void> webhook(
             @RequestParam(value = "token_ws", required = false) String tokenWs,
             @RequestHeader(value = "X-Webhook-Secret", required = false) String secret) {
-        // Validar que viene de Transbank
-        // En producción comparar con api.webpay.webhook-secret
+        
+        // Validar que viene de Transbank usando el secreto configurado
+        if (!webhookSecret.equals(secret)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+        }
+
         if (tokenWs != null) {
             service.procesarWebhook(tokenWs);
         }

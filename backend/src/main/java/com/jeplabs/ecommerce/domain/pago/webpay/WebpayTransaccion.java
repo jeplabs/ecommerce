@@ -86,6 +86,11 @@ public class WebpayTransaccion {
         this.actualizadoAt = LocalDateTime.now();
     }
 
+    public void marcarReembolsada() {
+        this.estado = EstadoWebpayTransaccion.REEMBOLSADA;
+        this.actualizadoAt = LocalDateTime.now();
+    }
+
     public boolean estaAprobada()  { return estado == EstadoWebpayTransaccion.APROBADA; }
     public boolean estaIniciada()  { return estado == EstadoWebpayTransaccion.INICIADA; }
     public boolean estaTerminada() {

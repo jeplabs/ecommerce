@@ -5,5 +5,6 @@ public enum EstadoWebpayTransaccion {
     APROBADA,
     RECHAZADA,
     ABORTADA,
-    TIMEOUT
+    TIMEOUT,
+    REEMBOLSADA
 }

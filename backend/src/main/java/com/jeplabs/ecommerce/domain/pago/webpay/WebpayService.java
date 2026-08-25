@@ -53,9 +53,19 @@ public class WebpayService {
             if (tx.getCreadoAt().isAfter(LocalDateTime.now().minusMinutes(10))) {
                 return new DatosRespuestaIniciarWebpay(tx.getToken(), tx.getUrl());
             } else {
-                // Si ya expiró el token de Webpay, marcamos TIMEOUT y permitimos crear una nueva
-                tx.rechazar(MotivoRechazoWebpay.TIMEOUT, null);
-                transaccionRepositorio.save(tx);
+                // CASO 1 FIX: Antes de marcar TIMEOUT, consultar el estado real en Transbank
+                // para evitar doble cobro si el cliente pagó pero perdió el retorno
+                verificarYActualizarEstadoTransaccion(tx, 10);
+
+                if (tx.estaAprobada()) {
+                    // El pago SÍ fue exitoso en Transbank: la orden ya fue confirmada
+                    // internamente por verificarYActualizarEstadoTransaccion() → no crear nueva
+                    throw new IllegalStateException(
+                            "Esta orden ya fue pagada exitosamente. " +
+                            "Revisa el estado de tu orden.");
+                }
+                // Si no fue aprobada (TIMEOUT, REJECTED, ABORTED), ya fue marcada
+                // apropiadamente → se puede crear una nueva transacción
             }
         }
 
@@ -179,6 +189,34 @@ public class WebpayService {
         return reconciliadas;
     }
 
+    // ─── PRIORIDAD 6: Reembolso ──────────────────────────────────────────────
+
+    @Transactional
+    public DatosRespuestaRefundWebpay reembolsar(Long ordenId) {
+        WebpayTransaccion tx = transaccionRepositorio
+                .findByOrdenIdAndEstado(ordenId, EstadoWebpayTransaccion.APROBADA)
+                .orElseThrow(() -> new IllegalArgumentException("No hay pago aprobado que reembolsar"));
+        
+        try {
+            // Ejecutar el refund en Transbank
+            cl.transbank.webpay.webpayplus.responses.WebpayPlusTransactionRefundResponse response = 
+                    webpayConfig.crearTransaction().refund(tx.getToken(), tx.getMonto().intValue());
+            
+            // Independientemente del tipo ("REVERSED" o "NULLIFIED"), si no lanza excepción, fue exitoso.
+            tx.marcarReembolsada();
+            transaccionRepositorio.save(tx);
+            
+            // Llamar a ordenService para finalizar la orden no se puede hacer directamente 
+            // aquí para evitar dependencias circulares, el Controller orquestará esto o
+            // podemos usar Eventos. Para mantenerlo simple, delegamos al servicio de Órdenes
+            // que cambie el estado luego.
+            
+            return new DatosRespuestaRefundWebpay(ordenId, EstadoWebpayTransaccion.REEMBOLSADA);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al reembolsar en Transbank: " + e.getMessage());
+        }
+    }
+
     // ─── Métodos privados ─────────────────────────────────────────────────────
 
     private void verificarYActualizarEstadoTransaccion(WebpayTransaccion tx, int minutosExpiracion) {
@@ -211,6 +249,13 @@ public class WebpayService {
     private DatosRespuestaConfirmarWebpay procesarAprobada(
             WebpayTransaccion transaccion,
             WebpayPlusTransactionCommitResponse response) {
+
+        // CASO 7: Validar que el monto cobrado coincida con el de la orden
+        if (BigDecimal.valueOf(response.getAmount()).compareTo(transaccion.getMonto()) != 0) {
+            transaccion.rechazar(MotivoRechazoWebpay.REJECTED, response.getResponseCode());
+            return DatosRespuestaConfirmarWebpay.fallido(
+                    "El monto cobrado no coincide con el total de la orden", MotivoRechazoWebpay.REJECTED);
+        }
 
         transaccion.aprobar(
                 response.getBuyOrder(),
@@ -248,6 +293,14 @@ public class WebpayService {
     private void procesarAprobadaStatus(
             WebpayTransaccion transaccion,
             WebpayPlusTransactionStatusResponse response) {
+
+        // CASO 7: Validar que el monto cobrado coincida con el de la orden
+        if (BigDecimal.valueOf(response.getAmount()).compareTo(transaccion.getMonto()) != 0) {
+            transaccion.rechazar(MotivoRechazoWebpay.REJECTED, response.getResponseCode());
+            transaccionRepositorio.save(transaccion);
+            throw new IllegalStateException("El monto cobrado (" + response.getAmount() + 
+                    ") no coincide con el total de la orden (" + transaccion.getMonto() + ")");
+        }
 
         transaccion.aprobar(
                 response.getBuyOrder(),

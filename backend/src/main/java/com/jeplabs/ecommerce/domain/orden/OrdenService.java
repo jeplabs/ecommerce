@@ -228,8 +228,18 @@ public class OrdenService {
         Usuario usuario = buscarUsuario(email);
         Orden orden = ordenRepositorio.findByIdAndUsuarioId(ordenId, usuario.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada con ID: " + ordenId));
-        orden.cancelar();
-        devolverStock(orden);
+        
+        if (orden.getEstado() == EstadoOrden.PENDIENTE) {
+            orden.cancelar(); // Pasa a CANCELADA
+            devolverStock(orden);
+        } else if (orden.getEstado() == EstadoOrden.CONFIRMADA) {
+            // Caso 3: Orden ya pagada. Pasa a ANULADO en espera de que Admin apruebe reembolso.
+            // NO se devuelve el stock inmediatamente.
+            orden.cambiarEstado(EstadoOrden.ANULADO);
+        } else {
+            throw new com.jeplabs.ecommerce.infra.exceptions.EstadoInvalidoException(orden.getEstado().name(), "CANCELADA");
+        }
+        
         return new DatosRespuestaOrden(orden);
     }
 
@@ -239,13 +249,36 @@ public class OrdenService {
         Orden orden = buscarOrden(ordenId);
 
         if (datos.estado() == EstadoOrden.CANCELADA) {
-            orden.cancelar();
-            devolverStock(orden);
+            if (orden.getEstado() == EstadoOrden.PENDIENTE) {
+                orden.cancelar();
+                devolverStock(orden);
+            } else {
+                throw new com.jeplabs.ecommerce.infra.exceptions.EstadoInvalidoException(orden.getEstado().name(), "CANCELADA");
+            }
+        } else if (datos.estado() == EstadoOrden.ANULADO) {
+            orden.cambiarEstado(EstadoOrden.ANULADO);
         } else {
             orden.cambiarEstado(datos.estado());
         }
 
         return new DatosRespuestaOrden(orden);
+    }
+
+    // Completar el flujo de reembolso una vez ejecutado en Transbank (Caso 3)
+    @Transactional
+    public void completarReembolso(Long ordenId) {
+        Orden orden = buscarOrden(ordenId);
+        orden.cambiarEstado(EstadoOrden.REEMBOLSADO);
+        devolverStock(orden); // Ahora sí devolvemos el stock al inventario
+        ordenRepositorio.save(orden);
+    }
+
+    // Expiración automática ejecutada por el Scheduler (Caso 4)
+    @Transactional
+    public void expiracionAutomatica(Orden orden) {
+        orden.cancelar();        // PENDIENTE -> CANCELADA
+        devolverStock(orden);    // Devuelve los productos al inventario
+        ordenRepositorio.save(orden);
     }
 
     private void devolverStock(Orden orden) {

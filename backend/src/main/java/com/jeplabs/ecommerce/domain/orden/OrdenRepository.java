@@ -19,4 +19,7 @@ public interface OrdenRepository extends JpaRepository<Orden, Long> {
     // Admin - lista todas las órdenes con filtro opcional por estado
     @Query("SELECT o FROM Orden o WHERE (:estado IS NULL OR o.estado = :estado) ORDER BY o.creadoAt DESC")
     Page<Orden> buscarTodas(@Param("estado") EstadoOrden estado, Pageable pageable);
+
+    // Busca órdenes para expiración automática
+    java.util.List<Orden> findByEstadoAndCreadoAtBefore(EstadoOrden estado, java.time.LocalDateTime limite);
 }
