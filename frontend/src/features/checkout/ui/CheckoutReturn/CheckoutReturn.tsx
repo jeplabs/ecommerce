@@ -15,7 +15,7 @@ import {
     obtenerOrdenWebpayPendiente,
     parsearOrdenIdDesdeTbk,
 } from '@/features/checkout/lib/webpay-pending-order';
-import { orderApi } from '@/entities/order';
+import { orderApi } from '@/entities/order/api/orderApi';
 import type { OrderApi } from '@/entities/order';
 import { formatCurrency } from '@/shared/lib/format';
 import { ApiError, redirectUnauthorized } from '@/shared';

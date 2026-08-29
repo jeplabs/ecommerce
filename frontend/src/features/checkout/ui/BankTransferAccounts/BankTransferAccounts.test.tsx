@@ -1,15 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/entities/order', async (importOriginal) => {
-    const mod = await importOriginal<typeof import('@/entities/order')>();
+vi.mock('@/entities/order/api/orderApi', async (importOriginal) => {
+    const mod = await importOriginal<typeof import('@/entities/order/api/orderApi')>();
     return {
         ...mod,
         listarCuentasBancarias: vi.fn(),
     };
 });
 
-import { listarCuentasBancarias } from '@/entities/order';
+import { listarCuentasBancarias } from '@/entities/order/api/orderApi';
 import BankTransferAccounts from './BankTransferAccounts';
 import { formatCurrency } from '@/shared/lib/format';
 

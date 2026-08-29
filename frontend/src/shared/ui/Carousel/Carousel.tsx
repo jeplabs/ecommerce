@@ -42,6 +42,9 @@ const Carousel = ({ slides }: CarouselProps) => {
                                 sizes={slide.sizes}
                                 alt={slide.alt}
                                 loading={index === 0 ? 'eager' : 'lazy'}
+                                fetchpriority={index === 0 ? 'high' : undefined}
+                                width={index === 0 ? 1920 : undefined}
+                                height={index === 0 ? 600 : undefined}
                             />
                             <div className={styles.slideOverlay} />
                         </Link>

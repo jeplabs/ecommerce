@@ -10,5 +10,7 @@ export default defineConfig({
         viewportWidth: 1280,
         viewportHeight: 720,
         video: false,
+        defaultCommandTimeout: 10000,
+        requestTimeout: 10000,
     },
 });

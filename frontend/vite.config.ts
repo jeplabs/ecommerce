@@ -16,6 +16,18 @@ export default defineConfig(({ mode }) => {
                 '@': path.resolve(__dirname, './src'),
             },
         },
+        optimizeDeps: {
+            include: [],
+        },
+        build: {
+            rollupOptions: {
+                output: {
+                    manualChunks: {
+                        'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+                    },
+                },
+            },
+        },
         test: {
             globals: true,
             environment: 'jsdom',

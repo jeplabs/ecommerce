@@ -176,7 +176,15 @@ const CategoriasNav = () => {
         return undefined;
     }, [isDrawerOpen]);
 
-    if (loading || !arbolCategorias || arbolCategorias.length === 0) return null;
+    if (loading || !arbolCategorias || arbolCategorias.length === 0) {
+        return (
+            <div className={styles.root}>
+                <div className={styles.desktopNav} aria-hidden="true">
+                    <div className={styles.categoriasContainer} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.root}>

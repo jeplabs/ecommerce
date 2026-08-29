@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/entities/user/api';
-import { orderApi } from '@/entities/order/api';
+import { orderApi } from '@/entities/order/api/orderApi';
 import { productApi } from '@/entities/product/api';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';

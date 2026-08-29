@@ -15,8 +15,8 @@ describe('Checkout invitado', () => {
             .scrollIntoView()
             .click({ force: true });
 
-        cy.url().should('include', '/login');
-        cy.contains('h1', 'Iniciar sesión').should('be.visible');
+        cy.url().should('include', '/login', { timeout: 10000 });
+        cy.contains('h1', 'Iniciar sesión').should('be.visible', { timeout: 10000 });
     });
 
     it('redirige a login al visitar el carrito sin sesión', () => {

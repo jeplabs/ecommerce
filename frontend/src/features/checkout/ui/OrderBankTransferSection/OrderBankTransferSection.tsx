@@ -1,5 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react';
-import { subirComprobanteOrder } from '@/entities/order';
+import { subirComprobanteOrder } from '@/entities/order/api/orderApi';
 import type { OrderApi } from '@/entities/order';
 // import {
 //     getTransferComprobante,

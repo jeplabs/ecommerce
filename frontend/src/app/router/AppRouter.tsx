@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthSessionListeners } from '@/features/auth';
 import ShopLayout from '@/widgets/layout/ShopLayout/ShopLayout';
@@ -6,31 +7,62 @@ import PrivateRoute from './PrivateRoute';
 import GuestRoute from './GuestRoute';
 import ScrollToTop from './ScrollToTop';
 import { ProfileProvider } from '@/app/providers';
+import { LazyRouteFallback } from './LazyRouteFallback';
 
-import { HomePage } from '@/pages/home';
-import { LoginPage } from '@/pages/login';
-import { RegisterPage } from '@/pages/register';
-import { ResetPasswordPage } from '@/pages/reset-password';
-import { ProfilePage } from '@/pages/profile';
-import { CartPage } from '@/pages/cart';
-import { CheckoutPage, CheckoutReturnPage } from '@/pages/checkout';
-import { CheckoutSuccessPage } from '@/pages/checkout-success';
-import { ProductPage } from '@/pages/product';
-import { CatalogPage } from '@/pages/catalog';
-import { CategoryPage } from '@/pages/category';
-import { AdminDashboardPage } from '@/pages/admin/dashboard';
-import { AdminProductsPage } from '@/pages/admin/products';
-import { AdminProductNewPage } from '@/pages/admin/product-new';
-import { AdminProductEditPage } from '@/pages/admin/product-edit';
-import { AdminUsersPage } from '@/pages/admin/users';
-import { AdminUserEditPage } from '@/pages/admin/user-edit';
-import { AdminOrdersPage } from '@/pages/admin/orders';
+const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
+const LoginPage = lazy(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() =>
+    import('@/pages/register').then((m) => ({ default: m.RegisterPage }))
+);
+const ResetPasswordPage = lazy(() =>
+    import('@/pages/reset-password').then((m) => ({ default: m.ResetPasswordPage }))
+);
+const ProfilePage = lazy(() =>
+    import('@/pages/profile').then((m) => ({ default: m.ProfilePage }))
+);
+const CartPage = lazy(() => import('@/pages/cart').then((m) => ({ default: m.CartPage })));
+const CheckoutPage = lazy(() =>
+    import('@/pages/checkout').then((m) => ({ default: m.CheckoutPage }))
+);
+const CheckoutReturnPage = lazy(() =>
+    import('@/pages/checkout').then((m) => ({ default: m.CheckoutReturnPage }))
+);
+const CheckoutSuccessPage = lazy(() =>
+    import('@/pages/checkout-success').then((m) => ({ default: m.CheckoutSuccessPage }))
+);
+const ProductPage = lazy(() => import('@/pages/product').then((m) => ({ default: m.ProductPage })));
+const CatalogPage = lazy(() => import('@/pages/catalog').then((m) => ({ default: m.CatalogPage })));
+const CategoryPage = lazy(() =>
+    import('@/pages/category').then((m) => ({ default: m.CategoryPage }))
+);
+const AdminDashboardPage = lazy(() =>
+    import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboardPage }))
+);
+const AdminProductsPage = lazy(() =>
+    import('@/pages/admin/products').then((m) => ({ default: m.AdminProductsPage }))
+);
+const AdminProductNewPage = lazy(() =>
+    import('@/pages/admin/product-new').then((m) => ({ default: m.AdminProductNewPage }))
+);
+const AdminProductEditPage = lazy(() =>
+    import('@/pages/admin/product-edit').then((m) => ({ default: m.AdminProductEditPage }))
+);
+const AdminUsersPage = lazy(() =>
+    import('@/pages/admin/users').then((m) => ({ default: m.AdminUsersPage }))
+);
+const AdminUserEditPage = lazy(() =>
+    import('@/pages/admin/user-edit').then((m) => ({ default: m.AdminUserEditPage }))
+);
+const AdminOrdersPage = lazy(() =>
+    import('@/pages/admin/orders').then((m) => ({ default: m.AdminOrdersPage }))
+);
 
 export function AppRouter() {
     return (
         <Router>
             <ScrollToTop />
             <AuthSessionListeners />
+            <Suspense fallback={<LazyRouteFallback />}>
             <Routes>
                 {/* Tienda: nav + categorías + footer */}
                 <Route element={<ShopLayout showCategoriasNav />}>
@@ -165,6 +197,7 @@ export function AppRouter() {
                     />
                 </Route>
             </Routes>
+            </Suspense>
         </Router>
     );
 }

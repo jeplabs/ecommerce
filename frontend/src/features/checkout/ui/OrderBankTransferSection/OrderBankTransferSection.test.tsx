@@ -2,8 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/entities/order', async (importOriginal) => {
-    const mod = await importOriginal<typeof import('@/entities/order')>();
+vi.mock('@/entities/order/api/orderApi', async (importOriginal) => {
+    const mod = await importOriginal<typeof import('@/entities/order/api/orderApi')>();
     return {
         ...mod,
         subirComprobanteOrder: vi.fn(),
@@ -14,7 +14,7 @@ vi.mock('../BankTransferAccounts/BankTransferAccounts', () => ({
     default: () => <div>Cuentas bancarias</div>,
 }));
 
-import { subirComprobanteOrder } from '@/entities/order';
+import { subirComprobanteOrder } from '@/entities/order/api/orderApi';
 import OrderBankTransferSection from './OrderBankTransferSection';
 import {
     findDynamicOrder,

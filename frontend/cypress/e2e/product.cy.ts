@@ -15,7 +15,7 @@ describe('Detalle de producto', () => {
             .scrollIntoView()
             .click();
 
-        cy.wait('@getProductBySlug');
+        cy.wait('@getProductBySlug', { timeout: 10000 });
         cy.location('pathname').should('eq', `/producto/${mockProduct.slug}`);
         cy.contains('h1', mockProduct.nombre).should('be.visible');
         cy.contains(`SKU: ${mockProduct.sku}`).should('be.visible');
@@ -23,7 +23,7 @@ describe('Detalle de producto', () => {
 
     it('muestra producto agotado sin permitir añadir al carrito', () => {
         cy.visit(`/producto/${mockSoldOutProduct.slug}`);
-        cy.wait('@getProductBySlug');
+        cy.wait('@getProductBySlug', { timeout: 10000 });
         cy.contains('h1', mockSoldOutProduct.nombre).should('be.visible');
         cy.contains('✕ Sin stock').should('be.visible');
         cy.contains('button', 'Sin Stock').should('be.disabled');

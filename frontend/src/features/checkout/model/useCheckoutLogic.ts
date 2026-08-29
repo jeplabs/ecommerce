@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressApi } from '@/entities/address';
 import type { AddressApi } from '@/entities/address';
-import { orderApi, FORMA_PAGO_ENVIO } from '@/entities/order';
+import { orderApi } from '@/entities/order/api/orderApi';
+import { FORMA_PAGO_ENVIO } from '@/entities/order/model/constants';
 import type { OrderApi } from '@/entities/order';
 import { paymentApi, PAYMENT_METHODS, iniciarWebpay, consultarEstadoWebpay } from '@/features/checkout/api';
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
@@ -18,7 +19,6 @@ import { ApiError } from '@/shared';
 import {
     isPickupService,
     isExpressService,
-    getCheckoutShippingOptions,
     resolveShippingCost,
     resolveShippingCostInTotal,
     getServicioCostos,
