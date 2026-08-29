@@ -44,6 +44,12 @@ import {
     updateDynamicProfile,
     updateDynamicPassword,
 } from '../../src/test/msw/fixtures/profile-registry';
+import {
+    addDynamicFavorite,
+    getDynamicFavorites,
+    removeDynamicFavorite,
+    resetDynamicFavorites,
+} from '../../src/test/msw/fixtures/favorites-registry';
 import { mockCategories } from '../../src/test/msw/fixtures/categories';
 import { mockCreatedOrder } from '../../src/test/msw/fixtures/orders';
 import {
@@ -131,6 +137,28 @@ Cypress.Commands.add('stubAuthenticatedApi', () => {
     resetDynamicAddresses();
     resetDynamicOrders();
     resetDynamicProfile();
+    resetDynamicFavorites();
+
+    cy.intercept('GET', '**/api/favoritos', (req) => {
+        req.reply(getDynamicFavorites());
+    }).as('getFavorites');
+    cy.intercept('POST', '**/api/favoritos/*', (req) => {
+        const productId = Number(req.url.split('/').pop());
+        try {
+            req.reply(addDynamicFavorite(productId));
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'Producto no encontrado' } });
+        }
+    }).as('addFavorite');
+    cy.intercept('DELETE', '**/api/favoritos/*', (req) => {
+        const productId = Number(req.url.split('/').pop());
+        try {
+            removeDynamicFavorite(productId);
+            req.reply({});
+        } catch {
+            req.reply({ statusCode: 404, body: { error: 'El producto no está en tus favoritos' } });
+        }
+    }).as('removeFavorite');
 
     cy.intercept('GET', '**/api/usuarios/perfil', (req) => {
         req.reply(getDynamicProfile());

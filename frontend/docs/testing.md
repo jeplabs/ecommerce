@@ -253,6 +253,7 @@ Esto evita falsos negativos por superposición de capas, no indica un bug de la 
 | `fixtures/orders.ts` | `mockOrdersPage()`, `mockCreatedOrder()` |
 | `fixtures/products-registry.ts` | Catálogo stateful + CRUD admin |
 | `fixtures/users-registry.ts` | Usuarios admin stateful |
+| `fixtures/favorites-registry.ts` | Favoritos stateful (`/api/favoritos` GET/POST/DELETE) |
 
 Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cypress/support/`.
 
@@ -285,8 +286,7 @@ Importar desde `@/test/msw/fixtures/...` en Vitest o con ruta relativa desde `cy
 | `features/checkout/model/useCheckoutLogic.test.tsx` | Hook + MSW | Pasos, dirección, pago, crear orden |
 | `entities/address/api/addressApi.test.ts` | API + MSW | CRUD direcciones, marcar principal |
 | `entities/order/model/useOrdenesLogic.test.tsx` | Hook + MSW | Lista, detalle cache, cancelar |
-| `features/favorites/lib/favorites-storage.test.ts` | Unit | Favoritos por JWT `sub`, add/remove |
-| `features/favorites/model/useFavoritesLogic.test.tsx` | Hook | Toggle, persistencia, auth |
+| `features/favorites/model/useFavoritesLogic.test.tsx` | Hook + MSW | Toggle (agregar/quitar), remove, auth obligatorio |
 | `entities/product/api/productApi.admin.test.ts` | API + MSW | CRUD admin, imágenes, estado |
 | `entities/user/api/authApi.admin.test.ts` | API + MSW | listUsuarios, rol, activar/desactivar |
 | `features/admin/model/useAdminOrdersLogic.test.tsx` | Hook + MSW | Lista admin, filtro, cambio estado |
@@ -495,11 +495,10 @@ Objetivo: datos personales, direcciones, pedidos y favoritos sin regresiones.
 - [x] `profileApi`: get/update perfil, cambio contraseña (I)
 - [x] `addressApi`: CRUD direcciones, marcar principal (I)
 - [x] `useOrdenesLogic`: lista, detalle cache, cancelar (I)
-- [x] `favorites-storage`: por JWT `sub`, add/remove (U)
-- [x] `useFavoritesLogic`: toggle, persistencia (I)
+- [x] `useFavoritesLogic`: toggle, remove, auth; fuentes de verdad = backend `/api/favoritos` (I)
 - [x] `profileRoutes` *(ya cubierto)* (U)
 - [x] Fixtures: `profile-registry`, `address-registry`, `orders-registry` (pedidos de muestra)
-- [x] Token mock con JWT `sub` para favoritos por usuario
+- [x] Favoritos migrados de `localStorage` a `/api/favoritos` (GET/POST/DELETE), con `favoritesApi` + `favorites-registry`
 - [x] E2E: `profile.cy.ts`, `profile-orders.cy.ts`, `favorites.cy.ts`
 
 | Área | Tests sugeridos | Capas |
@@ -507,14 +506,13 @@ Objetivo: datos personales, direcciones, pedidos y favoritos sin regresiones.
 | `entities/user/api/profileApi.ts` | get/update perfil, cambio contraseña | I |
 | `entities/address/api/addressApi.ts` | CRUD direcciones, marcar principal | I |
 | `entities/order/model/useOrdenesLogic.ts` | Lista, detalle desde cache, cancelar | I |
-| `features/favorites/lib/favorites-storage.ts` | Por usuario JWT `sub`, add/remove | U |
-| `features/favorites/model/useFavoritesLogic.ts` | Toggle, persistencia | I |
+| `features/favorites/model/useFavoritesLogic.ts` | Toggle, remove, auth; API `/api/favoritos` | I |
 | `features/profile/lib/profileRoutes.ts` | *(ya cubierto)* | U |
 | **E2E** `profile.cy.ts` | Tabs datos / direcciones / pedidos / favoritos | E |
 | **E2E** `profile-orders.cy.ts` | Lista → detalle de pedido; transferencia + comprobante si aplica | E |
 | **E2E** `favorites.cy.ts` | Corazón en producto → tab favoritos → quitar | E |
 
-**Fixtures:** `profile-registry.ts`, `address-registry.ts`, `orders-registry.ts` (pedidos #501–503 con estados variados).
+**Fixtures:** `profile-registry.ts`, `address-registry.ts`, `orders-registry.ts` (pedidos #501–503 con estados variados), `favorites-registry.ts` (`/api/favoritos`).
 
 ### Fase 4 — Admin ✅ cerrada
 

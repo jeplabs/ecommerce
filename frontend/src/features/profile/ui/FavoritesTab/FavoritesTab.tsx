@@ -8,15 +8,21 @@ export default function FavoritesTab() {
     const { favorites, removeFavorite } = useFavorites();
     const { showError } = useToast();
 
-    const formatPrice = (value: number, moneda: string) =>
+    const formatPrice = (value: number, moneda: string | null) =>
         new Intl.NumberFormat('es-CL', {
             style: 'currency',
             currency: moneda || 'CLP',
         }).format(value);
 
-    const handleRemove = (productId: number, nombre: string) => {
-        removeFavorite(productId);
-        showError(`${nombre} eliminado de favoritos`);
+    const handleRemove = async (productId: number, nombre: string) => {
+        try {
+            await removeFavorite(productId);
+            showError(`${nombre} eliminado de favoritos`);
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : 'No se pudo eliminar el favorito';
+            showError(message);
+        }
     };
 
     return (

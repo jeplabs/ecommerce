@@ -75,9 +75,15 @@ import {
     updateDynamicUserEstado,
     updateDynamicUserRol,
 } from './fixtures/users-registry';
+import {
+    addDynamicFavorite,
+    getDynamicFavorites,
+    removeDynamicFavorite,
+    resetDynamicFavorites,
+} from './fixtures/favorites-registry';
 import { mockShippingOptions } from './fixtures/shipping';
 
-export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers };
+export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers, resetDynamicFavorites };
 
 function resolveLogin(body: { email?: string; password?: string }) {
     if (body.email === MOCK_LOGIN_EMAIL && body.password === MOCK_LOGIN_PASSWORD) {
@@ -775,6 +781,32 @@ export const handlers = [
             );
         } catch {
             return HttpResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.get(`${API_BASE}/api/favoritos`, () => {
+        return HttpResponse.json(getDynamicFavorites());
+    }),
+
+    http.post(`${API_BASE}/api/favoritos/:productId`, ({ params }) => {
+        const productId = Number(params.productId);
+        try {
+            return HttpResponse.json(addDynamicFavorite(productId));
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.delete(`${API_BASE}/api/favoritos/:productId`, ({ params }) => {
+        const productId = Number(params.productId);
+        try {
+            removeDynamicFavorite(productId);
+            return HttpResponse.json({});
+        } catch {
+            return HttpResponse.json(
+                { error: 'El producto no está en tus favoritos' },
+                { status: 404 }
+            );
         }
     }),
 ];

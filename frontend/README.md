@@ -1,5 +1,19 @@
 # JEPLabs Ecommerce — Frontend
 
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=for-the-badge)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white&style=for-the-badge)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white&style=for-the-badge)
+![React Router](https://img.shields.io/badge/React%20Router-7-CA4245?logo=reactrouter&logoColor=white&style=for-the-badge)
+![Zod](https://img.shields.io/badge/Zod-4-3E67B1?logo=zod&logoColor=white&style=for-the-badge)
+![React Hook Form](https://img.shields.io/badge/React%20Hook%20Form-7-EC5990?logo=reacthookform&logoColor=white&style=for-the-badge)
+
+![Vitest](https://img.shields.io/badge/Tests-Vitest%204-6E9F18?logo=vitest&logoColor=white&style=for-the-badge)
+![Testing Library](https://img.shields.io/badge/Testing%20Library-E33332?logo=testinglibrary&logoColor=white&style=for-the-badge)
+![MSW](https://img.shields.io/badge/MSW%202-FF6A33?logo=msw&logoColor=white&style=for-the-badge)
+![Cypress](https://img.shields.io/badge/Cypress%2015-17202C?logo=cypress&logoColor=white&style=for-the-badge)
+![ESLint](https://img.shields.io/badge/ESLint%209-4B32C3?logo=eslint&logoColor=white&style=for-the-badge)
+![pnpm](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white&style=for-the-badge)
+
 SPA de comercio electrónico construida con **React 19**, **TypeScript**, **Vite 7** y **Feature-Sliced Design (FSD)**. Consume la API REST del backend Spring Boot y prioriza tipado estricto, estilos encapsulados con CSS Modules y una estructura de carpetas predecible para equipos.
 
 ---
@@ -183,6 +197,7 @@ frontend/
 │   │   ├── catalog/
 │   │   ├── checkout/       # api/, lib/, model/, ui/
 │   │   ├── profile/
+│   │   ├── favorites/      # api/, model/ (consume /api/favoritos)
 │   │   ├── admin/
 │   │   └── order/
 │   │

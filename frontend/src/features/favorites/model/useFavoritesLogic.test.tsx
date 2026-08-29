@@ -31,7 +31,7 @@ describe('useFavoritesLogic', () => {
         await waitFor(() => expect(result.current.favorites).toHaveLength(0));
 
         await act(async () => {
-            const added = result.current.toggleFavorite(mockProduct);
+            const added = await result.current.toggleFavorite(mockProduct);
             expect(added.success).toBe(true);
             if (added.success) {
                 expect(added.added).toBe(true);
@@ -40,8 +40,8 @@ describe('useFavoritesLogic', () => {
 
         expect(result.current.isFavorite(mockProduct.id)).toBe(true);
 
-        act(() => {
-            result.current.removeFavorite(mockProduct.id);
+        await act(async () => {
+            await result.current.removeFavorite(mockProduct.id);
         });
 
         expect(result.current.isFavorite(mockProduct.id)).toBe(false);
@@ -52,15 +52,15 @@ describe('useFavoritesLogic', () => {
 
         await waitFor(() => expect(result.current.favorites).toHaveLength(0));
 
-        let toggleResult: ReturnType<typeof result.current.toggleFavorite> | undefined;
+        let toggleResult: Awaited<ReturnType<typeof result.current.toggleFavorite>> | undefined;
 
-        act(() => {
-            toggleResult = result.current.toggleFavorite(mockProduct);
+        await act(async () => {
+            toggleResult = await result.current.toggleFavorite(mockProduct);
         });
 
         expect(toggleResult?.success).toBe(false);
         if (toggleResult && !toggleResult.success) {
-            expect(toggleResult.requiresAuth).toBe(true);
+            expect('requiresAuth' in toggleResult).toBe(true);
         }
     });
 });

@@ -53,15 +53,19 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
         }
     };
 
-    const handleToggleFavorite = () => {
+    const handleToggleFavorite = async () => {
         if (!isAuthenticated) {
             navigate('/login');
             return;
         }
 
-        const result = toggleFavorite(producto);
+        const result = await toggleFavorite(producto);
         if (!result.success) {
-            navigate('/login');
+            if ('requiresAuth' in result) {
+                navigate('/login');
+            } else {
+                showError(result.error);
+            }
             return;
         }
 
