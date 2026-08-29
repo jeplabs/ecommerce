@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +36,6 @@ public class OrdenExpiracionScheduler {
             fixedDelayString = "${api.orden.expiracion-fixed-delay-ms:300000}",
             initialDelayString = "${api.orden.expiracion-delay-inicial-ms:120000}"
     )
-    @Transactional
     public void expirarOrdenesPendientes() {
         LocalDateTime limite = LocalDateTime.now().minusMinutes(expiracionMinutos);
         List<Orden> ordenesExpiradas = ordenRepository.findByEstadoAndCreadoAtBefore(EstadoOrden.PENDIENTE, limite);
@@ -46,7 +44,7 @@ public class OrdenExpiracionScheduler {
         for (Orden orden : ordenesExpiradas) {
             if (noHayPagoAprobado(orden)) {
                 try {
-                    ordenService.expiracionAutomatica(orden);
+                    ordenService.expiracionAutomatica(orden.getId()); // Pasamos solo el ID
                     expiradas++;
                     log.info("Orden {} expirada automáticamente y stock devuelto", orden.getId());
                 } catch (Exception e) {
