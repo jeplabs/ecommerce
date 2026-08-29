@@ -275,7 +275,8 @@ public class OrdenService {
 
     // Expiración automática ejecutada por el Scheduler (Caso 4)
     @Transactional
-    public void expiracionAutomatica(Orden orden) {
+    public void expiracionAutomatica(Long ordenId) {
+        Orden orden = buscarOrden(ordenId); // Buscamos la orden fresca con la sesión activa
         orden.cancelar();        // PENDIENTE -> CANCELADA
         devolverStock(orden);    // Devuelve los productos al inventario
         ordenRepositorio.save(orden);
