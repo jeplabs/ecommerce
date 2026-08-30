@@ -265,6 +265,10 @@ features/checkout/
 └── ui/                   # Pasos, formularios simulados, resumen…
 ```
 
+### Fallback de carga lazy (`LazyRouteFallback`)
+
+Para las rutas code-split, `AppRouter` usa `<Suspense fallback={<LazyRouteFallback />}>`. El componente `LazyRouteFallback` (`src/app/router/LazyRouteFallback.tsx`) muestra un spinner accesible (`role="status"`) que respeta `prefers-reduced-motion`. Se monta durante la descarga del chunk de la página destino.
+
 ---
 
 ## Reglas de dependencia
@@ -452,7 +456,7 @@ import { paymentApi } from '@/features/checkout';
 
 ## Routing y layouts
 
-El router está en `app/router/AppRouter.tsx`.
+El router está en `app/router/AppRouter.tsx`. **Todas las páginas se cargan con `React.lazy` (code-splitting por ruta)** y se montan bajo un `<Suspense>` con un fallback de carga (`LazyRouteFallback`) para que el bundle inicial sea mínimo y cada vista descargue su chunk bajo demanda.
 
 | Layout | Rutas | Shell |
 |--------|-------|-------|
@@ -531,6 +535,22 @@ pnpm run preview
 El output queda en `frontend/dist/`. Servir como SPA estática; configurar fallback a `index.html` en el servidor (nginx, CDN, etc.).
 
 En producción, definir `VITE_API_URL` apuntando al backend desplegado.
+
+### Configuración de despliegue en Netlify
+
+El repo incluye `netlify.toml` en la raíz con:
+
+- **Build**: base `frontend`, publish `frontend/dist`, command `pnpm install && pnpm build`
+- **SPA fallback**: `/*` → `/index.html` (status 200)
+- **Cache headers** para assets con hash (`/assets/*`): `Cache-Control: public, max-age=31536000, immutable`
+- **Shell sin cache**: `/index.html` → `no-cache`
+
+### Optimizaciones de build
+
+- **Code-splitting automático**: Vite genera chunks por ruta lazy (`index-*.js`) + chunk `react-vendor` (React/Router estable para caché largo).
+- **ManualChunks simplificado**: solo `react-vendor`; `zod` y `react-hook-form` se agrupan en los chunks lazy de las páginas que los usan (checkout, admin), evitando que se precarguen en la home.
+- **Fuentes autoalojadas**: 5 familias (`@fontsource/*`) importadas en `main.tsx` con subconjuntos `latin` (woff2, `font-display: swap`).
+- **LCP / CLS**: Hero con `fetchpriority="high"` + `aspect-ratio` reservado; `preconnect` a `media.spdigital.cl` y `fonts.googleapis.com`.
 
 ---
 
