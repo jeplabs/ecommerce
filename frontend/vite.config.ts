@@ -24,9 +24,13 @@ export default defineConfig(({ mode }) => {
                 output: {
                     manualChunks: {
                         'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+                        'forms-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
                     },
                 },
             },
+        },
+        esbuild: {
+            drop: mode === 'production' ? ['console', 'debugger'] : [],
         },
         test: {
             globals: true,

@@ -17,7 +17,14 @@ export default function ProductGallery({ producto }: ProductGalleryProps) {
     return (
         <div className={styles.gallery}>
             <div className={styles.mainImageWrapper}>
-                <img src={imagenActiva} alt={producto.nombre} className={styles.mainImg} />
+                <img
+                    src={imagenActiva}
+                    alt={producto.nombre}
+                    className={styles.mainImg}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                />
                 {producto.stock === 0 && <SoldOutBadge placement="end" />}
             </div>
 
@@ -34,7 +41,7 @@ export default function ProductGallery({ producto }: ProductGalleryProps) {
                             onClick={() => setImagenActiva(img)}
                             aria-label={`Ver imagen ${idx + 1} de ${producto.nombre}`}
                         >
-                            <img src={img} alt={`Vista ${idx + 1}`} />
+                            <img src={img} alt={`Vista ${idx + 1}`} loading="lazy" decoding="async" />
                         </button>
                     ))}
                 </div>

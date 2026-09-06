@@ -16,18 +16,41 @@ function toErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Error desconocido';
 }
 
+let cachedProducts: ProductApi[] | null = null;
+let productsFetchPromise: Promise<ProductApi[]> | null = null;
+
+async function getOrFetchProducts(forceFresh = false): Promise<ProductApi[]> {
+    if (forceFresh) {
+        cachedProducts = null;
+    }
+    if (cachedProducts) return cachedProducts;
+    if (!productsFetchPromise) {
+        productsFetchPromise = productApi.getAll()
+            .then((data) => {
+                cachedProducts = data;
+                return data;
+            })
+            .finally(() => {
+                productsFetchPromise = null;
+            });
+    }
+    return productsFetchPromise;
+}
+
 export function useProducts() {
-    const [productos, setProductos] = useState<ProductApi[]>([]);
+    const [productos, setProductos] = useState<ProductApi[]>(cachedProducts || []);
     const [productosOcultos, setProductosOcultos] = useState<ProductAdminApi[]>([]);
     const [productosDescontinuados, setProductosDescontinuados] = useState<ProductAdminApi[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!cachedProducts);
 
     const { userRol } = useAuth();
 
-    const reloadProducts = useCallback(async () => {
-        setLoading(true);
+    const reloadProducts = useCallback(async (forceFresh = false) => {
+        if (!cachedProducts || forceFresh) {
+            setLoading(true);
+        }
         try {
-            const listaPublica = await productApi.getAll();
+            const listaPublica = await getOrFetchProducts(forceFresh);
             setProductos(listaPublica);
 
             if (userRol === 'ROLE_ADMIN') {
@@ -50,12 +73,19 @@ export function useProducts() {
     }, [userRol]);
 
     useEffect(() => {
-        void reloadProducts();
+        let isMounted = true;
+        void reloadProducts().then(() => {
+            if (!isMounted) return;
+        });
+        return () => {
+            isMounted = false;
+        };
     }, [reloadProducts]);
 
     const createProduct = async (producto: CreateProductRequest): Promise<ProductApi> => {
         try {
             const nuevo = await productApi.create(producto);
+            cachedProducts = null;
             setProductos((prev) => [...prev, nuevo]);
             return nuevo;
         } catch (error) {
@@ -70,7 +100,7 @@ export function useProducts() {
     ): Promise<ProductMutationResult> => {
         try {
             await productApi.update(id, data);
-            await reloadProducts();
+            await reloadProducts(true);
             return { success: true };
         } catch (error) {
             console.error('Error al actualizar:', error);
@@ -81,7 +111,7 @@ export function useProducts() {
     const deleteProduct = async (id: number): Promise<ProductMutationResult> => {
         try {
             await productApi.delete(id);
-            await reloadProducts();
+            await reloadProducts(true);
             return { success: true };
         } catch (error) {
             console.error('Error al eliminar:', error);
@@ -95,7 +125,7 @@ export function useProducts() {
     ): Promise<ProductMutationResult> => {
         try {
             await productApi.updateStatus(id, estado);
-            await reloadProducts();
+            await reloadProducts(true);
             return { success: true };
         } catch (error) {
             return { success: false, message: toErrorMessage(error) };
@@ -108,7 +138,7 @@ export function useProducts() {
     ): Promise<ProductImagesMutationResult> => {
         try {
             const data = await productApi.addImages(id, urls);
-            await reloadProducts();
+            await reloadProducts(true);
             return { success: true, data };
         } catch (error) {
             return { success: false, message: toErrorMessage(error) };

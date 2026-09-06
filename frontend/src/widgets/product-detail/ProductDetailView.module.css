@@ -1,6 +1,6 @@
 .page {
     color: var(--pd-text-main);
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
     padding: 2rem 1rem;
     min-height: 80vh;
     overflow-x: hidden;
