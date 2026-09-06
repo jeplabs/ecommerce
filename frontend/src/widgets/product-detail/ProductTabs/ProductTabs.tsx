@@ -41,12 +41,9 @@ export default function ProductTabs({ producto }: ProductTabsProps) {
                 {tabActiva === 'descripcion' && (
                     <div className={clsx(styles.fadeIn)} role="tabpanel">
                         <h3>Detalles del producto</h3>
-                        <div
-                            className={styles.fullDescription}
-                            dangerouslySetInnerHTML={{
-                                __html: (producto.descripcion ?? '').replace(/\n/g, '<br/>'),
-                            }}
-                        />
+                        <div className={styles.fullDescription}>
+                            {producto.descripcion}
+                        </div>
                     </div>
                 )}
 
