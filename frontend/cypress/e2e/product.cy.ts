@@ -15,7 +15,6 @@ describe('Detalle de producto', () => {
             .scrollIntoView()
             .click();
 
-        cy.wait('@getProductBySlug', { timeout: 10000 });
         cy.location('pathname').should('eq', `/producto/${mockProduct.slug}`);
         cy.contains('h1', mockProduct.nombre).should('be.visible');
         cy.contains(`SKU: ${mockProduct.sku}`).should('be.visible');
@@ -27,5 +26,11 @@ describe('Detalle de producto', () => {
         cy.contains('h1', mockSoldOutProduct.nombre).should('be.visible');
         cy.contains('✕ Sin stock').should('be.visible');
         cy.contains('button', 'Sin Stock').should('be.disabled');
+    });
+
+    it('muestra la descripción formateada sin inyección HTML', () => {
+        cy.visit(`/producto/${mockProduct.slug}`);
+        cy.wait('@getProductBySlug', { timeout: 10000 });
+        cy.get('[class*="fullDescription"]').scrollIntoView().should('be.visible');
     });
 });

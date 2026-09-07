@@ -583,6 +583,7 @@ Cypress.Commands.add('loginAsCustomer', () => {
     cy.fillLoginForm(MOCK_LOGIN_EMAIL, MOCK_LOGIN_PASSWORD);
     cy.submitLoginForm();
     cy.wait('@login');
+    cy.url().should('include', '/profile');
 });
 
 Cypress.Commands.add('loginAsAdmin', () => {
@@ -590,6 +591,7 @@ Cypress.Commands.add('loginAsAdmin', () => {
     cy.fillLoginForm(MOCK_ADMIN_EMAIL, MOCK_LOGIN_PASSWORD);
     cy.submitLoginForm();
     cy.wait('@login');
+    cy.url().should('include', '/admin');
 });
 
 Cypress.Commands.add('addProductToCart', (productName: string) => {

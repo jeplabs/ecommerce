@@ -36,16 +36,18 @@ const Carousel = ({ slides }: CarouselProps) => {
                 {slides.map((slide, index) => (
                     <div key={index} className={styles.slide}>
                         <Link to={slide.link} className={styles.slideLink} aria-label={slide.alt}>
-                            <img
-                                src={slide.src}
-                                srcSet={slide.srcSet}
-                                sizes={slide.sizes}
-                                alt={slide.alt}
-                                loading={index === 0 ? 'eager' : 'lazy'}
-                                fetchpriority={index === 0 ? 'high' : undefined}
-                                width={index === 0 ? 1920 : undefined}
-                                height={index === 0 ? 600 : undefined}
-                            />
+                            <picture className={styles.picture}>
+                                <source media="(max-width: 768px)" srcSet={slide.mobileSrc} />
+                                <img
+                                    src={slide.desktopSrc}
+                                    alt={slide.alt}
+                                    loading={index === 0 ? 'eager' : 'lazy'}
+                                    fetchPriority={index === 0 ? 'high' : undefined}
+                                    decoding="async"
+                                    width={index === 0 ? 1920 : undefined}
+                                    height={index === 0 ? 600 : undefined}
+                                />
+                            </picture>
                             <div className={styles.slideOverlay} />
                         </Link>
                     </div>

@@ -4,6 +4,7 @@ describe('Checkout invitado', () => {
     beforeEach(() => {
         cy.clearLocalStorage();
         cy.stubShopApi();
+        cy.stubAuthApi();
     });
 
     it('redirige a login al agregar producto sin sesión', () => {
@@ -16,7 +17,7 @@ describe('Checkout invitado', () => {
             .click({ force: true });
 
         cy.url().should('include', '/login', { timeout: 10000 });
-        cy.contains('h1', 'Iniciar sesión').should('be.visible', { timeout: 10000 });
+        cy.contains('h1', 'Iniciar sesión').scrollIntoView().should('be.visible', { timeout: 10000 });
     });
 
     it('redirige a login al visitar el carrito sin sesión', () => {

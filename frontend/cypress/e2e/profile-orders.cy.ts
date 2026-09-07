@@ -27,7 +27,7 @@ describe('Pedidos del perfil', () => {
 
     it('sube comprobante en pedido por transferencia', () => {
         cy.visit(`/profile/ordenes/${MOCK_ORDER_TRANSFER_ID}`);
-        cy.wait('@getOrderById', { timeout: 10000 });
+        cy.wait('@getOrders', { timeout: 10000 });
 
         cy.contains('Pago por transferencia bancaria').should('be.visible');
         cy.get(`#comprobante-${MOCK_ORDER_TRANSFER_ID}`).selectFile(

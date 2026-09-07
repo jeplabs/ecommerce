@@ -11,7 +11,7 @@ export default function CheckoutSuccessHeader({
     isBankTransfer = false,
 }: CheckoutSuccessHeaderProps) {
     return (
-        <header className={styles.root}>
+        <header className={styles.root} data-testid="success-header">
             <div
                 className={clsx(styles.icon, isBankTransfer && styles.iconPending)}
                 aria-hidden="true"

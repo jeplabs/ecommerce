@@ -545,12 +545,13 @@ El repo incluye `netlify.toml` en la raíz con:
 - **Cache headers** para assets con hash (`/assets/*`): `Cache-Control: public, max-age=31536000, immutable`
 - **Shell sin cache**: `/index.html` → `no-cache`
 
-### Optimizaciones de build
+### Optimizaciones de build y seguridad
 
-- **Code-splitting automático**: Vite genera chunks por ruta lazy (`index-*.js`) + chunk `react-vendor` (React/Router estable para caché largo).
-- **ManualChunks simplificado**: solo `react-vendor`; `zod` y `react-hook-form` se agrupan en los chunks lazy de las páginas que los usan (checkout, admin), evitando que se precarguen en la home.
-- **Fuentes autoalojadas**: 5 familias (`@fontsource/*`) importadas en `main.tsx` con subconjuntos `latin` (woff2, `font-display: swap`).
-- **LCP / CLS**: Hero con `fetchpriority="high"` + `aspect-ratio` reservado; `preconnect` a `media.spdigital.cl` y `fonts.googleapis.com`.
+- **Code-splitting y vendor chunks**: Vite genera chunks por ruta lazy (`index-*.js`) + vendor chunks aislados: `react-vendor` (React, Router) y `forms-vendor` (`zod`, `react-hook-form`).
+- **Encabezados HTTP de seguridad**: Configuración en `netlify.toml` con `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` y `Referrer-Policy`.
+- **Fuentes autoalojadas optimizadas**: 4 familias (`@fontsource/*`) importadas con subconjuntos `latin` y `font-display: swap`. Se consolidó la tipografía primaria en `Instrument Sans`, ahorrando ~170KB de fuentes redundantes.
+- **LCP / CLS & Art Direction**: Hero Carousel con `<picture>` nativo (`mobileSrc` vs `desktopSrc`), `fetchpriority="high"` + `aspect-ratio` adaptativo (16:5 desktop / 6:4 mobile); `preconnect` a dominios de medios.
+- **Caché en Memoria API**: Deduplicación de peticiones y memoria en `useProducts` y `useCategorias` para navegación instantánea (0ms).
 
 ---
 
@@ -588,6 +589,8 @@ Guía completa (handlers, fixtures, comandos Cypress, plan de cobertura, trouble
 
 | Documento | Contenido |
 |-----------|-----------|
+| [docs/Evaluacion-Seguridad-Frontend.md](./docs/Evaluacion-Seguridad-Frontend.md) | Evaluación de seguridad, corrección de vulnerabilidades XSS y guía de migración JWT a Cookies `HttpOnly` |
+| [docs/Evaluacion-Rendimiento-Frontend.md](./docs/Evaluacion-Rendimiento-Frontend.md) | Análisis de rendimiento, chunking en Vite, LCP/CLS y eliminación de fetch waterfalls |
 | [docs/pnpm.md](./docs/pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
 | [docs/eslint-warnings.md](./docs/eslint-warnings.md) | Warnings ESLint: inventario, rendimiento y seguimiento de mejoras |
 | [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
