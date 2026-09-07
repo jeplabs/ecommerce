@@ -60,6 +60,7 @@ import {
     mockDynamicAdminProductsPage,
     mockDynamicProductsPage,
     mockDynamicProductsPageForCategory,
+    ensureDynamicProducts,
     resetDynamicProducts,
     updateDynamicProductStatus,
 } from '../../src/test/msw/fixtures/products-registry';
@@ -100,6 +101,7 @@ function resolveLogin(email: string | undefined, password: string | undefined) {
 
 /** Intercepta las APIs públicas usadas por la tienda (mismos datos que MSW en Vitest). */
 Cypress.Commands.add('stubShopApi', () => {
+    ensureDynamicProducts();
     cy.intercept('GET', '**/api/categorias', mockCategories).as('getCategories');
     cy.intercept('GET', '**/api/productos*', (req) => {
         const url = new URL(req.url);

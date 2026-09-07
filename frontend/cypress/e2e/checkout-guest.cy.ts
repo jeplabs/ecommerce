@@ -13,11 +13,11 @@ describe('Checkout invitado', () => {
         cy.contains(mockProduct.nombre).should('be.visible');
 
         cy.get(`button[aria-label="Agregar ${mockProduct.nombre} al carrito"]`)
-            .scrollIntoView()
-            .click({ force: true });
+            .should('be.visible')
+            .click();
 
-        cy.url().should('include', '/login', { timeout: 10000 });
-        cy.contains('h1', 'Iniciar sesión').scrollIntoView().should('be.visible', { timeout: 10000 });
+            cy.get('body').should('contain.text', 'Iniciar sesión');
+            cy.url().should('include', '/login');
     });
 
     it('redirige a login al visitar el carrito sin sesión', () => {

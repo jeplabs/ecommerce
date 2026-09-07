@@ -89,6 +89,12 @@ export function resetDynamicProducts() {
     nextImageId = 1000;
 }
 
+export function ensureDynamicProducts() {
+    if (products.length === 0) {
+        resetDynamicProducts();
+    }
+}
+
 export function getDynamicPublicProducts(): ProductApi[] {
     return products
         .filter((p) => p.estado === 'DISPONIBLE' || p.estado === 'SIN_STOCK')
