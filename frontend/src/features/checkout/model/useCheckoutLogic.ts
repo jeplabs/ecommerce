@@ -5,7 +5,7 @@ import type { AddressApi } from '@/entities/address';
 import { orderApi } from '@/entities/order/api/orderApi';
 import { FORMA_PAGO_ENVIO } from '@/entities/order/model/constants';
 import type { OrderApi } from '@/entities/order';
-import { paymentApi, PAYMENT_METHODS, iniciarWebpay, consultarEstadoWebpay } from '@/features/checkout/api';
+import { paymentApi, PAYMENT_METHODS, iniciarWebpay, consultarEstadoWebpay, iniciarQPayPro } from '@/features/checkout/api';
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '@/features/checkout/model/schemas/payment';
 import { isBankTransferPaymentMethod } from '@/features/checkout/model/schemas/payment';
 import { markOrderAsBankTransfer } from '@/features/checkout/lib/transfer-order-storage';
@@ -14,6 +14,11 @@ import {
     limpiarOrdenWebpayPendiente,
     obtenerOrdenWebpayPendiente,
 } from '@/features/checkout/lib/webpay-pending-order';
+import {
+    guardarOrdenQPayProPendiente,
+    limpiarOrdenQPayProPendiente,
+    obtenerOrdenQPayProPendiente,
+} from '@/features/checkout/lib/qpaypro-pending-order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
 import { ApiError } from '@/shared';
 import {
@@ -336,6 +341,8 @@ export function useCheckoutLogic({
                 setPaymentResult(null);
             }
 
+            const isQPayPro = paymentMethod === PAYMENT_METHODS.QPAYPRO;
+
             const metodoPagoCodigo =
                 paymentMethod === PAYMENT_METHODS.BANK_TRANSFER
                     ? 'TRANSFERENCIA'
@@ -343,6 +350,8 @@ export function useCheckoutLogic({
                     ? 'CONTRA_ENTREGA'
                     : paymentMethod === PAYMENT_METHODS.WEBPAY
                     ? 'WEBPAY'
+                    : paymentMethod === PAYMENT_METHODS.QPAYPRO
+                    ? 'QPAYPRO'
                     : paymentMethod === PAYMENT_METHODS.MERCADOPAGO
                     ? 'MERCADO_PAGO'
                     : 'STRIPE';
@@ -369,6 +378,20 @@ export function useCheckoutLogic({
                 await refreshCart();
 
                 const redirect = { urlRedireccion: init.url, token: init.token };
+                setRedirectInfo(redirect);
+
+                return { success: true, needsRedirect: true, ...redirect, orden };
+            }
+
+            if (isQPayPro) {
+                const init = await iniciarQPayPro({ ordenId: orden.id });
+                guardarOrdenQPayProPendiente(orden.id);
+
+                checkoutCompletedRef.current = true;
+                setCheckoutCompleted(true);
+                await refreshCart();
+
+                const redirect = { urlRedireccion: init.redirectUrl, token: '' };
                 setRedirectInfo(redirect);
 
                 return { success: true, needsRedirect: true, ...redirect, orden };

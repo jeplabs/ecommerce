@@ -5,6 +5,7 @@ import { paymentMethodSchema } from '@/features/checkout/model/schemas/payment';
 const metodoPagoCodigoSchema = z.enum([
     'STRIPE',
     'WEBPAY',
+    'QPAYPRO',
     'MERCADO_PAGO',
     'TRANSFERENCIA',
     'CONTRA_ENTREGA',
@@ -50,6 +51,8 @@ export function mapCheckoutFormToCreateOrderRequest(
                 ? 'TRANSFERENCIA'
                 : values.metodoPagoEnvio === 'webpay'
                 ? 'WEBPAY'
+                : values.metodoPagoEnvio === 'qpaypro'
+                ? 'QPAYPRO'
                 : values.metodoPagoEnvio === 'mercadopago'
                 ? 'MERCADO_PAGO'
                 : 'STRIPE',

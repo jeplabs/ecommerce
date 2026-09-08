@@ -11,6 +11,10 @@ import {
     type WebpayConfirmResponse,
     type WebpayInitResult,
     type WebpayEstadoSchema,
+    qpayproInitResponseSchema,
+    qpayproEstadoSchema,
+    type QPayProInitResult,
+    type QPayProEstadoSchema,
 } from '../model/schemas/payment';
 
 const getToken = () => localStorage.getItem('token');
@@ -110,10 +114,44 @@ export async function consultarEstadoWebpay(ordenId: number): Promise<WebpayEsta
     return parseApi(webpayEstadoSchema, raw);
 }
 
+/** {@code POST /api/pagos/qpaypro/{ordenId}/iniciar} */
+export async function iniciarQPayPro(params: {
+    ordenId: number;
+}): Promise<QPayProInitResult> {
+    const response = await fetch(`${API_URL}/api/pagos/qpaypro/${params.ordenId}/iniciar`, {
+        method: 'POST',
+        headers: getAuthHeaders(getToken()),
+    });
+
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, 'Error al iniciar el pago con QPayPro');
+    }
+
+    return parseApi(qpayproInitResponseSchema, raw);
+}
+
+/** {@code GET /api/pagos/qpaypro/estado/{ordenId}} */
+export async function consultarEstadoQPayPro(ordenId: number): Promise<QPayProEstadoSchema> {
+    const response = await fetch(`${API_URL}/api/pagos/qpaypro/estado/${ordenId}`, {
+        method: 'GET',
+        headers: getAuthHeaders(getToken()),
+    });
+
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, 'Error al consultar el estado del pago QPayPro');
+    }
+
+    return parseApi(qpayproEstadoSchema, raw);
+}
+
 export const paymentGatewayApi = {
     iniciarWebpay,
     confirmarWebpay,
     notificarAbortada,
     notificarTimeout,
-    consultarEstadoWebpay
+    consultarEstadoWebpay,
+    iniciarQPayPro,
+    consultarEstadoQPayPro,
 };

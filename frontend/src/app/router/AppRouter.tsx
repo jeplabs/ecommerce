@@ -27,6 +27,9 @@ const CheckoutPage = lazy(() =>
 const CheckoutReturnPage = lazy(() =>
     import('@/pages/checkout').then((m) => ({ default: m.CheckoutReturnPage }))
 );
+const QPayProReturnPage = lazy(() =>
+    import('@/pages/checkout').then((m) => ({ default: m.QPayProReturnPage }))
+);
 const CheckoutSuccessPage = lazy(() =>
     import('@/pages/checkout-success').then((m) => ({ default: m.CheckoutSuccessPage }))
 );
@@ -132,6 +135,14 @@ export function AppRouter() {
                         element={
                             <PrivateRoute requiredRol="ROLE_CUSTOMER">
                                 <CheckoutReturnPage />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/checkout/qpaypro/retorno"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_CUSTOMER">
+                                <QPayProReturnPage />
                             </PrivateRoute>
                         }
                     />

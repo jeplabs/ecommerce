@@ -31,7 +31,9 @@ export default function PaymentStep() {
                     ? 'El cobro se realiza al entregar el pedido.'
                     : paymentMethod === PAYMENT_METHODS.WEBPAY
                         ? 'Serás redirigido al sitio seguro de Webpay Plus (Transbank) para completar el pago.'
-                        : 'El pago es simulado en este entorno (sin cargos reales).'}
+                        : paymentMethod === PAYMENT_METHODS.QPAYPRO
+                            ? 'Serás redirigido al sitio seguro de QPayPro (Guatemala) para completar el pago.'
+                            : 'El pago es simulado en este entorno (sin cargos reales).'}
             </p>
 
             <div className={styles.methods}>

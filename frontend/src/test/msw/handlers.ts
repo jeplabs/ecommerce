@@ -625,6 +625,33 @@ export const handlers = [
         });
     }),
 
+    http.post(`${API_BASE}/api/pagos/qpaypro/:ordenId/iniciar`, ({ params }) => {
+        const ordenId = Number(params.ordenId);
+        if (!ordenId || !Number.isFinite(ordenId)) {
+            return HttpResponse.json({ error: 'ID de orden inválido' }, { status: 400 });
+        }
+
+        return HttpResponse.json({
+            redirectUrl: `https://sandboxpayments.qpaypro.com/checkout/store?token=tok_qpaypro_${ordenId}`,
+        });
+    }),
+
+    http.get(`${API_BASE}/api/pagos/qpaypro/estado/:ordenId`, ({ params }) => {
+        const ordenId = Number(params.ordenId);
+        const orden = findDynamicOrder(ordenId);
+        if (!orden) {
+            return HttpResponse.json(
+                { error: 'Transacción no encontrada' },
+                { status: 404 }
+            );
+        }
+        return HttpResponse.json({
+            ordenId,
+            estado: orden.estado === 'CONFIRMADA' ? 'APROBADA' : 'PENDIENTE',
+            transactionId: `QPAYPRO_TX_${ordenId}`,
+        });
+    }),
+
     http.get(`${API_BASE}/api/carrito`, () => {
         return HttpResponse.json(getDynamicCart());
     }),

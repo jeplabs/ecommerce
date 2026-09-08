@@ -14,4 +14,6 @@ export {
     notificarAbortada,
     notificarTimeout,
     consultarEstadoWebpay,
+    iniciarQPayPro,
+    consultarEstadoQPayPro,
 } from './paymentGatewayApi';

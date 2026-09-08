@@ -13,6 +13,7 @@ import sharedStyles from '../checkoutShared.module.css';
 import pageStyles from '@/widgets/checkout/checkoutPage.module.css';
 import styles from './CheckoutContent.module.css';
 import RedirectToWebpay from '../RedirectToWebpay/RedirectToWebpay';
+import RedirectToQPayPro from '../RedirectToQPayPro/RedirectToQPayPro';
 
 export default function CheckoutContent() {
     const navigate = useNavigate();
@@ -45,12 +46,16 @@ export default function CheckoutContent() {
     const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
     const isContraEntrega = paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA;
     const isWebpay = paymentMethod === PAYMENT_METHODS.WEBPAY;
+    const isQPayPro = paymentMethod === PAYMENT_METHODS.QPAYPRO;
 
     if ((cartLoading || isEmpty) && !processing && !checkoutCompleted) {
         return <p className={pageStyles.loading}>Preparando checkout…</p>;
     }
 
     if (redirectInfo) {
+        if (isQPayPro) {
+            return <RedirectToQPayPro redirectUrl={redirectInfo.urlRedireccion} />;
+        }
         return (
             <RedirectToWebpay
                 urlRedireccion={redirectInfo.urlRedireccion}
@@ -155,7 +160,7 @@ export default function CheckoutContent() {
                                 disabled={processing || !canContinuePayment}
                             >
                                 {processing
-                                    ? isWebpay
+                                    ? isWebpay || isQPayPro
                                         ? 'Creando pedido…'
                                         : isBankTransfer
                                             ? 'Registrando pedido…'
@@ -164,11 +169,13 @@ export default function CheckoutContent() {
                                                 : 'Procesando pago…'
                                     : isWebpay
                                         ? 'Ir a Webpay Plus'
-                                        : isBankTransfer
-                                            ? 'Confirmar pedido'
-                                            : isContraEntrega
+                                        : isQPayPro
+                                            ? 'Ir a QPayPro'
+                                            : isBankTransfer
                                                 ? 'Confirmar pedido'
-                                                : 'Pagar y finalizar'}
+                                                : isContraEntrega
+                                                    ? 'Confirmar pedido'
+                                                    : 'Pagar y finalizar'}
                             </button>
                         )}
                     </div>

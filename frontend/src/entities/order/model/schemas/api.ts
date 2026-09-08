@@ -24,6 +24,7 @@ export const metodoPagoSchema = z.enum([
     'CONTRA_ENTREGA',
     'STRIPE',
     'WEBPAY',
+    'QPAYPRO',
     'MERCADO_PAGO',
     'TRANSFERENCIA',
     'TRANSFERENCIA_BANCARIA',

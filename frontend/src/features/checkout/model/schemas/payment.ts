@@ -104,3 +104,15 @@ export const webpayEstadoSchema = z.object({
 });
 
 export type WebpayEstadoSchema = z.infer<typeof webpayEstadoSchema>;
+
+export const qpayproInitResponseSchema = z.object({
+    redirectUrl: z.string().min(1),
+});
+export type QPayProInitResult = z.infer<typeof qpayproInitResponseSchema>;
+
+export const qpayproEstadoSchema = z.object({
+    ordenId: z.number(),
+    estado: z.enum(['PENDIENTE', 'APROBADA', 'DENEGADA', 'ANULADA']),
+    transactionId: z.string().optional(),
+});
+export type QPayProEstadoSchema = z.infer<typeof qpayproEstadoSchema>;

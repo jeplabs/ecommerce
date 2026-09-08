@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { ZodError } from 'zod';
 import { describe, expect, it } from 'vitest';
-import { confirmarWebpay, consultarEstadoWebpay, iniciarWebpay, notificarTimeout } from '@/features/checkout/api';
+import { confirmarWebpay, consultarEstadoWebpay, iniciarWebpay, notificarTimeout, iniciarQPayPro, consultarEstadoQPayPro } from '@/features/checkout/api';
 import { ApiError } from '@/shared';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { API_BASE } from '@/test/msw/constants';
@@ -24,6 +24,23 @@ describe('paymentGatewayApi', () => {
 
         expect(result.url).toContain('https://');
         expect(result.token).toContain('tok_test_');
+    });
+
+    it('inicia QPayPro y devuelve redirectUrl', async () => {
+        seedSession();
+
+        const result = await iniciarQPayPro({ ordenId: 501 });
+
+        expect(result.redirectUrl).toContain('https://sandboxpayments.qpaypro.com/checkout/store?token=tok_qpaypro_501');
+    });
+
+    it('consulta estado QPayPro', async () => {
+        seedSession();
+
+        const estado = await consultarEstadoQPayPro(501);
+
+        expect(estado.ordenId).toBe(501);
+        expect(estado.estado).toBeDefined();
     });
 
     it('lanza ApiError con el error del body cuando iniciar responde 400', async () => {
@@ -134,8 +151,8 @@ describe('paymentGatewayApi', () => {
         const { paymentGatewayApi } = await import('@/features/checkout/api');
         expect(paymentGatewayApi.iniciarWebpay).toBe(iniciarWebpay);
         expect(paymentGatewayApi.confirmarWebpay).toBe(confirmarWebpay);
-        expect(paymentGatewayApi.iniciarWebpay).toBeTypeOf('function');
-        expect(paymentGatewayApi.confirmarWebpay).toBeTypeOf('function');
+        expect(paymentGatewayApi.iniciarQPayPro).toBe(iniciarQPayPro);
+        expect(paymentGatewayApi.consultarEstadoQPayPro).toBe(consultarEstadoQPayPro);
     });
 
     it('consulta el estado Webpay y lo parsea con motivo null', async () => {
