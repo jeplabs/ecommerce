@@ -85,8 +85,7 @@ export function useProducts() {
     const createProduct = async (producto: CreateProductRequest): Promise<ProductApi> => {
         try {
             const nuevo = await productApi.create(producto);
-            cachedProducts = null;
-            setProductos((prev) => [...prev, nuevo]);
+            await reloadProducts(true);
             return nuevo;
         } catch (error) {
             console.error('Error al crear:', error);

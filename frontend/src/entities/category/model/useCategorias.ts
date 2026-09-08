@@ -7,11 +7,14 @@ let cachedCategories: CategoryApi[] | null = null;
 let categoriesFetchPromise: Promise<CategoryApi[]> | null = null;
 
 async function getOrFetchCategories(): Promise<CategoryApi[]> {
-    if (cachedCategories) return cachedCategories;
+    if (cachedCategories && cachedCategories.length > 0) return cachedCategories;
     if (!categoriesFetchPromise) {
-        categoriesFetchPromise = categoryApi.getAll()
+        categoriesFetchPromise = categoryApi
+            .getAll()
             .then((data) => {
-                cachedCategories = data;
+                if (Array.isArray(data) && data.length > 0) {
+                    cachedCategories = data;
+                }
                 return data;
             })
             .finally(() => {
@@ -22,15 +25,32 @@ async function getOrFetchCategories(): Promise<CategoryApi[]> {
 }
 
 export function useCategorias() {
+    const hasCachedCategories = Boolean(cachedCategories && cachedCategories.length > 0);
     const [arbolCategorias, setArbolCategorias] = useState<CategoryApi[]>(
         cachedCategories || []
     );
-    const [loading, setLoading] = useState(!cachedCategories);
+    const [loading, setLoading] = useState(!hasCachedCategories);
+
+    const reloadCategorias = useCallback(async () => {
+        cachedCategories = null;
+        setLoading(true);
+        try {
+            const data = await getOrFetchCategories();
+            setArbolCategorias(data);
+            return data;
+        } catch (error) {
+            console.error('Error al recargar categorías:', error);
+            setArbolCategorias([]);
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
         const fetchCategorias = async () => {
-            if (!cachedCategories) {
+            if (!cachedCategories || cachedCategories.length === 0) {
                 setLoading(true);
             }
             try {
@@ -67,5 +87,6 @@ export function useCategorias() {
         arbolCategorias,
         loading,
         createCategory,
+        reloadCategorias,
     };
 }
