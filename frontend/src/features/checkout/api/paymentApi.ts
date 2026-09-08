@@ -19,6 +19,7 @@ const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve,
 
 const TRANSACTION_PREFIX: Record<PaymentMethod, string> = {
     [PAYMENT_METHODS.STRIPE]: 'pi_sim',
+    [PAYMENT_METHODS.QPAYPRO]: 'QP_SIM',
     [PAYMENT_METHODS.WEBPAY]: 'WP_SIM',
     [PAYMENT_METHODS.MERCADOPAGO]: 'MP_SIM',
     [PAYMENT_METHODS.BANK_TRANSFER]: 'TRF_SIM',
@@ -49,6 +50,7 @@ const validateStripeCard = (cardData: StripeCardFormValues | undefined) => {
 
 const SIMULATED_DELAY_MS: Record<PaymentMethod, number> = {
     [PAYMENT_METHODS.STRIPE]: 1600,
+    [PAYMENT_METHODS.QPAYPRO]: 0,
     [PAYMENT_METHODS.WEBPAY]: 2200,
     [PAYMENT_METHODS.MERCADOPAGO]: 1900,
     [PAYMENT_METHODS.BANK_TRANSFER]: 0,
