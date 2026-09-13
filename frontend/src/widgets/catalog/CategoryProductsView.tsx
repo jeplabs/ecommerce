@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { useCategorias } from '@/app/providers';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
-import { Button } from '@/shared/ui/Button';
+import { Pagination } from '@/shared/ui';
 import { ProductCatalog } from '@/widgets/layout/ProductCatalog';
 import { useProductosByCategory } from '@/features/catalog';
 import { buildCategoryBreadcrumbs } from './lib/category-tree';
@@ -21,6 +22,10 @@ export default function CategoryProductsView({ slugPath, segmentos }: CategoryPr
         totalPaginas,
     } = useProductosByCategory(slugPath);
     const { arbolCategorias } = useCategorias();
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }, [paginaActual]);
 
     const { breadcrumbs, categoriaActual } = buildCategoryBreadcrumbs(
         arbolCategorias,
@@ -49,27 +54,11 @@ export default function CategoryProductsView({ slugPath, segmentos }: CategoryPr
             <ProductCatalog productosExternos={productos} loadingExterno={loading} />
 
             {!loading && totalPaginas > 1 && (
-                <div className={styles.pagination}>
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setPaginaActual((p) => Math.max(1, p - 1))}
-                        disabled={paginaActual === 1}
-                    >
-                        Anterior
-                    </Button>
-                    <span className={styles.paginationInfo}>
-                        Página {paginaActual} de {totalPaginas}
-                    </span>
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setPaginaActual((p) => Math.min(totalPaginas, p + 1))}
-                        disabled={paginaActual === totalPaginas}
-                    >
-                        Siguiente
-                    </Button>
-                </div>
+                <Pagination
+                    currentPage={paginaActual}
+                    totalPages={totalPaginas}
+                    onPageChange={setPaginaActual}
+                />
             )}
         </div>
     );

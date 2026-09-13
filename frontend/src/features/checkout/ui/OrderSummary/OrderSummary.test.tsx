@@ -86,6 +86,6 @@ describe('OrderSummary', () => {
             />
         );
 
-        expect(screen.queryByRole('img')).not.toBeInTheDocument();
+        expect(screen.getByRole('img')).toHaveAttribute('src', '/images/product-placeholder.svg');
     });
 });

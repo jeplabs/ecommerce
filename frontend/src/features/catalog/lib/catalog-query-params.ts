@@ -116,15 +116,24 @@ export function isFiltrosDefault(
     return filtros.precioMin === precioMin && filtros.precioMax === precioMax;
 }
 
+export function getPageParam(searchParams: URLSearchParams | null | undefined): number {
+    if (!searchParams) return 1;
+    const p = searchParams.get('page');
+    const parsed = Number(p);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
+}
+
 export function buildCatalogSearchParams(
     prevSearchParams: URLSearchParams,
     {
         filtros,
         sort,
+        page,
         opciones,
     }: {
         filtros: CatalogFiltros | null;
         sort: CatalogSortOrder | null;
+        page?: number;
         opciones: CatalogFilterOpciones;
     }
 ): URLSearchParams {
@@ -135,6 +144,12 @@ export function buildCatalogSearchParams(
 
     if (sort && SORT_VALUES.has(sort)) {
         next.set('sort', sort);
+    }
+
+    if (page && page > 1) {
+        next.set('page', String(page));
+    } else {
+        next.delete('page');
     }
 
     const op = safeOpciones(opciones);
@@ -160,3 +175,4 @@ export function buildCatalogSearchParams(
 }
 
 export { createDefaultFiltros };
+

@@ -82,6 +82,7 @@ describe('CheckoutContent', () => {
     it('muestra la redirección a Webpay cuando hay redirectInfo', () => {
         useCheckoutMock.mockReturnValue(
             makeCheckoutMock({
+                paymentMethod: PAYMENT_METHODS.WEBPAY,
                 redirectInfo: { urlRedireccion: 'https://tbk.test', token: 'tok_1' },
             }) as never
         );
@@ -184,7 +185,7 @@ describe('CheckoutContent', () => {
         );
         renderCheckout();
 
-        const pay = screen.getByRole('button', { name: 'Pagar y finalizar' });
+        const pay = screen.getByRole('button', { name: 'Ir a QPayPro' });
         await user.click(pay);
 
         await waitFor(() => expect(completeCheckout).toHaveBeenCalled());
@@ -312,7 +313,7 @@ describe('CheckoutContent', () => {
         );
         renderCheckout();
 
-        await user.click(screen.getByRole('button', { name: 'Pagar y finalizar' }));
+        await user.click(screen.getByRole('button', { name: 'Ir a QPayPro' }));
 
         await waitFor(() => expect(showError).toHaveBeenCalledWith('No se pudo procesar'));
         expect(navigateMock).not.toHaveBeenCalled();
@@ -353,7 +354,7 @@ describe('CheckoutContent', () => {
         );
         renderCheckout();
 
-        const pay = screen.getByRole('button', { name: 'Pagar y finalizar' });
+        const pay = screen.getByRole('button', { name: 'Ir a QPayPro' });
         await user.click(pay);
         await user.click(pay);
 

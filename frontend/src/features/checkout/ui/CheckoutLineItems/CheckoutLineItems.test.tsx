@@ -38,7 +38,7 @@ describe('CheckoutLineItems', () => {
     it('muestra el placeholder cuando no hay imagen', () => {
         render(<CheckoutLineItems items={[{ ...mockCartItem, imageUrl: '' }]} />);
 
-        expect(screen.queryByRole('img')).not.toBeInTheDocument();
+        expect(screen.getByRole('img')).toHaveAttribute('src', '/images/product-placeholder.svg');
         expect(screen.getByLabelText('Tu pedido')).toBeInTheDocument();
     });
 });

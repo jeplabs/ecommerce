@@ -111,7 +111,7 @@ describe('PaymentStep', () => {
         render(<PaymentStep />);
 
         expect(
-            screen.getByText(/El pago es simulado en este entorno/)
+            screen.getByText(/Al confirmar el pago se simulará la redirección a QPay/i)
         ).toBeInTheDocument();
     });
 });

@@ -46,7 +46,7 @@ export function useProductosByCategory(categoriaSlugPath: string) {
                 const data = await productApi.getByCategory(
                     categoriaId,
                     paginaParaBackend,
-                    10
+                    12
                 );
 
                 if (data?.content && Array.isArray(data.content)) {

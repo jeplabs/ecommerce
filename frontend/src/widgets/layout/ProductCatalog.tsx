@@ -1,6 +1,7 @@
 import { useProduct, useAuth, useCart, useToast } from '@/app/providers';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect } from 'react';
 import { ProductCard } from '@/shared/ui/Card/ProductCard';
+import { Pagination } from '@/shared/ui';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getMainProductImageUrl } from '@/entities/product';
 import type {
@@ -22,9 +23,12 @@ import {
     parseFiltrosFromParams,
     buildCatalogSearchParams,
     isFiltrosDefault,
+    getPageParam,
 } from '@/features/catalog/lib/catalog-query-params';
 import { sortCatalogProducts } from '@/features/catalog/lib/sort-catalog-products';
 import styles from './ProductCatalog.module.css';
+
+const PAGE_SIZE = 12;
 
 type ProductCatalogProps = {
     productosExternos?: CatalogProduct[] | null;
@@ -70,6 +74,8 @@ export const ProductCatalog = ({
         [filtrosActivos, defaultFiltros, opciones]
     );
 
+    const rawPage = useMemo(() => getPageParam(searchParams), [searchParams]);
+
     const handleFilterChange = useCallback(
         (nextFiltros: CatalogFiltros) => {
             const merged = mergeFiltrosWithFacets(nextFiltros, opciones);
@@ -90,6 +96,19 @@ export const ProductCatalog = ({
             const params = buildCatalogSearchParams(searchParams, {
                 filtros: filtrosActivos,
                 sort: sortForUrl,
+                opciones,
+            });
+            setSearchParams(params, { replace: false });
+        },
+        [searchParams, setSearchParams, filtrosActivos, opciones]
+    );
+
+    const handlePageChange = useCallback(
+        (page: number) => {
+            const params = buildCatalogSearchParams(searchParams, {
+                filtros: filtrosActivos,
+                sort: getPersistedSortParam(searchParams),
+                page,
                 opciones,
             });
             setSearchParams(params, { replace: false });
@@ -120,6 +139,26 @@ export const ProductCatalog = ({
         () => sortCatalogProducts(productosFiltrados, effectiveSort),
         [productosFiltrados, effectiveSort]
     );
+
+    const isExternal = productosExternos !== null;
+    const totalPaginas = useMemo(
+        () => Math.max(1, Math.ceil(listaOrdenada.length / PAGE_SIZE)),
+        [listaOrdenada.length]
+    );
+    const paginaActual = useMemo(
+        () => Math.min(Math.max(1, rawPage), totalPaginas),
+        [rawPage, totalPaginas]
+    );
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }, [paginaActual]);
+
+    const productosMostrados = useMemo(() => {
+        if (isExternal) return listaOrdenada;
+        const startIndex = (paginaActual - 1) * PAGE_SIZE;
+        return listaOrdenada.slice(startIndex, startIndex + PAGE_SIZE);
+    }, [isExternal, listaOrdenada, paginaActual]);
 
     if (loadingAUsar) {
         return <p className="center-message">Cargando productos...</p>;
@@ -155,28 +194,38 @@ export const ProductCatalog = ({
                     {listaOrdenada.length === 0 ? (
                         <p className="center-message">No hay productos que coincidan con los filtros.</p>
                     ) : (
-                        <ul className={styles.productGrid}>
-                            {listaOrdenada.map((producto) => (
-                                <li key={producto.id} className={styles.productGridItem}>
-                                    <ProductCard
-                                        imageSrc={getMainProductImageUrl(producto)}
-                                        altText={producto.nombre}
-                                        title={producto.nombre}
-                                        description={producto.descripcion}
-                                        price={producto.precioVenta}
-                                        stock={producto.stock}
-                                        actionLabel="Ver producto"
-                                        onAction={() =>
-                                            navigate(`/producto/${producto.slug || producto.id}`)
-                                        }
-                                        onAddToCart={() =>
-                                            handleAddProductToCart(producto.id, producto.nombre)
-                                        }
-                                        addLabel="Agregar"
-                                    />
-                                </li>
-                            ))}
-                        </ul>
+                        <>
+                            <ul className={styles.productGrid}>
+                                {productosMostrados.map((producto) => (
+                                    <li key={producto.id} className={styles.productGridItem}>
+                                        <ProductCard
+                                            imageSrc={getMainProductImageUrl(producto)}
+                                            altText={producto.nombre}
+                                            title={producto.nombre}
+                                            description={producto.descripcion}
+                                            price={producto.precioVenta}
+                                            stock={producto.stock}
+                                            actionLabel="Ver producto"
+                                            onAction={() =>
+                                                navigate(`/producto/${producto.slug || producto.id}`)
+                                            }
+                                            onAddToCart={() =>
+                                                handleAddProductToCart(producto.id, producto.nombre)
+                                            }
+                                            addLabel="Agregar"
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+
+                            {!isExternal && totalPaginas > 1 && (
+                                <Pagination
+                                    currentPage={paginaActual}
+                                    totalPages={totalPaginas}
+                                    onPageChange={handlePageChange}
+                                />
+                            )}
+                        </>
                     )}
                 </div>
             </div>

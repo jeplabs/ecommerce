@@ -1,12 +1,14 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { useFavorites, useToast } from '@/app/providers';
+import { useFavorites, useProduct, useToast } from '@/app/providers';
 import { Button } from '@/shared/ui/Button';
 import { ProductImage } from '@/shared/ui/ProductImage';
+import { getMainProductImageUrl } from '@/entities/product';
 import styles from './FavoritesTab.module.css';
 
 export default function FavoritesTab() {
     const navigate = useNavigate();
     const { favorites, removeFavorite } = useFavorites();
+    const { productos } = useProduct();
     const { showError } = useToast();
 
     const formatPrice = (value: number, moneda: string | null) =>
@@ -40,49 +42,54 @@ export default function FavoritesTab() {
                 </div>
             ) : (
                 <ul className={styles.list}>
-                    {favorites.map((item) => (
-                        <li key={item.productId} className={styles.item}>
-                            <div className={styles.thumbWrap}>
-                                <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
-                                    <ProductImage
-                                        src={item.imagenUrl}
-                                        alt={item.nombre}
-                                        className={styles.thumb}
-                                        loading="lazy"
-                                    />
-                                </Link>
-                            </div>
+                    {favorites.map((item) => {
+                        const liveProduct = productos.find((p) => p.id === item.productId);
+                        const imageSrc = liveProduct ? getMainProductImageUrl(liveProduct) : item.imagenUrl;
 
-                            <div className={styles.info}>
-                                <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
-                                    <h3 className={styles.name}>{item.nombre}</h3>
-                                </Link>        
-                                <p className={styles.price}>
-                                    {formatPrice(item.precioVenta, item.moneda)}
-                                </p>
-                            </div>
+                        return (
+                            <li key={item.productId} className={styles.item}>
+                                <div className={styles.thumbWrap}>
+                                    <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                        <ProductImage
+                                            src={imageSrc ?? undefined}
+                                            alt={item.nombre}
+                                            className={styles.thumb}
+                                            loading="lazy"
+                                        />
+                                    </Link>
+                                </div>
 
-                            <div className={styles.actions}>
-                                <Button
-                                    type="button"
-                                    variant="primary"
-                                    className={styles.viewBtn}
-                                    onClick={() =>
-                                        navigate(`/producto/${item.slug || item.productId}`)
-                                    }
-                                >
-                                    Ver producto
-                                </Button>
-                                <button
-                                    type="button"
-                                    className={styles.removeBtn}
-                                    onClick={() => handleRemove(item.productId, item.nombre)}
-                                >
-                                    Quitar
-                                </button>
-                            </div>
-                        </li>
-                    ))}
+                                <div className={styles.info}>
+                                    <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                        <h3 className={styles.name}>{item.nombre}</h3>
+                                    </Link>
+                                    <p className={styles.price}>
+                                        {formatPrice(item.precioVenta, item.moneda)}
+                                    </p>
+                                </div>
+
+                                <div className={styles.actions}>
+                                    <Button
+                                        type="button"
+                                        variant="primary"
+                                        className={styles.viewBtn}
+                                        onClick={() =>
+                                            navigate(`/producto/${item.slug || item.productId}`)
+                                        }
+                                    >
+                                        Ver producto
+                                    </Button>
+                                    <button
+                                        type="button"
+                                        className={styles.removeBtn}
+                                        onClick={() => handleRemove(item.productId, item.nombre)}
+                                    >
+                                        Quitar
+                                    </button>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </section>

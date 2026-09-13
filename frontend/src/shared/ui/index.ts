@@ -29,3 +29,6 @@ export { ProductImage } from './ProductImage';
 export type { ProductImageProps } from './ProductImage';
 export { SortSelector } from './SortSelector/SortSelector';
 export { Toast, ToastContainer } from './Toast/Toast';
+export { Pagination } from './Pagination/Pagination';
+export type { PaginationProps } from './Pagination/Pagination';
+

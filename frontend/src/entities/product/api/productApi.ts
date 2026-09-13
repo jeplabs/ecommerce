@@ -98,7 +98,7 @@ async function handleProductAdminPageJson(
 export async function getByCategory(
     categoriaId: number,
     page = 0,
-    size = 10
+    size = 12
 ): Promise<ProductPage> {
     const params = new URLSearchParams({
         categoriaId: String(categoriaId),
@@ -110,16 +110,30 @@ export async function getByCategory(
     return handleProductPageJson(response, 'Error al cargar productos de la categoría');
 }
 
-/** {@code GET /api/productos} — devuelve solo `content` (comportamiento legacy). */
-export async function getAll(): Promise<ProductApi[]> {
-    const response = await fetch(`${API_URL}/api/productos`);
-    const page = await handleProductPageJson(response, 'No se pudo obtener los productos');
-    return page.content;
+/** {@code GET /api/productos?page&size} */
+export async function getAll(page = 0, size = 100): Promise<ProductApi[]> {
+    const params = new URLSearchParams({
+        page: String(page),
+        size: String(size),
+    });
+    const response = await fetch(`${API_URL}/api/productos?${params}`);
+    const pageData = await handleProductPageJson(response, 'No se pudo obtener los productos');
+    return pageData.content;
 }
 
-/** {@code GET /api/productos/admin?estado=} */
-export async function getAdmin(estado: ProductStatus): Promise<ProductAdminApi[] | null> {
-    const response = await fetch(`${API_URL}/api/productos/admin?estado=${estado}`, {
+/** {@code GET /api/productos/admin?estado=&page=&size=} */
+export async function getAdmin(
+    estado: ProductStatus,
+    page = 0,
+    size = 100
+): Promise<ProductAdminApi[] | null> {
+    const params = new URLSearchParams({
+        estado,
+        page: String(page),
+        size: String(size),
+    });
+
+    const response = await fetch(`${API_URL}/api/productos/admin?${params}`, {
         headers: getAuthHeaders(getToken(), false),
     });
 
@@ -130,8 +144,8 @@ export async function getAdmin(estado: ProductStatus): Promise<ProductAdminApi[]
         return null;
     }
 
-    const page = await handleProductAdminPageJson(response, 'Error al cargar productos admin');
-    return page.content;
+    const pageData = await handleProductAdminPageJson(response, 'Error al cargar productos admin');
+    return pageData.content;
 }
 
 /** {@code GET /api/productos/slug/{slug} */

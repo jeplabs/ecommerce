@@ -1,9 +1,13 @@
+import { useState, useEffect } from 'react';
 import { useProduct, useToast } from '@/app/providers';
 import type { NavigateFunction } from 'react-router-dom';
 import type { ProductAdminApi, ProductApi } from '@/entities/product';
 import { Button } from '@/shared/ui/Button';
+import { Pagination } from '@/shared/ui';
 import { ProductImage } from '@/shared/ui/ProductImage';
 import styles from './AdminProductListView.module.css';
+
+const PAGE_SIZE = 12;
 
 type AdminProductListViewProps = {
     onNavigate: NavigateFunction;
@@ -53,6 +57,20 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
         reloadProducts,
         deleteProduct,
     } = useProduct();
+
+    const [paginaActual, setPaginaActual] = useState(1);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }, [paginaActual]);
+
+    const totalPaginas = Math.max(1, Math.ceil((productos?.length || 0) / PAGE_SIZE));
+    const paginaValida = Math.min(Math.max(1, paginaActual), totalPaginas);
+
+    const productosPagina = (productos as AdminListProduct[] || []).slice(
+        (paginaValida - 1) * PAGE_SIZE,
+        paginaValida * PAGE_SIZE
+    );
 
     const handleDelete = async (id: number, nombre: string) => {
         const confirmed = window.confirm(
@@ -144,14 +162,23 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
 
             {loading && <div className={styles.loading}>Cargando datos...</div>}
 
-            <h2>Productos Disponibles</h2>
+            <h2>Productos Disponibles ({productos?.length || 0})</h2>
             <section>
                 {productos?.length > 0 ? (
-                    <div className={styles.grid}>
-                        {(productos as AdminListProduct[]).map((producto) =>
-                            renderProductCard(producto, true)
+                    <>
+                        <div className={styles.grid}>
+                            {productosPagina.map((producto) =>
+                                renderProductCard(producto, true)
+                            )}
+                        </div>
+                        {totalPaginas > 1 && (
+                            <Pagination
+                                currentPage={paginaValida}
+                                totalPages={totalPaginas}
+                                onPageChange={setPaginaActual}
+                            />
                         )}
-                    </div>
+                    </>
                 ) : (
                     <p>No hay productos disponibles.</p>
                 )}

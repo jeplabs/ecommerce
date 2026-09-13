@@ -13,6 +13,7 @@ Guías complementarias al [README](../README.md) principal.
 | [pruebas-webpay-plus.md](./pruebas-webpay-plus.md) | Guía para probar Webpay Plus real desde el frontend: tarjetas de prueba y flujo |
 | [retirar-stripe-mercadopago.md](./retirar-stripe-mercadopago.md) | Guía operativa para retirar Stripe y Mercado Pago del frontend: checklist, archivos y cobertura |
 | [testing.md](./testing.md) | Testing: stack, buenas prácticas, plan de cobertura por fases, fixtures |
+| [Propuesta-Ajuste-Backend-Favoritos-Imagenes.md](./Propuesta-Ajuste-Backend-Favoritos-Imagenes.md) | Diagnóstico técnico y propuesta de resolución dinámica de imágenes para el equipo backend (`GET /api/favoritos`) |
 
 ## Convención
 
