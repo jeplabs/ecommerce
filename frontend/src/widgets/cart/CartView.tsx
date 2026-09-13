@@ -1,6 +1,7 @@
 import { useCart, useToast } from '@/app/providers';
 import { Button } from '@/shared/ui/Button';
 import buttonStyles from '@/shared/ui/Button/Button.module.css';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -81,19 +82,13 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                             return (
                                 <article key={item.id} className={styles.tableRow} role="row">
                                     <div className={styles.itemInfo} role="cell">
-                                        {item.imageUrl ? (
-                                            <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
-                                                <img
-                                                    src={item.imageUrl}
-                                                    alt={item.altText || item.name}
-                                                    className={styles.itemThumb}
-                                                    />
-                                            </Link>
-                                        ) : (
-                                            <div className={styles.itemThumbPlaceholder}>
-                                                Sin imagen
-                                            </div>
-                                        )}
+                                        <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                            <ProductImage
+                                                src={item.imageUrl}
+                                                alt={item.altText || item.name}
+                                                className={styles.itemThumb}
+                                            />
+                                        </Link>
                                         <div className={styles.itemMeta}>
                                             <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
                                                 <p className={styles.itemName}>{item.name}</p>

@@ -25,5 +25,7 @@ export { default as LoginForm } from './Form/LoginForm';
 export { default as RegisterForm } from './Form/RegisterForm';
 export { default as ProfileForm } from './Form/ProfileForm';
 export { ProductSlider } from './ProductSlider/ProductSlider';
+export { ProductImage } from './ProductImage';
+export type { ProductImageProps } from './ProductImage';
 export { SortSelector } from './SortSelector/SortSelector';
 export { Toast, ToastContainer } from './Toast/Toast';

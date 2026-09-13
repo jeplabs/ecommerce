@@ -2,6 +2,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import type { ProductApi } from '@/entities/product';
 import { getProductImageUrls, getMainProductImageUrl } from '@/entities/product';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
 import styles from './ProductGallery.module.css';
 
@@ -17,7 +18,7 @@ export default function ProductGallery({ producto }: ProductGalleryProps) {
     return (
         <div className={styles.gallery}>
             <div className={styles.mainImageWrapper}>
-                <img
+                <ProductImage
                     src={imagenActiva}
                     alt={producto.nombre}
                     className={styles.mainImg}

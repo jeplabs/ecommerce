@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" rx="16" fill="#18181b"/>
+  <rect x="1" y="1" width="398" height="398" rx="15" stroke="#27272a" stroke-width="2"/>
+  <g transform="translate(136, 120)" opacity="0.4">
+    <path d="M112 32H16C7.16344 32 0 39.1634 0 48V112C0 120.837 7.16344 128 16 128H112C120.837 128 128 120.837 128 112V48C128 39.1634 120.837 32 112 32Z" stroke="#a1a1aa" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="44" cy="64" r="12" stroke="#a1a1aa" stroke-width="6"/>
+    <path d="M128 96L96 64L16 128" stroke="#a1a1aa" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="200" y="275" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="500" fill="#71717a" text-anchor="middle" letter-spacing="0.05em">SIN IMAGEN</text>
+</svg>
+

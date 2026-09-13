@@ -1,4 +1,5 @@
 import type { CartItemUiView } from '@/entities/cart';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import { formatCurrency } from '@/shared/lib/format';
 import styles from './CheckoutLineItems.module.css';
 
@@ -19,15 +20,11 @@ export default function CheckoutLineItems({ items }: CheckoutLineItemsProps) {
             <ul className={styles.list}>
                 {items.map((item) => (
                     <li key={item.id} className={styles.item}>
-                        {item.imageUrl ? (
-                            <img
-                                src={item.imageUrl}
-                                alt=""
-                                className={styles.thumb}
-                            />
-                        ) : (
-                            <div className={styles.thumbPlaceholder} aria-hidden="true" />
-                        )}
+                        <ProductImage
+                            src={item.imageUrl}
+                            alt={item.name || ''}
+                            className={styles.thumb}
+                        />
                         <div className={styles.info}>
                             <span className={styles.name}>{item.name || 'Producto'}</span>
                             <span className={styles.meta}>

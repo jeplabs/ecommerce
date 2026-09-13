@@ -1,6 +1,7 @@
 import { useAuth, useCart, useToast } from '@/app/providers';
 import { Button } from '@/shared/ui/Button';
 import buttonStyles from '@/shared/ui/Button/Button.module.css';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -145,7 +146,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                     {/* <div className={styles.itemDetails}> */}
                                     <div className={styles.itemThumbContainer}>
                                         <Link to={`/producto/${item.slug}`} className={styles.itemLink} onClick={handleClose}>
-                                                <img
+                                                <ProductImage
                                                     src={item.imageUrl}
                                                     alt={item.altText || item.name}
                                                     className={styles.itemThumb}

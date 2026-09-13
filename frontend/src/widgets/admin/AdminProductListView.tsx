@@ -2,6 +2,7 @@ import { useProduct, useToast } from '@/app/providers';
 import type { NavigateFunction } from 'react-router-dom';
 import type { ProductAdminApi, ProductApi } from '@/entities/product';
 import { Button } from '@/shared/ui/Button';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import styles from './AdminProductListView.module.css';
 
 type AdminProductListViewProps = {
@@ -78,22 +79,11 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
         <article key={producto.id} className={styles.productCard}>
             {showImage && (
                 <div className={styles.cardPreview}>
-                    {getProductImageSrc(producto) ? (
-                        <img
-                            src={getProductImageSrc(producto)}
-                            alt={producto.nombre}
-                            className={styles.productImage}
-                            onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                console.warn('Error cargando imagen:', producto.nombre, target.src);
-                                target.src = '/placeholder-product.png';
-                            }}
-                        />
-                    ) : (
-                        <div className={styles.productImagePlaceholder}>
-                            <span>Sin imagen</span>
-                        </div>
-                    )}
+                    <ProductImage
+                        src={getProductImageSrc(producto)}
+                        alt={producto.nombre}
+                        className={styles.productImage}
+                    />
                     <div className={styles.productPriceTag}>${producto.precioVenta || 'N/A'}</div>
                 </div>
             )}

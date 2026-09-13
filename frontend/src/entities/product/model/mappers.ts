@@ -1,10 +1,11 @@
+import { PRODUCT_PLACEHOLDER_IMAGE } from '@/shared/assets/product-placeholder';
 import type { ProductImageApi } from './schemas/api';
 import type { ProductApi, ProductCardView, ProductDetailView } from './types';
 
-function resolveMainImageUrl(product: ProductApi): string | null {
+function resolveMainImageUrl(product: ProductApi): string {
     const imagenes = product.imagenes ?? [];
     const principal = imagenes.find((i: ProductImageApi) => i.principal);
-    return principal?.url ?? imagenes[0]?.url ?? null;
+    return principal?.url ?? imagenes[0]?.url ?? PRODUCT_PLACEHOLDER_IMAGE;
 }
 
 export function mapProductApiToCard(product: ProductApi): ProductCardView {

@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useFavorites, useToast } from '@/app/providers';
 import { Button } from '@/shared/ui/Button';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import styles from './FavoritesTab.module.css';
 
 export default function FavoritesTab() {
@@ -42,18 +43,14 @@ export default function FavoritesTab() {
                     {favorites.map((item) => (
                         <li key={item.productId} className={styles.item}>
                             <div className={styles.thumbWrap}>
-                                {item.imagenUrl ? (
-                                    <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
-                                        <img
-                                            src={item.imagenUrl}
-                                            alt=""
-                                            className={styles.thumb}
-                                            loading="lazy"
-                                            />
-                                    </Link>        
-                                ) : (
-                                    <div className={styles.thumbPlaceholder}>Sin imagen</div>
-                                )}
+                                <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
+                                    <ProductImage
+                                        src={item.imagenUrl}
+                                        alt={item.nombre}
+                                        className={styles.thumb}
+                                        loading="lazy"
+                                    />
+                                </Link>
                             </div>
 
                             <div className={styles.info}>

@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { formatCurrency } from '@/shared/lib/format';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import type { CartItemUiView } from '@/entities/cart';
 import type { ShippingServiceCosts } from '@/entities/shipping';
 import styles from './OrderSummary.module.css';
@@ -40,11 +41,11 @@ export default function OrderSummary({
                 <ul className={styles.items}>
                     {items.map((item) => (
                         <li key={item.id} className={styles.item}>
-                            {item.imageUrl ? (
-                                <img src={item.imageUrl} alt="" className={styles.thumb} />
-                            ) : (
-                                <div className={styles.thumbPlaceholder} />
-                            )}
+                            <ProductImage
+                                src={item.imageUrl}
+                                alt={item.name || ''}
+                                className={styles.thumb}
+                            />
                             <div className={styles.itemInfo}>
                                 <span className={styles.name}>{item.name || 'Producto'}</span>
                                 <span className={styles.qty}>

@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { ProductImage } from '@/shared/ui/ProductImage';
 import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
 import styles from './ProductCard.module.css';
 
@@ -6,7 +7,7 @@ const MAX_TITLE_LENGTH = 50;
 
 type ProductCardProps = {
     className?: string;
-    imageSrc: string;
+    imageSrc?: string | null;
     altText?: string;
     title: string;
     description?: string | null;
@@ -39,7 +40,7 @@ export const ProductCard = ({
     return (
         <article className={clsx(styles.card, className)}>
             <figure className={styles.preview}>
-                <img
+                <ProductImage
                     src={imageSrc}
                     alt={altText || title}
                     className={styles.image}

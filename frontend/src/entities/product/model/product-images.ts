@@ -1,3 +1,5 @@
+import { PRODUCT_PLACEHOLDER_IMAGE } from '@/shared/assets/product-placeholder';
+
 /**
  * URLs de imágenes tolerando respuestas legacy (admin, catálogo sin parsear).
  */
@@ -39,5 +41,5 @@ export function getProductImageUrls(producto: {
 export function getMainProductImageUrl(
     producto: Parameters<typeof getProductImageUrls>[0]
 ): string {
-    return getProductImageUrls(producto)[0] || '';
+    return getProductImageUrls(producto)[0] || PRODUCT_PLACEHOLDER_IMAGE;
 }
