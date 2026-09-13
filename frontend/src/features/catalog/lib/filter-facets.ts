@@ -36,7 +36,10 @@ export function extractFilterFacets(productos: CatalogProduct[]): CatalogFilterO
         };
     }
 
-    const facetMaps: Record<string, Map<string, string>> = {};
+    const facetMaps: Record<
+        string,
+        Map<string, { displayLabel: string; count: number }>
+    > = {};
     let precioMin = Infinity;
     let precioMax = -Infinity;
 
@@ -45,8 +48,11 @@ export function extractFilterFacets(productos: CatalogProduct[]): CatalogFilterO
         const matchValue = normalizeSpecMatch(raw);
         if (!matchValue) return;
         if (!facetMaps[key]) facetMaps[key] = new Map();
-        if (!facetMaps[key].has(matchValue)) {
-            facetMaps[key].set(matchValue, displayLabel);
+        const existing = facetMaps[key].get(matchValue);
+        if (existing) {
+            existing.count += 1;
+        } else {
+            facetMaps[key].set(matchValue, { displayLabel, count: 1 });
         }
     };
 
@@ -73,8 +79,14 @@ export function extractFilterFacets(productos: CatalogProduct[]): CatalogFilterO
     const specFacets: Record<string, SpecFacetOption[]> = {};
     for (const key of facetKeys) {
         specFacets[key] = Array.from(facetMaps[key].entries())
-            .sort((a, b) => a[1].localeCompare(b[1], 'es', { sensitivity: 'base' }))
-            .map(([matchValue, displayLabel]) => ({ matchValue, displayLabel }));
+            .map(([matchValue, { displayLabel, count }]) => ({
+                matchValue,
+                displayLabel,
+                count,
+            }))
+            .sort((a, b) =>
+                a.displayLabel.localeCompare(b.displayLabel, 'es', { sensitivity: 'base' })
+            );
     }
 
     return {

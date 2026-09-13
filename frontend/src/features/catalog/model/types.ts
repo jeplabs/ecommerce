@@ -10,6 +10,7 @@ export type CatalogSortOrder =
 export type SpecFacetOption = {
     matchValue: string;
     displayLabel: string;
+    count?: number;
 };
 
 export type CatalogFilterOpciones = {

@@ -17,6 +17,8 @@ describe('filter-facets', () => {
         expect(opciones.precioMin).toBe(49.99);
         expect(opciones.precioMax).toBe(199.99);
         expect(opciones.specFacets.Marca?.length).toBeGreaterThan(0);
+        expect(opciones.specFacets.Marca?.[0]?.count).toBeDefined();
+        expect(typeof opciones.specFacets.Marca?.[0]?.count).toBe('number');
     });
 
     it('crea filtros por defecto alineados con las opciones', () => {

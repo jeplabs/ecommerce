@@ -67,6 +67,78 @@
     color: var(--muted);
 }
 
+.panelLegendReset {
+    padding: 0;
+    margin: 0 0 0.55rem 0;
+    width: 100%;
+    display: block;
+}
+
+.panelAccordionHeader {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: left;
+}
+
+.panelAccordionHeader:hover {
+    color: var(--text);
+}
+
+.panelAccordionTitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.panelAccordionChevron {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    color: var(--muted);
+}
+
+.panelAccordionChevronOpen {
+    transform: rotate(180deg);
+}
+
+.panelAccordionContent {
+    margin-top: 0.55rem;
+}
+
+.panelChipCount {
+    font-size: 0.72rem;
+    opacity: 0.75;
+    margin-left: 0.3rem;
+}
+
+.panelShowMore {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0.35rem 0.2rem 0;
+    margin-top: 0.25rem;
+    display: inline-block;
+}
+
+.panelShowMore:hover {
+    text-decoration: underline;
+}
+
 .panelPriceRow {
     display: grid;
     grid-template-columns: auto 1fr;
