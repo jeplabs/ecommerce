@@ -82,3 +82,21 @@ api.webpay.scheduler.intervalo=PT15M
 
 # Cuánto tiempo espera la app tras arrancar antes de la 1ra ejecución (1 minuto)
 api.webpay.scheduler.delay-inicial=PT1M
+
+# ==========================================
+# QPayPro Integration
+# ==========================================
+qpaypro.api.login=visanetgt_qpay
+qpaypro.api.key=
+qpaypro.api.secret=
+
+# Endpoints
+qpaypro.api.url=
+qpaypro.api.store-url=
+qpaypro.api.fel-url=
+
+# URL base local para recibir el webhook de retorno
+api.base-url=
+
+# Secreto para la validación de integridad MD5 (firma local)
+qpaypro.api.webhook-secret=
