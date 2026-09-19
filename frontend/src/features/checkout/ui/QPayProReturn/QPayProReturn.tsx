@@ -33,12 +33,13 @@ export default function QPayProReturn() {
     const [actionError, setActionError] = useState<string | null>(null);
     const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
-    const ordenIdParam = searchParams.get('ordenId');
+    const ordenIdParam = searchParams.get('ordenId') || searchParams.get('orden');
     const statusParam = searchParams.get('status');
     const errorParam = searchParams.get('error');
 
     const ordenId =
-        (ordenIdParam ? Number(ordenIdParam) : null) ?? obtenerOrdenQPayProPendiente();
+        (ordenIdParam && !Number.isNaN(Number(ordenIdParam)) ? Number(ordenIdParam) : null) ??
+        obtenerOrdenQPayProPendiente();
 
     const cargarOrdenYProcesar = useCallback(async () => {
         if (!ordenId) {

@@ -146,6 +146,14 @@ export function AppRouter() {
                             </PrivateRoute>
                         }
                     />
+                    <Route
+                        path="/checkout/error"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_CUSTOMER">
+                                <QPayProReturnPage />
+                            </PrivateRoute>
+                        }
+                    />
                 </Route>
 
                 {/* Admin */}

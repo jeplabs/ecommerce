@@ -105,9 +105,14 @@ export const webpayEstadoSchema = z.object({
 
 export type WebpayEstadoSchema = z.infer<typeof webpayEstadoSchema>;
 
-export const qpayproInitResponseSchema = z.object({
-    redirectUrl: z.string().min(1),
-});
+export const qpayproInitResponseSchema = z
+    .object({
+        url: z.string().min(1).optional(),
+        redirectUrl: z.string().min(1).optional(),
+    })
+    .transform((data) => ({
+        redirectUrl: data.redirectUrl || data.url || '',
+    }));
 export type QPayProInitResult = z.infer<typeof qpayproInitResponseSchema>;
 
 export const qpayproEstadoSchema = z.object({

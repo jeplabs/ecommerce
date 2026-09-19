@@ -269,6 +269,7 @@ export function useCheckoutLogic({
         isBankTransferPaymentMethod(paymentMethod) ||
         paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA ||
         paymentMethod === PAYMENT_METHODS.WEBPAY ||
+        paymentMethod === PAYMENT_METHODS.QPAYPRO ||
         paymentMethod === PAYMENT_METHODS.MERCADOPAGO ||
         (paymentMethod === PAYMENT_METHODS.STRIPE &&
             Boolean(cardData.cardholder) &&
@@ -316,7 +317,9 @@ export function useCheckoutLogic({
         const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
         const isContraEntrega = paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA;
         const isWebpay = paymentMethod === PAYMENT_METHODS.WEBPAY;
-        const needsGatewaySimulation = !isBankTransfer && !isContraEntrega && !isWebpay;
+        const isQPayPro = paymentMethod === PAYMENT_METHODS.QPAYPRO;
+        const needsGatewaySimulation =
+            !isBankTransfer && !isContraEntrega && !isWebpay && !isQPayPro;
 
         try {
             let payment: PaymentSuccessResult | null = null;
@@ -340,8 +343,6 @@ export function useCheckoutLogic({
             } else {
                 setPaymentResult(null);
             }
-
-            const isQPayPro = paymentMethod === PAYMENT_METHODS.QPAYPRO;
 
             const metodoPagoCodigo =
                 paymentMethod === PAYMENT_METHODS.BANK_TRANSFER

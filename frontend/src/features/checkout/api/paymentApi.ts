@@ -127,6 +127,17 @@ export async function processPayment(params: ProcessPaymentInput): Promise<Payme
         };
     }
     
+    if (method === PAYMENT_METHODS.QPAYPRO) {
+        return {
+            success: true,
+            transactionId: generateTransactionId(PAYMENT_METHODS.QPAYPRO),
+            provider: 'QPayPro (Guatemala)',
+            amount,
+            orderReference,
+            authorizationCode: `QP${Date.now().toString().slice(-10)}`,
+        };
+    }
+
     if (method === PAYMENT_METHODS.CONTRA_ENTREGA) {
         return {
             success: true,

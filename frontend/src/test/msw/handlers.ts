@@ -632,7 +632,7 @@ export const handlers = [
         }
 
         return HttpResponse.json({
-            redirectUrl: `https://sandboxpayments.qpaypro.com/checkout/store?token=tok_qpaypro_${ordenId}`,
+            url: `https://sandboxpayments.qpaypro.com/checkout/store?token=tok_qpaypro_${ordenId}`,
         });
     }),
 

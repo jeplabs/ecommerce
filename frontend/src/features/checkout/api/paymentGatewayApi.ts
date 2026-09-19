@@ -117,10 +117,12 @@ export async function consultarEstadoWebpay(ordenId: number): Promise<WebpayEsta
 /** {@code POST /api/pagos/qpaypro/{ordenId}/iniciar} */
 export async function iniciarQPayPro(params: {
     ordenId: number;
+    cuotas?: number;
 }): Promise<QPayProInitResult> {
     const response = await fetch(`${API_URL}/api/pagos/qpaypro/${params.ordenId}/iniciar`, {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
+        body: JSON.stringify({ cuotas: params.cuotas ?? 1 }),
     });
 
     const raw = await readJson(response);
