@@ -101,8 +101,17 @@ export function getDynamicPublicProducts(): ProductApi[] {
         .map(toProductApi);
 }
 
-export function mockDynamicProductsPage(content?: ProductApi[]): SpringPage<ProductApi> {
+export function mockDynamicProductsPage(content?: ProductApi[]): SpringPage<ProductApi> & {
+    facets?: Record<string, Array<{ matchValue: string; displayLabel: string; count: number }>>;
+} {
     const items = content ?? getDynamicPublicProducts();
+    const appleCount = items.filter(
+        (p) =>
+            (p.specs && typeof p.specs === 'object' && (p.specs as Record<string, string>).Marca === 'Apple') ||
+            p.nombre.toLowerCase().includes('apple') ||
+            p.nombre.toLowerCase().includes('macbook')
+    ).length;
+
     return {
         content: items,
         totalElements: items.length,
@@ -113,6 +122,9 @@ export function mockDynamicProductsPage(content?: ProductApi[]): SpringPage<Prod
         last: true,
         empty: items.length === 0,
         numberOfElements: items.length,
+        facets: {
+            Marca: [{ matchValue: 'apple', displayLabel: 'Apple', count: appleCount || 1 }],
+        },
     };
 }
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createSpringPageSchema } from '@/shared/api/spring-page';
+import { createSpringPageSchema, normalizeSpringPageRaw } from '@/shared/api/spring-page';
 import {
     productApiSchema,
     productAdminApiSchema,
@@ -35,10 +35,36 @@ export {
     mapProductAdminFormToCreateRequest,
 } from './schemas/forms';
 
-export const productPageSchema = createSpringPageSchema(productApiSchema);
+export const facetOptionSchema = z.object({
+    matchValue: z.string(),
+    displayLabel: z.string(),
+    count: z.number(),
+    selected: z.boolean().optional(),
+});
+
+export type FacetOptionApi = z.infer<typeof facetOptionSchema>;
+
+export const productPageSchema = z.preprocess(
+    normalizeSpringPageRaw,
+    z.object({
+        content: z.array(productApiSchema),
+        totalElements: z.coerce.number().int().nonnegative(),
+        totalPages: z.coerce.number().int().nonnegative(),
+        size: z.coerce.number().int().nonnegative(),
+        number: z.coerce.number().int().nonnegative(),
+        first: z.boolean().optional(),
+        last: z.boolean().optional(),
+        empty: z.boolean().optional(),
+        numberOfElements: z.coerce.number().int().nonnegative().optional(),
+        facets: z.record(z.string(), z.array(facetOptionSchema)).optional(),
+    })
+);
+
 export const productAdminPageSchema = createSpringPageSchema(productAdminApiSchema);
 
-export type ProductPage = import('@/shared/api/spring-page').SpringPage<ProductApi>;
+export type ProductPage = import('@/shared/api/spring-page').SpringPage<ProductApi> & {
+    facets?: Record<string, FacetOptionApi[]>;
+};
 export type ProductAdminPage = import('@/shared/api/spring-page').SpringPage<ProductAdminApi>;
 
 /** Props de UI — view model desacoplado del JSON del API. */

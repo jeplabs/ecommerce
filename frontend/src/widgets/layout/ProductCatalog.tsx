@@ -1,19 +1,19 @@
-import { useProduct, useAuth, useCart, useToast } from '@/app/providers';
-import { useMemo, useCallback, useEffect } from 'react';
+import { useAuth, useCart, useToast } from '@/app/providers';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ProductCard } from '@/shared/ui/Card/ProductCard';
 import { Pagination } from '@/shared/ui';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getMainProductImageUrl } from '@/entities/product';
+import { getMainProductImageUrl, productApi } from '@/entities/product';
 import type {
     CatalogProduct,
     CatalogFiltros,
     CatalogSortOrder,
+    SpecFacetOption,
 } from '@/features/catalog/model/types';
 import { ProductFilters } from '@/features/catalog/ui/ProductFilters/ProductFilters';
 import { SortSelector } from '@/shared/ui/SortSelector/SortSelector';
 import {
     extractFilterFacets,
-    applyProductFilters,
     createDefaultFiltros,
     mergeFiltrosWithFacets,
 } from '@/features/catalog/lib/filter-facets';
@@ -28,23 +28,70 @@ import {
 import { sortCatalogProducts } from '@/features/catalog/lib/sort-catalog-products';
 import styles from './ProductCatalog.module.css';
 
-const PAGE_SIZE = 12;
-
 type ProductCatalogProps = {
     productosExternos?: CatalogProduct[] | null;
+    facetsExternas?: Record<string, SpecFacetOption[]> | null;
     loadingExterno?: boolean;
+    totalPaginasExterno?: number;
 };
 
 export const ProductCatalog = ({
     productosExternos = null,
+    facetsExternas = null,
     loadingExterno = false,
+    totalPaginasExterno,
 }: ProductCatalogProps) => {
-    const { productos: productosContexto, loading: loadingContexto } = useProduct();
     const { isAuthenticated } = useAuth();
     const { addToCart } = useCart();
     const { showSuccess, showError } = useToast();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
+
+    const [serverData, setServerData] = useState<{
+        content: CatalogProduct[];
+        facets?: Record<string, SpecFacetOption[]>;
+        totalPages: number;
+        totalElements: number;
+    } | null>(null);
+    const [loadingServer, setLoadingServer] = useState<boolean>(productosExternos === null);
+
+    useEffect(() => {
+        if (productosExternos !== null) return undefined;
+
+        let isMounted = true;
+        setLoadingServer(true);
+
+        const queryParams = new URLSearchParams(searchParams);
+        const rawPage = queryParams.get('page');
+        const pageNum = rawPage ? Math.max(1, Number(rawPage)) : 1;
+        queryParams.set('page', String(pageNum - 1));
+        if (!queryParams.has('size')) {
+            queryParams.set('size', '12');
+        }
+
+        productApi.getCatalogo(queryParams)
+            .then((data) => {
+                if (!isMounted) return;
+                setServerData({
+                    content: (data.content || []) as CatalogProduct[],
+                    facets: data.facets as Record<string, SpecFacetOption[]> | undefined,
+                    totalPages: data.totalPages ?? 1,
+                    totalElements: data.totalElements ?? 0,
+                });
+            })
+            .catch((err) => {
+                console.error('Error al cargar catálogo del servidor:', err);
+                if (!isMounted) return;
+                setServerData({ content: [], totalPages: 1, totalElements: 0 });
+            })
+            .finally(() => {
+                if (isMounted) setLoadingServer(false);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [productosExternos, searchParams]);
 
     const sortSelectValue = useMemo(
         () => getPersistedSortParam(searchParams) ?? '',
@@ -53,13 +100,18 @@ export const ProductCatalog = ({
     const effectiveSort = useMemo(() => getEffectiveSortOrder(searchParams), [searchParams]);
     const searchTerm = searchParams.get('search') || '';
 
-    const productosAUsar =
-        productosExternos !== null ? productosExternos : (productosContexto as CatalogProduct[]);
-    const loadingAUsar = productosExternos !== null ? loadingExterno : loadingContexto;
+    const isExternal = productosExternos !== null;
+    const productosAUsar = isExternal
+        ? productosExternos
+        : (serverData?.content || []);
+    const serverFacets = isExternal
+        ? (facetsExternas || undefined)
+        : serverData?.facets;
+    const loadingAUsar = isExternal ? loadingExterno : loadingServer;
 
     const opciones = useMemo(
-        () => extractFilterFacets(productosAUsar || []),
-        [productosAUsar]
+        () => extractFilterFacets(productosAUsar || [], serverFacets),
+        [productosAUsar, serverFacets]
     );
 
     const defaultFiltros = useMemo(() => createDefaultFiltros(opciones), [opciones]);
@@ -130,23 +182,21 @@ export const ProductCatalog = ({
         }
     };
 
-    const productosFiltrados = useMemo(
-        () => applyProductFilters(productosAUsar, filtrosActivos, searchTerm),
-        [productosAUsar, filtrosActivos, searchTerm]
-    );
-
     const listaOrdenada = useMemo(
-        () => sortCatalogProducts(productosFiltrados, effectiveSort),
-        [productosFiltrados, effectiveSort]
+        () => sortCatalogProducts(productosAUsar, effectiveSort),
+        [productosAUsar, effectiveSort]
     );
 
-    const isExternal = productosExternos !== null;
-    const totalPaginas = useMemo(
-        () => Math.max(1, Math.ceil(listaOrdenada.length / PAGE_SIZE)),
-        [listaOrdenada.length]
-    );
+    const totalPaginas = isExternal
+        ? (totalPaginasExterno ?? 1)
+        : (serverData?.totalPages ?? 1);
+
+    const totalConteo = isExternal
+        ? listaOrdenada.length
+        : (serverData?.totalElements ?? listaOrdenada.length);
+
     const paginaActual = useMemo(
-        () => Math.min(Math.max(1, rawPage), totalPaginas),
+        () => Math.min(Math.max(1, rawPage), Math.max(1, totalPaginas)),
         [rawPage, totalPaginas]
     );
 
@@ -154,18 +204,8 @@ export const ProductCatalog = ({
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     }, [paginaActual]);
 
-    const productosMostrados = useMemo(() => {
-        if (isExternal) return listaOrdenada;
-        const startIndex = (paginaActual - 1) * PAGE_SIZE;
-        return listaOrdenada.slice(startIndex, startIndex + PAGE_SIZE);
-    }, [isExternal, listaOrdenada, paginaActual]);
-
     if (loadingAUsar) {
         return <p className="center-message">Cargando productos...</p>;
-    }
-
-    if (!productosAUsar || productosAUsar.length === 0) {
-        return <p className="center-message">No hay productos disponibles en esta sección.</p>;
     }
 
     return (
@@ -181,7 +221,7 @@ export const ProductCatalog = ({
 
                 <div className={styles.content}>
                     <header className={styles.toolbar}>
-                        <h2 className={styles.title}>Productos ({listaOrdenada.length})</h2>
+                        <h2 className={styles.title}>Productos ({totalConteo})</h2>
                         <SortSelector sortOption={sortSelectValue} onChange={handleSortChange} />
                     </header>
 
@@ -191,12 +231,12 @@ export const ProductCatalog = ({
                         </p>
                     )}
 
-                    {listaOrdenada.length === 0 ? (
-                        <p className="center-message">No hay productos que coincidan con los filtros.</p>
+                    {productosAUsar.length === 0 ? (
+                        <p className="center-message">No hay productos disponibles que coincidan con los filtros.</p>
                     ) : (
                         <>
                             <ul className={styles.productGrid}>
-                                {productosMostrados.map((producto) => (
+                                {listaOrdenada.map((producto) => (
                                     <li key={producto.id} className={styles.productGridItem}>
                                         <ProductCard
                                             imageSrc={getMainProductImageUrl(producto)}
@@ -218,7 +258,7 @@ export const ProductCatalog = ({
                                 ))}
                             </ul>
 
-                            {!isExternal && totalPaginas > 1 && (
+                            {totalPaginas > 1 && (
                                 <Pagination
                                     currentPage={paginaActual}
                                     totalPages={totalPaginas}

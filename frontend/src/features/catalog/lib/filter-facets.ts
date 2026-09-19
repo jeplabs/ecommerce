@@ -24,9 +24,35 @@ export function normalizeSpecMatch(value: unknown): string {
 }
 
 /**
- * Extrae facetas dinámicas desde `productos[].specs` del catálogo o categoría actual.
+ * Extrae o adapta facetas dinámicas (usando serverFacets si está presente, o derivando de `productos[].specs`).
  */
-export function extractFilterFacets(productos: CatalogProduct[]): CatalogFilterOpciones {
+export function extractFilterFacets(
+    productos: CatalogProduct[],
+    serverFacets?: Record<string, SpecFacetOption[]> | null
+): CatalogFilterOpciones {
+    if (serverFacets && Object.keys(serverFacets).length > 0) {
+        const facetKeys = Object.keys(serverFacets).sort((a, b) =>
+            a.localeCompare(b, 'es', { sensitivity: 'base' })
+        );
+        let precioMin = Infinity;
+        let precioMax = -Infinity;
+        if (productos?.length) {
+            for (const prod of productos) {
+                if (prod.precioVenta != null && !Number.isNaN(Number(prod.precioVenta))) {
+                    const price = Number(prod.precioVenta);
+                    precioMin = Math.min(precioMin, price);
+                    precioMax = Math.max(precioMax, price);
+                }
+            }
+        }
+        return {
+            specFacets: serverFacets,
+            facetKeys,
+            precioMin: precioMin === Infinity ? 0 : precioMin,
+            precioMax: precioMax === -Infinity ? 10000 : precioMax,
+        };
+    }
+
     if (!productos?.length) {
         return {
             specFacets: {},

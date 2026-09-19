@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useCategorias } from '@/app/providers';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
 import { Pagination } from '@/shared/ui';
@@ -13,14 +14,16 @@ type CategoryProductsViewProps = {
 };
 
 export default function CategoryProductsView({ slugPath, segmentos }: CategoryProductsViewProps) {
+    const [searchParams] = useSearchParams();
     const {
         productos,
+        facets,
         loading,
         error,
         paginaActual,
         setPaginaActual,
         totalPaginas,
-    } = useProductosByCategory(slugPath);
+    } = useProductosByCategory(slugPath, searchParams);
     const { arbolCategorias } = useCategorias();
 
     useEffect(() => {
@@ -51,7 +54,12 @@ export default function CategoryProductsView({ slugPath, segmentos }: CategoryPr
                 <h1>{nombreCategoria || 'Categoría'}</h1>
                 <Breadcrumbs items={breadcrumbs} className={styles.breadcrumbsSlot} />
             </div>
-            <ProductCatalog productosExternos={productos} loadingExterno={loading} />
+            <ProductCatalog
+                productosExternos={productos}
+                facetsExternas={facets}
+                loadingExterno={loading}
+                totalPaginasExterno={totalPaginas}
+            />
 
             {!loading && totalPaginas > 1 && (
                 <Pagination

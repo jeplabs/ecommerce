@@ -94,6 +94,14 @@ async function handleProductAdminPageJson(
     return parseApi(productAdminPageSchema, raw);
 }
 
+/** {@code GET /api/productos?...} — Retorna la página completa de catálogo con facetas. */
+export async function getCatalogo(params?: URLSearchParams | string): Promise<ProductPage> {
+    const query = params ? (typeof params === 'string' ? params : params.toString()) : '';
+    const url = `${API_URL}/api/productos${query ? `?${query}` : ''}`;
+    const response = await fetch(url);
+    return handleProductPageJson(response, 'Error al cargar productos del catálogo');
+}
+
 /** {@code GET /api/productos?categoriaId&page&size} */
 export async function getByCategory(
     categoriaId: number,
@@ -106,8 +114,7 @@ export async function getByCategory(
         size: String(size),
     });
 
-    const response = await fetch(`${API_URL}/api/productos?${params}`);
-    return handleProductPageJson(response, 'Error al cargar productos de la categoría');
+    return getCatalogo(params);
 }
 
 /** {@code GET /api/productos?page&size} */
@@ -116,8 +123,7 @@ export async function getAll(page = 0, size = 100): Promise<ProductApi[]> {
         page: String(page),
         size: String(size),
     });
-    const response = await fetch(`${API_URL}/api/productos?${params}`);
-    const pageData = await handleProductPageJson(response, 'No se pudo obtener los productos');
+    const pageData = await getCatalogo(params);
     return pageData.content;
 }
 
@@ -385,6 +391,7 @@ export async function setMainImage(
 }
 
 export const productApi = {
+    getCatalogo,
     getByCategory,
     getAll,
     getAdmin,
