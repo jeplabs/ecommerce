@@ -17,6 +17,9 @@ public class QPayProController {
     private final QPayProService qpayproService;
     private final OrdenRepository ordenRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrlBase;
+
     public record DatosIniciarPagoQPayPro(Integer cuotas) {}
 
     @PostMapping("/{ordenId}/iniciar")
@@ -41,9 +44,9 @@ public class QPayProController {
         qpayproService.confirmarPago(responseStatus, transId, amount, md5Hash, invoiceNum);
         
         // Redirigir al frontend a una pantalla de éxito o error
-        String frontendUrl = "http://localhost:3000/checkout/success?orden=" + invoiceNum;
+        String frontendUrl = frontendUrlBase + "/checkout/success?orden=" + invoiceNum;
         if (!"1".equals(responseStatus)) {
-            frontendUrl = "http://localhost:3000/checkout/error?orden=" + invoiceNum;
+            frontendUrl = frontendUrlBase + "/checkout/error?orden=" + invoiceNum;
         }
 
         return ResponseEntity.status(302).header("Location", frontendUrl).build();

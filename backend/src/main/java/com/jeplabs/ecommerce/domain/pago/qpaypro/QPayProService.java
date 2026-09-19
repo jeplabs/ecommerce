@@ -40,9 +40,6 @@ public class QPayProService {
     @Value("${qpaypro.api.key}")
     private String apiKey;
 
-    @Value("${qpaypro.api.secret}")
-    private String apiSecret;
-
     @Value("${qpaypro.api.url}")
     private String apiUrl;
 
@@ -123,6 +120,9 @@ public class QPayProService {
                 log.error("Error al iniciar pago en QPayPro: {}", body);
                 throw new RuntimeException("Error en QPayPro al registrar transacción");
             }
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            log.error("Error HTTP devuelto por QPayPro ({}): {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Fallo de comunicación con la pasarela de pagos. Contacte a soporte.");
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -190,13 +190,14 @@ public class QPayProService {
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(apiFelUrl, request, Map.class);
-            Map<String, Object> body = response.getBody();
-            if (body != null && "success".equals(body.get("estado")) || body.containsKey("fel_uuid")) {
-                // Guardar los datos de la factura si los retorna
-                String felUuid = (String) body.get("fel_uuid");
-                String felSerie = (String) body.get("fel_serie");
-                String felNumero = (String) body.get("fel_numero");
-                transaccion.guardarDatosFel(felUuid, felSerie, felNumero);
+            if (response != null && response.getBody() != null) {
+                Map<String, Object> body = response.getBody();
+                if ("success".equals(body.get("estado")) || body.containsKey("fel_uuid")) {
+                    String felUuid = (String) body.get("fel_uuid");
+                    String felSerie = (String) body.get("fel_serie");
+                    String felNumero = (String) body.get("fel_numero");
+                    transaccion.guardarDatosFel(felUuid, felSerie, felNumero);
+                }
             }
         } catch (Exception e) {
             log.error("Fallo al emitir factura FEL para la orden {}", orden.getId(), e);

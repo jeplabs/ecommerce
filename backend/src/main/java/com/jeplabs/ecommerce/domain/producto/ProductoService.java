@@ -28,6 +28,132 @@ public class ProductoService {
                 .map(DatosRespuestaProducto::new);
     }
 
+    // Listado público avanzado con facetas (Enfoque híbrido H2-Compatible)
+    public DatosRespuestaCatalogoPage listarFacetado(
+            String nombre,
+            Long categoriaId,
+            Double precioMin,
+            Double precioMax,
+            org.springframework.util.MultiValueMap<String, String> params,
+            Pageable pageable) {
+
+        // 1. Base filtrada desde BD
+        List<Producto> productosBase = productoRepositorio.buscarActivosSinPaginacion(nombre, categoriaId);
+
+        // 2. Filtros dinámicos en memoria (precio y specs)
+        List<Producto> filtrados = new ArrayList<>();
+        for (Producto p : productosBase) {
+            boolean matches = true;
+
+            if (precioMin != null || precioMax != null) {
+                double precioActual = p.getPrecios().stream()
+                        .filter(pr -> pr.getFechaFin() == null)
+                        .mapToDouble(pr -> pr.getPrecioVenta().doubleValue())
+                        .findFirst().orElse(0.0);
+                if (precioMin != null && precioActual < precioMin) matches = false;
+                if (precioMax != null && precioActual > precioMax) matches = false;
+            }
+
+            if (matches && params != null) {
+                for (java.util.Map.Entry<String, java.util.List<String>> entry : params.entrySet()) {
+                    String key = entry.getKey();
+                    if (isReservedParam(key)) continue;
+
+                    java.util.List<String> validValues = entry.getValue();
+                    if (validValues == null || validValues.isEmpty()) continue;
+
+                    String prodValue = null;
+                    if (p.getSpecs() != null && p.getSpecs().containsKey(key)) {
+                        prodValue = String.valueOf(p.getSpecs().get(key));
+                    }
+                    if (prodValue == null) {
+                        matches = false;
+                        break;
+                    }
+
+                    String matchVal = normalizeSpecMatch(prodValue);
+                    boolean specMatched = false;
+                    for (String val : validValues) {
+                        if (normalizeSpecMatch(val).equals(matchVal)) {
+                            specMatched = true;
+                            break;
+                        }
+                    }
+                    if (!specMatched) {
+                        matches = false;
+                        break;
+                    }
+                }
+            }
+
+            if (matches) filtrados.add(p);
+        }
+
+        // 3. Cálculo de Facetas sobre los resultados
+        java.util.Map<String, java.util.Map<String, DatosRespuestaFaceta>> tempFacets = new java.util.HashMap<>();
+        for (Producto p : filtrados) {
+            if (p.getSpecs() != null) {
+                p.getSpecs().forEach((key, rawValue) -> {
+                    String displayLabel = normalizeSpecDisplay(rawValue);
+                    String matchValue = normalizeSpecMatch(rawValue);
+                    if (!matchValue.isEmpty()) {
+                        tempFacets.computeIfAbsent(key, k -> new java.util.HashMap<>())
+                                .compute(matchValue, (mVal, faceta) -> {
+                                    if (faceta == null) {
+                                        return new DatosRespuestaFaceta(matchValue, displayLabel, 1);
+                                    } else {
+                                        return new DatosRespuestaFaceta(matchValue, displayLabel, faceta.count() + 1);
+                                    }
+                                });
+                    }
+                });
+            }
+        }
+
+        java.util.Map<String, List<DatosRespuestaFaceta>> finalFacets = new java.util.HashMap<>();
+        tempFacets.forEach((key, map) -> {
+            List<DatosRespuestaFaceta> list = new ArrayList<>(map.values());
+            list.sort(java.util.Comparator.comparing(DatosRespuestaFaceta::displayLabel));
+            finalFacets.put(key, list);
+        });
+
+        // 4. Paginación Manual
+        int totalElements = filtrados.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), totalElements);
+        List<Producto> paginatedList = start <= end ? filtrados.subList(start, end) : new ArrayList<>();
+        
+        int totalPages = pageable.getPageSize() == 0 ? 1 : (int) Math.ceil((double) totalElements / pageable.getPageSize());
+        boolean isFirst = start == 0;
+        boolean isLast = end >= totalElements;
+
+        List<DatosRespuestaProducto> content = paginatedList.stream().map(DatosRespuestaProducto::new).toList();
+
+        return new DatosRespuestaCatalogoPage(
+                content,
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                totalElements,
+                totalPages,
+                isFirst,
+                isLast,
+                finalFacets
+        );
+    }
+
+    private boolean isReservedParam(String key) {
+        return java.util.Set.of("search", "nombre", "categoriaId", "precioMin", "precioMax", "page", "size", "sort").contains(key);
+    }
+
+    private String normalizeSpecDisplay(Object raw) {
+        if (raw == null) return "";
+        return String.valueOf(raw).trim().replaceAll("\\s+", " ");
+    }
+
+    private String normalizeSpecMatch(Object raw) {
+        return normalizeSpecDisplay(raw).replaceAll("\\s", "");
+    }
+
     // Validación para el endpoint público, lista solo productos que estén activos
     public DatosRespuestaProducto buscarPorId(Long id) {
         return new DatosRespuestaProducto(buscarProductoActivo(id));

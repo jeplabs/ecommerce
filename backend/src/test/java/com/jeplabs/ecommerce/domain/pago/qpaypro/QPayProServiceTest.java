@@ -51,7 +51,6 @@ class QPayProServiceTest {
     void setUp() {
         ReflectionTestUtils.setField(qpayProService, "apiLogin", "testLogin");
         ReflectionTestUtils.setField(qpayProService, "apiKey", "testKey");
-        ReflectionTestUtils.setField(qpayProService, "apiSecret", "testSecret");
         ReflectionTestUtils.setField(qpayProService, "apiUrl", "http://mock/checkout");
         ReflectionTestUtils.setField(qpayProService, "apiStoreUrl", "http://mock/checkout/store?token=");
         ReflectionTestUtils.setField(qpayProService, "apiFelUrl", "http://mock/checkout/qpayfel/facturar");
@@ -114,6 +113,11 @@ class QPayProServiceTest {
         when(qpayproRepository.findByOrdenIdAndEstado(1L, EstadoQPayPro.PENDIENTE))
                 .thenReturn(Optional.of(transaccionMock));
         when(ordenRepository.findById(1L)).thenReturn(Optional.of(ordenMock));
+
+        // Mock para aprobar la orden
+        ResponseEntity<Map> felResponse = new ResponseEntity<>(Map.of("estado", "success", "fel_uuid", "FEL-1234"), org.springframework.http.HttpStatus.OK);
+        when(restTemplate.postForEntity(eq("http://mock/checkout/qpayfel/facturar"), any(HttpEntity.class), eq(Map.class)))
+                .thenReturn(felResponse);
 
         // Act
         qpayProService.confirmarPago("1", "T999", "100.00", "HASH123", "1");

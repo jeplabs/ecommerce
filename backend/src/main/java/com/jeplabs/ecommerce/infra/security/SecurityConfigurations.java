@@ -59,6 +59,7 @@ public class SecurityConfigurations {
                         .requestMatchers("/api/pagos/webpay/confirmar").permitAll()
                         .requestMatchers("/api/pagos/webpay/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/pagos/webpay/estado/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pagos/qpaypro/retorno").permitAll()
                         // Iniciar requiere autenticación (ya cubierto por anyRequest().authenticated())
                         //.requestMatchers(HttpMethod.GET, "/api/auth/usuarios").permitAll()
                         .anyRequest().authenticated()

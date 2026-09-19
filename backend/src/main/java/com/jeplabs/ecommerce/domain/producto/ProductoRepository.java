@@ -40,6 +40,19 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
             Pageable pageable
     );
 
+    @Query(value = """
+        SELECT DISTINCT p.* FROM productos p
+        LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
+        WHERE p.estado IN ('DISPONIBLE', 'SIN_STOCK')
+        AND (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
+        AND (:categoriaId IS NULL OR pc.categoria_id = :categoriaId)
+        ORDER BY p.nombre
+        """, nativeQuery = true)
+    java.util.List<Producto> buscarActivosSinPaginacion(
+            @Param("nombre") String nombre,
+            @Param("categoriaId") Long categoriaId
+    );
+
     // Endpoint admin - para lista productos con todos los estados con filtro opcional
     @Query(value = """
             SELECT DISTINCT p.* FROM productos p

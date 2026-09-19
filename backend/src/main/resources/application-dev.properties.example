@@ -100,3 +100,9 @@ api.base-url=
 
 # Secreto para la validación de integridad MD5 (firma local)
 qpaypro.api.webhook-secret=
+
+# ==========================================
+# Frontend Configuration
+# ==========================================
+# URL base de la aplicación React/Vite local
+frontend.url=http://localhost:5173

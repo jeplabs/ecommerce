@@ -36,11 +36,16 @@ public class ProductoController {
             @ApiResponse(responseCode = "200", description = "Página de productos retornada exitosamente")
     })
     @GetMapping
-    public ResponseEntity<Page<DatosRespuestaProducto>> listar(
-            @RequestParam(required = false) String nombre,
+    public ResponseEntity<DatosRespuestaCatalogoPage> listar(
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoriaId,
-            @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
-        return ResponseEntity.ok(service.listar(nombre, categoriaId, pageable));
+            @RequestParam(required = false) Double precioMin,
+            @RequestParam(required = false) Double precioMax,
+            @RequestParam org.springframework.util.MultiValueMap<String, String> specs,
+            @PageableDefault(size = 12, sort = "nombre") Pageable pageable) {
+        // Fallback para mantener compatibilidad si el frontend envia "nombre" en lugar de "search"
+        String nombreFinal = search != null ? search : specs.getFirst("nombre");
+        return ResponseEntity.ok(service.listarFacetado(nombreFinal, categoriaId, precioMin, precioMax, specs, pageable));
     }
 
     @Operation(
