@@ -53,13 +53,17 @@ export const ProductCatalog = ({
         totalPages: number;
         totalElements: number;
     } | null>(null);
-    const [loadingServer, setLoadingServer] = useState<boolean>(productosExternos === null);
+    const [isFetchingServer, setIsFetchingServer] = useState<boolean>(false);
+    const [isInitialLoading, setIsInitialLoading] = useState<boolean>(productosExternos === null);
 
     useEffect(() => {
         if (productosExternos !== null) return undefined;
 
         let isMounted = true;
-        setLoadingServer(true);
+        setIsFetchingServer(true);
+        if (!serverData) {
+            setIsInitialLoading(true);
+        }
 
         const queryParams = new URLSearchParams(searchParams);
         const rawPage = queryParams.get('page');
@@ -85,7 +89,10 @@ export const ProductCatalog = ({
                 setServerData({ content: [], totalPages: 1, totalElements: 0 });
             })
             .finally(() => {
-                if (isMounted) setLoadingServer(false);
+                if (isMounted) {
+                    setIsFetchingServer(false);
+                    setIsInitialLoading(false);
+                }
             });
 
         return () => {
@@ -107,7 +114,8 @@ export const ProductCatalog = ({
     const serverFacets = isExternal
         ? (facetsExternas || undefined)
         : serverData?.facets;
-    const loadingAUsar = isExternal ? loadingExterno : loadingServer;
+    const initialLoadingAUsar = isExternal ? loadingExterno : isInitialLoading;
+    const isFetchingAUsar = isExternal ? loadingExterno : isFetchingServer;
 
     const opciones = useMemo(
         () => extractFilterFacets(productosAUsar || [], serverFacets),
@@ -204,7 +212,7 @@ export const ProductCatalog = ({
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     }, [paginaActual]);
 
-    if (loadingAUsar) {
+    if (initialLoadingAUsar) {
         return <p className="center-message">Cargando productos...</p>;
     }
 
@@ -219,9 +227,22 @@ export const ProductCatalog = ({
                     />
                 </div>
 
-                <div className={styles.content}>
+                <div
+                    className={styles.content}
+                    style={{
+                        opacity: isFetchingAUsar ? 0.6 : 1,
+                        transition: 'opacity 0.2s ease',
+                    }}
+                >
                     <header className={styles.toolbar}>
-                        <h2 className={styles.title}>Productos ({totalConteo})</h2>
+                        <h2 className={styles.title}>
+                            Productos ({totalConteo})
+                            {isFetchingAUsar && (
+                                <span style={{ fontSize: '0.85rem', color: '#888', marginLeft: '8px' }}>
+                                    (Actualizando...)
+                                </span>
+                            )}
+                        </h2>
                         <SortSelector sortOption={sortSelectValue} onChange={handleSortChange} />
                     </header>
 

@@ -94,12 +94,34 @@ async function handleProductAdminPageJson(
     return parseApi(productAdminPageSchema, raw);
 }
 
+const catalogoCache = new Map<string, { data: ProductPage; timestamp: number }>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos de caché en memoria
+
+export function invalidateCatalogoCache(): void {
+    catalogoCache.clear();
+}
+
 /** {@code GET /api/productos?...} — Retorna la página completa de catálogo con facetas. */
-export async function getCatalogo(params?: URLSearchParams | string): Promise<ProductPage> {
+export async function getCatalogo(
+    params?: URLSearchParams | string,
+    options?: { forceFresh?: boolean }
+): Promise<ProductPage> {
     const query = params ? (typeof params === 'string' ? params : params.toString()) : '';
+    const cacheKey = query;
+    const now = Date.now();
+
+    if (!options?.forceFresh && catalogoCache.has(cacheKey)) {
+        const cached = catalogoCache.get(cacheKey)!;
+        if (now - cached.timestamp < CACHE_TTL_MS) {
+            return cached.data;
+        }
+    }
+
     const url = `${API_URL}/api/productos${query ? `?${query}` : ''}`;
     const response = await fetch(url);
-    return handleProductPageJson(response, 'Error al cargar productos del catálogo');
+    const data = await handleProductPageJson(response, 'Error al cargar productos del catálogo');
+    catalogoCache.set(cacheKey, { data, timestamp: now });
+    return data;
 }
 
 /** {@code GET /api/productos?categoriaId&page&size} */
@@ -195,6 +217,7 @@ export async function create(producto: CreateProductRequest): Promise<ProductApi
         throw new Error(getErrorMessage(raw, 'No se pudo crear el producto'));
     }
 
+    invalidateCatalogoCache();
     return parseApi(productApiSchema, raw);
 }
 
@@ -255,6 +278,7 @@ export async function update(
         }
     }
 
+    invalidateCatalogoCache();
     return updatedProduct;
 }
 
@@ -275,6 +299,7 @@ export async function deleteProduct(id: number): Promise<true> {
         );
     }
 
+    invalidateCatalogoCache();
     return true;
 }
 
@@ -303,6 +328,7 @@ export async function updateStatus(id: number, estado: string): Promise<true> {
         );
     }
 
+    invalidateCatalogoCache();
     return true;
 }
 

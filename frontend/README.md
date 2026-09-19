@@ -551,7 +551,8 @@ El repo incluye `netlify.toml` en la raíz con:
 - **Encabezados HTTP de seguridad**: Configuración en `netlify.toml` con `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` y `Referrer-Policy`.
 - **Fuentes autoalojadas optimizadas**: 4 familias (`@fontsource/*`) importadas con subconjuntos `latin` y `font-display: swap`. Se consolidó la tipografía primaria en `Instrument Sans`, ahorrando ~170KB de fuentes redundantes.
 - **LCP / CLS & Art Direction**: Hero Carousel con `<picture>` nativo (`mobileSrc` vs `desktopSrc`), `fetchpriority="high"` + `aspect-ratio` adaptativo (16:5 desktop / 6:4 mobile); `preconnect` a dominios de medios.
-- **Caché en Memoria API**: Deduplicación de peticiones y memoria en `useProducts` y `useCategorias` para navegación instantánea (0ms).
+- **Caché en Memoria API y Facetas Servidor**: Integración de facetas dinámicas desde el backend (`GET /api/productos`), `catalogoCache` en memoria (TTL 5 min) para respuestas en 0ms a búsquedas repetidas, y transición suave no bloqueante (`keepPreviousData` con opacidad `0.6`) al filtrar el catálogo.
+- **Deduplicación de peticiones**: Memoria en `useProducts` y `useCategorias` para navegación instantánea (0ms).
 
 ---
 
@@ -594,7 +595,7 @@ Guía completa (handlers, fixtures, comandos Cypress, plan de cobertura, trouble
 | [docs/pnpm.md](./docs/pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
 | [docs/eslint-warnings.md](./docs/eslint-warnings.md) | Warnings ESLint: inventario, rendimiento y seguimiento de mejoras |
 | [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
-| [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (Stripe, Webpay Plus, Mercado Pago) |
+| [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (QPayPro, Webpay Plus, Stripe, Mercado Pago) |
 | [docs/testing.md](./docs/testing.md) | Vitest, RTL, MSW, Cypress: scripts, fixtures, evaluación de buenas prácticas y plan de cobertura |
 | [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
