@@ -8,6 +8,7 @@ import type { OrderStatus } from '@/entities/order';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import { Button } from '@/shared/ui/Button';
 import { getOrderIdFromProfilePath, profileOrderDetailPath } from '@/features/profile/lib/profileRoutes';
+import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
 import styles from './OrdersTab.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {
@@ -44,6 +45,8 @@ export default function OrdersTab() {
         obtenerDetalleLocal,
         rememberDetalle,
     } = ordenes;
+
+    useScrollToTopOnPageChange(page);
 
     const [cancelling, setCancelling] = useState(false);
 

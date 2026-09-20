@@ -5,6 +5,7 @@ import { useAdminOrdersLogic } from '@/features/admin';
 import type { AdminOrderStatusFilter } from '@/features/admin/model/types';
 import { ORDEN_ESTADOS_FILTRO } from '@/entities/order';
 import { Select } from '@/shared/ui/Select';
+import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
 import styles from './AdminOrdersView.module.css';
 
 export default function AdminOrdersView() {
@@ -26,6 +27,8 @@ export default function AdminOrdersView() {
         abrirDetalle,
         cerrarDetalle,
     } = useAdminOrdersLogic();
+
+    useScrollToTopOnPageChange(page);
 
     const handleSaveEstado = async (ordenId: number, nuevoEstado: OrderStatus) => {
         if (nuevoEstado === 'CANCELADA') {
