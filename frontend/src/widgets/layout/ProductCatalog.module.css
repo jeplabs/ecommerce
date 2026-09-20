@@ -60,6 +60,7 @@
     width: 100%;
     max-width: 100%;
     min-width: 0;
+    justify-items: center;
 }
 
 @media (min-width: 1025px) {
