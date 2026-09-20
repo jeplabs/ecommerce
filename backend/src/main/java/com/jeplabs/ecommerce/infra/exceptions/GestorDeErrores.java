@@ -160,4 +160,28 @@ public class GestorDeErrores {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage() != null ? ex.getMessage() : "Recurso no encontrado"));
     }
+
+    // ====================================================================================
+    // RED DE SEGURIDAD GLOBAL PARA ERRORES NO CONTEMPLADOS Y PASARELAS (Evita fugas de 401)
+    // ====================================================================================
+
+    // Intercepta errores de peticiones HTTP a APIs externas (Ej. QPayPro, Webpay)
+    // Devuelve 502 Bad Gateway para indicar que el fallo fue "río arriba" y no de nuestros datos.
+    @ExceptionHandler(org.springframework.web.client.RestClientResponseException.class)
+    public ResponseEntity<Map<String, String>> manejarErrorPasarelaExterna(
+            org.springframework.web.client.RestClientResponseException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(Map.of("error", "Fallo de comunicación con un servicio externo o pasarela de pagos. Contacte a soporte."));
+    }
+
+    // Red de seguridad final para cualquier RuntimeException o Exception no manejada arriba.
+    // Esto fuerza a que todo error inesperado salga como un 500 JSON y no rompa el frontend.
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> manejarExcepcionGlobal(Exception ex) {
+        // En un ambiente productivo maduro, aquí no devolveríamos el ex.getMessage() literal
+        // por seguridad, sino un mensaje genérico. Por ahora lo pasamos para debug.
+        String mensaje = ex.getMessage() != null ? ex.getMessage() : "Ha ocurrido un error inesperado en el servidor.";
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", mensaje));
+    }
 }
