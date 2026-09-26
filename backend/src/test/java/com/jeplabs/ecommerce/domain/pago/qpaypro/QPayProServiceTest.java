@@ -1,5 +1,6 @@
 package com.jeplabs.ecommerce.domain.pago.qpaypro;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jeplabs.ecommerce.domain.orden.EstadoOrden;
 import com.jeplabs.ecommerce.domain.orden.Orden;
 import com.jeplabs.ecommerce.domain.orden.OrdenRepository;
@@ -10,8 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
@@ -55,10 +58,12 @@ class QPayProServiceTest {
         ReflectionTestUtils.setField(qpayProService, "apiStoreUrl", "http://mock/checkout/store?token=");
         ReflectionTestUtils.setField(qpayProService, "apiFelUrl", "http://mock/checkout/qpayfel/facturar");
         ReflectionTestUtils.setField(qpayProService, "baseUrl", "http://localhost:8080");
+        ReflectionTestUtils.setField(qpayProService, "frontendUrlBase", "http://localhost:5173");
         ReflectionTestUtils.setField(qpayProService, "webhookSecret", "TEST_SECRET");
 
         Usuario usuario = mock(Usuario.class);
         lenient().when(usuario.getNombre()).thenReturn("Marlon");
+        lenient().when(usuario.getApellido()).thenReturn("Pérez");
         lenient().when(usuario.getEmail()).thenReturn("test@test.com");
 
         ordenMock = mock(Orden.class);
@@ -81,7 +86,9 @@ class QPayProServiceTest {
 
         ResponseEntity<Map> responseEntity = ResponseEntity.ok(responseBody);
 
-        when(restTemplate.postForEntity(eq("http://mock/checkout/register_transaction_store"), any(HttpEntity.class), eq(Map.class)))
+        when(restTemplate.postForEntity(
+                eq("http://mock/checkout/register_transaction_store"),
+                any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(responseEntity);
 
         // Act
@@ -99,11 +106,14 @@ class QPayProServiceTest {
         responseBody.put("estado", "error");
         ResponseEntity<Map> responseEntity = ResponseEntity.ok(responseBody);
 
-        when(restTemplate.postForEntity(eq("http://mock/checkout/register_transaction_store"), any(HttpEntity.class), eq(Map.class)))
+        when(restTemplate.postForEntity(
+                eq("http://mock/checkout/register_transaction_store"),
+                any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(responseEntity);
 
         // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> qpayProService.iniciarPago(ordenMock, 1));
+        Exception exception = assertThrows(RuntimeException.class,
+                () -> qpayProService.iniciarPago(ordenMock, 1));
         assertEquals("Error en QPayPro al registrar transacción", exception.getMessage());
     }
 
@@ -112,23 +122,26 @@ class QPayProServiceTest {
         // Arrange
         when(qpayproRepository.findByOrdenIdAndEstado(1L, EstadoQPayPro.PENDIENTE))
                 .thenReturn(Optional.of(transaccionMock));
-        when(ordenRepository.findById(1L)).thenReturn(Optional.of(ordenMock));
 
-        // Mock para aprobar la orden
-        ResponseEntity<Map> felResponse = new ResponseEntity<>(Map.of("estado", "success", "fel_uuid", "FEL-1234"), org.springframework.http.HttpStatus.OK);
-        when(restTemplate.postForEntity(eq("http://mock/checkout/qpayfel/facturar"), any(HttpEntity.class), eq(Map.class)))
+        ResponseEntity<Map> felResponse = new ResponseEntity<>(
+                Map.of("estado", "success", "fel_uuid", "FEL-1234"), HttpStatus.OK);
+        when(restTemplate.postForEntity(
+                eq("http://mock/checkout/qpayfel/facturar"),
+                any(HttpEntity.class), eq(Map.class)))
                 .thenReturn(felResponse);
 
         // Act
-        qpayProService.confirmarPago("1", "T999", "100.00", "HASH123", "1");
+        Orden ordenRetornada = qpayProService.confirmarPago("1", "T999", "100.00", "HASH123", "1");
 
         // Assert
         assertEquals(EstadoQPayPro.APROBADA, transaccionMock.getEstado());
         assertEquals("T999", transaccionMock.getTransactionId());
         verify(ordenMock, times(1)).cambiarEstado(EstadoOrden.CONFIRMADA);
         verify(ordenRepository, times(1)).save(ordenMock);
-        // También verificamos que llame al servicio de facturar (restTemplate.postForEntity a apiFelUrl)
-        verify(restTemplate, times(1)).postForEntity(eq("http://mock/checkout/qpayfel/facturar"), any(HttpEntity.class), eq(Map.class));
+        verify(restTemplate, times(1)).postForEntity(
+                eq("http://mock/checkout/qpayfel/facturar"),
+                any(HttpEntity.class), eq(Map.class));
+        assertNotNull(ordenRetornada);
     }
 
     @Test
@@ -136,14 +149,14 @@ class QPayProServiceTest {
         // Arrange
         when(qpayproRepository.findByOrdenIdAndEstado(1L, EstadoQPayPro.PENDIENTE))
                 .thenReturn(Optional.of(transaccionMock));
-        when(ordenRepository.findById(1L)).thenReturn(Optional.of(ordenMock));
 
         // Act
-        qpayProService.confirmarPago("2", "T999", "100.00", "HASH123", "1");
+        Orden ordenRetornada = qpayProService.confirmarPago("2", "T999", "100.00", "HASH123", "1");
 
         // Assert
         assertEquals(EstadoQPayPro.DENEGADA, transaccionMock.getEstado());
         verify(ordenMock, times(1)).cancelar();
         verify(ordenService, times(1)).expiracionAutomatica(1L);
+        assertNotNull(ordenRetornada);
     }
 }
