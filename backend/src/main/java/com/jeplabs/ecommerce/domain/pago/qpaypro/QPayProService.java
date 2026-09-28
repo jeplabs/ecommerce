@@ -105,10 +105,14 @@ public class QPayProService {
                 ? orden.getDireccionCodigoPostal() : "01001";
 
         // ── Payload ──
+        String amountStr = String.format(Locale.US, "%.2f", orden.getTotal());
+        String freightStr = String.format(Locale.US, "%.2f",
+                orden.getCostoEnvio() != null ? orden.getCostoEnvio() : BigDecimal.ZERO);
+
         Map<String, Object> payload = new HashMap<>();
         payload.put("x_login", apiLogin);
         payload.put("x_api_key", apiKey);
-        payload.put("x_amount", orden.getTotal().toString());
+        payload.put("x_amount", amountStr);
         payload.put("x_currency_code", currency);
         payload.put("x_first_name", firstName);
         payload.put("x_last_name", lastName);
@@ -123,7 +127,9 @@ public class QPayProService {
         payload.put("x_company", "C/F");
         payload.put("x_description", "Orden #" + orden.getId());
         payload.put("x_invoice_num", orden.getId().toString());
-        payload.put("x_freight", orden.getCostoEnvio() != null ? orden.getCostoEnvio().toString() : "0.00");
+        // x_freight con el costo de envío real.
+        // QPayPro valida: Σ(products) + x_freight + x_tax == x_amount
+        payload.put("x_freight", freightStr);
 
         // Impuestos forzados a "0.00" porque precioUnitario ya incluye IVA.
         // Enviar el IVA aparte causa un descuadre que produce 502 Bad Gateway en QPayPro.
@@ -144,34 +150,41 @@ public class QPayProService {
             payload.put("x_visacuotas", "no");
         }
 
-        // ── Matriz de productos (formato posicional QPayPro) ──
-        // Estructura: [["Nombre", "Precio", "SKU", "Cantidad", "TaxFlag", "TotalFlag"]]
+        // ── Matriz de productos (formato oficial QPayPro) ──
+        // Estructura oficial: [description, SKU, url_product, quantity, Price, total_product]
         List<List<String>> productsList = new ArrayList<>();
         if (orden.getItems() != null && !orden.getItems().isEmpty()) {
             for (OrdenItem item : orden.getItems()) {
                 String nombre = item.getNombreProducto() != null ? item.getNombreProducto() : "Producto";
-                String precio = String.format(Locale.US, "%.2f",
-                        item.getPrecioUnitario() != null ? item.getPrecioUnitario() : BigDecimal.ZERO);
                 String sku = item.getSku() != null ? item.getSku() : "";
-                String cantidad = String.valueOf(item.getCantidad() != null ? item.getCantidad() : 1);
+                int cant = item.getCantidad() != null ? item.getCantidad() : 1;
+                BigDecimal precioUnitario = item.getPrecioUnitario() != null ? item.getPrecioUnitario() : BigDecimal.ZERO;
+                BigDecimal totalItem = precioUnitario.multiply(BigDecimal.valueOf(cant));
+
+                String precioStr = String.format(Locale.US, "%.2f", precioUnitario);
+                String cantidadStr = String.valueOf(cant);
+                String totalItemStr = String.format(Locale.US, "%.2f", totalItem);
 
                 List<String> prod = new ArrayList<>();
-                prod.add(nombre);
-                prod.add(precio);
-                prod.add(sku);
-                prod.add(cantidad);
-                prod.add("0"); // Tax Flag
-                prod.add("1"); // Line Total Flag
+                prod.add(nombre);        // 0: description
+                prod.add(sku);           // 1: SKU
+                prod.add("");            // 2: url_product
+                prod.add(cantidadStr);   // 3: quantity
+                prod.add(precioStr);     // 4: Price
+                prod.add(totalItemStr);  // 5: total_product
                 productsList.add(prod);
             }
         } else {
+            BigDecimal subtotal = orden.getSubtotal() != null ? orden.getSubtotal() : orden.getTotal();
+            String subtotalStr = String.format(Locale.US, "%.2f", subtotal != null ? subtotal : BigDecimal.ZERO);
+
             List<String> prod = new ArrayList<>();
-            prod.add("Orden #" + orden.getId());
-            prod.add(orden.getTotal().toString());
-            prod.add("");
-            prod.add("1");
-            prod.add("0");
-            prod.add("1");
+            prod.add("Orden #" + orden.getId()); // 0: description
+            prod.add("");                       // 1: SKU
+            prod.add("");                       // 2: url_product
+            prod.add("1");                      // 3: quantity
+            prod.add(subtotalStr);              // 4: Price
+            prod.add(subtotalStr);              // 5: total_product
             productsList.add(prod);
         }
 
@@ -185,7 +198,7 @@ public class QPayProService {
 
         // URLs de retorno
         payload.put("x_relay_url", baseUrl + "/api/pagos/qpaypro/retorno");
-        payload.put("x_url_cancel", baseUrl + "/checkout");
+        payload.put("x_url_cancel", frontendUrlBase + "/checkout");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -233,14 +246,23 @@ public class QPayProService {
         // Fallback: el Sandbox de QPayPro sobreescribe x_invoice_num con un ID de pruebas.
         // Buscamos la última transacción PENDIENTE que coincida con el monto exacto
         // para mitigar race conditions entre clientes concurrentes.
-        if (transaccion == null) {
+        // Fallback por monto: busca transacción PENDIENTE con monto exacto del callback
+        if (transaccion == null && amount != null) {
             log.warn("No se encontró transacción por invoiceNum={}. Buscando por estado PENDIENTE y monto {}",
                     invoiceNum, amount);
             BigDecimal montoCallback = new BigDecimal(amount);
             transaccion = qpayproRepository
                     .findFirstByEstadoAndMontoOrderByCreadoAtDesc(EstadoQPayPro.PENDIENTE, montoCallback)
+                    .orElse(null);
+        }
+
+        // Fallback final: última transacción PENDIENTE sin filtro de monto (red de seguridad)
+        if (transaccion == null) {
+            log.warn("Fallback final: buscando última transacción PENDIENTE sin filtro de monto para invoiceNum={}",
+                    invoiceNum);
+            transaccion = qpayproRepository.findFirstByEstadoOrderByCreadoAtDesc(EstadoQPayPro.PENDIENTE)
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "No hay transacción pendiente que coincida con este monto"));
+                            "No hay transacciones pendientes en el sistema"));
         }
 
         Orden orden = transaccion.getOrden();

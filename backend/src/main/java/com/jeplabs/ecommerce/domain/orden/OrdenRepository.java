@@ -22,4 +22,8 @@ public interface OrdenRepository extends JpaRepository<Orden, Long> {
 
     // Busca órdenes para expiración automática
     java.util.List<Orden> findByEstadoAndCreadoAtBefore(EstadoOrden estado, java.time.LocalDateTime limite);
+
+    // Carga la orden con sus items de forma eager para pasarelas de pago y confirmaciones
+    @Query("SELECT o FROM Orden o LEFT JOIN FETCH o.items WHERE o.id = :id")
+    Optional<Orden> findByIdConItems(@Param("id") Long id);
 }

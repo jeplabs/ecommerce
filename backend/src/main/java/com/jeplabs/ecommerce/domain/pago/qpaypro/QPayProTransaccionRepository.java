@@ -10,4 +10,5 @@ public interface QPayProTransaccionRepository extends JpaRepository<QPayProTrans
     Optional<QPayProTransaccion> findByOrdenId(Long ordenId);
     Optional<QPayProTransaccion> findByToken(String token);
     Optional<QPayProTransaccion> findFirstByEstadoAndMontoOrderByCreadoAtDesc(EstadoQPayPro estado, BigDecimal monto);
+    Optional<QPayProTransaccion> findFirstByEstadoOrderByCreadoAtDesc(EstadoQPayPro estado);
 }

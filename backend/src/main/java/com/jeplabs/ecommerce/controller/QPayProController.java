@@ -30,7 +30,7 @@ public class QPayProController {
     public ResponseEntity<Map<String, String>> iniciarPago(
             @PathVariable Long ordenId,
             @RequestBody(required = false) DatosIniciarPagoQPayPro datos) {
-        Orden orden = ordenRepository.findById(ordenId)
+        Orden orden = ordenRepository.findByIdConItems(ordenId)
                 .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada"));
 
         Integer cuotas = (datos != null && datos.cuotas() != null) ? datos.cuotas() : 1;

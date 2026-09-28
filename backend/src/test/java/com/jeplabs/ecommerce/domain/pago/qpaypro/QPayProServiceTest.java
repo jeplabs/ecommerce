@@ -3,6 +3,7 @@ package com.jeplabs.ecommerce.domain.pago.qpaypro;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jeplabs.ecommerce.domain.orden.EstadoOrden;
 import com.jeplabs.ecommerce.domain.orden.Orden;
+import com.jeplabs.ecommerce.domain.orden.OrdenItem;
 import com.jeplabs.ecommerce.domain.orden.OrdenRepository;
 import com.jeplabs.ecommerce.domain.orden.OrdenService;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -158,5 +160,51 @@ class QPayProServiceTest {
         verify(ordenMock, times(1)).cancelar();
         verify(ordenService, times(1)).expiracionAutomatica(1L);
         assertNotNull(ordenRetornada);
+    }
+
+    @Test
+    void iniciarPago_DebeEnviarMatrizProductosConFormatoOficialQPayPro() throws Exception {
+        // Arrange
+        OrdenItem itemMock = mock(OrdenItem.class);
+        when(itemMock.getNombreProducto()).thenReturn("Zapatos Running");
+        when(itemMock.getSku()).thenReturn("ZAP-001");
+        when(itemMock.getCantidad()).thenReturn(2);
+        when(itemMock.getPrecioUnitario()).thenReturn(new BigDecimal("150.00"));
+
+        when(ordenMock.getItems()).thenReturn(List.of(itemMock));
+        when(ordenMock.getTotal()).thenReturn(new BigDecimal("335.00"));
+        when(ordenMock.getCostoEnvio()).thenReturn(new BigDecimal("35.00"));
+
+        Map<String, Object> data = Map.of("token", "tok_test_456");
+        Map<String, Object> responseBody = Map.of("estado", "success", "data", data);
+        ResponseEntity<Map> responseEntity = ResponseEntity.ok(responseBody);
+
+        org.mockito.ArgumentCaptor<HttpEntity> requestCaptor = org.mockito.ArgumentCaptor.forClass(HttpEntity.class);
+        when(restTemplate.postForEntity(anyString(), requestCaptor.capture(), eq(Map.class)))
+                .thenReturn(responseEntity);
+
+        // Act
+        String url = qpayProService.iniciarPago(ordenMock, 1);
+
+        // Assert
+        assertEquals("http://mock/checkout/store?token=tok_test_456", url);
+        Map<String, Object> sentPayload = (Map<String, Object>) requestCaptor.getValue().getBody();
+        assertNotNull(sentPayload);
+        assertEquals("335.00", sentPayload.get("x_amount"));
+        assertEquals("35.00", sentPayload.get("x_freight"));
+        assertEquals("0.00", sentPayload.get("x_tax"));
+
+        String productsJson = (String) sentPayload.get("products");
+        assertNotNull(productsJson);
+        // Deserializar para verificar posiciones: [description, SKU, url_product, quantity, Price, total_product]
+        List<List<String>> matrix = new ObjectMapper().readValue(productsJson, List.class);
+        assertEquals(1, matrix.size());
+        List<String> prod0 = matrix.get(0);
+        assertEquals("Zapatos Running", prod0.get(0)); // 0: description
+        assertEquals("ZAP-001", prod0.get(1));         // 1: SKU
+        assertEquals("", prod0.get(2));                // 2: url_product
+        assertEquals("2", prod0.get(3));               // 3: quantity
+        assertEquals("150.00", prod0.get(4));          // 4: Price
+        assertEquals("300.00", prod0.get(5));          // 5: total_product
     }
 }
