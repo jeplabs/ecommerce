@@ -7,7 +7,7 @@ export function CheckoutPage() {
     return (
         <main className={styles.page}>
             <div className={styles.inner}>
-                <CheckoutPageHeader />
+                {/* <CheckoutPageHeader /> */}
 
                 <CheckoutProvider>
                     <CheckoutContent />

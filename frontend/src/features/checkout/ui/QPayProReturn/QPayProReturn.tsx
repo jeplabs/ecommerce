@@ -15,6 +15,7 @@ import { formatCurrency } from '@/shared/lib/format';
 import { ApiError, redirectUnauthorized } from '@/shared';
 import { Button } from '@/shared/ui/Button';
 import styles from './QPayProReturn.module.css';
+import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
 
 type ReturnState =
     | { status: 'loading' }
@@ -33,6 +34,7 @@ export default function QPayProReturn() {
     const [actionError, setActionError] = useState<string | null>(null);
     const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
+    useScrollToTopOnPageChange(state.status);
     const ordenIdParam = searchParams.get('ordenId') || searchParams.get('orden');
     const statusParam = searchParams.get('status');
     const errorParam = searchParams.get('error');

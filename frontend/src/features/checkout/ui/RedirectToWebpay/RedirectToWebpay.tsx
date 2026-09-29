@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import styles from './RedirectToWebpay.module.css';
+import { scrollToTopSmooth } from '@/shared/lib/useScrollToTopOnPageChange';
 
 type RedirectToWebpayProps = {
     urlRedireccion: string;
@@ -10,6 +11,7 @@ export default function RedirectToWebpay({ urlRedireccion, token }: RedirectToWe
     const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
+        scrollToTopSmooth();
         formRef.current?.submit();
     }, []);
 

@@ -8,12 +8,14 @@ import { PAYMENT_METHODS } from '@/features/checkout';
 import CheckoutSteps from '../CheckoutSteps/CheckoutSteps';
 import ReviewAndShippingStep from '../ReviewAndShippingStep/ReviewAndShippingStep';
 import PaymentStep from '../PaymentStep/PaymentStep';
+import CheckoutPageHeader from '@/widgets/checkout/CheckoutPageHeader';
 import OrderSummary from '../OrderSummary/OrderSummary';
 import sharedStyles from '../checkoutShared.module.css';
 import pageStyles from '@/widgets/checkout/checkoutPage.module.css';
 import styles from './CheckoutContent.module.css';
 import RedirectToWebpay from '../RedirectToWebpay/RedirectToWebpay';
 import RedirectToQPayPro from '../RedirectToQPayPro/RedirectToQPayPro';
+import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
 
 export default function CheckoutContent() {
     const navigate = useNavigate();
@@ -42,6 +44,8 @@ export default function CheckoutContent() {
         paymentMethod,
         redirectInfo,
     } = useCheckout();
+
+    useScrollToTopOnPageChange(step);
 
     const isBankTransfer = isBankTransferPaymentMethod(paymentMethod);
     const isContraEntrega = paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA;
@@ -104,17 +108,17 @@ export default function CheckoutContent() {
     };
 
     return (
-        <div>
-            <CheckoutSteps steps={steps} currentIndex={step} />
-
-            {error && (
-                <p className={styles.error} role="alert">
-                    {error}
-                </p>
-            )}
-
             <div className={styles.layout}>
                 <div className={styles.main}>
+                    <CheckoutPageHeader />
+                    <CheckoutSteps steps={steps} currentIndex={step} />
+                
+                    {error && (
+                        <p className={styles.error} role="alert">
+                            {error}
+                        </p>
+                    )}
+                
                     {currentStep === 'pedido' && <ReviewAndShippingStep />}
                     {currentStep === 'pago' && <PaymentStep />}
 
@@ -190,6 +194,5 @@ export default function CheckoutContent() {
                     isContraEntrega={isContraEntrega}
                 />
             </div>
-        </div>
     );
 }

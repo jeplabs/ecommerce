@@ -13,6 +13,7 @@ import {
 } from '@/entities/shipping';
 import type { ShippingServiceApi } from '@/entities/shipping';
 import styles from './ShippingServiceSelector.module.css';
+import sharedStyles from '../checkoutShared.module.css';
 
 type ServiceOptionProps = {
     servicio: ShippingServiceApi;
@@ -152,7 +153,7 @@ export default function ShippingServiceSelector() {
 
     return (
         <section className={styles.root} aria-labelledby="shipping-service-title">
-            <h2 id="shipping-service-title" className={styles.title}>
+            <h2 id="shipping-service-title" className={sharedStyles.stepTitle}>
                 Forma de entrega
             </h2>
             <p className={styles.subtitle}>
