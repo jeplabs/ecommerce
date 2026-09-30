@@ -108,82 +108,23 @@ export default function CheckoutContent() {
     };
 
     return (
-            <div className={styles.layout}>
-                <div className={styles.main}>
-                    <CheckoutPageHeader />
-                    <CheckoutSteps steps={steps} currentIndex={step} />
-                
-                    {error && (
-                        <p className={styles.error} role="alert">
-                            {error}
-                        </p>
-                    )}
-                
-                    {currentStep === 'pedido' && <ReviewAndShippingStep />}
-                    {currentStep === 'pago' && <PaymentStep />}
+        <div className={styles.layout}>
+            <div className={styles.main}>
+                <CheckoutPageHeader />
+                <CheckoutSteps steps={steps} currentIndex={step} />
+            
+                {error && (
+                    <p className={styles.error} role="alert">
+                        {error}
+                    </p>
+                )}
+            
+                {currentStep === 'pedido' && <ReviewAndShippingStep />}
+                {currentStep === 'pago' && <PaymentStep />}
 
-                    <div className={styles.nav}>
-                        {step > 0 && (
-                            <button
-                                type="button"
-                                className={clsx(
-                                    sharedStyles.btn,
-                                    sharedStyles.btnSecondary,
-                                    styles.navBtn
-                                )}
-                                onClick={goBack}
-                                disabled={processing}
-                            >
-                                Atrás
-                            </button>
-                        )}
+            </div>
 
-                        {!isPaymentStep ? (
-                            <button
-                                type="button"
-                                className={clsx(
-                                    sharedStyles.btn,
-                                    sharedStyles.btnPrimary,
-                                    styles.navBtn
-                                )}
-                                onClick={handleContinue}
-                                disabled={processing || !canContinueShipping}
-                            >
-                                Continuar al pago
-                            </button>
-                        ) : (
-                            <button
-                                type="button"
-                                className={clsx(
-                                    sharedStyles.btn,
-                                    sharedStyles.btnPrimary,
-                                    styles.btnPay,
-                                    styles.navBtn
-                                )}
-                                onClick={handlePay}
-                                disabled={processing || !canContinuePayment}
-                            >
-                                {processing
-                                    ? isWebpay || isQPayPro
-                                        ? 'Creando pedido…'
-                                        : isBankTransfer
-                                            ? 'Registrando pedido…'
-                                            : isContraEntrega
-                                                ? 'Registrando pedido…'
-                                                : 'Procesando pago…'
-                                    : isWebpay
-                                        ? 'Ir a Webpay Plus'
-                                        : isQPayPro
-                                            ? 'Ir a QPayPro'
-                                            : isBankTransfer
-                                                ? 'Confirmar pedido'
-                                                : isContraEntrega
-                                                    ? 'Confirmar pedido'
-                                                    : 'Pagar y finalizar'}
-                            </button>
-                        )}
-                    </div>
-                </div>
+            <aside className={styles.sidebar}>
 
                 <OrderSummary
                     items={cartItems}
@@ -192,7 +133,69 @@ export default function CheckoutContent() {
                     total={orderTotal}
                     servicioCostos={selectedServicioCostos}
                     isContraEntrega={isContraEntrega}
-                />
-            </div>
+                    />
+                <div className={styles.nav}>
+
+                    {!isPaymentStep ? (
+                        <button
+                        type="button"
+                        className={clsx(
+                            sharedStyles.btn,
+                            sharedStyles.btnPrimary,
+                            styles.navBtn
+                        )}
+                        onClick={handleContinue}
+                        disabled={processing || !canContinueShipping}
+                        >
+                            Continuar al pago
+                        </button>
+                    ) : (
+                        <button
+                        type="button"
+                        className={clsx(
+                            sharedStyles.btn,
+                            sharedStyles.btnPrimary,
+                            styles.btnPay,
+                            styles.navBtn
+                        )}
+                        onClick={handlePay}
+                        disabled={processing || !canContinuePayment}
+                        >
+                            {processing
+                                ? isWebpay || isQPayPro
+                                ? 'Creando pedido…'
+                                : isBankTransfer
+                                ? 'Registrando pedido…'
+                                        : isContraEntrega
+                                        ? 'Registrando pedido…'
+                                            : 'Procesando pago…'
+                                : isWebpay
+                                    ? 'Ir a Webpay Plus'
+                                    : isQPayPro
+                                        ? 'Ir a QPayPro'
+                                        : isBankTransfer
+                                        ? 'Confirmar pedido'
+                                        : isContraEntrega
+                                        ? 'Confirmar pedido'
+                                        : 'Pagar y finalizar'}
+                        </button>
+                    )}
+                    {step > 0 && (
+                        <button
+                        type="button"
+                        className={clsx(
+                            sharedStyles.btn,
+                            sharedStyles.btnSecondary,
+                            styles.navBtn
+                            )}
+                            onClick={goBack}
+                            disabled={processing}
+                        >
+                            Atrás
+                        </button>
+                    )}
+                </div>
+            </aside>
+        </div>
     );
 }

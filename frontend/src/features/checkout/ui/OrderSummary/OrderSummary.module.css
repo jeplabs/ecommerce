@@ -3,8 +3,8 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 1.25rem;
-    position: sticky;
-    top: 100px;
+    /* position: sticky; */
+    /* top: 100px; */
 }
 
 .title {

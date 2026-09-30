@@ -20,21 +20,25 @@ export default function PaymentStep() {
     return (
         <div>
             <h2 className={sharedStyles.stepTitle}>Método de pago</h2>
-            <p className={sharedStyles.stepSubtitle}>
-                Total a pagar: <strong>{formatCurrency(orderTotal)}</strong>
-                {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
-                    ? ' (productos + envío, pago al recibir).'
-                    : ' (productos + envío en línea).'}
-                {isBankTransferPaymentMethod(paymentMethod)
-                    ? 'Con transferencia el pedido queda pendiente hasta validar el comprobante.'
-                    : paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
-                    ? 'El cobro se realiza al entregar el pedido.'
-                    : paymentMethod === PAYMENT_METHODS.WEBPAY
-                        ? 'Serás redirigido al sitio seguro de Webpay Plus (Transbank) para completar el pago.'
-                        : paymentMethod === PAYMENT_METHODS.QPAYPRO
-                            ? 'Serás redirigido al sitio seguro de QPayPro (Guatemala) para completar el pago.'
-                            : 'El pago es simulado en este entorno (sin cargos reales).'}
-            </p>
+            <div className={sharedStyles.stepSubtitle}>
+                <p>
+                    Total a pagar: <strong>{formatCurrency(orderTotal)}</strong>
+                    {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
+                        ? ' (productos + envío, pago al recibir). '
+                        : ' (productos + envío en línea). '}
+                </p>
+                <p>
+                    {isBankTransferPaymentMethod(paymentMethod)
+                        ? 'Con transferencia el pedido queda pendiente hasta validar el comprobante.'
+                        : paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
+                        ? 'El cobro se realiza al entregar el pedido.'
+                        : paymentMethod === PAYMENT_METHODS.WEBPAY
+                            ? 'Serás redirigido al sitio seguro de Webpay Plus (Transbank) para completar el pago.'
+                            : paymentMethod === PAYMENT_METHODS.QPAYPRO
+                                ? 'Serás redirigido al sitio seguro de QPayPro (Guatemala) para completar el pago.'
+                                : 'El pago es simulado en este entorno (sin cargos reales).'}
+                </p>
+            </div>
 
             <div className={styles.methods}>
                 {/* <button

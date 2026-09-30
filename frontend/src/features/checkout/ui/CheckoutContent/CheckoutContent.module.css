@@ -1,6 +1,6 @@
 .layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 340px;
     gap: 1.5rem;
     align-items: start;
 }
@@ -18,11 +18,21 @@
     border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
+.sidebar {
+    position: sticky;
+    top: 100px;
+    /* top: 1rem; */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .nav {
     display: flex;
+    flex-direction: column;
     justify-content: flex-end;
     gap: 0.75rem;
-    margin-top: 1.5rem;
+    /* margin-top: 1.5rem; */
     padding-top: 1.25rem;
     border-top: 1px solid var(--border);
 }
@@ -35,9 +45,12 @@
     .layout {
         grid-template-columns: 1fr;
     }
+    .sidebar {
+        position: static;
+    }
 
     .nav {
-        flex-direction: row;
+        flex-direction: row-reverse;
         align-items: center;
         justify-content: center;
     }
