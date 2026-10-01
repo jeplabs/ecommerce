@@ -47,7 +47,7 @@ export default function OrderSummary({
                                 className={styles.thumb}
                             />
                             <div className={styles.itemInfo}>
-                                <span className={styles.name}>{item.name || 'Producto'}</span>
+                                <span className={styles.name}>{item.name.slice(0, 40) + "..." || 'Producto'}</span>
                                 <span className={styles.qty}>
                                     ×{item.quantity}
                                     {item.sku ? ` · ${item.sku}` : ''}

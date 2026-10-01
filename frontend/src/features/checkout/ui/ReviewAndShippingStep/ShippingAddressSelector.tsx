@@ -5,11 +5,19 @@ import { Link } from 'react-router-dom';
 import sharedStyles from '../checkoutShared.module.css';
 import styles from '../ShippingStep/ShippingStep.module.css';
 
+interface ShippingAddressSelectorProps {
+    isExpanded?: boolean;
+    onToggle?: () => void;
+}
+
 /**
  * Paso 1: dirección + servicio de entrega (+ notas).
  * Los ítems del pedido se muestran en el resumen lateral.
  */
-export default function ShippingAddressSelector() {
+export default function ShippingAddressSelector({
+    isExpanded = true,
+    onToggle,
+}: ShippingAddressSelectorProps) {
     const {
         direcciones,
         selectedAddressId,
@@ -37,13 +45,18 @@ export default function ShippingAddressSelector() {
         );
     }
 
+    if (!isExpanded) {
+        return null;
+    }
+
     return (
         <div className={styles.shippingAddressSelector}>
-            <h2 className={sharedStyles.stepTitle}>Dirección de entrega</h2>
-            <p className={sharedStyles.stepSubtitle}>
-                Selecciona dónde recibir el pedido y cómo enviarlo. El costo de envío se incluye en el
-                pago del siguiente paso.
-            </p>
+            <div className={styles.headerText}>
+                <h3 className={styles.title}>Dirección de entrega</h3>
+                <p className={styles.subtitle}>
+                    Selecciona dónde recibir el pedido.
+                </p>
+            </div>
 
             <ul className={styles.list} role="radiogroup" aria-label="Direcciones de envío">
                 {direcciones.map((dir) => (
@@ -60,31 +73,33 @@ export default function ShippingAddressSelector() {
                                 value={dir.id}
                                 checked={selectedAddressId === dir.id}
                                 onChange={() => setSelectedAddressId(dir.id)}
+                                className={styles.radioInput}
                             />
-                            <div className={styles.cardBody}>
+                            <div className={styles.cardContent}>
                                 <div className={styles.cardHeader}>
                                     <strong>{dir.alias}</strong>
                                     {dir.principal && (
                                         <span className={styles.badge}>Principal</span>
                                     )}
                                 </div>
-                                <p className={styles.cardLine}>{dir.direccion}</p>
-                                <p className={styles.cardMeta}>
-                                    {dir.ciudad}, {dir.estado} {dir.codigoPostal}
-                                    {dir.telefono ? ` · ${dir.telefono}` : ''}
-                                </p>
+                                <div className={styles.cardDetails}>
+                                    <span className={styles.cardLine}>{dir.direccion}</span>
+                                    <span className={styles.cardMeta}>
+                                        {dir.ciudad}, {dir.estado} {dir.codigoPostal}
+                                        {dir.telefono ? ` · Tel: ${dir.telefono}` : ''}
+                                    </span>
+                                </div>
                             </div>
                         </label>
                     </li>
                 ))}
             </ul>
 
-
-            <div className={clsx(sharedStyles.field, sharedStyles.fieldAfterShipping)}>
+            <div className={styles.fieldNotes}>
                 <label htmlFor="notas">Notas para el pedido (opcional)</label>
                 <textarea
                     id="notas"
-                    rows={3}
+                    rows={2}
                     value={notas}
                     onChange={(e) => setNotas(e.target.value)}
                     placeholder="Instrucciones de entrega, horario preferido…"
@@ -93,7 +108,7 @@ export default function ShippingAddressSelector() {
             </div>
 
             <Link to="/profile/direcciones" className={styles.link}>
-                Gestionar direcciones en mi perfil
+                + Gestionar direcciones
             </Link>
         </div>
     );

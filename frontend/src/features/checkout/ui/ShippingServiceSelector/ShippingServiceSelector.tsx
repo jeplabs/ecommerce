@@ -1,4 +1,4 @@
-import { useMemo, type CSSProperties } from 'react';
+import { useMemo, useState, useEffect, type CSSProperties, type ReactNode } from 'react';
 import { useCheckout } from '@/app/providers';
 import clsx from 'clsx';
 
@@ -12,6 +12,8 @@ import {
     qualifiesForFreeShipping,
 } from '@/entities/shipping';
 import type { ShippingServiceApi } from '@/entities/shipping';
+import ShippingAddressSelector from '../ReviewAndShippingStep/ShippingAddressSelector';
+import PickupBranchSelector from '../PickupBranchSelector/PickupBranchSelector';
 import styles from './ShippingServiceSelector.module.css';
 import sharedStyles from '../checkoutShared.module.css';
 
@@ -21,9 +23,17 @@ type ServiceOptionProps = {
     envioGratis: boolean;
     formaPagoEnvio: 'EN_LINEA' | 'CONTRA_ENTREGA';
     onSelect: (id: number) => void;
+    children?: ReactNode | ((isExpanded: boolean, onToggle: () => void) => ReactNode);
 };
 
-function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSelect }: ServiceOptionProps) {
+function ServiceOption({
+    servicio,
+    selectedId,
+    envioGratis,
+    formaPagoEnvio,
+    onSelect,
+    children,
+}: ServiceOptionProps) {
     const isSelected = selectedId === servicio.id;
     const isPickup = isPickupService(servicio);
     const isExpress = isExpressService(servicio);
@@ -34,8 +44,18 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
     const showStruckPrice = isFree && enLinea > 0;
     const showFreeLabel = isFree || (isPickup && enLinea === 0);
 
+    const [isExpanded, setIsExpanded] = useState(true);
+
+    useEffect(() => {
+        if (isSelected) {
+            setIsExpanded(true);
+        }
+    }, [isSelected]);
+
+    const handleToggle = () => setIsExpanded((prev) => !prev);
+
     return (
-        <li>
+        <li className={styles.optionItem}>
             <label
                 className={clsx(
                     styles.card,
@@ -86,7 +106,44 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
                         <span className={styles.priceTag}>{formatCurrency(displayCost)}</span>
                     )}
                 </div>
+
+                <button
+                    type="button"
+                    className={clsx(styles.toggleBtn, isSelected && styles.toggleBtnActive)}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!isSelected) {
+                            onSelect(servicio.id);
+                        } else {
+                            handleToggle();
+                        }
+                    }}
+                    aria-label={isSelected && isExpanded ? 'Contraer opciones' : 'Desplegar opciones'}
+                    title={isSelected && isExpanded ? 'Contraer' : 'Desplegar'}
+                >
+                    <svg
+                        className={clsx(
+                            styles.chevronIcon,
+                            (!isSelected || !isExpanded) && styles.chevronRotated
+                        )}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <polyline points="18 15 12 9 6 15" />
+                    </svg>
+                </button>
             </label>
+
+            {isSelected && isExpanded && children && (
+                <div className={styles.accordionPanel}>
+                    {typeof children === 'function' ? children(isExpanded, handleToggle) : children}
+                </div>
+            )}
         </li>
     );
 }
@@ -98,7 +155,6 @@ export default function ShippingServiceSelector() {
     const {
         selectedServicioEnvioId,
         setSelectedServicioEnvioId,
-        isPickupSelected,
         envioOpciones,
         loadingEnvioOpciones,
         envioOpcionesError,
@@ -162,25 +218,6 @@ export default function ShippingServiceSelector() {
                 Elige cómo quieres recibir tu pedido: retiro en tienda, envío normal o envío express.
             </p>
 
-
-            <ul
-                className={styles.optionsRow}
-                role="radiogroup"
-                aria-label="Opciones de entrega"
-                style={{ '--option-count': deliveryOptions.length } as CSSProperties}
-                >
-                {deliveryOptions.map((servicio) => (
-                    <ServiceOption
-                    key={servicio.id}
-                    servicio={servicio}
-                    selectedId={selectedServicioEnvioId}
-                    envioGratis={envioGratis}
-                    formaPagoEnvio={formaPagoEnvio}
-                    onSelect={setSelectedServicioEnvioId}
-                    />
-                ))}
-            </ul>
-
             {envioGratis && (
                 <div className={styles.bannerContainer}>
                     <p className={styles.banner} role="status">
@@ -203,6 +240,38 @@ export default function ShippingServiceSelector() {
                     contacto y referencia del pedido.
                 </p>
             )} */}
+            
+            <ul
+                className={styles.optionsRow}
+                role="radiogroup"
+                aria-label="Opciones de entrega"
+                style={{ '--option-count': deliveryOptions.length } as CSSProperties}
+            >
+                {deliveryOptions.map((servicio) => {
+                    const isSelected = selectedServicioEnvioId === servicio.id;
+                    const isPickup = isPickupService(servicio);
+
+                    return (
+                        <ServiceOption
+                            key={servicio.id}
+                            servicio={servicio}
+                            selectedId={selectedServicioEnvioId}
+                            envioGratis={envioGratis}
+                            formaPagoEnvio={formaPagoEnvio}
+                            onSelect={setSelectedServicioEnvioId}
+                        >
+                            {(isExpanded, onToggle) =>
+                                isPickup ? (
+                                    <PickupBranchSelector isExpanded={isExpanded} onToggle={onToggle} />
+                                ) : (
+                                    <ShippingAddressSelector isExpanded={isExpanded} onToggle={onToggle} />
+                                )
+                            }
+                        </ServiceOption>
+                    );
+                })}
+            </ul>
+
         </section>
     );
 }

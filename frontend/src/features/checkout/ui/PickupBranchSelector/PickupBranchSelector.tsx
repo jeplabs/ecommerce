@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCheckout } from '@/app/providers';
 import clsx from 'clsx';
 import sharedStyles from '../checkoutShared.module.css';
 import styles from './PickupBranchSelector.module.css';
@@ -20,15 +20,29 @@ const MOCK_BRANCHES = [
     },
 ];
 
-export default function PickupBranchSelector() {
-    const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
+interface PickupBranchSelectorProps {
+    isExpanded?: boolean;
+    onToggle?: () => void;
+}
+
+export default function PickupBranchSelector({
+    isExpanded = true,
+    onToggle,
+}: PickupBranchSelectorProps) {
+    const { selectedBranchId, setSelectedBranchId } = useCheckout();
+
+    if (!isExpanded) {
+        return null;
+    }
 
     return (
         <div className={styles.root}>
-            <h2 className={sharedStyles.stepTitle}>Sucursal de retiro</h2>
-            <p className={sharedStyles.stepSubtitle}>
-                Selecciona la sucursal donde retirarás tu pedido.
-            </p>
+            <div className={styles.headerText}>
+                <h3 className={styles.title}>Sucursal de retiro</h3>
+                <p className={styles.subtitle}>
+                    Selecciona la sucursal donde retirarás tu pedido.
+                </p>
+            </div>
 
             <ul className={styles.list} role="radiogroup" aria-label="Sucursales disponibles">
                 {MOCK_BRANCHES.map((branch) => (
@@ -45,14 +59,18 @@ export default function PickupBranchSelector() {
                                 value={branch.id}
                                 checked={selectedBranchId === branch.id}
                                 onChange={() => setSelectedBranchId(branch.id)}
+                                className={styles.radioInput}
                             />
-                            <div className={styles.cardBody}>
+                            <div className={styles.cardContent}>
                                 <div className={styles.cardHeader}>
                                     <strong>{branch.nombre}</strong>
                                 </div>
-                                <p className={styles.cardLine}>{branch.direccion}</p>
-                                <p className={styles.cardMeta}>{branch.horario}</p>
-                                <p className={styles.cardMeta}>Tel: {branch.telefono}</p>
+                                <div className={styles.cardDetails}>
+                                    <span className={styles.cardLine}>{branch.direccion}</span>
+                                    <span className={styles.cardMeta}>
+                                        {branch.horario} · Tel: {branch.telefono}
+                                    </span>
+                                </div>
                             </div>
                         </label>
                     </li>

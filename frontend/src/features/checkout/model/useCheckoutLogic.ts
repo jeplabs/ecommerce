@@ -94,6 +94,7 @@ export function useCheckoutLogic({
     const [step, setStep] = useState(0);
     const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+    const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
     const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState<number | null>(null);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
     const currentStep = CHECKOUT_STEPS[step];
@@ -258,8 +259,8 @@ export function useCheckoutLogic({
     );
 
     const canContinueShipping =
-        Boolean(selectedAddressId) &&
         Boolean(selectedServicioEnvioId) &&
+        (isPickupSelected ? Boolean(selectedBranchId) : Boolean(selectedAddressId)) &&
         !loadingAddresses &&
         !loadingEnvioOpciones &&
         !envioOpcionesError &&
@@ -305,8 +306,12 @@ export function useCheckoutLogic({
     }, []);
 
     const completeCheckout = useCallback(async (): Promise<CheckoutCompleteResult> => {
-        if (!selectedAddressId || !selectedServicioEnvioId || isEmpty) {
-            setError('Completa dirección y forma de entrega');
+        const hasValidLocation = isPickupSelected
+            ? Boolean(selectedBranchId)
+            : Boolean(selectedAddressId);
+
+        if (!hasValidLocation || !selectedServicioEnvioId || isEmpty) {
+            setError(isPickupSelected ? 'Selecciona la sucursal de retiro' : 'Completa la dirección de entrega');
             return { success: false };
         }
 
@@ -525,6 +530,8 @@ export function useCheckoutLogic({
         selectedAddressId,
         setSelectedAddressId,
         selectedAddress,
+        selectedBranchId,
+        setSelectedBranchId,
         selectedServicioEnvioId,
         setSelectedServicioEnvioId,
         selectedServicio,

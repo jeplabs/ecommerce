@@ -122,9 +122,9 @@
 
 .freeWrap {
     display: flex;
-    flex-direction: column;
+    flex-direction: row-reverse;
     align-items: flex-end;
-    gap: 0.1rem;
+    gap: 0.5rem;
 }
 
 .struck {

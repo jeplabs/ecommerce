@@ -1,115 +1,213 @@
 .shippingAddressSelector {
-    padding-top: 1.5rem;
+    padding-top: 0;
+}
+
+.headerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.headerText {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0.6rem;
+}
+
+.toggleBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.toggleBtn:hover {
+    background: var(--surface);
+    border-color: var(--indigo);
+    color: var(--indigo);
+}
+
+.chevronIcon {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: transform 0.25s ease;
+}
+
+.chevronRotated {
+    transform: rotate(180deg);
+}
+
+.title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.15rem;
+    color: var(--text);
+}
+
+.subtitle {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.3;
 }
 
 .empty {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 1rem;
     border: 1px dashed var(--border2);
-    border-radius: 14px;
+    border-radius: 10px;
 }
 
 .hint {
     color: var(--muted);
-    font-size: 0.88rem;
-    margin: 0.5rem 0 1.25rem;
+    font-size: 0.82rem;
+    margin: 0.35rem 0 0.85rem;
 }
 
 .list {
     list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11.5rem), 1fr));
-    gap: 0.6rem;
-    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin: 0 0 0.65rem;
+    padding: 0;
 }
 
 .list > li {
-    min-width: 0;
+    width: 100%;
 }
 
 .card {
     display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 6.5rem;
+    flex-direction: row;
+    align-items: center;
+    min-height: auto;
     cursor: pointer;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 0.65rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
     background: var(--surface2);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     box-sizing: border-box;
+    gap: 0.65rem;
 }
 
-.card input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+.radioInput {
+    accent-color: var(--indigo);
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
 .cardSelected {
     border-color: var(--indigo);
-    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
-    background: rgba(99, 102, 241, 0.06);
+    border-width: 1.5px;
+    box-shadow: 0 1px 6px rgba(99, 102, 241, 0.1);
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.cardContent {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
 }
 
 .cardHeader {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     gap: 0.35rem;
-    margin-bottom: 0.35rem;
+    flex-shrink: 0;
 }
 
 .cardHeader strong {
-    font-size: 0.88rem;
-    line-height: 1.25;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text);
 }
 
 .badge {
-    font-size: 0.62rem;
-    padding: 0.1rem 0.4rem;
+    font-size: 0.6rem;
+    padding: 0.05rem 0.35rem;
     border-radius: 999px;
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.18);
     color: var(--accent);
+    font-weight: 600;
 }
 
-.cardBody {
-    flex: 1;
-    min-width: 0;
+.cardDetails {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
 }
 
 .cardLine {
-    font-size: 0.76rem;
-    color: var(--muted);
-    margin: 0;
-    line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    color: var(--text);
+    font-weight: 400;
 }
 
 .cardMeta {
-    margin-top: 0.25rem;
-    font-size: 0.72rem;
     color: var(--muted);
-    line-height: 1.3;
+}
+
+.fieldNotes {
+    margin-top: 0.65rem;
+}
+
+.fieldNotes label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+}
+
+.fieldNotes textarea {
+    width: 100%;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.82rem;
+    resize: vertical;
+}
+
+.fieldNotes textarea:focus {
+    outline: none;
+    border-color: var(--indigo);
 }
 
 .link {
     display: inline-block;
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    font-size: 0.78rem;
     color: var(--accent);
+    font-weight: 500;
 }
 
 .link:hover {
     text-decoration: underline;
 }
 
-@media (min-width: 640px) {
-    .list {
-        grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
-    }
-}
