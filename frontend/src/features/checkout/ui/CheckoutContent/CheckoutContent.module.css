@@ -5,6 +5,13 @@
     align-items: start;
 }
 
+.header {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 1.5rem;
+    align-items: center;
+}
+
 .main {
     min-width: 0;
 }
@@ -33,8 +40,8 @@
     justify-content: flex-end;
     gap: 0.75rem;
     /* margin-top: 1.5rem; */
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--border);
+    /* padding-top: 1.25rem; */
+    /* border-top: 1px solid var(--border); */
 }
 
 .btnPay {
@@ -47,6 +54,14 @@
     }
     .sidebar {
         position: static;
+    }
+
+    .header {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    align-items: center;
+    margin-bottom: 1rem;
     }
 
     .nav {

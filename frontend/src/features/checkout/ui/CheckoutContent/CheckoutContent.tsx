@@ -110,8 +110,10 @@ export default function CheckoutContent() {
     return (
         <div className={styles.layout}>
             <div className={styles.main}>
-                <CheckoutPageHeader />
-                <CheckoutSteps steps={steps} currentIndex={step} />
+                <div className={styles.header}>
+                    <CheckoutPageHeader />
+                    <CheckoutSteps steps={steps} currentIndex={step} />
+                </div>
             
                 {error && (
                     <p className={styles.error} role="alert">

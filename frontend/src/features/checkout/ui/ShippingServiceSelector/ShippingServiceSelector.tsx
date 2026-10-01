@@ -50,6 +50,7 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
                     value={servicio.id}
                     checked={isSelected}
                     onChange={() => onSelect(servicio.id)}
+                    className={styles.radioInput}
                 />
                 {servicio.logoUrl ? (
                     <img src={servicio.logoUrl} alt="" className={styles.logo} />
@@ -59,23 +60,7 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
                     </span>
                 )}
                 <div className={styles.body}>
-                    <div className={styles.nameRow}>
-                        <strong>{servicio.nombre}</strong>
-                        {showFreeLabel ? (
-                            <span className={styles.priceWrap}>
-                                {showStruckPrice && (
-                                    <span className={styles.priceStruck}>
-                                        {formatCurrency(enLinea)}
-                                    </span>
-                                )}
-                                <span className={clsx(styles.priceTag, styles.priceTagFree)}>
-                                    Gratis
-                                </span>
-                            </span>
-                        ) : (
-                            <span className={styles.priceTag}>{formatCurrency(displayCost)}</span>
-                        )}
-                    </div>
+                    <strong className={styles.name}>{servicio.nombre}</strong>
                     {servicio.notaExpress && (
                         <span className={styles.expressNote}>{servicio.notaExpress}</span>
                     )}
@@ -83,6 +68,23 @@ function ServiceOption({ servicio, selectedId, envioGratis, formaPagoEnvio, onSe
                         <span className={styles.expressNote}>No incluido en envío gratis</span>
                     )}
                     {description && <p className={styles.desc}>{description}</p>}
+                </div>
+
+                <div className={styles.priceContainer}>
+                    {showFreeLabel ? (
+                        <span className={styles.priceWrap}>
+                            {showStruckPrice && (
+                                <span className={styles.priceStruck}>
+                                    {formatCurrency(enLinea)}
+                                </span>
+                            )}
+                            <span className={clsx(styles.priceTag, styles.priceTagFree)}>
+                                Gratis
+                            </span>
+                        </span>
+                    ) : (
+                        <span className={styles.priceTag}>{formatCurrency(displayCost)}</span>
+                    )}
                 </div>
             </label>
         </li>
@@ -160,6 +162,25 @@ export default function ShippingServiceSelector() {
                 Elige cómo quieres recibir tu pedido: retiro en tienda, envío normal o envío express.
             </p>
 
+
+            <ul
+                className={styles.optionsRow}
+                role="radiogroup"
+                aria-label="Opciones de entrega"
+                style={{ '--option-count': deliveryOptions.length } as CSSProperties}
+                >
+                {deliveryOptions.map((servicio) => (
+                    <ServiceOption
+                    key={servicio.id}
+                    servicio={servicio}
+                    selectedId={selectedServicioEnvioId}
+                    envioGratis={envioGratis}
+                    formaPagoEnvio={formaPagoEnvio}
+                    onSelect={setSelectedServicioEnvioId}
+                    />
+                ))}
+            </ul>
+
             {envioGratis && (
                 <div className={styles.bannerContainer}>
                     <p className={styles.banner} role="status">
@@ -176,25 +197,6 @@ export default function ShippingServiceSelector() {
                     ¡Compra desde <strong>{formatCurrency(montoMinimoGratis)}</strong> y obtén envío normal <strong>gratis</strong>!
                 </p>
             )}
-
-            <ul
-                className={styles.optionsRow}
-                role="radiogroup"
-                aria-label="Opciones de entrega"
-                style={{ '--option-count': deliveryOptions.length } as CSSProperties}
-            >
-                {deliveryOptions.map((servicio) => (
-                    <ServiceOption
-                        key={servicio.id}
-                        servicio={servicio}
-                        selectedId={selectedServicioEnvioId}
-                        envioGratis={envioGratis}
-                        formaPagoEnvio={formaPagoEnvio}
-                        onSelect={setSelectedServicioEnvioId}
-                    />
-                ))}
-            </ul>
-
             {/* {isPickupSelected && (
                 <p className={styles.pickupNote}>
                     Retirarás el pedido en nuestra tienda. La dirección seleccionada arriba se usa como

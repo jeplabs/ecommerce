@@ -16,7 +16,7 @@ export default function CheckoutPageHeader({
                 {backLabel}
             </Link>
             <h1>Checkout</h1>
-            <p>Tres pasos: pedido y envío, pago y confirmación.</p>
+            {/* <p>Tres pasos: pedido y envío, pago y confirmación.</p> */}
         </header>
     );
 }
