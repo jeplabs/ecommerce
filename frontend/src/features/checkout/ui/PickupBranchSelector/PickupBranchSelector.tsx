@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import sharedStyles from '../checkoutShared.module.css';
 import styles from './PickupBranchSelector.module.css';
 
-const MOCK_BRANCHES = [
+export const MOCK_BRANCHES = [
     {
         id: 1,
         nombre: 'Tienda Centro',

@@ -152,13 +152,6 @@ export function useCheckoutLogic({
                 (d) => d.activo !== false
             );
             setDirecciones(activas);
-
-            const principal = activas.find((d) => d.principal);
-            if (principal) {
-                setSelectedAddressId(principal.id);
-            } else if (activas.length > 0) {
-                setSelectedAddressId(activas[0].id);
-            }
         } catch (err) {
             if (handleAuthError(toErrorStatus(err))) return;
             setError(toErrorMessage(err));
@@ -213,10 +206,13 @@ export function useCheckoutLogic({
     );
 
     useEffect(() => {
-        if (selectedServicio && isExpressService(selectedServicio)) {
+        if (
+            selectedServicio &&
+            (isExpressService(selectedServicio) || isPickupService(selectedServicio))
+        ) {
             setPaymentMethod((prev) => {
                 if (prev === PAYMENT_METHODS.CONTRA_ENTREGA) {
-                    return PAYMENT_METHODS.STRIPE;
+                    return PAYMENT_METHODS.WEBPAY;
                 }
                 return prev;
             });

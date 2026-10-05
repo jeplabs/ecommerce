@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, type CSSProperties, type ReactNode } from 'react';
+import { useMemo, useState, useEffect, type CSSProperties } from 'react';
 import { useCheckout } from '@/app/providers';
 import clsx from 'clsx';
 
@@ -13,10 +13,10 @@ import {
 } from '@/entities/shipping';
 import type { ShippingServiceApi } from '@/entities/shipping';
 import ShippingAddressSelector from '../ReviewAndShippingStep/ShippingAddressSelector';
-import PickupBranchSelector from '../PickupBranchSelector/PickupBranchSelector';
+import PickupBranchSelector, { MOCK_BRANCHES } from '../PickupBranchSelector/PickupBranchSelector';
+import AddressSelectionModal from '../AddressSelectionModal/AddressSelectionModal';
 import styles from './ShippingServiceSelector.module.css';
 import sharedStyles from '../checkoutShared.module.css';
-import { scrollToTopSmooth } from '@/shared/lib/useScrollToTopOnPageChange';
 
 type ServiceOptionProps = {
     servicio: ShippingServiceApi;
@@ -24,7 +24,6 @@ type ServiceOptionProps = {
     envioGratis: boolean;
     formaPagoEnvio: 'EN_LINEA' | 'CONTRA_ENTREGA';
     onSelect: (id: number) => void;
-    children?: ReactNode | ((isExpanded: boolean, onToggle: () => void) => ReactNode);
 };
 
 function ServiceOption({
@@ -33,7 +32,6 @@ function ServiceOption({
     envioGratis,
     formaPagoEnvio,
     onSelect,
-    children,
 }: ServiceOptionProps) {
     const isSelected = selectedId === servicio.id;
     const isPickup = isPickupService(servicio);
@@ -45,16 +43,6 @@ function ServiceOption({
     const showStruckPrice = isFree && enLinea > 0;
     const showFreeLabel = isFree || (isPickup && enLinea === 0);
 
-    const [isExpanded, setIsExpanded] = useState(true);
-
-    useEffect(() => {
-        if (isSelected) {
-            setIsExpanded(true);
-        }
-    }, [isSelected]);
-    // scrollToTopSmooth();
-
-    const handleToggle = () => setIsExpanded((prev) => !prev);
     return (
         <li className={styles.optionItem}>
             <label
@@ -81,19 +69,16 @@ function ServiceOption({
                     </span>
                 )}
                 <div className={styles.body}>
-                    <p className={styles.name}>{servicio.nombre} 
-                        <span className={styles.desc}>
-                        {/* {!isPickup && !isExpress && '(Envío normal)'} {isExpress && '(Envío express)'} */}
-                        </span>
-                    </p>
-                    {!isPickup && servicio.notaExpress && (
-                        <span className={styles.expressNote}>{servicio.notaExpress}</span>
-                    )}
-                    {!servicio.notaExpress && isExpress && envioGratis && (
-                        <span className={styles.expressNote}>No incluido en envío gratis</span>
-                    )}
+                    <div className={styles.nameRow}>
+                        <span className={styles.name}>{servicio.nombre}</span>
+                        {!isPickup && servicio.notaExpress && (
+                            <span className={styles.expressNote}>{servicio.notaExpress}</span>
+                        )}
+                        {!servicio.notaExpress && isExpress && envioGratis && (
+                            <span className={styles.expressNote}>No incluido en envío gratis</span>
+                        )}
+                    </div>
                     {description && <p className={styles.desc}>{description}</p>}
-                    {/* {description && !isPickup && !isExpress && <p className={styles.desc}>{servicio.notaExpress} Entrega entre 24hs y 48hs</p>} */}
                 </div>
 
                 <div className={styles.priceContainer}>
@@ -112,55 +97,21 @@ function ServiceOption({
                         <span className={styles.priceTag}>{formatCurrency(displayCost)}</span>
                     )}
                 </div>
-
-                <button
-                    type="button"
-                    className={clsx(styles.toggleBtn, isSelected && styles.toggleBtnActive)}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (!isSelected) {
-                            onSelect(servicio.id);
-                        } else {
-                            handleToggle();
-                        }
-                    }}
-                    aria-label={isSelected && isExpanded ? 'Contraer opciones' : 'Desplegar opciones'}
-                    title={isSelected && isExpanded ? 'Contraer' : 'Desplegar'}
-                >
-                    <svg
-                        className={clsx(
-                            styles.chevronIcon,
-                            (!isSelected || !isExpanded) && styles.chevronRotated
-                        )}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <polyline points="18 15 12 9 6 15" />
-                    </svg>
-                </button>
             </label>
-
-            {isSelected && isExpanded && children && (
-                <div className={styles.accordionPanel}>
-                    {typeof children === 'function' ? children(isExpanded, handleToggle) : children}
-                </div>
-            )}
         </li>
     );
 }
 
 /**
- * Selector de forma de entrega: retiro, envío normal y express en una sola fila.
+ * Selector de forma de entrega (Paso 1) con modal de selección de dirección / sucursal.
  */
 export default function ShippingServiceSelector() {
     const {
         selectedServicioEnvioId,
         setSelectedServicioEnvioId,
+        selectedAddressId,
+        selectedBranchId,
+        direcciones,
         envioOpciones,
         loadingEnvioOpciones,
         envioOpcionesError,
@@ -168,10 +119,38 @@ export default function ShippingServiceSelector() {
         formaPagoEnvio,
     } = useCheckout();
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const deliveryOptions = useMemo(
         () => getCheckoutShippingOptions(envioOpciones?.servicios ?? []),
         [envioOpciones?.servicios]
     );
+
+    useEffect(() => {
+        if (!selectedServicioEnvioId && deliveryOptions.length > 0) {
+            setSelectedServicioEnvioId(deliveryOptions[0].id);
+        }
+    }, [selectedServicioEnvioId, deliveryOptions, setSelectedServicioEnvioId]);
+
+    const selectedServicio = useMemo(
+        () => deliveryOptions.find((s) => s.id === selectedServicioEnvioId) ?? null,
+        [deliveryOptions, selectedServicioEnvioId]
+    );
+
+    const isPickup = isPickupService(selectedServicio);
+    const selectedAddress = direcciones.find((d) => d.id === selectedAddressId);
+    const selectedBranch = MOCK_BRANCHES.find((b) => b.id === selectedBranchId);
+
+    const handleServiceSelect = (id: number) => {
+        const newlySelected = deliveryOptions.find((s) => s.id === id);
+        const willBePickup = isPickupService(newlySelected);
+        setSelectedServicioEnvioId(id);
+
+        const hasLocation = willBePickup ? Boolean(selectedBranchId) : Boolean(selectedAddressId);
+        if (!hasLocation) {
+            setIsModalOpen(true);
+        }
+    };
 
     if (loadingEnvioOpciones) {
         return (
@@ -228,9 +207,6 @@ export default function ShippingServiceSelector() {
                 <div className={styles.bannerContainer}>
                     <p className={styles.banner} role="status">
                         ¡Felicidades! ¡Tu pedido tiene envío normal gratis! No aplica para envío express.
-                    {/* </p>
-                    <p className={styles.hintFree}> */}
-                        {/* El servicio de envío express siempre se cobra. */}
                     </p>
                 </div>
             )}
@@ -240,58 +216,124 @@ export default function ShippingServiceSelector() {
                     ¡Compra desde <strong>{formatCurrency(montoMinimoGratis)}</strong> y obtén envío normal <strong>gratis</strong>!
                 </p>
             )}
-            {/* {isPickupSelected && (
-                <p className={styles.pickupNote}>
-                    Retirarás el pedido en nuestra tienda. La dirección seleccionada arriba se usa como
-                    contacto y referencia del pedido.
-                </p>
-            )} */}
-            
+
             <ul
                 className={styles.optionsRow}
                 role="radiogroup"
                 aria-label="Opciones de entrega"
                 style={{ '--option-count': deliveryOptions.length } as CSSProperties}
             >
-                {deliveryOptions.map((servicio) => {
-                    const isSelected = selectedServicioEnvioId === servicio.id;
-                    const isPickup = isPickupService(servicio);
-
-                    return (
-                        <ServiceOption
-                            key={servicio.id}
-                            servicio={servicio}
-                            selectedId={selectedServicioEnvioId}
-                            envioGratis={envioGratis}
-                            formaPagoEnvio={formaPagoEnvio}
-                            onSelect={setSelectedServicioEnvioId}
-                        >
-                            {(isExpanded, onToggle) =>
-                                isPickup ? (
-                                    <PickupBranchSelector isExpanded={isExpanded} onToggle={onToggle} />
-                                ) : (
-                                    <ShippingAddressSelector isExpanded={isExpanded} onToggle={onToggle} />
-                                )
-                            }
-                        </ServiceOption>
-                    );
-                })}
+                {deliveryOptions.map((servicio) => (
+                    <ServiceOption
+                        key={servicio.id}
+                        servicio={servicio}
+                        selectedId={selectedServicioEnvioId}
+                        envioGratis={envioGratis}
+                        formaPagoEnvio={formaPagoEnvio}
+                        onSelect={handleServiceSelect}
+                    />
+                ))}
             </ul>
-            <div className={styles.addressBtn}>
-                <button
-                    type="button"
-                    className={clsx(
-                        sharedStyles.btn,
-                        sharedStyles.btnPrimary,
-                        styles.addressBtn
-                    )}
-                    // onClick={handleContinue}
-                    // disabled={processing || !canContinueShipping}
-                    >
-                        Seleccionar una dirección
-                </button>
+
+            <div className={styles.locationContainer}>
+                {isPickup ? (
+                    selectedBranch ? (
+                        <div className={styles.selectedLocationCard}>
+                            <div className={styles.locationHeader}>
+                                <span className={styles.locationIcon}>🏪</span>
+                                <div className={styles.locationDetails}>
+                                    <strong className={styles.locationTitle}>
+                                        Sucursal de retiro seleccionada
+                                    </strong>
+                                    <span className={styles.locationName}>{selectedBranch.nombre}</span>
+                                    <span className={styles.locationSub}>{selectedBranch.direccion}</span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className={clsx(sharedStyles.btn, sharedStyles.btnSecondary, styles.changeBtn)}
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                Cambiar sucursal
+                            </button>
+                        </div>
+                    ) : (
+                        <div className={styles.locationPromptCard}>
+                            <div className={styles.locationHeader}>
+                                <span className={styles.locationIcon}>🏪</span>
+                                <div className={styles.locationDetails}>
+                                    <strong className={styles.locationTitle}>
+                                        Sucursal de retiro
+                                    </strong>
+                                    <span className={styles.locationSub}>
+                                        Debes seleccionar una sucursal para retirar tu pedido.
+                                    </span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className={clsx(sharedStyles.btn, sharedStyles.btnPrimary, styles.selectBtn)}
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                Seleccionar sucursal
+                            </button>
+                        </div>
+                    )
+                ) : selectedAddress ? (
+                    <div className={styles.selectedLocationCard}>
+                        <div className={styles.locationHeader}>
+                            <span className={styles.locationIcon}>📍</span>
+                            <div className={styles.locationDetails}>
+                                <strong className={styles.locationTitle}>
+                                    Dirección de entrega seleccionada
+                                </strong>
+                                <span className={styles.locationName}>
+                                    {selectedAddress.alias} {selectedAddress.principal ? '(Principal)' : ''}
+                                </span>
+                                <span className={styles.locationSub}>
+                                    {selectedAddress.direccion}, {selectedAddress.ciudad} {selectedAddress.estado}
+                                </span>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            className={clsx(sharedStyles.btn, sharedStyles.btnSecondary, styles.changeBtn)}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Cambiar dirección
+                        </button>
+                    </div>
+                ) : (
+                    <div className={styles.locationPromptCard}>
+                        <div className={styles.locationHeader}>
+                            <span className={styles.locationIcon}>📍</span>
+                            <div className={styles.locationDetails}>
+                                <strong className={styles.locationTitle}>
+                                    Dirección de entrega
+                                </strong>
+                                <span className={styles.locationSub}>
+                                    Debes seleccionar una dirección para recibir tu pedido.
+                                </span>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            className={clsx(sharedStyles.btn, sharedStyles.btnPrimary, styles.selectBtn)}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Seleccionar una dirección
+                        </button>
+                    </div>
+                )}
             </div>
 
+            <AddressSelectionModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={isPickup ? 'Seleccionar sucursal de retiro' : 'Seleccionar dirección de entrega'}
+            >
+                {isPickup ? <PickupBranchSelector /> : <ShippingAddressSelector />}
+            </AddressSelectionModal>
         </section>
     );
 }

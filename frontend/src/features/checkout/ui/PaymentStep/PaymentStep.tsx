@@ -2,7 +2,7 @@ import { useCheckout } from '@/app/providers';
 import clsx from 'clsx';
 
 import { PAYMENT_METHODS } from '@/features/checkout';
-import { isExpressService } from '@/entities/shipping';
+import { isExpressService, isPickupService } from '@/entities/shipping';
 import { formatCurrency } from '@/shared/lib/format';
 import SimulatedQPayProForm from '../SimulatedQPayProForm/SimulatedQPayProForm';
 import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
@@ -16,6 +16,8 @@ import styles from './PaymentStep.module.css';
 export default function PaymentStep() {
     const { paymentMethod, setPaymentMethod, orderTotal, selectedServicio } = useCheckout();
     const isExpress = isExpressService(selectedServicio);
+    const isPickup = isPickupService(selectedServicio);
+    const isContraEntregaDisabled = isExpress || isPickup;
 
     return (
         <div>
@@ -115,7 +117,7 @@ export default function PaymentStep() {
                     </span>
                 </button>
 
-                {!isExpress ? (
+                {!isContraEntregaDisabled ? (
                     <button
                         type="button"
                         className={clsx(
@@ -135,7 +137,9 @@ export default function PaymentStep() {
                         <span className={styles.methodIcon}>✉️</span>
                         <span className={styles.methodInfo}>
                             <strong>Contra entrega</strong>
-                            <span className={styles.expressBadge}>No aplica para contra entrega</span>
+                            <span className={styles.expressBadge}>
+                                {isPickup ? 'No aplica para retiro en tienda' : 'No aplica para contra entrega'}
+                            </span>
                         </span>
                     </div>
                 )}
