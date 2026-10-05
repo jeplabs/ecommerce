@@ -29,4 +29,16 @@ public interface CarritoRepository extends JpaRepository<Carrito, Long> {
             AND c.expiraAt <= :ahora
             """)
     List<Carrito> findCarritosExpirados(@Param("ahora") LocalDateTime ahora);
+
+    // Busca el último carrito en un estado específico (ej. EXPIRADO) ordenado por última actualización
+    Optional<Carrito> findFirstByUsuarioIdAndEstadoOrderByActualizadoAtDesc(Long usuarioId, EstadoCarrito estado);
+
+    // Purga física de carritos antiguos abandonados o expirados (retención definitiva)
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("""
+            DELETE FROM Carrito c
+            WHERE c.estado IN ('EXPIRADO', 'ABANDONADO')
+            AND c.actualizadoAt < :limite
+            """)
+    int purgarCarritosAntiguos(@Param("limite") LocalDateTime limite);
 }

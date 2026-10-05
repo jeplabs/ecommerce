@@ -110,6 +110,13 @@ public class GestorDeErrores {
                 .body(Map.of("error", ex.getMessage()));
     }
 
+    @ExceptionHandler(CarritoExpiradoException.class)
+    public ResponseEntity<Map<String, String>> manejarCarritoExpirado(
+            CarritoExpiradoException ex) {
+        return ResponseEntity.status(HttpStatus.GONE)
+                .body(Map.of("error", ex.getMessage(), "codigo", "CARRITO_EXPIRADO"));
+    }
+
     @ExceptionHandler(OrdenNoEncontradaException.class)
     public ResponseEntity<Map<String, String>> manejarOrdenNoEncontrada(
             OrdenNoEncontradaException ex) {

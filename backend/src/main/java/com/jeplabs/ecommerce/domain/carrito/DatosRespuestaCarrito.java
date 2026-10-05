@@ -10,9 +10,14 @@ public record DatosRespuestaCarrito(
         LocalDateTime expiraAt,
         List<DatosRespuestaCarritoItem> items,
         BigDecimal total,
-        int totalItems
+        int totalItems,
+        DatosExpiracionCarrito expiracion
 ) {
     public DatosRespuestaCarrito(Carrito carrito) {
+        this(carrito, null);
+    }
+
+    public DatosRespuestaCarrito(Carrito carrito, DatosExpiracionCarrito expiracion) {
         this(
                 carrito.getId(),
                 carrito.getEstado(),
@@ -25,7 +30,8 @@ public record DatosRespuestaCarrito(
                         .reduce(BigDecimal.ZERO, BigDecimal::add),
                 carrito.getItems().stream()
                         .mapToInt(CarritoItem::getCantidad)
-                        .sum()
+                        .sum(),
+                expiracion
         );
     }
 }

@@ -17,6 +17,7 @@ import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import com.jeplabs.ecommerce.domain.usuario.Rol; // ← Importado
 import com.jeplabs.ecommerce.infra.email.EmailService;
+import com.jeplabs.ecommerce.infra.exceptions.CarritoExpiradoException;
 import com.jeplabs.ecommerce.infra.exceptions.CarritoNoEncontradoException;
 import com.jeplabs.ecommerce.infra.exceptions.CarritoVacioException;
 import com.jeplabs.ecommerce.infra.exceptions.OrdenNoEncontradaException;
@@ -95,6 +96,10 @@ public class OrdenService {
         Carrito carrito = carritoRepositorio
                 .findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
                 .orElseThrow(CarritoNoEncontradoException::new);
+
+        if (carrito.estaExpirado()) {
+            throw new CarritoExpiradoException();
+        }
 
         if (carrito.getItems().isEmpty()) {
             throw new CarritoVacioException();

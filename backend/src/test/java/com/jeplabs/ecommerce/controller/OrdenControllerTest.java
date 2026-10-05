@@ -162,6 +162,21 @@ class OrdenControllerTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("No tienes un carrito activo"));
         }
+
+        @Test
+        @DisplayName("HTTP 410 cuando el carrito está expirado")
+        @WithMockUser(username = "usuario@test.com", roles = "CUSTOMER")
+        void crear_carritoExpirado_debeRetornar410() throws Exception {
+            when(ordenService.crear(anyString(), any()))
+                    .thenThrow(new CarritoExpiradoException());
+
+            mockMvc.perform(post("/api/ordenes")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(datosCrearOrden))
+                            .with(csrf()))
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("CARRITO_EXPIRADO"));
+        }
     }
 
     @Nested

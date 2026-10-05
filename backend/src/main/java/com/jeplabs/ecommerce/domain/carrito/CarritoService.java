@@ -6,6 +6,7 @@ import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
 import com.jeplabs.ecommerce.domain.producto.PrecioHistorialRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
+import com.jeplabs.ecommerce.infra.exceptions.CarritoExpiradoException;
 import com.jeplabs.ecommerce.infra.exceptions.CarritoNoEncontradoException;
 import com.jeplabs.ecommerce.infra.exceptions.ProductoNoDisponibleException;
 import com.jeplabs.ecommerce.infra.exceptions.StockInsuficienteException;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,19 +32,25 @@ public class CarritoService {
     @Value("${api.carrito.expiracion-minutos}")
     private long expiracionMinutos;
 
-    // Ver carrito activo del usuario, si no existe lo crea
+    @Value("${api.carrito.notificacion-minutos-antes:10}")
+    private long notificacionMinutosAntes;
+
+    private record ResultadoCarrito(Carrito carrito, boolean carritoAnteriorExpirado) {}
+
+    // Ver carrito activo del usuario, si no existe o expiró lo crea automáticamente
     @Transactional
     public DatosRespuestaCarrito verOCrearCarrito(String email) {
         Usuario usuario = buscarUsuario(email);
-        Carrito carrito = obtenerOCrearCarritoActivo(usuario);
-        return new DatosRespuestaCarrito(carrito);
+        ResultadoCarrito resultado = obtenerOCrearCarritoVigente(usuario);
+        return mapearRespuesta(resultado.carrito(), resultado.carritoAnteriorExpirado());
     }
 
-    // Agregar producto al carrito
+    // Agregar producto al carrito (crea uno nuevo si el previo expiró)
     @Transactional
     public DatosRespuestaCarrito agregarItem(String email, DatosAgregarItem datos) {
         Usuario usuario = buscarUsuario(email);
-        Carrito carrito = obtenerOCrearCarritoActivo(usuario);
+        ResultadoCarrito resultado = obtenerOCrearCarritoVigente(usuario);
+        Carrito carrito = resultado.carrito();
         Producto producto = buscarProductoDisponible(datos.productoId());
 
         validarStock(producto, datos.cantidad());
@@ -62,48 +71,142 @@ public class CarritoService {
                         }
                 );
 
-        carrito.actualizarFecha();
-        carrito.renovarExpiracion(expiracionMinutos);  // renovar al agregar items
-        return new DatosRespuestaCarrito(carrito);
+        carrito.registrarActividad(expiracionMinutos);
+        return mapearRespuesta(carrito, resultado.carritoAnteriorExpirado());
     }
 
-    // Actualizar cantidad de un item
+    // Actualizar cantidad de un item con sliding expiration y control estricto de expiración
     @Transactional
     public DatosRespuestaCarrito actualizarCantidad(String email, Long itemId, DatosActualizarCantidad datos) {
-        Carrito carrito = obtenerCarritoActivo(email);
+        Carrito carrito = obtenerCarritoVigenteOFallar(email);
 
         CarritoItem item = buscarItemDelCarrito(itemId, carrito.getId());
         validarStock(item.getProducto(), datos.cantidad());
 
         item.actualizarCantidad(datos.cantidad());
-        carrito.actualizarFecha();
+        carrito.registrarActividad(expiracionMinutos);
 
-        return new DatosRespuestaCarrito(carrito);
+        return mapearRespuesta(carrito, false);
     }
 
-    // Eliminar un producto específico del carrito
+    // Eliminar un producto específico del carrito con sliding expiration
     @Transactional
     public DatosRespuestaCarrito eliminarItem(String email, Long itemId) {
-        Carrito carrito = obtenerCarritoActivo(email);
+        Carrito carrito = obtenerCarritoVigenteOFallar(email);
         CarritoItem item = buscarItemDelCarrito(itemId, carrito.getId());
 
         carrito.getItems().remove(item);
         itemRepositorio.delete(item);
-        carrito.actualizarFecha();
+        carrito.registrarActividad(expiracionMinutos);
 
-        return new DatosRespuestaCarrito(carrito);
+        return mapearRespuesta(carrito, false);
     }
 
     // Vaciar el carrito completo
     @Transactional
     public DatosRespuestaCarrito vaciarCarrito(String email) {
-        Carrito carrito = obtenerCarritoActivo(email);
+        Carrito carrito = obtenerCarritoVigenteOFallar(email);
 
         itemRepositorio.deleteAll(carrito.getItems());
         carrito.getItems().clear();
-        carrito.actualizarFecha();
+        carrito.registrarActividad(expiracionMinutos);
 
-        return new DatosRespuestaCarrito(carrito);
+        return mapearRespuesta(carrito, false);
+    }
+
+    // Extender manualmente el tiempo de vida del carrito (renovación)
+    @Transactional
+    public DatosRespuestaCarrito renovar(String email) {
+        Carrito carrito = obtenerCarritoVigenteOFallar(email);
+        carrito.renovarExpiracion(expiracionMinutos);
+        return mapearRespuesta(carrito, false);
+    }
+
+    // Restaurar productos del último carrito expirado al carrito activo con stock y precio vigente
+    @Transactional
+    public DatosRespuestaRestauracion restaurar(String email) {
+        Usuario usuario = buscarUsuario(email);
+
+        Carrito carritoExpirado = carritoRepositorio
+                .findFirstByUsuarioIdAndEstadoOrderByActualizadoAtDesc(usuario.getId(), EstadoCarrito.EXPIRADO)
+                .orElseThrow(() -> new IllegalArgumentException("No hay ningún carrito expirado para restaurar"));
+
+        ResultadoCarrito resultadoActivo = obtenerOCrearCarritoVigente(usuario);
+        Carrito carritoActivo = resultadoActivo.carrito();
+
+        List<DatosRespuestaRestauracion.ItemNoRestaurado> noRestaurados = new ArrayList<>();
+
+        for (CarritoItem itemViejo : carritoExpirado.getItems()) {
+            Producto prod = productoRepositorio.findById(itemViejo.getProducto().getId()).orElse(null);
+
+            if (prod == null || !prod.getEstado().esComprable()) {
+                noRestaurados.add(new DatosRespuestaRestauracion.ItemNoRestaurado(
+                        itemViejo.getProducto().getId(),
+                        itemViejo.getProducto().getNombre(),
+                        "NO_DISPONIBLE",
+                        itemViejo.getCantidad(),
+                        0
+                ));
+                continue;
+            }
+
+            if (prod.getStock() <= 0) {
+                noRestaurados.add(new DatosRespuestaRestauracion.ItemNoRestaurado(
+                        prod.getId(),
+                        prod.getNombre(),
+                        "SIN_STOCK",
+                        itemViejo.getCantidad(),
+                        0
+                ));
+                continue;
+            }
+
+            BigDecimal precioActual;
+            try {
+                precioActual = obtenerPrecioActual(prod);
+            } catch (Exception e) {
+                noRestaurados.add(new DatosRespuestaRestauracion.ItemNoRestaurado(
+                        prod.getId(),
+                        prod.getNombre(),
+                        "SIN_PRECIO",
+                        itemViejo.getCantidad(),
+                        0
+                ));
+                continue;
+            }
+
+            int cantidadDeseada = itemViejo.getCantidad();
+            int cantidadARestaurar = Math.min(cantidadDeseada, prod.getStock());
+
+            if (cantidadARestaurar < cantidadDeseada) {
+                noRestaurados.add(new DatosRespuestaRestauracion.ItemNoRestaurado(
+                        prod.getId(),
+                        prod.getNombre(),
+                        "STOCK_PARCIAL",
+                        cantidadDeseada,
+                        cantidadARestaurar
+                ));
+            }
+
+            itemRepositorio.findByCarritoIdAndProductoId(carritoActivo.getId(), prod.getId())
+                    .ifPresentOrElse(
+                            itemActivo -> {
+                                int finalCantidad = Math.min(itemActivo.getCantidad() + cantidadARestaurar, prod.getStock());
+                                itemActivo.actualizarCantidad(finalCantidad);
+                            },
+                            () -> {
+                                CarritoItem nuevo = new CarritoItem(carritoActivo, prod, cantidadARestaurar, precioActual);
+                                carritoActivo.getItems().add(nuevo);
+                                itemRepositorio.save(nuevo);
+                            }
+                    );
+        }
+
+        // Marcar el carrito viejo como ABANDONADO para garantizar idempotencia
+        carritoExpirado.marcarComoAbandonado();
+        carritoActivo.registrarActividad(expiracionMinutos);
+
+        return new DatosRespuestaRestauracion(mapearRespuesta(carritoActivo, false), noRestaurados);
     }
 
     // Abandonar el carrito
@@ -113,20 +216,37 @@ public class CarritoService {
         carrito.marcarComoAbandonado();
     }
 
-    // Métodos privados reutilizables
+    // Métodos privados auxiliares
+    private DatosRespuestaCarrito mapearRespuesta(Carrito carrito, boolean carritoAnteriorExpirado) {
+        DatosExpiracionCarrito expiracion = new DatosExpiracionCarrito(
+                carrito, expiracionMinutos, notificacionMinutosAntes, carritoAnteriorExpirado);
+        return new DatosRespuestaCarrito(carrito, expiracion);
+    }
+
     private Usuario buscarUsuario(String email) {
         return usuarioRepositorio.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
     }
 
-    private Carrito obtenerOCrearCarritoActivo(Usuario usuario) {
+    private ResultadoCarrito obtenerOCrearCarritoVigente(Usuario usuario) {
         return carritoRepositorio
                 .findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
-                .orElseGet(() -> {
-                    Carrito nuevo = new Carrito(usuario);
-                    nuevo.renovarExpiracion(expiracionMinutos);  // Se establece las horas correctas de expiracion
-                    return carritoRepositorio.save(nuevo);
-                });
+                .map(c -> {
+                    if (!c.estaExpirado()) {
+                        return new ResultadoCarrito(c, false);
+                    }
+                    c.marcarComoExpirado();
+                    carritoRepositorio.save(c);
+                    Carrito nuevo = crearNuevoCarrito(usuario);
+                    return new ResultadoCarrito(nuevo, true);
+                })
+                .orElseGet(() -> new ResultadoCarrito(crearNuevoCarrito(usuario), false));
+    }
+
+    private Carrito crearNuevoCarrito(Usuario usuario) {
+        Carrito nuevo = new Carrito(usuario);
+        nuevo.renovarExpiracion(expiracionMinutos);
+        return carritoRepositorio.save(nuevo);
     }
 
     private Carrito obtenerCarritoActivo(String email) {
@@ -134,6 +254,14 @@ public class CarritoService {
         return carritoRepositorio
                 .findByUsuarioIdAndEstado(usuario.getId(), EstadoCarrito.ACTIVO)
                 .orElseThrow(CarritoNoEncontradoException::new);
+    }
+
+    private Carrito obtenerCarritoVigenteOFallar(String email) {
+        Carrito c = obtenerCarritoActivo(email);
+        if (c.estaExpirado()) {
+            throw new CarritoExpiradoException();
+        }
+        return c;
     }
 
     private Producto buscarProductoDisponible(Long productoId) {

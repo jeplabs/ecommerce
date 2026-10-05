@@ -4,6 +4,7 @@ import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,11 +65,25 @@ public class Carrito {
         this.actualizadoAt = LocalDateTime.now();
     }
 
+    public void registrarActividad(long minutos) {
+        renovarExpiracion(minutos);
+    }
+
+    public void marcarComoExpirado() {
+        this.estado = EstadoCarrito.EXPIRADO;
+        this.actualizadoAt = LocalDateTime.now();
+    }
+
     public void marcarNotificacionEnviada() {
         this.notificacionEnviada = true;
     }
 
     public boolean estaExpirado() {
-        return LocalDateTime.now().isAfter(expiraAt);
+        return expiraAt != null && !LocalDateTime.now().isBefore(expiraAt);
+    }
+
+    public long segundosRestantes() {
+        if (expiraAt == null) return 0L;
+        return Math.max(0L, Duration.between(LocalDateTime.now(), expiraAt).getSeconds());
     }
 }

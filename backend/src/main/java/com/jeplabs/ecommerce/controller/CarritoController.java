@@ -4,6 +4,7 @@ import com.jeplabs.ecommerce.domain.carrito.CarritoService;
 import com.jeplabs.ecommerce.domain.carrito.DatosAgregarItem;
 import com.jeplabs.ecommerce.domain.carrito.DatosActualizarCantidad;
 import com.jeplabs.ecommerce.domain.carrito.DatosRespuestaCarrito;
+import com.jeplabs.ecommerce.domain.carrito.DatosRespuestaRestauracion;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -92,5 +93,27 @@ public class CarritoController {
     public ResponseEntity<Void> abandonarCarrito(Authentication authentication) {
         service.abandonarCarrito(authentication.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Renovar expiración del carrito", description = "Extiende el tiempo de expiración del carrito activo por N minutos adicionales.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Carrito renovado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "410", description = "El carrito ya había expirado y no puede renovarse")
+    })
+    @PostMapping("/renovar")
+    public ResponseEntity<DatosRespuestaCarrito> renovarCarrito(Authentication authentication) {
+        return ResponseEntity.ok(service.renovar(authentication.getName()));
+    }
+
+    @Operation(summary = "Restaurar productos de carrito expirado", description = "Copia los productos del último carrito expirado al carrito activo con stock y precio vigentes.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Productos restaurados exitosamente"),
+            @ApiResponse(responseCode = "400", description = "No hay ningún carrito expirado para restaurar"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @PostMapping("/restaurar")
+    public ResponseEntity<DatosRespuestaRestauracion> restaurarCarrito(Authentication authentication) {
+        return ResponseEntity.ok(service.restaurar(authentication.getName()));
     }
 }
