@@ -26,8 +26,8 @@
 }
 
 .sidebar {
-    position: sticky;
-    top: 100px;
+    /* position: sticky; */
+    /* top: 100px; */
     /* top: 1rem; */
     display: flex;
     flex-direction: column;
@@ -42,6 +42,12 @@
     /* margin-top: 1.5rem; */
     /* padding-top: 1.25rem; */
     /* border-top: 1px solid var(--border); */
+}
+
+.addressBtn {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .btnPay {

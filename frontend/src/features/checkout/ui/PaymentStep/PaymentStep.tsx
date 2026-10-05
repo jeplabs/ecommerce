@@ -5,7 +5,7 @@ import { PAYMENT_METHODS } from '@/features/checkout';
 import { isExpressService } from '@/entities/shipping';
 import { formatCurrency } from '@/shared/lib/format';
 import SimulatedQPayProForm from '../SimulatedQPayProForm/SimulatedQPayProForm';
-// import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
+import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
 // import SimulatedMercadoPagoForm from '../SimulatedMercadoPagoForm/SimulatedMercadoPagoForm';
 import SimulatedBankTransferForm from '../SimulatedBankTransferForm/SimulatedBankTransferForm';
 import ContraEntregaForm from '../ContraEntregaForm/ContraEntregaForm';
@@ -25,7 +25,7 @@ export default function PaymentStep() {
                     Total a pagar: <strong>{formatCurrency(orderTotal)}</strong>
                     {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA
                         ? ' (productos + envío, pago al recibir). '
-                        : ' (productos + envío en línea). '}
+                        : ' (productos + servicio de envío). '}
                 </p>
                 <p>
                     {isBankTransferPaymentMethod(paymentMethod)
@@ -115,7 +115,7 @@ export default function PaymentStep() {
                     </span>
                 </button>
 
-                {!isExpress && (
+                {!isExpress ? (
                     <button
                         type="button"
                         className={clsx(
@@ -130,22 +130,19 @@ export default function PaymentStep() {
                             <small>Entrega en destino · Pago al recibir el pedido</small>
                         </span>
                     </button>
+                ) : (
+                    <div className={styles.methodDisabled}>
+                        <span className={styles.methodIcon}>✉️</span>
+                        <span className={styles.methodInfo}>
+                            <strong>Contra entrega</strong>
+                            <span className={styles.expressBadge}>No aplica para contra entrega</span>
+                        </span>
+                    </div>
                 )}
             </div>
 
-            {isExpress && (
-                <p className={styles.expressNote}>
-                    No aplica para contra entrega
-                </p>
-            )}
-
             {paymentMethod === PAYMENT_METHODS.QPAYPRO && <SimulatedQPayProForm />}
-            {paymentMethod === PAYMENT_METHODS.WEBPAY && (
-                <div className={styles.webpayNote}>
-                    Al confirmar serás redirigido al sitio seguro de <strong>Webpay Plus (Transbank)</strong>.
-                    No ingresas tu tarjeta aquí. Al volver, el resultado se confirmará automáticamente.
-                </div>
-            )}            
+            {paymentMethod === PAYMENT_METHODS.WEBPAY && <SimulatedWebpayForm />}
             {/* {paymentMethod === PAYMENT_METHODS.MERCADOPAGO && <SimulatedMercadoPagoForm />} */}
             {paymentMethod === PAYMENT_METHODS.BANK_TRANSFER && <SimulatedBankTransferForm />}
             {paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA && <ContraEntregaForm />}

@@ -139,18 +139,33 @@ export default function CheckoutContent() {
                 <div className={styles.nav}>
 
                     {!isPaymentStep ? (
-                        <button
-                        type="button"
-                        className={clsx(
-                            sharedStyles.btn,
-                            sharedStyles.btnPrimary,
-                            styles.navBtn
-                        )}
-                        onClick={handleContinue}
-                        disabled={processing || !canContinueShipping}
-                        >
-                            Continuar al pago
-                        </button>
+                        // <div className={styles.addressBtns}>
+                            // <button
+                            // type="button"
+                            // className={clsx(
+                            //     sharedStyles.btn,
+                            //     sharedStyles.btnSecondary,
+                            //     styles.navBtn
+                            // )}
+                            // onClick={handleContinue}
+                            // disabled={processing || !canContinueShipping}
+                            // >
+                            //     Seleccionar una dirección
+                            // </button>
+                            
+                            <button
+                            type="button"
+                            className={clsx(
+                                sharedStyles.btn,
+                                sharedStyles.btnPrimary,
+                                styles.navBtn
+                            )}
+                            onClick={handleContinue}
+                            disabled={processing || !canContinueShipping}
+                            >
+                                Continuar al pago
+                            </button>
+                        // </div>
                     ) : (
                         <button
                         type="button"

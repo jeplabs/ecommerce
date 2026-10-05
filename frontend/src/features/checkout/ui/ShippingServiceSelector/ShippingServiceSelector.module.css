@@ -235,6 +235,11 @@
     width: 100%;
 }
 
+.addressBtn {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .pickupNote {
     margin: 0.75rem 0 0;
     font-size: 0.82rem;

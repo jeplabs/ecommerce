@@ -13,7 +13,7 @@ const metodoPagoCodigoSchema = z.enum([
 
 /** {@code DatosCrearOrden} — el carrito se resuelve en servidor. */
 export const createOrderRequestSchema = z.object({
-    direccionId: z.number().int().positive(),
+    direccionId: z.number().int().positive().nullable(),
     servicioEnvioId: z.number().int().positive(),
     formaPagoEnvio: formaPagoSchema,
     metodoPagoCodigo: metodoPagoCodigoSchema,

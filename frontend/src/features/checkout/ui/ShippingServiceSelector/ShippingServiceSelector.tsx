@@ -16,6 +16,7 @@ import ShippingAddressSelector from '../ReviewAndShippingStep/ShippingAddressSel
 import PickupBranchSelector from '../PickupBranchSelector/PickupBranchSelector';
 import styles from './ShippingServiceSelector.module.css';
 import sharedStyles from '../checkoutShared.module.css';
+import { scrollToTopSmooth } from '@/shared/lib/useScrollToTopOnPageChange';
 
 type ServiceOptionProps = {
     servicio: ShippingServiceApi;
@@ -51,9 +52,9 @@ function ServiceOption({
             setIsExpanded(true);
         }
     }, [isSelected]);
+    // scrollToTopSmooth();
 
     const handleToggle = () => setIsExpanded((prev) => !prev);
-
     return (
         <li className={styles.optionItem}>
             <label
@@ -80,14 +81,19 @@ function ServiceOption({
                     </span>
                 )}
                 <div className={styles.body}>
-                    <strong className={styles.name}>{servicio.nombre}</strong>
-                    {servicio.notaExpress && (
+                    <p className={styles.name}>{servicio.nombre} 
+                        <span className={styles.desc}>
+                        {/* {!isPickup && !isExpress && '(Envío normal)'} {isExpress && '(Envío express)'} */}
+                        </span>
+                    </p>
+                    {!isPickup && servicio.notaExpress && (
                         <span className={styles.expressNote}>{servicio.notaExpress}</span>
                     )}
                     {!servicio.notaExpress && isExpress && envioGratis && (
                         <span className={styles.expressNote}>No incluido en envío gratis</span>
                     )}
                     {description && <p className={styles.desc}>{description}</p>}
+                    {/* {description && !isPickup && !isExpress && <p className={styles.desc}>{servicio.notaExpress} Entrega entre 24hs y 48hs</p>} */}
                 </div>
 
                 <div className={styles.priceContainer}>
@@ -221,10 +227,10 @@ export default function ShippingServiceSelector() {
             {envioGratis && (
                 <div className={styles.bannerContainer}>
                     <p className={styles.banner} role="status">
-                        ¡Felicidades! ¡Tu pedido tiene envío normal gratis!
-                    </p>
-                    <p className={styles.hintFree}>
-                        El servicio de envío express siempre se cobra.
+                        ¡Felicidades! ¡Tu pedido tiene envío normal gratis! No aplica para envío express.
+                    {/* </p>
+                    <p className={styles.hintFree}> */}
+                        {/* El servicio de envío express siempre se cobra. */}
                     </p>
                 </div>
             )}
@@ -271,6 +277,20 @@ export default function ShippingServiceSelector() {
                     );
                 })}
             </ul>
+            <div className={styles.addressBtn}>
+                <button
+                    type="button"
+                    className={clsx(
+                        sharedStyles.btn,
+                        sharedStyles.btnPrimary,
+                        styles.addressBtn
+                    )}
+                    // onClick={handleContinue}
+                    // disabled={processing || !canContinueShipping}
+                    >
+                        Seleccionar una dirección
+                </button>
+            </div>
 
         </section>
     );

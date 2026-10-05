@@ -1,20 +1,24 @@
-import BankTransferAccounts from '../BankTransferAccounts/BankTransferAccounts';
-import styles from './SimulatedBankTransferForm.module.css';
+import PaymentMethodInfoCard from '../PaymentMethodInfoCard/PaymentMethodInfoCard';
 
 export default function SimulatedBankTransferForm() {
     return (
-        <div className={styles.root}>
-            <div className={styles.banner}>
-                <span className={styles.logo}>Transferencia bancaria</span>
-                <span className={styles.badge}>Pago pendiente</span>
-            </div>
-
-            <p className={styles.text}>
-                Transfiere o deposita el monto total en una de estas cuentas. Tu pedido se registrará
-                como <strong>pendiente</strong> hasta que validemos el comprobante.
-            </p>
-
-            <BankTransferAccounts />
-        </div>
+        <PaymentMethodInfoCard
+            title="Transferencia bancaria"
+            badgeText="Pago pendiente"
+            features={[
+                <>
+                    Transfiere o deposita el monto total en nuestras cuentas bancarias.
+                </>,
+                <>
+                    El pedido quedará registrado como <strong>pendiente</strong> hasta que se valide el comprobante.
+                </>,
+                <>
+                    Realiza la transferencia o depósito y conserva tu comprobante de pago.
+                </>,
+                <>
+                    Podrás subir el comprobante desde tu historial de pedidos para agilizar la confirmación.
+                </>,
+            ]}
+        />
     );
 }

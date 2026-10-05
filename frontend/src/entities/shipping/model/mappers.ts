@@ -70,9 +70,9 @@ const EXPRESS_CUTOFF_HOUR = 16;
 
 export function getExpressDeliveryHint(now: Date = new Date()): string {
     if (now.getHours() >= EXPRESS_CUTOFF_HOUR) {
-        return 'Entrega al día hábil siguiente (compras después de las 16:00).';
+        return 'Envío express - Entrega al día hábil siguiente (compras después de las 16:00).';
     }
-    return 'Entrega el mismo día hábil si compras antes de las 16:00.';
+    return 'Envío express - Compras antes de las 16:00 recibe el mismo día.';
 }
 
 export function getShippingServiceDescription(servicio: ShippingServiceApi): string | null {
