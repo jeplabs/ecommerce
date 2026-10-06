@@ -1,7 +1,7 @@
 import { API_URL } from '@/shared/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
-import { cartApiSchema, type CartApi } from '../model/schemas/api';
+import { cartApiSchema, restauracionCartApiSchema, type CartApi, type RestauracionCartApi } from '../model/schemas/api';
 import type { AddCartItemRequest, UpdateCartItemQuantityRequest } from '../model/schemas/forms';
 
 const getToken = () => localStorage.getItem('token');
@@ -84,10 +84,35 @@ export async function clearCart(): Promise<CartApi> {
     return handleCartJson(response, 'Error al limpiar');
 }
 
+/** {@code POST /api/carrito/renovar} */
+export async function renovarCart(): Promise<CartApi> {
+    const response = await fetch(`${API_URL}/api/carrito/renovar`, {
+        method: 'POST',
+        headers: getAuthHeaders(getToken()),
+    });
+    return handleCartJson(response, 'Error al renovar carrito');
+}
+
+/** {@code POST /api/carrito/restaurar} */
+export async function restaurarCart(): Promise<RestauracionCartApi> {
+    const response = await fetch(`${API_URL}/api/carrito/restaurar`, {
+        method: 'POST',
+        headers: getAuthHeaders(getToken()),
+    });
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throwApiError(response, raw, 'Error al restaurar productos del carrito');
+    }
+    return parseApi(restauracionCartApiSchema, raw);
+}
+
 export const cartApi = {
     getCart,
     addToCart,
+    addCartItem,
     updateItemQuantity,
     removeItem,
     clearCart,
+    renovarCart,
+    restaurarCart,
 };

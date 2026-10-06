@@ -7,6 +7,8 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './CartView.module.css';
 
+import CartExpirationBanner from './CartExpirationBanner';
+
 type CartViewProps = {
     onProceedToCheckout: () => void;
 };
@@ -50,6 +52,7 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
     return (
         <section className={styles.content}>
             <h1>Mi Carrito</h1>
+            <CartExpirationBanner />
 
             {isEmpty ? (
                 <div className={styles.empty}>

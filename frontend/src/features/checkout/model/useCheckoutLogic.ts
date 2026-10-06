@@ -418,6 +418,9 @@ export function useCheckoutLogic({
             if (handleAuthError(toErrorStatus(err))) {
                 return { success: false, error: 'Sesión expirada' };
             }
+            if (toErrorStatus(err) === 410) {
+                await refreshCart();
+            }
             const message = toErrorMessage(err) || 'Error al procesar el pedido';
             setError(message);
             return { success: false, error: message };

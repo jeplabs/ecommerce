@@ -6,4 +6,6 @@ export {
     updateItemQuantity,
     removeItem,
     clearCart,
+    renovarCart,
+    restaurarCart,
 } from './cartApi';

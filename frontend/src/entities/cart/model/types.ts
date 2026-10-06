@@ -1,7 +1,33 @@
-export type { CartApi, CartItemApi, CartStatus } from './schemas/api';
+import type {
+    CartApi,
+    CartItemApi,
+    CartStatus,
+    CartExpirationApi,
+    ItemNoRestauradoMotivo,
+    ItemNoRestauradoApi,
+    RestauracionCartApi,
+} from './schemas/api';
+
+export type {
+    CartApi,
+    CartItemApi,
+    CartStatus,
+    CartExpirationApi,
+    ItemNoRestauradoMotivo,
+    ItemNoRestauradoApi,
+    RestauracionCartApi,
+};
 export type { AddCartItemRequest, UpdateCartItemQuantityRequest } from './schemas/forms';
 
-export { cartStatusSchema, cartItemApiSchema, cartApiSchema } from './schemas/api';
+export {
+    cartStatusSchema,
+    cartItemApiSchema,
+    cartApiSchema,
+    cartExpirationSchema,
+    itemNoRestauradoMotivoSchema,
+    itemNoRestauradoSchema,
+    restauracionCartApiSchema,
+} from './schemas/api';
 export {
     addCartItemRequestSchema,
     updateCartItemQuantityRequestSchema,
@@ -44,4 +70,8 @@ export type CartItemUiView = {
 
 export type CartActionResult =
     | { success: true }
+    | { success: false; error: string; isExpired?: boolean };
+
+export type RestaurarCartResult =
+    | { success: true; itemsNoRestaurados: ItemNoRestauradoApi[] }
     | { success: false; error: string };

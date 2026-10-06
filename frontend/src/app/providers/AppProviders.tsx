@@ -16,16 +16,16 @@ type AppProvidersProps = {
  */
 export function AppProviders({ children }: AppProvidersProps) {
     return (
-        <AuthProvider>
-            <ProductProvider>
-                <CartProvider>
-                    <FavoritesProvider>
-                        <CategoriasProvider>
-                            <ToastProvider>{children}</ToastProvider>
-                        </CategoriasProvider>
-                    </FavoritesProvider>
-                </CartProvider>
-            </ProductProvider>
-        </AuthProvider>
+        <ToastProvider>
+            <AuthProvider>
+                <ProductProvider>
+                    <CartProvider>
+                        <FavoritesProvider>
+                            <CategoriasProvider>{children}</CategoriasProvider>
+                        </FavoritesProvider>
+                    </CartProvider>
+                </ProductProvider>
+            </AuthProvider>
+        </ToastProvider>
     );
 }

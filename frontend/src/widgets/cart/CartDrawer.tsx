@@ -7,6 +7,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import styles from './CartDrawer.module.css';
 
+import CartExpirationBanner from './CartExpirationBanner';
+
 type CartDrawerProps = {
     isOpen: boolean;
     onClose: () => void;
@@ -121,6 +123,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </div>
 
                 <div className={styles.body}>
+                    <CartExpirationBanner />
                     {isEmpty ? (
                         <div className={styles.emptyState}>
                             <span className={clsx('material-symbols-outlined', styles.emptyIcon)}>
