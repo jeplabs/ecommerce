@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 @Service
 public class TokenService {
 
-    // Secret, redirige a application.propierties
+    // Secret, redirige a application.properties
     @Value("${api.security.secret}")
     private String secret;
 

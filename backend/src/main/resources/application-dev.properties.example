@@ -8,10 +8,16 @@ spring.datasource.password=PASSWORD_POSTGRES
 
 # JWT
 api.security.secret=CUALQUIER_STRING_LARGO_PARA_DEV
+# Tiempo expiration en segundos
 api.security.expiration=7200
 
 # Tiempo de expiración del token de restablecimiento de contraseña en minutos
 api.security.reset-token-expiracion-minutos=30
+
+# spring.jpa.show-sql=false
+
+# Minutos que dura el bloqueo por intentos fallidos
+api.security.lockout-minutes=2
 
 # Email
 spring.mail.host=smtp.gmail.com
@@ -24,10 +30,11 @@ spring.mail.properties.mail.smtp.starttls.required=true
 spring.mail.default-encoding=UTF-8
 
 # Carrito
-api.carrito.expiracion-minutos=12
-api.carrito.notificacion-minutos-antes=5
-api.carrito.scheduler-intervalo=PT3M
-api.carrito.scheduler-delay-inicial=PT3M
+api.carrito.expiracion-minutos=30
+api.carrito.notificacion-minutos-antes=10
+api.carrito.scheduler-intervalo=PT2M
+api.carrito.scheduler-delay-inicial=PT30S
+api.carrito.dias-retencion-expirados=30
 
 # Orden (Scheduler de expiración)
 api.orden.scheduler.enabled=true
@@ -42,15 +49,16 @@ api.impuestos.iva=0.12
 api.envio.monto-minimo-gratis=500.00
 
 # Storage
-api.storage.provider=local
-api.storage.local.path=uploads/comprobantes
-api.storage.allowed-types=image/png,image/jpeg,application/pdf
-api.storage.max-size-mb=5
+# api.storage.provider=local
+api.storage.provider=cloudinary
+# api.storage.local.path=uploads/comprobantes
+# api.storage.allowed-types=image/png,image/jpeg,application/pdf
+# api.storage.max-size-mb=5
 
 # Cloudinary
-# api.storage.cloudinary.cloud-name=CLOUDINARY_CLOUD_NAME
-# api.storage.cloudinary.api-key=CLOUDINARY_API_KEY
-# api.storage.cloudinary.api-secret=CLOUDINARY_API_SECRET
+api.storage.cloudinary.cloud-name=CLOUDINARY_CLOUD_NAME
+api.storage.cloudinary.api-key=CLOUDINARY_API_KEY
+api.storage.cloudinary.api-secret=CLOUDINARY_API_SECRET
 
 # Moneda
 api.moneda.codigo=GTQ
@@ -68,6 +76,7 @@ api.moneda.decimales=0
 
 # Webpay Plus
 api.webpay.ambiente=integracion
+# Credenciales de produccion (vacias en dev, el SDK usa las de integracion automaticamente)
 api.webpay.commerce-code=
 api.webpay.api-key=
 api.webpay.return-url=http://localhost:5173/checkout/webpay/retorno
@@ -84,22 +93,22 @@ api.webpay.scheduler.intervalo=PT15M
 api.webpay.scheduler.delay-inicial=PT1M
 
 # ==========================================
-# QPayPro Integration
+# QPayPro Integration (Sandbox / Pruebas)
 # ==========================================
 qpaypro.api.login=visanetgt_qpay
-qpaypro.api.key=
-qpaypro.api.secret=
+qpaypro.api.key=88888888888
+qpaypro.api.secret=99999999999
 
 # Endpoints
-qpaypro.api.url=
-qpaypro.api.store-url=
-qpaypro.api.fel-url=
+qpaypro.api.url=https://api-sandboxpayments.qpaypro.com/checkout
+qpaypro.api.store-url=https://sandboxpayments.qpaypro.com/checkout/store?token=
+qpaypro.api.fel-url=https://api-sandboxpayments.qpaypro.com/checkout/qpayfel/facturar
 
 # URL base local para recibir el webhook de retorno
-api.base-url=
+api.base-url=http://localhost:8080
 
 # Secreto para la validación de integridad MD5 (firma local)
-qpaypro.api.webhook-secret=
+qpaypro.api.webhook-secret=MI_SECRETO_MD5
 
 # ==========================================
 # Frontend Configuration
