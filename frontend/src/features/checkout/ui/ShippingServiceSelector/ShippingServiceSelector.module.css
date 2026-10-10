@@ -90,12 +90,16 @@
 .cardSelected {
     border-color: var(--indigo);
     border-width: 2px;
-    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.12);
-    background: rgba(99, 102, 241, 0.04);
+    box-shadow: 0 0 0 1px var(--indigo), 0 4px 14px rgba(99, 102, 241, 0.22);
+    background: rgba(99, 102, 241, 0.08);
 }
 
 .cardPickup {
     border-style: dashed;
+}
+
+.cardPickup.cardSelected {
+    border-style: solid;
 }
 
 .cardExpress {
@@ -104,8 +108,8 @@
 
 .cardExpress.cardSelected {
     border-color: #f59e0b;
-    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.15);
-    background: rgba(245, 158, 11, 0.06);
+    box-shadow: 0 0 0 1px #f59e0b, 0 4px 14px rgba(245, 158, 11, 0.25);
+    background: rgba(245, 158, 11, 0.08);
 }
 
 .logo {
