@@ -126,11 +126,11 @@ export default function ShippingServiceSelector() {
         [envioOpciones?.servicios]
     );
 
-    useEffect(() => {
-        if (!selectedServicioEnvioId && deliveryOptions.length > 0) {
-            setSelectedServicioEnvioId(deliveryOptions[0].id);
-        }
-    }, [selectedServicioEnvioId, deliveryOptions, setSelectedServicioEnvioId]);
+    // useEffect(() => {
+    //     if (!selectedServicioEnvioId && deliveryOptions.length > 0) {
+    //         setSelectedServicioEnvioId(deliveryOptions[0].id);
+    //     }
+    // }, [selectedServicioEnvioId, deliveryOptions, setSelectedServicioEnvioId]);
 
     const selectedServicio = useMemo(
         () => deliveryOptions.find((s) => s.id === selectedServicioEnvioId) ?? null,
@@ -238,7 +238,7 @@ export default function ShippingServiceSelector() {
             <div className={styles.locationContainer}>
                 {isPickup ? (
                     selectedBranch ? (
-                        <div className={styles.selectedLocationCard}>
+                        <div className={styles.locationPromptCard}>
                             <div className={styles.locationHeader}>
                                 <span className={styles.locationIcon}>🏪</span>
                                 <div className={styles.locationDetails}>
@@ -251,7 +251,7 @@ export default function ShippingServiceSelector() {
                             </div>
                             <button
                                 type="button"
-                                className={clsx(sharedStyles.btn, sharedStyles.btnSecondary, styles.changeBtn)}
+                                className={clsx(sharedStyles.btn, sharedStyles.btnPrimary, styles.changeBtn)}
                                 onClick={() => setIsModalOpen(true)}
                             >
                                 Cambiar sucursal
@@ -280,7 +280,7 @@ export default function ShippingServiceSelector() {
                         </div>
                     )
                 ) : selectedAddress ? (
-                    <div className={styles.selectedLocationCard}>
+                    <div className={styles.locationPromptCard}>
                         <div className={styles.locationHeader}>
                             <span className={styles.locationIcon}>📍</span>
                             <div className={styles.locationDetails}>
@@ -297,7 +297,7 @@ export default function ShippingServiceSelector() {
                         </div>
                         <button
                             type="button"
-                            className={clsx(sharedStyles.btn, sharedStyles.btnSecondary, styles.changeBtn)}
+                            className={clsx(sharedStyles.btn, sharedStyles.btnPrimary, styles.changeBtn)}
                             onClick={() => setIsModalOpen(true)}
                         >
                             Cambiar dirección

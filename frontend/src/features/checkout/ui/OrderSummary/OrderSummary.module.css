@@ -16,7 +16,7 @@
 
 .items {
     list-style: none;
-    max-height: 180px;
+    max-height: 150px;
     overflow-y: auto;
     margin-bottom: 1rem;
 }

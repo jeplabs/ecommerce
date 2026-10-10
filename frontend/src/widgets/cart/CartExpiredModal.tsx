@@ -49,7 +49,7 @@ export default function CartExpiredModal() {
                 <div className={styles.header}>
                     <div className={styles.titleContainer}>
                         <span className={`material-symbols-outlined ${styles.icon}`}>history_toggle_off</span>
-                        <h3 className={styles.title}>Tu carrito anterior ha vencido</h3>
+                        <h3 className={styles.title}>Tu carrito ha expirado por inactividad</h3>
                     </div>
                     <button
                         type="button"
@@ -62,10 +62,16 @@ export default function CartExpiredModal() {
                 </div>
 
                 <div className={styles.body}>
+                    {/* <p className={styles.description}>
+                        Tu carrito de compra expiró por inactividad. 
+                    </p> */}
                     <p className={styles.description}>
-                        Tu sesión de compra venció por inactividad. Los precios o la disponibilidad de algunos
-                        productos pueden haber cambiado mientras estabas ausente. Puedes restaurar tus productos
-                        con la disponibilidad y precios vigentes actuales.
+                        Los precios o la disponibilidad de algunos
+                        productos pueden haber cambiado mientras estabas ausente.
+                    </p>
+                    <p className={styles.description}>
+                        Puedes restaurar tus productos
+                        con la disponibilidad y precios vigentes actuales o puedes continuar sin restaurar.
                     </p>
 
                     {itemsNoRestaurados.length > 0 && (
@@ -91,7 +97,7 @@ export default function CartExpiredModal() {
 
                 <div className={styles.footer}>
                     <Button variant="secondary" onClick={closeExpiredModal} disabled={loading}>
-                        Seguir navegando
+                        Continuar sin restaurar
                     </Button>
                     <Button variant="primary" onClick={handleRestaurar} disabled={loading}>
                         <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
