@@ -82,16 +82,17 @@ export function CheckoutSuccessPage() {
     return (
         <main className={pageStyles.page}>
             <div className={`${pageStyles.inner} ${successStyles.inner}`}>
-                <CheckoutPageHeader
-                    backTo="/catalogo"
-                    backLabel="← Seguir comprando"
-                />
-
-                <CheckoutSteps
-                    steps={CHECKOUT_STEPS}
-                    currentIndex={CHECKOUT_SUCCESS_STEP_INDEX}
-                    markCurrentComplete
-                />
+                <div className={successStyles.header}>
+                    <CheckoutPageHeader
+                        backTo="/"
+                        backLabel="← Volver al inicio"
+                    />
+                    <CheckoutSteps
+                        steps={CHECKOUT_STEPS}
+                        currentIndex={CHECKOUT_SUCCESS_STEP_INDEX}
+                        markCurrentComplete
+                    />
+                </div>
 
                 <CheckoutSuccessView
                     orden={activeOrden}

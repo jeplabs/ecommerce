@@ -21,10 +21,9 @@ describe('CheckoutSuccessActions', () => {
 
         const historial = screen.getByRole('link', { name: 'Ver historial de compras' });
         const seguir = screen.getByRole('link', { name: 'Seguir comprando' });
-        const inicio = screen.getByRole('link', { name: 'Volver al inicio' });
 
         expect(historial).toHaveAttribute('href', '/profile/ordenes');
         expect(seguir).toHaveAttribute('href', '/catalogo');
-        expect(inicio).toHaveAttribute('href', '/');
+        expect(screen.queryByRole('link', { name: 'Volver al inicio' })).not.toBeInTheDocument();
     });
 });

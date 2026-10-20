@@ -1,14 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/features/checkout/ui/success/CheckoutSuccessHeader/CheckoutSuccessHeader', () => ({
-    default: ({ orderId, isBankTransfer }: { orderId: number; isBankTransfer: boolean }) => (
-        <div>header-{orderId}-{String(isBankTransfer)}</div>
-    ),
-}));
-
 vi.mock('@/features/checkout/ui/success/OrderConfirmationSummary/OrderConfirmationSummary', () => ({
-    default: ({ orden, payment, isBankTransfer }: {
+    default: ({ orden, isBankTransfer }: {
         orden: { id: number };
         payment: unknown;
         isBankTransfer: boolean;
@@ -34,10 +28,9 @@ resetDynamicOrders();
 const orden = findDynamicOrder(MOCK_ORDER_PENDING_ID)!;
 
 describe('CheckoutSuccessView', () => {
-    it('compone header, resumen, acciones y recomendaciones', () => {
+    it('compone resumen, acciones y recomendaciones', () => {
         render(<CheckoutSuccessView orden={orden} />);
 
-        expect(screen.getByText(`header-${orden.id}-false`)).toBeInTheDocument();
         expect(screen.getByText(`summary-${orden.id}-false`)).toBeInTheDocument();
         expect(screen.getByText('actions')).toBeInTheDocument();
         expect(screen.getByText('recommendations')).toBeInTheDocument();
@@ -52,7 +45,6 @@ describe('CheckoutSuccessView', () => {
             />
         );
 
-        expect(screen.getByText(`header-${orden.id}-true`)).toBeInTheDocument();
         expect(screen.getByText(`summary-${orden.id}-true`)).toBeInTheDocument();
     });
 });

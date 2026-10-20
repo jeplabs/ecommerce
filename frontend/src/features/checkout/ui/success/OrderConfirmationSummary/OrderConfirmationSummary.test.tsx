@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/entities/order', async (importOriginal) => {
@@ -104,7 +104,7 @@ describe('OrderConfirmationSummary', () => {
         expect(screen.queryByText(/••••/)).not.toBeInTheDocument();
     });
 
-    it('muestra los datos de transferencia cuando isBankTransfer es true', async () => {
+    it('muestra los datos de transferencia en un modal al presionar "Ver datos"', async () => {
         listarCuentasMock.mockResolvedValue([
             { id: 1, banco: 'Banco Demo', titular: 'X', tipoCuenta: 'A', numeroCuenta: '1', moneda: 'GTQ', activo: true },
         ] as never);
@@ -113,10 +113,23 @@ describe('OrderConfirmationSummary', () => {
 
         expect(screen.getByText('Datos para transferir')).toBeInTheDocument();
         expect(screen.getByText('Total a transferir')).toBeInTheDocument();
+        const verDatosBtn = screen.getByRole('button', { name: 'Ver datos' });
+        expect(verDatosBtn).toBeInTheDocument();
+
+        // Antes de presionar el botón no se muestra el modal ni las cuentas bancarias
+        expect(screen.queryByText('Banco Demo')).not.toBeInTheDocument();
+
+        // Al presionar "Ver datos" se abre el modal y se cargan los datos de las cuentas
+        fireEvent.click(verDatosBtn);
 
         await waitFor(() =>
             expect(screen.getAllByText('Banco Demo').length).toBeGreaterThan(0)
         );
+
+        // Al presionar "Entendido" o cerrar se oculta el modal
+        const closeBtn = screen.getByRole('button', { name: 'Entendido' });
+        fireEvent.click(closeBtn);
+        expect(screen.queryByText('Banco Demo')).not.toBeInTheDocument();
     });
 
     it('detecta transferencia por metodoPago', () => {

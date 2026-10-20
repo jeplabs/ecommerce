@@ -3,11 +3,10 @@ import { describe, expect, it } from 'vitest';
 import CheckoutSuccessHeader from './CheckoutSuccessHeader';
 
 describe('CheckoutSuccessHeader', () => {
-    it('muestra éxito normal con el número de pedido', () => {
+    it('muestra éxito normal con el icono y título', () => {
         render(<CheckoutSuccessHeader orderId={501} />);
 
         expect(screen.getByText('¡Compra realizada con éxito!')).toBeInTheDocument();
-        expect(screen.getByText('#501')).toBeInTheDocument();
         expect(screen.getByText('✓')).toBeInTheDocument();
     });
 
@@ -16,6 +15,5 @@ describe('CheckoutSuccessHeader', () => {
 
         expect(screen.getByText('Pedido registrado — pago pendiente')).toBeInTheDocument();
         expect(screen.getByText('⏳')).toBeInTheDocument();
-        expect(screen.getByText('#502')).toBeInTheDocument();
     });
 });

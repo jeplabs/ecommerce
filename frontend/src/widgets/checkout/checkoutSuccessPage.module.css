@@ -6,26 +6,48 @@
 
 .inner {
     width: 100%;
-    max-width: 1100px;
+    max-width: 1000px;
     margin: 0 auto;
     animation: fadeUp 0.45s ease both;
-}
-
-.main {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
-    align-items: start;
 }
 
-@media (min-width: 900px) {
-    .main {
-        grid-template-columns: 1fr min(280px, 32%);
-        gap: 1.75rem;
-    }
+.header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+    width: 100%;
+}
+
+.header > * {
+    margin-bottom: 0 !important;
+}
+
+.header :global(header) {
+    margin-bottom: 0 !important;
+}
+
+.header :global(ol) {
+    margin-bottom: 0 !important;
+}
+
+.view {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
 }
 
 @media (max-width: 768px) {
     .page {
         padding: 1.25rem 1rem 2.5rem;
+    }
+
+    .header {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 }

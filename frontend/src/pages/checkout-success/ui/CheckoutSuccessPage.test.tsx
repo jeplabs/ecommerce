@@ -62,9 +62,9 @@ describe('CheckoutSuccessPage', () => {
         expect(screen.getByTestId('success-view')).toHaveTextContent(
             `orden-${orden.id} | bt-false | payment-no`
         );
-        expect(screen.getByRole('link', { name: '← Seguir comprando' })).toHaveAttribute(
+        expect(screen.getByRole('link', { name: '← Volver al inicio' })).toHaveAttribute(
             'href',
-            '/catalogo'
+            '/'
         );
         expect(screen.getByText('Confirmación')).toBeInTheDocument();
     });

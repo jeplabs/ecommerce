@@ -1,23 +1,41 @@
 .root {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
 }
 
 .hint {
-    margin: 0 0 0.35rem;
-    font-size: 0.82rem;
+    margin: 0;
+    font-size: 0.85rem;
     color: var(--muted);
-    line-height: 1.45;
     text-align: center;
 }
 
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 520px;
+}
+
 .btn {
+    flex: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.65rem;
-    padding: 0.55rem 1.15rem;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.25rem;
     border-radius: 10px;
     font-size: 0.92rem;
     font-weight: 600;
@@ -50,29 +68,13 @@
     color: var(--accent);
 }
 
-.btnGhost {
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--muted);
-}
-
-.btnGhost:hover {
-    color: var(--text);
-    background: rgba(99, 102, 241, 0.08);
-}
-
-@media (min-width: 900px) {
-    .root {
-        position: sticky;
-        top: 1.25rem;
-        padding: 1.25rem;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+@media (max-width: 600px) {
+    .buttons {
+        flex-direction: column;
+        width: 100%;
     }
 
-    .hint {
-        text-align: left;
+    .btn {
+        width: 100%;
     }
 }

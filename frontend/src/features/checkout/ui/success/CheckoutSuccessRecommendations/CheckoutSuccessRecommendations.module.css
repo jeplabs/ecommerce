@@ -1,7 +1,8 @@
 .root {
-    margin-top: 2.5rem;
+    margin-top: 1rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border);
+    width: 100%;
 }
 
 .intro {
@@ -32,9 +33,3 @@
     color: var(--muted);
     padding: 1.5rem 0;
 }
-
-/* .sliders {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-} */
