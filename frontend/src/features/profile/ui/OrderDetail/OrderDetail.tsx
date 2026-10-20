@@ -95,7 +95,7 @@ export default function OrderDetail({ orden, onClose, onCancel, cancelling, titl
                         <span>Envío ({orden.servicioEnvio})</span>
                         <span>
                             {orden.formaPagoEnvio === 'CONTRA_ENTREGA' && orden.servicioEnvio
-                                ? getContraEntregaShippingNote(orden.servicioEnvio)
+                                ? `Contra entrega por ${(orden.servicioEnvio)}`
                                 : costoEnvio === 0
                                   ? 'Gratis'
                                   : formatCurrency(costoEnvio)}
