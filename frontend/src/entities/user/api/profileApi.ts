@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { API_URL } from '@/shared/config';
 import { getAuthHeaders, isAuthError, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
@@ -5,7 +6,7 @@ import { userApiSchema, type UserApi } from '../model/schemas/api';
 import type { UpdatePasswordFormValues, UpdateProfileFormValues } from '../model/schemas/forms';
 import { mapUpdatePasswordFormToRequest, mapUpdateProfileFormToRequest } from '../model/schemas/forms';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
 async function readJson(response: Response): Promise<unknown> {
     return response.json().catch(() => ({}));

@@ -1,7 +1,12 @@
 import { z } from 'zod';
 import { API_URL } from '@/shared/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
+import {
+    getAuthHeaders,
+    notifyUnauthorizedIfNeeded,
+    registerRefreshTokenHandler,
+} from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
+import { getAccessToken, setAccessToken } from '@/shared/lib/auth-token-store';
 import {
     authTokenResponseSchema,
     userApiSchema,
@@ -12,7 +17,7 @@ import {
 import type { LoginFormValues, RegisterFormValues } from '../model/schemas/forms';
 import { mapLoginFormToRequest, mapRegisterFormToRequest } from '../model/schemas/forms';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => getAccessToken();
 
 const userListSchema = z.array(userApiSchema);
 
@@ -39,6 +44,7 @@ export async function login(email: string, password: string): Promise<AuthTokenR
     const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
     });
 
@@ -48,7 +54,9 @@ export async function login(email: string, password: string): Promise<AuthTokenR
         throw new Error(getErrorMessage(raw, 'Error en el login'));
     }
 
-    return parseApi(authTokenResponseSchema, raw);
+    const data = parseApi(authTokenResponseSchema, raw);
+    setAccessToken(data.token);
+    return data;
 }
 
 /** Variante tipada desde valores de formulario. */
@@ -68,6 +76,7 @@ export async function register(userData: RegisterFormValues): Promise<RegisterRe
     const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(body),
     });
 
@@ -82,6 +91,84 @@ export async function register(userData: RegisterFormValues): Promise<RegisterRe
     }
 
     return { ok: true, data: parseApi(userApiSchema, raw) };
+}
+
+/** {@code POST /api/auth/refresh} — Renueva el Access Token usando la Cookie HttpOnly del Refresh Token. */
+export async function refreshToken(): Promise<AuthTokenResponse> {
+    const response = await fetch(`${API_URL}/api/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const raw = await readJson(response);
+
+    if (!response.ok) {
+        setAccessToken(null);
+        throw new ApiError(getErrorMessage(raw, 'Sesión no válida o expirada'), response.status, raw);
+    }
+
+    const data = parseApi(authTokenResponseSchema, raw);
+    setAccessToken(data.token);
+    return data;
+}
+
+let refreshPromise: Promise<AuthTokenResponse | null> | null = null;
+
+/**
+ * Renovación silenciosa con Singleton Promise Lock para evitar múltiples llamadas concurrentes a /refresh.
+ */
+export async function silentRefresh(): Promise<AuthTokenResponse | null> {
+    if (refreshPromise) {
+        return refreshPromise;
+    }
+
+    refreshPromise = refreshToken()
+        .then((data) => data)
+        .catch(() => {
+            setAccessToken(null);
+            return null;
+        })
+        .finally(() => {
+            refreshPromise = null;
+        });
+
+    return refreshPromise;
+}
+
+registerRefreshTokenHandler(async () => {
+    const res = await silentRefresh();
+    return res?.token ?? null;
+});
+
+/** {@code POST /api/auth/logout} — Revoca la sesión en backend y destruye la cookie HttpOnly. */
+export async function logout(): Promise<void> {
+    try {
+        await fetch(`${API_URL}/api/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+    } catch {
+        // Ignorar error de red en logout
+    } finally {
+        setAccessToken(null);
+    }
+}
+
+/** {@code POST /api/auth/logout-all} — Revoca todas las sesiones del usuario en todos los dispositivos. */
+export async function logoutAll(): Promise<void> {
+    try {
+        const token = getAccessToken();
+        await fetch(`${API_URL}/api/auth/logout-all`, {
+            method: 'POST',
+            headers: getAuthHeaders(token),
+            credentials: 'include',
+        });
+    } catch {
+        // Ignorar
+    } finally {
+        setAccessToken(null);
+    }
 }
 
 /** {@code GET /api/auth/usuarios} — solo ADMIN. */
@@ -127,6 +214,7 @@ export async function forgotPassword(email: string): Promise<{ mensaje: string }
     const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email }),
     });
 
@@ -148,6 +236,7 @@ export async function resetPassword(
     const response = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ token, password, confirmarPassword }),
     });
 
@@ -163,6 +252,10 @@ export async function resetPassword(
 export const authApi = {
     login,
     register,
+    refreshToken,
+    silentRefresh,
+    logout,
+    logoutAll,
     listUsuarios,
     setUsuarioEstado,
     getUsuarioById,

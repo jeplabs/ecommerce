@@ -1,18 +1,57 @@
 import { invalidateClientSession } from './auth-session-sync';
+import { getAccessToken } from './auth-token-store';
 import type { NavigateFunction } from 'react-router-dom';
 
+type RefreshHandler = () => Promise<string | null>;
+let onRefreshToken: RefreshHandler | null = null;
+
+export function registerRefreshTokenHandler(handler: RefreshHandler): void {
+    onRefreshToken = handler;
+}
+
 export function getAuthHeaders(
-    token: string | null | undefined,
+    token?: string | null,
     isJson = true
 ): Record<string, string> {
+    const resolvedToken = token !== undefined ? token : getAccessToken();
     const headers: Record<string, string> = {};
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
+    if (resolvedToken) {
+        headers.Authorization = `Bearer ${resolvedToken}`;
     }
     if (isJson) {
         headers['Content-Type'] = 'application/json';
     }
     return headers;
+}
+
+export async function fetchWithAuth(
+    input: RequestInfo | URL,
+    init: RequestInit = {}
+): Promise<Response> {
+    const token = getAccessToken();
+    const headers = new Headers(init.headers || {});
+    if (token && !headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    const response = await fetch(input, {
+        ...init,
+        headers,
+    });
+
+    if (response.status === 401 && onRefreshToken) {
+        const newToken = await onRefreshToken();
+        if (newToken) {
+            headers.set('Authorization', `Bearer ${newToken}`);
+            return fetch(input, {
+                ...init,
+                headers,
+            });
+        }
+        notifyUnauthorizedIfNeeded(401);
+    }
+
+    return response;
 }
 
 export function parseListResponse(raw: unknown): unknown[] {

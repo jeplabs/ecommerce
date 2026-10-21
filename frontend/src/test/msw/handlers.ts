@@ -764,6 +764,18 @@ export const handlers = [
         return HttpResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
     }),
 
+    http.post(`${API_BASE}/api/auth/refresh`, () => {
+        return HttpResponse.json(mockAuthTokenResponse);
+    }),
+
+    http.post(`${API_BASE}/api/auth/logout`, () => {
+        return new HttpResponse(null, { status: 204 });
+    }),
+
+    http.post(`${API_BASE}/api/auth/logout-all`, () => {
+        return new HttpResponse(null, { status: 204 });
+    }),
+
     http.get(`${API_BASE}/api/auth/usuarios`, () => {
         return HttpResponse.json(getDynamicUsers());
     }),

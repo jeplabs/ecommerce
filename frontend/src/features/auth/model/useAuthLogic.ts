@@ -1,11 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { authApi } from '@/entities/user/api';
 import type { RegisterFormValues, UserRole } from '@/entities/user';
 import {
     clearAuthStorage,
     subscribeSessionInvalidated,
     invalidateClientSession,
+    broadcastAuthEvent,
+    subscribeAuthBroadcast,
 } from '@/shared/lib/auth-session-sync';
+import {
+    getAccessToken,
+    setAccessToken,
+    hasSessionFlag,
+    clearAuthTokens,
+} from '@/shared/lib/auth-token-store';
 import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
 
 type StoredAuthUser = {
@@ -40,7 +48,8 @@ const REGISTER_FIELD_KEYS = [
 ] as const;
 
 /**
- * Estado y acciones de autenticación (login, registro, logout, activar/desactivar usuario).
+ * Estado y acciones de autenticación con arquitectura de Doble Token (Access en memoria/sessionStorage
+ * y Refresh en Cookie HttpOnly con Silent Refresh y sincronización multi-pestaña).
  */
 export function useAuthLogic() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -48,63 +57,186 @@ export function useAuthLogic() {
     const [userRol, setUserRol] = useState<UserRole | string | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const lastActivityRef = useRef<number>(Date.now());
+
+    // 1. Rehidratación de sesión al montar la app (soporta F5 instantáneo y apertura en frío)
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const rol = localStorage.getItem('rol');
-        if (token) {
-            setUser({ token, rol });
-            setIsAuthenticated(true);
-            setUserRol(rol);
-        }
-        setLoading(false);
+        let isMounted = true;
+
+        const initAuth = async () => {
+            const token = getAccessToken() || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+            const expMs = token ? getJwtExpiryMs(token) : null;
+            const isTokenValid = token != null && (expMs == null || expMs > Date.now() + 10_000);
+
+            if (token && isTokenValid) {
+                const rol = typeof window !== 'undefined' ? localStorage.getItem('rol') : null;
+                setAccessToken(token);
+                if (isMounted) {
+                    setUser({ token, rol });
+                    setIsAuthenticated(true);
+                    setUserRol(rol);
+                    setLoading(false);
+                }
+                return;
+            }
+
+            // Si el token en memoria no es válido pero hay sesión activa registrada, intentar Silent Refresh
+            if (hasSessionFlag()) {
+                const refreshed = await authApi.silentRefresh();
+                if (refreshed && isMounted) {
+                    setUser({ token: refreshed.token, rol: refreshed.rol });
+                    setIsAuthenticated(true);
+                    setUserRol(refreshed.rol);
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem('rol', refreshed.rol);
+                        localStorage.setItem(
+                            'user',
+                            JSON.stringify({
+                                id: refreshed.id,
+                                nombre: refreshed.nombre,
+                                apellido: refreshed.apellido,
+                                email: refreshed.email,
+                                rol: refreshed.rol,
+                            })
+                        );
+                    }
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            if (isMounted) {
+                setLoading(false);
+            }
+        };
+
+        initAuth();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
+    // 2. Suscripción a eventos de invalidación local
     useEffect(() => {
         return subscribeSessionInvalidated(() => {
             setIsAuthenticated(false);
             setUser(null);
             setUserRol(null);
+            clearAuthTokens();
         });
     }, []);
 
+    // 3. Sincronización multi-pestaña (BroadcastChannel)
     useEffect(() => {
-        const onStorage = (e: StorageEvent) => {
-            if (e.key !== 'token') return;
-            const token = localStorage.getItem('token');
-            const rol = localStorage.getItem('rol');
-            if (!token) {
+        return subscribeAuthBroadcast(async (message) => {
+            if (message.type === 'LOGOUT') {
                 setIsAuthenticated(false);
                 setUser(null);
                 setUserRol(null);
-            } else {
-                setUser({ token, rol });
-                setIsAuthenticated(true);
-                setUserRol(rol);
+                clearAuthTokens();
+            } else if (message.type === 'LOGIN') {
+                const refreshed = await authApi.silentRefresh();
+                if (refreshed) {
+                    setUser({ token: refreshed.token, rol: refreshed.rol });
+                    setIsAuthenticated(true);
+                    setUserRol(refreshed.rol);
+                }
+            }
+        });
+    }, []);
+
+    // 4. Retrocompatibilidad: escuchar cambios de localStorage entre pestañas
+    useEffect(() => {
+        if (typeof window === 'undefined') return undefined;
+
+        const onStorage = (e: StorageEvent) => {
+            if (e.key === 'has_session' && !e.newValue) {
+                setIsAuthenticated(false);
+                setUser(null);
+                setUserRol(null);
+                clearAuthTokens();
+            } else if (e.key === 'token') {
+                const token = localStorage.getItem('token');
+                const rol = localStorage.getItem('rol');
+                if (!token) {
+                    setIsAuthenticated(false);
+                    setUser(null);
+                    setUserRol(null);
+                } else {
+                    setAccessToken(token);
+                    setUser({ token, rol });
+                    setIsAuthenticated(true);
+                    setUserRol(rol);
+                }
             }
         };
         window.addEventListener('storage', onStorage);
         return () => window.removeEventListener('storage', onStorage);
     }, []);
 
+    // 5. Detector ligero de actividad del usuario en el DOM (throttle de 30 segundos)
+    useEffect(() => {
+        if (typeof window === 'undefined') return undefined;
+
+        const onUserActivity = () => {
+            const now = Date.now();
+            if (now - lastActivityRef.current > 30_000) {
+                lastActivityRef.current = now;
+            }
+        };
+
+        window.addEventListener('pointerdown', onUserActivity, { passive: true });
+        window.addEventListener('keydown', onUserActivity, { passive: true });
+        window.addEventListener('scroll', onUserActivity, { passive: true });
+        window.addEventListener('touchstart', onUserActivity, { passive: true });
+
+        return () => {
+            window.removeEventListener('pointerdown', onUserActivity);
+            window.removeEventListener('keydown', onUserActivity);
+            window.removeEventListener('scroll', onUserActivity);
+            window.removeEventListener('touchstart', onUserActivity);
+        };
+    }, []);
+
+    // 6. Temporizador de expiración y Renovación Silenciosa Proactiva (60 segundos antes)
     useEffect(() => {
         if (!isAuthenticated || !user?.token) return undefined;
 
         const expMs = getJwtExpiryMs(user.token);
         if (expMs == null) return undefined;
 
-        const msUntilExp = expMs - Date.now();
+        const now = Date.now();
+        const msUntilExp = expMs - now;
+        const msUntilRenew = Math.max(0, msUntilExp - 60_000);
 
-        const onExpire = () => {
-            invalidateClientSession({ reason: 'jwt_expired' });
-        };
-
+        // Si ya expiró
         if (msUntilExp <= 0) {
-            onExpire();
+            authApi.silentRefresh().then((res) => {
+                if (res) {
+                    setUser({ token: res.token, rol: res.rol });
+                    setUserRol(res.rol);
+                } else {
+                    invalidateClientSession({ reason: 'jwt_expired' });
+                }
+            });
             return undefined;
         }
 
-        const id = window.setTimeout(onExpire, msUntilExp);
-        return () => window.clearTimeout(id);
+        // Timer 60 segundos antes de expirar: renovar silenciosamente si hubo actividad reciente
+        const renewTimer = window.setTimeout(async () => {
+            const hadRecentActivity = Date.now() - lastActivityRef.current < 15 * 60 * 1000;
+            if (hadRecentActivity) {
+                const refreshed = await authApi.silentRefresh();
+                if (refreshed) {
+                    setUser({ token: refreshed.token, rol: refreshed.rol });
+                    setUserRol(refreshed.rol);
+                    return;
+                }
+            }
+        }, msUntilRenew);
+
+        return () => window.clearTimeout(renewTimer);
     }, [isAuthenticated, user?.token]);
 
     const login = useCallback(
@@ -112,22 +244,26 @@ export function useAuthLogic() {
             try {
                 const data = await authApi.login(email, password);
 
+                setAccessToken(data.token);
                 setIsAuthenticated(true);
                 setUser({ token: data.token, rol: data.rol });
                 setUserRol(data.rol);
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('rol', data.rol);
 
-                localStorage.setItem(
-                    'user',
-                    JSON.stringify({
-                        id: data.id,
-                        nombre: data.nombre,
-                        apellido: data.apellido,
-                        email: data.email,
-                        rol: data.rol,
-                    })
-                );
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('rol', data.rol);
+                    localStorage.setItem(
+                        'user',
+                        JSON.stringify({
+                            id: data.id,
+                            nombre: data.nombre,
+                            apellido: data.apellido,
+                            email: data.email,
+                            rol: data.rol,
+                        })
+                    );
+                }
+
+                broadcastAuthEvent({ type: 'LOGIN' });
 
                 return { success: true, rol: data.rol };
             } catch (error) {
@@ -163,7 +299,7 @@ export function useAuthLogic() {
                         const mensaje =
                             (typeof data.error === 'string' && data.error) ||
                             (typeof data.message === 'string' && data.message) ||
-                            String(Object.values(data)[0] ?? 'Error en el registro');
+                            '';
                         const msgLower = mensaje.toLowerCase();
 
                         if (msgLower.includes('email') || msgLower.includes('correo')) {
@@ -206,11 +342,18 @@ export function useAuthLogic() {
         []
     );
 
-    const logout = useCallback(() => {
-        clearAuthStorage();
-        setIsAuthenticated(false);
-        setUser(null);
-        setUserRol(null);
+    const logout = useCallback(async () => {
+        try {
+            await authApi.logout();
+        } catch {
+            // Ignorar
+        } finally {
+            clearAuthStorage();
+            broadcastAuthEvent({ type: 'LOGOUT' });
+            setIsAuthenticated(false);
+            setUser(null);
+            setUserRol(null);
+        }
     }, []);
 
     const desactivarUsuario = useCallback(

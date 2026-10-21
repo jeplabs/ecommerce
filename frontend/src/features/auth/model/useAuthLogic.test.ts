@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { useAuthLogic } from './useAuthLogic';
+import { getAccessToken, clearAuthTokens } from '@/shared/lib/auth-token-store';
 import {
     MOCK_ADMIN_EMAIL,
     MOCK_LOGIN_EMAIL,
@@ -11,7 +12,13 @@ import {
 } from '@/test/msw/fixtures/auth';
 
 describe('useAuthLogic', () => {
-    it('login de cliente persiste sesión en localStorage', async () => {
+    beforeEach(() => {
+        clearAuthTokens();
+        localStorage.clear();
+        sessionStorage.clear();
+    });
+
+    it('login de cliente persiste sesión en memoria/sessionStorage y bandera has_session', async () => {
         const { result } = renderHook(() => useAuthLogic());
 
         await waitFor(() => expect(result.current.loading).toBe(false));
@@ -24,12 +31,16 @@ describe('useAuthLogic', () => {
             }
         });
 
-        expect(localStorage.getItem('token')).toBe(mockAuthTokenResponse.token);
+        // En arquitectura de Doble Token, el Access Token NO va en localStorage, sino en memoria/sessionStorage
+        expect(getAccessToken()).toBe(mockAuthTokenResponse.token);
+        expect(sessionStorage.getItem('auth_access_token')).toBe(mockAuthTokenResponse.token);
+        expect(localStorage.getItem('token')).toBeNull();
+        expect(localStorage.getItem('has_session')).toBe('1');
         expect(localStorage.getItem('rol')).toBe('ROLE_CUSTOMER');
         expect(result.current.isAuthenticated).toBe(true);
     });
 
-    it('login de admin persiste rol admin', async () => {
+    it('login de admin persiste rol admin y token en memoria', async () => {
         const { result } = renderHook(() => useAuthLogic());
 
         await waitFor(() => expect(result.current.loading).toBe(false));
@@ -42,7 +53,9 @@ describe('useAuthLogic', () => {
             }
         });
 
-        expect(localStorage.getItem('token')).toBe(mockAdminAuthTokenResponse.token);
+        expect(getAccessToken()).toBe(mockAdminAuthTokenResponse.token);
+        expect(sessionStorage.getItem('auth_access_token')).toBe(mockAdminAuthTokenResponse.token);
+        expect(localStorage.getItem('token')).toBeNull();
         expect(localStorage.getItem('rol')).toBe('ROLE_ADMIN');
         expect(result.current.userRol).toBe('ROLE_ADMIN');
     });
@@ -81,12 +94,13 @@ describe('useAuthLogic', () => {
         });
 
         expect(result.current.isAuthenticated).toBe(true);
-        expect(localStorage.getItem('token')).toBeTruthy();
+        expect(getAccessToken()).toBeTruthy();
         expect(localStorage.getItem('rol')).toBe('ROLE_CUSTOMER');
     });
 
-    it('logout limpia la sesión local', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
+    it('logout limpia la sesión local y el backend', async () => {
+        sessionStorage.setItem('auth_access_token', mockAuthTokenResponse.token);
+        localStorage.setItem('has_session', '1');
         localStorage.setItem('rol', 'ROLE_CUSTOMER');
         localStorage.setItem('user', JSON.stringify({ email: MOCK_LOGIN_EMAIL }));
 
@@ -95,10 +109,13 @@ describe('useAuthLogic', () => {
         await waitFor(() => expect(result.current.loading).toBe(false));
         expect(result.current.isAuthenticated).toBe(true);
 
-        act(() => {
-            result.current.logout();
+        await act(async () => {
+            await result.current.logout();
         });
 
+        expect(getAccessToken()).toBeNull();
+        expect(sessionStorage.getItem('auth_access_token')).toBeNull();
+        expect(localStorage.getItem('has_session')).toBeNull();
         expect(localStorage.getItem('token')).toBeNull();
         expect(localStorage.getItem('rol')).toBeNull();
         expect(localStorage.getItem('user')).toBeNull();

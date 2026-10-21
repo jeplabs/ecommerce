@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { z } from 'zod';
 import { API_URL } from '@/shared/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
@@ -5,7 +6,7 @@ import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { addressApiSchema, type AddressApi } from '../model/schemas/api';
 import type { CreateAddressRequest, UpdateAddressRequest } from '../model/schemas/forms';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
 const addressListSchema = z.array(addressApiSchema);
 

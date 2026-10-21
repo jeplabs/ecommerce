@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { API_URL } from '@/shared/config';
 import {
     getAuthHeaders,
@@ -17,7 +18,7 @@ import {
     type QPayProEstadoSchema,
 } from '../model/schemas/payment';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
 async function readJson(response: Response): Promise<unknown> {
     return response.json().catch(() => ({}));

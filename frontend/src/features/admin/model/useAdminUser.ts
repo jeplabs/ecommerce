@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/entities/user/api';
@@ -7,7 +8,7 @@ import { useToast } from '@/app/providers';
 import { ApiError } from '@/shared';
 import type { AdminActionResult, UseAdminUserResult } from './types';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
 function toErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Error desconocido';

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { login, register } from './authApi';
+import { login, register, refreshToken, silentRefresh, logout } from './authApi';
+import { getAccessToken, clearAuthTokens } from '@/shared/lib/auth-token-store';
 import {
     MOCK_ADMIN_EMAIL,
     MOCK_LOGIN_EMAIL,
@@ -16,6 +17,7 @@ describe('authApi.login', () => {
         expect(result.token).toBe(mockAuthTokenResponse.token);
         expect(result.email).toBe(MOCK_LOGIN_EMAIL);
         expect(result.rol).toBe('ROLE_CUSTOMER');
+        expect(getAccessToken()).toBe(mockAuthTokenResponse.token);
     });
 
     it('devuelve token de admin con credenciales válidas (MSW)', async () => {
@@ -24,6 +26,7 @@ describe('authApi.login', () => {
         expect(result.token).toBe(mockAdminAuthTokenResponse.token);
         expect(result.email).toBe(MOCK_ADMIN_EMAIL);
         expect(result.rol).toBe('ROLE_ADMIN');
+        expect(getAccessToken()).toBe(mockAdminAuthTokenResponse.token);
     });
 
     it('lanza error con credenciales inválidas', async () => {
@@ -73,5 +76,30 @@ describe('authApi.register', () => {
 
         expect(loginResult.email).toBe(email);
         expect(loginResult.rol).toBe('ROLE_CUSTOMER');
+    });
+});
+
+describe('authApi.refreshToken & silentRefresh', () => {
+    it('refreshToken renueva el access token y lo persiste en memoria', async () => {
+        clearAuthTokens();
+        const result = await refreshToken();
+        expect(result.token).toBe(mockAuthTokenResponse.token);
+        expect(getAccessToken()).toBe(mockAuthTokenResponse.token);
+    });
+
+    it('silentRefresh renueva el token transparentemente', async () => {
+        clearAuthTokens();
+        const result = await silentRefresh();
+        expect(result).not.toBeNull();
+        expect(result?.token).toBe(mockAuthTokenResponse.token);
+        expect(getAccessToken()).toBe(mockAuthTokenResponse.token);
+    });
+
+    it('logout limpia el token en memoria', async () => {
+        await login(MOCK_LOGIN_EMAIL, MOCK_LOGIN_PASSWORD);
+        expect(getAccessToken()).toBeTruthy();
+
+        await logout();
+        expect(getAccessToken()).toBeNull();
     });
 });

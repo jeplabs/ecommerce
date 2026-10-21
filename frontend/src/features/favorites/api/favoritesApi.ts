@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { API_URL } from '@/shared/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, moneySchema, parseApi } from '@/shared';
@@ -16,7 +17,7 @@ export const favoriteProductSchema = z.object({
 
 const favoriteListSchema = z.array(favoriteProductSchema);
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
 async function readJson(response: Response): Promise<unknown> {
     return response.json().catch(() => ({}));

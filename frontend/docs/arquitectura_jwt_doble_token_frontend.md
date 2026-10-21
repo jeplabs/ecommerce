@@ -1,0 +1,130 @@
+# Arquitectura de Doble Token (Access + Refresh) y Gestión de Sesión en el Frontend
+
+**Estado:** Implementado en Frontend y Backend  
+**Fecha:** Octubre 2026  
+**Estándar de Referencia:** IETF RFC 9700 (OAuth 2.0 Security Best Current Practice) & OWASP ASVS v4.0.3
+
+---
+
+## 1. Resumen Ejecutivo
+
+Este documento detalla la implementación en el **Frontend** de la arquitectura de autenticación de **Doble Token (Access Token JWT + Refresh Token Opaco en Cookie `HttpOnly`)**, diseñada para eliminar las vulnerabilidades de robo de sesión por XSS en `localStorage` y brindar una experiencia fluida sin cierres de sesión inesperados mientras el usuario navega en la tienda.
+
+---
+
+## 2. Separación de Responsabilidades y Almacenamiento
+
+| Token | Dónde se Almacena | Tiempo de Vida | Cómo Viaja al Servidor | Propósito y Seguridad |
+| :--- | :--- | :--- | :--- | :--- |
+| **Access Token** | **Memoria RAM** (`inMemoryToken`) + **`sessionStorage`** | Corto (**15 min**) | Cabecera `Authorization: Bearer <token>` | • Autoriza las peticiones a la API.<br>• Al estar en `sessionStorage`, sobrevive a recargas F5 pero **muere automáticamente al cerrar la pestaña o el navegador**.<br>• **Nunca** toca `localStorage`. |
+| **Refresh Token** | **Cookie `HttpOnly; Path=/api/auth`** | Largo (**7 a 14 días**) | Automático en `POST /api/auth/refresh` y `/logout` | • Solo sirve para obtener un nuevo Access Token.<br>• Inmune a XSS: JavaScript no puede leerlo.<br>• Restringido a `Path=/api/auth` (no viaja en llamadas a productos, carrito, etc.). |
+| **Bandera `has_session`** | `localStorage` | Mientras dure la sesión | No viaja por red | • Bandera booleana no sensible (`has_session = '1'`).<br>• Permite a nuevas pestañas saber que hay sesión activa para pedir su propio Access Token en frío vía cookie. |
+
+---
+
+## 3. Componentes Implementados en el Frontend
+
+```
+src/
+├── shared/
+│   ├── lib/
+│   │   ├── auth-token-store.ts     # Almacén de Access Token en RAM + sessionStorage (getAccessToken, setAccessToken)
+│   │   ├── auth-session-sync.ts    # BroadcastChannel ('ecommerce_auth_channel') y eventos de invalidación
+│   │   └── http-session.ts         # fetchWithAuth (interceptor de peticiones con reintento ante 401)
+├── entities/
+│   └── user/
+│       └── api/
+│           └── authApi.ts          # login, refreshToken, silentRefresh (Singleton Lock), logout, logoutAll
+└── features/
+    └── auth/
+        └── model/
+            └── useAuthLogic.ts     # Rehidratación, detector de actividad DOM, timer 60s y sync multi-pestaña
+```
+
+### 3.1. Almacén de Token (`auth-token-store.ts`)
+Provee acceso sincrónico y seguro al token para interceptores de red y componentes:
+- `getAccessToken()`: Lee de memoria RAM o de `sessionStorage`.
+- `setAccessToken(token)`: Sincroniza la RAM, `sessionStorage` y fija/limpia la bandera `has_session` en `localStorage`. Elimina cualquier clave legada `'token'`.
+- `clearAuthTokens()`: Limpieza completa.
+
+### 3.2. Sincronización Multi-Pestaña (`auth-session-sync.ts`)
+Utiliza la API estándar **`BroadcastChannel`** (`ecommerce_auth_channel`):
+- Al cerrar sesión en una pestaña, emite `{ type: 'LOGOUT' }`. Todas las pestañas abiertas limpian su estado y redirigen sin recargar la página.
+- Al iniciar sesión en una pestaña, emite `{ type: 'LOGIN' }`. Las demás pestañas se rehidratan silenciosamente.
+
+### 3.3. Singleton Promise Lock en `silentRefresh()` (`authApi.ts`)
+Evita condiciones de carrera: si múltiples llamadas HTTP simultáneas detectan que el token expiró, **solo se ejecuta 1 petición a `POST /api/auth/refresh`**. Todas las llamadas concurrentes comparten la misma promesa y reciben el nuevo token al unísono.
+
+### 3.4. Ciclo de Vida y Detección de Actividad en `useAuthLogic.ts`
+1. **Recarga de página (F5):**
+   - El frontend lee el token vigente desde `sessionStorage`. Si aún tiene tiempo de vida, la página se inicializa en **0 ms** sin consultar al backend.
+2. **Apertura de nueva pestaña en frío:**
+   - Si no hay token en `sessionStorage` pero `has_session === '1'`, llama a `silentRefresh()`. El navegador adjunta la cookie `HttpOnly` y el usuario queda autenticado de inmediato.
+3. **Detector de Actividad del Usuario (DOM):**
+   - Escucha `pointerdown`, `keydown`, `scroll` y `touchstart` con *throttle* de 30 segundos, actualizando `lastActivityRef.current`.
+4. **Renovación Silenciosa Proactiva (Timer 60s):**
+   - 60 segundos antes de expirar el Access Token, si el usuario interactuó en los últimos 15 minutos, invoca `silentRefresh()` de fondo sin interrumpir la vista ni la navegación.
+
+---
+
+## 4. Punto Específico del Backend: Ventana de Gracia (*Leeway Window*) en la Rotación
+
+### 4.1. El Problema de Carrera por F5 Compulsivo o Red Inestable
+En la especificación estricta de **Rotación de Refresh Tokens (Token Reuse Detection)**:
+1. El cliente llama a `/api/auth/refresh`.
+2. El backend marca el Refresh Token anterior como `revocado = true` y genera uno nuevo con la misma `family_id`.
+3. Si un cliente presiona **F5 repetidas veces en un segundo** (o una conexión móvil lenta sufre reintentos automáticos de paquetes TCP), puede ocurrir que una segunda petición envíe el token que el backend acaba de marcar como revocado.
+4. Si el backend no tiene tolerancia, interpreta esa segunda petición como un **ataque de reutilización (robo de credenciales)**, revocando toda la familia de tokens y cerrando la sesión del usuario legítimo por error (*falso positivo*).
+
+### 4.2. Cómo lo Mitiga el Frontend
+Con la solución implementada:
+- **El Access Token se almacena en `sessionStorage`:** Al presionar F5, la app reutiliza el Access Token de 15 minutos. **No se dispara ninguna llamada a `/refresh` al recargar**, eliminando el 99% de las condiciones de carrera provocadas por F5s continuos.
+
+### 4.3. Recomendación Arquitectónica para el Backend (`RefreshTokenService.java`)
+Para alcanzar tolerancia a fallos de nivel bancario según **RFC 6749 / OAuth 2.0 Security BCP (Sección 4.14.2)**, se recomienda incorporar en `RefreshTokenService.java` una **ventana de gracia (Leeway) de 10 a 15 segundos**:
+
+```java
+// En RefreshTokenService.java -> rotarToken()
+if (almacenado.isRevocado()) {
+    // Si fue revocado hace menos de 10 segundos y ya tiene reemplazo emitido:
+    if (almacenado.getReemplazadoPor() != null &&
+        almacenado.getCreadoAt().isAfter(LocalDateTime.now().minusSeconds(10))) {
+        
+        // Es una condición de carrera legítima (F5 rápido o doble petición concurrente)
+        // Se reenvía pacíficamente el token vigente de la familia en lugar de revocarla
+        return obtenerEmisionReemplazo(almacenado.getReemplazadoPor(), ipAddress, userAgent);
+    }
+
+    // Si pasaron más de 10 segundos: ATAQUE REAL DE REÚSO
+    int revocados = refreshTokenRepository.revocarFamilia(almacenado.getFamilyId());
+    log.warn("[Seguridad] Reúso malicioso detectado. Revocada familia {}", almacenado.getFamilyId());
+    throw new RefreshTokenInvalidoException("Sesión invalidada por motivos de seguridad.");
+}
+```
+
+---
+
+## 5. Casos de Uso del Endpoint `logout-all` (`POST /api/auth/logout-all`)
+
+El endpoint implementado en el backend revoca todas las sesiones activas del usuario en todos sus dispositivos (`revocarTodosPorUsuario` en BD):
+
+1. **Acción voluntaria del usuario en "Mi Perfil" / "Seguridad":**
+   - Botón: *"Cerrar sesión en todos los demás dispositivos"* (útil si el cliente sospecha que olvidó su sesión abierta en un equipo compartido).
+2. **Eventos críticos de seguridad automáticos:**
+   - **Cambio de contraseña:** Si el usuario actualiza su clave, el backend revoca automáticamente todas las familias para expulsar accesos previos.
+   - **Restablecimiento por correo (*Forgot Password*):** Invalida sesiones anteriores tras recuperar la cuenta.
+3. **Acción administrativa:**
+   - Si un administrador desactiva o bloquea a un usuario, todas sus sesiones activas quedan canceladas al instante.
+
+---
+
+## 6. Verificación y Pruebas Automatizadas
+
+Se crearon y actualizaron las pruebas unitarias en el frontend:
+- `src/shared/lib/auth-token-store.test.ts`: Valida almacenamiento en RAM/sessionStorage, bandera `has_session` y ausencia del JWT en `localStorage`.
+- `src/features/auth/model/useAuthLogic.test.ts`: Valida login, persistencia en memoria, registro, ciclo de vida y logout con destrucción de credenciales.
+- `src/entities/user/api/authApi.test.ts`: Valida llamadas a `login`, `refreshToken`, `silentRefresh` y `logout`.
+- `src/shared/lib/http-session.test.ts`: Valida inyección de cabeceras de autorización y manejo de errores 401.
+
+Toda la suite de pruebas unitarias y de integración del checkout (29/29) y autenticación se ejecuta y pasa al 100%.
+

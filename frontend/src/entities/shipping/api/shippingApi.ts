@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { API_URL } from '@/shared/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
@@ -6,7 +7,7 @@ import {
     type ShippingOptionsApi,
 } from '../model/schemas/api';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
 async function readJson(response: Response): Promise<unknown> {
     return response.json().catch(() => ({}));
