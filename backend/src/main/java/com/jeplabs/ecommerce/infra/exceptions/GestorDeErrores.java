@@ -52,6 +52,14 @@ public class GestorDeErrores {
                 .body(Map.of("error", "Email o contraseña incorrectos"));
     }
 
+    // Maneja Refresh Token inválido, expirado o con intento de reutilización.
+    @ExceptionHandler(RefreshTokenInvalidoException.class)
+    public ResponseEntity<Map<String, String>> manejarRefreshTokenInvalido(
+            RefreshTokenInvalidoException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", ex.getMessage(), "codigo", "REFRESH_TOKEN_INVALIDO"));
+    }
+
     // Devuelve un JSON con los campos inválidos, como email duplicado
     // Devuelve un JSON cuando no encuentra un usuario con un determinado ID
     @ExceptionHandler(IllegalArgumentException.class)

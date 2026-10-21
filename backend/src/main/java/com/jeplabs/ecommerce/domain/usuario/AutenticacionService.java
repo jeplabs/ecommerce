@@ -15,6 +15,7 @@ public class AutenticacionService {
     private final UsuarioRepository repositorio;
     private final PasswordEncoder passwordEncoder;
     private final LoginAttemptService loginAttemptService;
+    private final RefreshTokenService refreshTokenService;
 
     // Verifica que el email no este duplicado, hashea la contraseña con BCrypt antes de guardarla.
     @Transactional // no es necesario, llama explicitamente a repositorio.save(usuario), pero es buena práctica
@@ -34,6 +35,7 @@ public class AutenticacionService {
         Usuario usuario = repositorio.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         usuario.actualizarRol(datos.rol());
+        refreshTokenService.revocarTodasLasSesionesUsuario(usuario.getId());
         return new DatosRespuestaUsuario(usuario);
     }
 
@@ -111,6 +113,7 @@ public class AutenticacionService {
             }
 
             usuario.desactivar();
+            refreshTokenService.revocarTodasLasSesionesUsuario(usuario.getId());
         } else {
             usuario.activar();
         }
@@ -137,5 +140,6 @@ public class AutenticacionService {
         }
 
         usuario.actualizarPassword(passwordEncoder.encode(datos.password()));
+        refreshTokenService.revocarTodasLasSesionesUsuario(usuario.getId());
     }
 }

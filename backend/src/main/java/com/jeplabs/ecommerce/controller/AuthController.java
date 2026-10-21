@@ -1,11 +1,14 @@
 package com.jeplabs.ecommerce.controller;
 
 import com.jeplabs.ecommerce.domain.usuario.*;
-import com.jeplabs.ecommerce.infra.security.TokenService;
+import com.jeplabs.ecommerce.infra.exceptions.RefreshTokenInvalidoException;
+import com.jeplabs.ecommerce.infra.security.RefreshCookieHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 // @Tag agrupa todos los endpoints de este controller bajo "Autenticación" en Swagger UI
-@Tag(name = "Autenticación", description = "Registro, login y gestión de usuarios (admin)")
+@Tag(name = "Autenticación", description = "Registro, login, renovación de sesión y gestión de usuarios (admin)")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -29,7 +32,8 @@ public class AuthController {
 
     private final AutenticacionService service;
     private final AuthenticationManager authManager;
-    private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
+    private final RefreshCookieHelper refreshCookieHelper;
     private final PasswordResetService passwordResetService;
 
     // @Operation describe el propósito del endpoint en Swagger UI
@@ -56,28 +60,110 @@ public class AuthController {
 
     @Operation(
             summary = "Iniciar sesión",
-            description = "Autentica al usuario y retorna un JWT token. Úsalo en el botón 'Authorize'."
+            description = "Autentica al usuario, retorna un Access Token JWT y establece una Cookie HttpOnly con el Refresh Token."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Login exitoso, retorna token JWT"),
+            @ApiResponse(responseCode = "200", description = "Login exitoso, retorna Access Token JWT y emite cookie HttpOnly"),
             @ApiResponse(responseCode = "401", description = "Credenciales incorrectas"),
             @ApiResponse(responseCode = "403", description = "Cuenta bloqueada temporalmente")
     })
     @PostMapping("/login")
     public ResponseEntity<DatosRespuestaToken> login(
-            @RequestBody @Valid DatosLogin datos) {
+            @RequestBody @Valid DatosLogin datos,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         try {
             service.verificarBloqueoExpirado(datos.email());
             var authToken = new UsernamePasswordAuthenticationToken(datos.email(), datos.password());
             var usuarioAutenticado = authManager.authenticate(authToken);
             Usuario usuario = (Usuario) usuarioAutenticado.getPrincipal();
             service.procesarLoginExitoso(datos.email());
-            var token = tokenService.generarToken(usuario);
-            return ResponseEntity.ok(new DatosRespuestaToken(token, usuario));
+
+            var emision = refreshTokenService.emitirNuevaSesion(
+                    usuario,
+                    extraerIpCliente(request),
+                    request.getHeader("User-Agent")
+            );
+            refreshCookieHelper.escribirCookieRefresh(
+                    response,
+                    emision.rawRefreshToken(),
+                    emision.refreshMaxAgeSeconds()
+            );
+
+            return ResponseEntity.ok(new DatosRespuestaToken(emision.accessToken(), usuario));
         } catch (BadCredentialsException e) {
             service.procesarLoginFallido(datos.email());
             throw e;
         }
+    }
+
+    @Operation(
+            summary = "Renovar sesión silenciosamente (Refresh Token)",
+            description = "Lee el Refresh Token desde la Cookie HttpOnly, lo rota en la misma familia y devuelve un nuevo Access Token."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token renovado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Refresh Token ausente, expirado o revocado")
+    })
+    @PostMapping("/refresh")
+    public ResponseEntity<DatosRespuestaToken> refresh(
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        try {
+            String rawRefreshToken = refreshCookieHelper.extraerRefreshToken(request)
+                    .orElseThrow(() -> new RefreshTokenInvalidoException("No se encontró sesión activa para renovar"));
+
+            var emision = refreshTokenService.rotarToken(
+                    rawRefreshToken,
+                    extraerIpCliente(request),
+                    request.getHeader("User-Agent")
+            );
+            refreshCookieHelper.escribirCookieRefresh(
+                    response,
+                    emision.rawRefreshToken(),
+                    emision.refreshMaxAgeSeconds()
+            );
+
+            return ResponseEntity.ok(new DatosRespuestaToken(emision.accessToken(), emision.usuario()));
+        } catch (RefreshTokenInvalidoException e) {
+            refreshCookieHelper.limpiarCookieRefresh(response);
+            throw e;
+        }
+    }
+
+    @Operation(
+            summary = "Cerrar sesión actual",
+            description = "Revoca la familia del Refresh Token actual en base de datos y elimina la Cookie HttpOnly."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Sesión cerrada exitosamente")
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        refreshCookieHelper.extraerRefreshToken(request)
+                .ifPresent(refreshTokenService::revocarPorRawToken);
+        refreshCookieHelper.limpiarCookieRefresh(response);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Cerrar todas las sesiones del usuario",
+            description = "Revoca todos los Refresh Tokens activos del usuario autenticado en todos sus dispositivos."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Todas las sesiones fueron revocadas"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @PostMapping("/logout-all")
+    public ResponseEntity<Void> logoutAll(
+            Authentication authentication,
+            HttpServletResponse response) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        refreshTokenService.revocarTodasLasSesionesUsuario(usuario.getId());
+        refreshCookieHelper.limpiarCookieRefresh(response);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(
@@ -160,5 +246,13 @@ public class AuthController {
         passwordResetService.resetearPassword(datos);
         return ResponseEntity.ok(Map.of("mensaje",
                 "Contraseña actualizada correctamente"));
+    }
+
+    private String extraerIpCliente(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

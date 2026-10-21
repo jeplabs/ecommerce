@@ -6,10 +6,30 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/NOMBRE_BASE_DATOS
 spring.datasource.username=USUARIO_POSTGRES
 spring.datasource.password=PASSWORD_POSTGRES
 
-# JWT
-api.security.secret=CUALQUIER_STRING_LARGO_PARA_DEV
-# Tiempo expiration en segundos
-api.security.expiration=7200
+# JWT - Doble Token (Access Token + Refresh Token)
+api.security.secret=${JWT_SECRET:CUALQUIER_STRING_LARGO_PARA_DEV}
+# Tiempo de expiracion general en segundos (fallback: 15 min)
+api.security.expiration=${JWT_ACCESS_EXPIRATION_SECONDS:900}
+# Expiracion de Access Token por rol en segundos (Cliente: 15 min, Admin: 10 min)
+api.security.access-expiration-cliente-seconds=${JWT_ACCESS_CLIENTE_SECONDS:900}
+api.security.access-expiration-admin-seconds=${JWT_ACCESS_ADMIN_SECONDS:600}
+
+# Expiracion de Refresh Token por rol en dias (Cliente: 14 dias, Admin: 1 dia)
+api.security.refresh-expiration-cliente-days=${JWT_REFRESH_CLIENTE_DAYS:14}
+api.security.refresh-expiration-admin-days=${JWT_REFRESH_ADMIN_DAYS:1}
+
+# Configuracion de Cookie HttpOnly para Refresh Token (secure=false para localhost HTTP)
+api.security.cookie.name=${JWT_REFRESH_COOKIE_NAME:refresh_token}
+api.security.cookie.secure=${JWT_REFRESH_COOKIE_SECURE:false}
+api.security.cookie.same-site=${JWT_REFRESH_COOKIE_SAMESITE:Lax}
+api.security.cookie.path=${JWT_REFRESH_COOKIE_PATH:/api/auth}
+
+# Retencion y purga nocturna de Refresh Tokens en BD
+api.security.refresh-retention-days=${JWT_REFRESH_RETENTION_DAYS:30}
+api.security.refresh-purge-cron=${JWT_REFRESH_PURGE_CRON:0 30 3 * * *}
+
+# CORS Origenes permitidos
+api.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000}
 
 # Tiempo de expiración del token de restablecimiento de contraseña en minutos
 api.security.reset-token-expiracion-minutos=30

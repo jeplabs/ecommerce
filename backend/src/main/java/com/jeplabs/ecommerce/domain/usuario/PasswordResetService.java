@@ -17,6 +17,7 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository tokenRepositorio;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${api.security.reset-token-expiracion-minutos}")
     private long expiracionMinutos;
@@ -69,5 +70,8 @@ public class PasswordResetService {
 
         // Resetear intentos fallidos por si estaba bloqueado
         usuario.resetearIntentos();
+
+        // Revocar todas las sesiones activas por seguridad tras restablecer contraseña
+        refreshTokenService.revocarTodasLasSesionesUsuario(usuario.getId());
     }
 }
