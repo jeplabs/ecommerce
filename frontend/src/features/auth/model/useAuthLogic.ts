@@ -191,11 +191,27 @@ export function useAuthLogic() {
         window.addEventListener('scroll', onUserActivity, { passive: true });
         window.addEventListener('touchstart', onUserActivity, { passive: true });
 
+        const onVisibilityChange = async () => {
+            if (document.visibilityState === 'visible' && hasSessionFlag()) {
+                const currentToken = getAccessToken();
+                const exp = currentToken ? getJwtExpiryMs(currentToken) : null;
+                if (exp != null && exp <= Date.now() + 30_000) {
+                    const refreshed = await authApi.silentRefresh();
+                    if (refreshed) {
+                        setUser({ token: refreshed.token, rol: refreshed.rol });
+                        setUserRol(refreshed.rol);
+                    }
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
         return () => {
             window.removeEventListener('pointerdown', onUserActivity);
             window.removeEventListener('keydown', onUserActivity);
             window.removeEventListener('scroll', onUserActivity);
             window.removeEventListener('touchstart', onUserActivity);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
         };
     }, []);
 

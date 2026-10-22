@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -38,7 +39,7 @@ export function useProfileLogic() {
     );
 
     const fetchPerfil = useCallback(async () => {
-        const token = localStorage.getItem('token');
+        const token = getAccessToken() || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
         if (!token) {
             navigate('/login', { replace: true });
             return;

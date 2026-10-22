@@ -1,3 +1,4 @@
+import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orderApi } from '@/entities/order/api/orderApi';
@@ -53,7 +54,8 @@ export function useAdminOrdersLogic(): UseAdminOrdersLogicResult {
 
     const fetchPage = useCallback(
         async (pageNum: number) => {
-            if (!localStorage.getItem('token')) {
+            const token = getAccessToken() || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+            if (!token) {
                 navigate('/login', { replace: true });
                 return;
             }

@@ -33,12 +33,14 @@ src/
 │   │   └── http-session.ts         # fetchWithAuth (interceptor de peticiones con reintento ante 401)
 ├── entities/
 │   └── user/
-│       └── api/
-│           └── authApi.ts          # login, refreshToken, silentRefresh (Singleton Lock), logout, logoutAll
+│       ├── api/
+│       │   └── authApi.ts          # login, refreshToken, silentRefresh (Singleton Lock), logout, logoutAll
+│       └── model/
+│           └── useProfileLogic.ts  # Carga de perfil usando getAccessToken()
 └── features/
     └── auth/
         └── model/
-            └── useAuthLogic.ts     # Rehidratación, detector de actividad DOM, timer 60s y sync multi-pestaña
+            └── useAuthLogic.ts     # Rehidratación, detector de actividad DOM, timer 60s, visibilitychange y sync
 ```
 
 ### 3.1. Almacén de Token (`auth-token-store.ts`)
@@ -62,7 +64,9 @@ Evita condiciones de carrera: si múltiples llamadas HTTP simultáneas detectan 
    - Si no hay token en `sessionStorage` pero `has_session === '1'`, llama a `silentRefresh()`. El navegador adjunta la cookie `HttpOnly` y el usuario queda autenticado de inmediato.
 3. **Detector de Actividad del Usuario (DOM):**
    - Escucha `pointerdown`, `keydown`, `scroll` y `touchstart` con *throttle* de 30 segundos, actualizando `lastActivityRef.current`.
-4. **Renovación Silenciosa Proactiva (Timer 60s):**
+4. **Despertar de Suspensión (`visibilitychange`):**
+   - Cuando la laptop o equipo se suspende y se reabre 1 hora después, `document.addEventListener('visibilitychange')` detecta que la pestaña volvió a estar activa y renueva el token inmediatamente vía `silentRefresh()`.
+5. **Renovación Silenciosa Proactiva (Timer 60s):**
    - 60 segundos antes de expirar el Access Token, si el usuario interactuó en los últimos 15 minutos, invoca `silentRefresh()` de fondo sin interrumpir la vista ni la navegación.
 
 ---
@@ -118,7 +122,72 @@ El endpoint implementado en el backend revoca todas las sesiones activas del usu
 
 ---
 
-## 6. Verificación y Pruebas Automatizadas
+## 6. Configuración de Entorno Local vs Producción para Cookies
+
+En desarrollo local (`http://localhost:5173` y `http://localhost:8081`):
+- Los navegadores no guardan cookies con `Secure=true` sobre HTTP (no-HTTPS).
+- La directiva `SameSite=Strict` bloquea cookies enviadas entre puertos diferentes (`:5173` y `:8081`).
+- En `application-dev.properties` debe configurarse:
+  ```properties
+  api.security.cookie.secure=false
+  api.security.cookie.same-site=Lax
+  api.security.cookie.path=/api/auth
+  ```
+- En producción sobre HTTPS (`https://tienda.com`), se mantiene `secure=true` y `same-site=Strict` o `Lax`.
+
+---
+
+## 7. Resolución de Incidencias Críticas y Casos Borde Identificados
+
+### 7.1. Bucle Infinito de Redirección en `/profile` (Parpadeo y Cierre de Sesión)
+- **Síntoma:** Al hacer clic en *"Mi cuenta"* o entrar a la ruta `/profile`, la pantalla parpadeaba repetidamente y cerraba la sesión.
+- **Causa Raíz:** En `useProfileLogic.ts` (y hooks de administración como `useAdminOrdersLogic.ts` y `useDashboardStats.ts`) existía una validación legada:
+  ```ts
+  const token = localStorage.getItem('token');
+  if (!token) {
+      navigate('/login', { replace: true });
+      return;
+  }
+  ```
+  Al haber migrado a Doble Token, el Access Token ya no reside en `localStorage`. Por ende, `useProfileLogic` no lo encontraba y redirigía a `/login`. Al llegar a `/login`, el componente `GuestRoute` verificaba que el usuario sí estaba autenticado (`isAuthenticated = true`) y lo redirigía de vuelta a `/profile`. Este ciclo generaba un bucle infinito que abortaba la sesión.
+- **Solución:** Se actualizaron todas las referencias para obtener el token mediante `getAccessToken()` del nuevo almacén seguro:
+  ```ts
+  const token = getAccessToken() || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  ```
+
+### 7.2. Reanudación tras Suspensión Prolongada de la Computadora (Laptop Sleep / Wake up)
+- **Síntoma:** El usuario inicia sesión, cierra la tapa de su laptop durante 1 hora o más y, al volver a abrirla, la sesión aparece cerrada o desincronizada.
+- **Causa Raíz:** 
+  1. Durante la suspensión, la pestaña se congela y los temporizadores `setTimeout` se pausan. Al despertar el equipo 1 hora después, el Access Token de 15 minutos ya expiró.
+  2. Si el navegador no recarga la pestaña, la app no se enteraba inmediatamente de que el tiempo transcurrió mientras el equipo dormía.
+- **Solución:** Se añadió un listener nativo para el evento `visibilitychange` en `useAuthLogic.ts`:
+  ```ts
+  const onVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && hasSessionFlag()) {
+          const currentToken = getAccessToken();
+          const exp = currentToken ? getJwtExpiryMs(currentToken) : null;
+          // Si el token expiró mientras el equipo dormía o le quedan menos de 30s
+          if (exp != null && exp <= Date.now() + 30_000) {
+              const refreshed = await authApi.silentRefresh();
+              if (refreshed) {
+                  setUser({ token: refreshed.token, rol: refreshed.rol });
+                  setUserRol(refreshed.rol);
+              }
+          }
+      }
+  };
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  ```
+  De esta forma, al abrir la tapa de la laptop, el navegador detecta de inmediato el estado visible, renueva el token mediante la cookie `HttpOnly` en milisegundos y el usuario continúa trabajando sin notar interrupción.
+
+### 7.3. Rechazo Silencioso de la Cookie en Desarrollo Local
+- **Síntoma:** La sesión caducaba a los 15 minutos exactos a pesar de tener configurado el Refresh Token de 14 días.
+- **Causa Raíz:** Por defecto, `application.properties` tenía `cookie.secure=true`. En entornos de desarrollo que corren sobre `http://localhost` (no HTTPS), Chrome, Edge y Firefox descartan silenciosamente las cookies con bandera `Secure`. Como resultado, el navegador nunca guardaba la cookie `refresh_token` y, al vencer el Access Token de 15 min, la llamada `/api/auth/refresh` fallaba con 401 por falta de cookie.
+- **Solución:** En `application-dev.properties` se sobreescribieron explícitamente `api.security.cookie.secure=false` y `api.security.cookie.same-site=Lax`.
+
+---
+
+## 8. Verificación y Pruebas Automatizadas
 
 Se crearon y actualizaron las pruebas unitarias en el frontend:
 - `src/shared/lib/auth-token-store.test.ts`: Valida almacenamiento en RAM/sessionStorage, bandera `has_session` y ausencia del JWT en `localStorage`.
@@ -126,5 +195,4 @@ Se crearon y actualizaron las pruebas unitarias en el frontend:
 - `src/entities/user/api/authApi.test.ts`: Valida llamadas a `login`, `refreshToken`, `silentRefresh` y `logout`.
 - `src/shared/lib/http-session.test.ts`: Valida inyección de cabeceras de autorización y manejo de errores 401.
 
-Toda la suite de pruebas unitarias y de integración del checkout (29/29) y autenticación se ejecuta y pasa al 100%.
-
+Toda la suite de pruebas unitarias y de integración del checkout (29/29), router (7/7) y autenticación (16/16) se ejecuta y pasa al 100%.
