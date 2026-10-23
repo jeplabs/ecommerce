@@ -32,7 +32,7 @@ export const mockAdminUser: UserApi = {
 export const mockUsersList: UserApi[] = [mockUserProfile, mockAdminUser];
 
 export const mockAuthTokenResponse: AuthTokenResponse = {
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.c3Rachel',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sIjoiUk9MRV9DVVNUT01FUiIsImV4cCI6MTg5MzQ1NjAwMH0.c3Rachel',
     tipo: 'Bearer',
     id: 1,
     nombre: 'Test',
@@ -43,6 +43,7 @@ export const mockAuthTokenResponse: AuthTokenResponse = {
 
 export const mockAdminAuthTokenResponse: AuthTokenResponse = {
     ...mockAuthTokenResponse,
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwicm9sIjoiUk9MRV9BRE1JTiIsImV4cCI6MTg5MzQ1NjAwMH0.c3Rachel',
     id: 2,
     nombre: 'Admin',
     apellido: 'Sistema',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getJwtExpiryMs } from './jwt-expiry';
+import { getJwtExpiryMs, getJwtRole, parseJwtPayload } from './jwt-expiry';
 
 function makeToken(payload: string): string {
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
@@ -31,5 +31,28 @@ describe('getJwtExpiryMs', () => {
 
     it('devuelve null si el payload no es base64/JSON válido', () => {
         expect(getJwtExpiryMs('a.!!!.sig')).toBeNull();
+    });
+});
+
+describe('getJwtRole', () => {
+    it('extrae el rol del payload cuando usa la propiedad rol', () => {
+        const token = makeToken('{"sub":"test@mail.com","rol":"ROLE_CUSTOMER","exp":1750000000}');
+        expect(getJwtRole(token)).toBe('ROLE_CUSTOMER');
+    });
+
+    it('extrae el rol del payload cuando usa la propiedad role', () => {
+        const token = makeToken('{"sub":"admin@mail.com","role":"ROLE_ADMIN","exp":1750000000}');
+        expect(getJwtRole(token)).toBe('ROLE_ADMIN');
+    });
+
+    it('devuelve null si el token no contiene rol', () => {
+        const token = makeToken('{"sub":"user@mail.com","exp":1750000000}');
+        expect(getJwtRole(token)).toBeNull();
+    });
+
+    it('devuelve null si el token es nulo o inválido', () => {
+        expect(getJwtRole(null)).toBeNull();
+        expect(getJwtRole('')).toBeNull();
+        expect(getJwtRole('invalid.token')).toBeNull();
     });
 });

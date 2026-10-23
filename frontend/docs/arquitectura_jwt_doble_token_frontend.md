@@ -190,6 +190,15 @@ En desarrollo local (`http://localhost:5173` y `http://localhost:8081`):
 - **Causa Raíz:** El componente `SessionExpiryWarning.tsx` fue creado antes de la arquitectura de doble token (cuando no existía endpoint de refresh ni cookies). En desarrollo, el token dura 7 minutos, por lo que a los ~3.5 min el modal se abría automáticamente. Además, su botón *"Continuar"* solo cerraba el `<dialog>` sin invocar `/api/auth/refresh`, y la inactividad del usuario impedía la renovación proactiva.
 - **Solución:** En una arquitectura de Doble Token moderna, el Access Token de corta duración debe renovarse de forma 100% transparente y silenciosa en segundo plano sin interrumpir al usuario. Se conservó el código del componente y su lógica interna para trazabilidad histórica, pero se desactivó su montaje en `AuthSessionListeners.tsx` (dejándolo comentado con explicación técnica).
 
+### 7.5. Fuente de Verdad del Rol en el Access Token JWT y Eliminación Total de `rol` en `localStorage`
+- **Síntoma:** Tras regresar a la aplicación, aparecía el botón *"Cerrar sesión"* en el Navbar, pero desaparecían los botones de *"Perfil"* y *"Carrito"*. Al abrir una ventana nueva, reaparecían.
+- **Causa Raíz:** El Navbar condiciona Perfil y Carrito estrictamente a `userRol === 'ROLE_CUSTOMER'`, mientras que *"Cerrar sesión"* solo requiere `isAuthenticated = true`. Al rehidratar la sesión desde el token en memoria o `sessionStorage`, el código legado leía el rol desde `localStorage.getItem('rol')`. Si `localStorage` había sido limpiado o desincronizado, `userRol` quedaba en `null`, ocultando los accesos de cliente a pesar de tener una sesión activa.
+- **Solución (Arquitectura Purgada 100% de `localStorage` para Sesión):** 
+  1. Se implementó la utilidad `getJwtRole(token)` en `jwt-expiry.ts` para extraer el claim `rol` directamente del JWT Access Token firmado (fuente de verdad garantizada e inmutable).
+  2. Se eliminó por completo toda escritura y lectura de `localStorage.getItem('rol')` y `localStorage.setItem('rol')` / `'user'`. En `localStorage` únicamente reside la bandera neutral `has_session = '1'`.
+  3. `useAuthLogic.ts` deriva el rol 100% del JWT (`getJwtRole(token)`) o del payload del login/refresh en memoria RAM.
+  4. En `Navbar.tsx`, la condición de vista de cliente se robusteció a `(userRol === 'ROLE_CUSTOMER' || userRol !== 'ROLE_ADMIN')`, asegurando que ningún usuario autenticado regular quede desprovisto de sus accesos a carrito y perfil.
+
 ---
 
 ## 8. Verificación y Pruebas Automatizadas

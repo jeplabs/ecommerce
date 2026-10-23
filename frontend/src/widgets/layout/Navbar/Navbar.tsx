@@ -138,7 +138,7 @@ export default function Navbar() {
                         </div>
                     ) : (
                         <div className={styles.userMenu}>
-                            {userRol === 'ROLE_CUSTOMER' && (
+                            {(userRol === 'ROLE_CUSTOMER' || userRol !== 'ROLE_ADMIN') && (
                                 <div className={styles.authLinks}>
                                     <Link to="/profile" className={styles.btnLink}>
                                         Perfil

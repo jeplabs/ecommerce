@@ -14,7 +14,7 @@ import {
     hasSessionFlag,
     clearAuthTokens,
 } from '@/shared/lib/auth-token-store';
-import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
+import { getJwtExpiryMs, getJwtRole } from '@/shared/lib/jwt-expiry';
 
 type StoredAuthUser = {
     token: string;
@@ -64,12 +64,12 @@ export function useAuthLogic() {
         let isMounted = true;
 
         const initAuth = async () => {
-            const token = getAccessToken() || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+            const token = getAccessToken();
             const expMs = token ? getJwtExpiryMs(token) : null;
             const isTokenValid = token != null && (expMs == null || expMs > Date.now() + 10_000);
 
             if (token && isTokenValid) {
-                const rol = typeof window !== 'undefined' ? localStorage.getItem('rol') : null;
+                const rol = getJwtRole(token);
                 setAccessToken(token);
                 if (isMounted) {
                     setUser({ token, rol });
@@ -87,19 +87,6 @@ export function useAuthLogic() {
                     setUser({ token: refreshed.token, rol: refreshed.rol });
                     setIsAuthenticated(true);
                     setUserRol(refreshed.rol);
-                    if (typeof window !== 'undefined') {
-                        localStorage.setItem('rol', refreshed.rol);
-                        localStorage.setItem(
-                            'user',
-                            JSON.stringify({
-                                id: refreshed.id,
-                                nombre: refreshed.nombre,
-                                apellido: refreshed.apellido,
-                                email: refreshed.email,
-                                rol: refreshed.rol,
-                            })
-                        );
-                    }
                     setLoading(false);
                     return;
                 }
@@ -146,7 +133,7 @@ export function useAuthLogic() {
         });
     }, []);
 
-    // 4. Retrocompatibilidad: escuchar cambios de localStorage entre pestañas
+    // 4. Sincronización multi-pestaña ante cierre de sesión en otra pestaña
     useEffect(() => {
         if (typeof window === 'undefined') return undefined;
 
@@ -156,19 +143,6 @@ export function useAuthLogic() {
                 setUser(null);
                 setUserRol(null);
                 clearAuthTokens();
-            } else if (e.key === 'token') {
-                const token = localStorage.getItem('token');
-                const rol = localStorage.getItem('rol');
-                if (!token) {
-                    setIsAuthenticated(false);
-                    setUser(null);
-                    setUserRol(null);
-                } else {
-                    setAccessToken(token);
-                    setUser({ token, rol });
-                    setIsAuthenticated(true);
-                    setUserRol(rol);
-                }
             }
         };
         window.addEventListener('storage', onStorage);
@@ -264,20 +238,6 @@ export function useAuthLogic() {
                 setIsAuthenticated(true);
                 setUser({ token: data.token, rol: data.rol });
                 setUserRol(data.rol);
-
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('rol', data.rol);
-                    localStorage.setItem(
-                        'user',
-                        JSON.stringify({
-                            id: data.id,
-                            nombre: data.nombre,
-                            apellido: data.apellido,
-                            email: data.email,
-                            rol: data.rol,
-                        })
-                    );
-                }
 
                 broadcastAuthEvent({ type: 'LOGIN' });
 

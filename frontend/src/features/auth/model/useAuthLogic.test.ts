@@ -36,7 +36,8 @@ describe('useAuthLogic', () => {
         expect(sessionStorage.getItem('auth_access_token')).toBe(mockAuthTokenResponse.token);
         expect(localStorage.getItem('token')).toBeNull();
         expect(localStorage.getItem('has_session')).toBe('1');
-        expect(localStorage.getItem('rol')).toBe('ROLE_CUSTOMER');
+        expect(localStorage.getItem('rol')).toBeNull();
+        expect(result.current.userRol).toBe('ROLE_CUSTOMER');
         expect(result.current.isAuthenticated).toBe(true);
     });
 
@@ -56,7 +57,7 @@ describe('useAuthLogic', () => {
         expect(getAccessToken()).toBe(mockAdminAuthTokenResponse.token);
         expect(sessionStorage.getItem('auth_access_token')).toBe(mockAdminAuthTokenResponse.token);
         expect(localStorage.getItem('token')).toBeNull();
-        expect(localStorage.getItem('rol')).toBe('ROLE_ADMIN');
+        expect(localStorage.getItem('rol')).toBeNull();
         expect(result.current.userRol).toBe('ROLE_ADMIN');
     });
 
@@ -95,7 +96,8 @@ describe('useAuthLogic', () => {
 
         expect(result.current.isAuthenticated).toBe(true);
         expect(getAccessToken()).toBeTruthy();
-        expect(localStorage.getItem('rol')).toBe('ROLE_CUSTOMER');
+        expect(localStorage.getItem('rol')).toBeNull();
+        expect(result.current.userRol).toBe('ROLE_CUSTOMER');
     });
 
     it('logout limpia la sesión local y el backend', async () => {
