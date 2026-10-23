@@ -27,5 +27,12 @@ export default function AuthSessionListeners() {
         });
     }, [showWarning]);
 
-    return <SessionExpiryWarning />;
+    // ARQUITECTURA DOBLE TOKEN:
+    // La renovación del Access Token se realiza de forma silenciosa y transparente en segundo plano
+    // (mediante Refresh Token en Cookie HttpOnly), por lo que ya no es necesario interrumpir al usuario
+    // con un modal emergente que avise sobre la caducidad inminente del Access Token.
+    // Se conserva la referencia al componente comentada por retrocompatibilidad y trazabilidad.
+    //
+    // return <SessionExpiryWarning />;
+    return null;
 }

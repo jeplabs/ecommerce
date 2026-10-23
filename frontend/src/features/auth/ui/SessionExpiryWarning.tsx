@@ -20,7 +20,11 @@ function computeWarnLeadMs(remainingMs: number): number {
 }
 
 /**
- * Diálogo nativo accesible; sin renovación de sesión en servidor hasta tener endpoint refresh.
+ * [DESACTIVADO - ARQUITECTURA DOBLE TOKEN]
+ * Diálogo nativo accesible; se implementó históricamente antes de contar con endpoint refresh.
+ * Con la arquitectura actual de Doble Token (Access Token en memoria/sessionStorage + Refresh Token
+ * en Cookie HttpOnly), la sesión se renueva silenciosamente en segundo plano sin interrumpir al usuario.
+ * Se conserva este componente y su lógica interna por trazabilidad y referencia histórica.
  */
 export default function SessionExpiryWarning() {
     const { isAuthenticated, user } = useAuth();

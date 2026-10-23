@@ -185,6 +185,11 @@ En desarrollo local (`http://localhost:5173` y `http://localhost:8081`):
 - **Causa Raíz:** Por defecto, `application.properties` tenía `cookie.secure=true`. En entornos de desarrollo que corren sobre `http://localhost` (no HTTPS), Chrome, Edge y Firefox descartan silenciosamente las cookies con bandera `Secure`. Como resultado, el navegador nunca guardaba la cookie `refresh_token` y, al vencer el Access Token de 15 min, la llamada `/api/auth/refresh` fallaba con 401 por falta de cookie.
 - **Solución:** En `application-dev.properties` se sobreescribieron explícitamente `api.security.cookie.secure=false` y `api.security.cookie.same-site=Lax`.
 
+### 7.4. Modal Legado de Aviso de Caducidad (`SessionExpiryWarning`)
+- **Síntoma:** Aparecía un modal con el mensaje *"Tu sesión está por caducar. En 5 minutos tendrás que iniciar sesión de nuevo..."*, y si el usuario no interactuaba, la sesión se cerraba.
+- **Causa Raíz:** El componente `SessionExpiryWarning.tsx` fue creado antes de la arquitectura de doble token (cuando no existía endpoint de refresh ni cookies). En desarrollo, el token dura 7 minutos, por lo que a los ~3.5 min el modal se abría automáticamente. Además, su botón *"Continuar"* solo cerraba el `<dialog>` sin invocar `/api/auth/refresh`, y la inactividad del usuario impedía la renovación proactiva.
+- **Solución:** En una arquitectura de Doble Token moderna, el Access Token de corta duración debe renovarse de forma 100% transparente y silenciosa en segundo plano sin interrumpir al usuario. Se conservó el código del componente y su lógica interna para trazabilidad histórica, pero se desactivó su montaje en `AuthSessionListeners.tsx` (dejándolo comentado con explicación técnica).
+
 ---
 
 ## 8. Verificación y Pruebas Automatizadas
