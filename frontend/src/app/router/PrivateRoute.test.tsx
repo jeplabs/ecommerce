@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import { mockAdminAuthTokenResponse, mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { renderWithProviders } from '@/test/utils/renderWithProviders';
+import { setAccessToken } from '@/shared/lib/auth-token-store';
 
 function AuthRoutes({ requiredRol }: { requiredRol?: 'ROLE_ADMIN' | 'ROLE_CUSTOMER' }) {
     return (
@@ -35,7 +36,7 @@ describe('PrivateRoute', () => {
     });
 
     it('muestra contenido con rol correcto', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
+        setAccessToken(mockAuthTokenResponse.token);
         localStorage.setItem('rol', 'ROLE_CUSTOMER');
 
         renderWithProviders(<AuthRoutes requiredRol="ROLE_CUSTOMER" />, {
@@ -48,7 +49,7 @@ describe('PrivateRoute', () => {
     });
 
     it('redirige al admin si un cliente intenta acceder a ruta de admin', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
+        setAccessToken(mockAuthTokenResponse.token);
         localStorage.setItem('rol', 'ROLE_CUSTOMER');
 
         renderWithProviders(<AuthRoutes requiredRol="ROLE_ADMIN" />, {
@@ -61,7 +62,7 @@ describe('PrivateRoute', () => {
     });
 
     it('redirige al panel admin si un admin intenta ruta de cliente', async () => {
-        localStorage.setItem('token', mockAdminAuthTokenResponse.token);
+        setAccessToken(mockAdminAuthTokenResponse.token);
         localStorage.setItem('rol', 'ROLE_ADMIN');
 
         renderWithProviders(<AuthRoutes requiredRol="ROLE_CUSTOMER" />, {

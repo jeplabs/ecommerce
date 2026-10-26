@@ -7,6 +7,7 @@ import { CheckoutProvider } from '@/app/providers/CheckoutProvider';
 import { useCheckout } from '@/app/providers';
 import { PAYMENT_METHODS } from '@/features/checkout';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
+import { setAccessToken } from '@/shared/lib/auth-token-store';
 import { addDynamicCartItem } from '@/test/msw/fixtures/cart-registry';
 import { mockProduct } from '@/test/msw/fixtures/products';
 import { WEBPAY_POLL_BACKOFF_MS } from './useCheckoutLogic';
@@ -34,7 +35,7 @@ function createCheckoutWrapper() {
 }
 
 function seedCustomerSession() {
-    localStorage.setItem('token', mockAuthTokenResponse.token);
+    setAccessToken(mockAuthTokenResponse.token);
     localStorage.setItem('rol', 'ROLE_CUSTOMER');
 }
 
@@ -45,6 +46,8 @@ async function selectNormalDelivery(result: { current: ReturnType<typeof useChec
     act(() => {
         const normal = result.current.deliveryServices[0];
         if (normal) result.current.setSelectedServicioEnvioId(normal.id);
+        const address = result.current.direcciones[0];
+        if (address) result.current.setSelectedAddressId(address.id);
     });
 }
 

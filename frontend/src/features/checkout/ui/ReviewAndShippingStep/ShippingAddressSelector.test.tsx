@@ -76,7 +76,7 @@ describe('ShippingAddressSelector', () => {
         useCheckoutMock.mockReturnValue(makeCheckoutMock({}) as never);
         renderAddressSelector();
 
-        expect(screen.getByRole('link', { name: 'Gestionar direcciones en mi perfil' })).toHaveAttribute(
+        expect(screen.getByRole('link', { name: '+ Gestionar direcciones' })).toHaveAttribute(
             'href',
             '/profile/direcciones'
         );

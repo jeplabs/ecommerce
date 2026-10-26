@@ -7,7 +7,8 @@ describe('SimulatedWebpayForm', () => {
         render(<SimulatedWebpayForm />);
 
         expect(screen.getByText('Webpay Plus')).toBeInTheDocument();
-        expect(screen.getByText(/simulará la redirección a Transbank/)).toBeInTheDocument();
-        expect(screen.getByText('Pago con tarjeta de crédito o débito')).toBeInTheDocument();
+        expect(screen.getByText(/Transbank · Chile/)).toBeInTheDocument();
+        expect(screen.getByText(/Al confirmar serás redirigido al sitio seguro de/)).toBeInTheDocument();
+        expect(screen.getByText(/No ingresas tu tarjeta ni datos sensibles/)).toBeInTheDocument();
     });
 });

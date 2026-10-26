@@ -23,9 +23,9 @@ describe('ContraEntregaForm', () => {
         render(<ContraEntregaForm />);
 
         expect(screen.getByText('Contra entrega')).toBeInTheDocument();
-        expect(screen.getByText('Pago pendiente')).toBeInTheDocument();
+        expect(screen.getByText('Pago al recibir')).toBeInTheDocument();
         expect(screen.getByText(/Envío estándar/)).toBeInTheDocument();
-        expect(screen.getByText(/se cobrara al momento de recibir el pedido/)).toBeInTheDocument();
+        expect(screen.getByText(/se cobrará al momento de recibir el pedido/i)).toBeInTheDocument();
     });
 
     it('funciona sin servicio seleccionado', () => {

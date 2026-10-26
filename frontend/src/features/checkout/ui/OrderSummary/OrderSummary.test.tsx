@@ -16,7 +16,7 @@ describe('OrderSummary', () => {
         );
 
         expect(screen.getByText('Resumen del pedido')).toBeInTheDocument();
-        expect(screen.getByText(mockCartItem.name)).toBeInTheDocument();
+        expect(screen.getByText(new RegExp(`^${mockCartItem.name}`))).toBeInTheDocument();
         expect(screen.getByText(new RegExp(`×${mockCartItem.quantity}`))).toBeInTheDocument();
         expect(screen.getAllByText(formatCurrency(199.98)).length).toBeGreaterThan(0);
         expect(screen.getByText(formatCurrency(5.99))).toBeInTheDocument();

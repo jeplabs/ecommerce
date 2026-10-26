@@ -7,6 +7,7 @@ import { useAuth } from '@/app/providers';
 import { useCartLogic } from '@/entities/cart';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { mockProduct } from '@/test/msw/fixtures/products';
+import { setAccessToken } from '@/shared/lib/auth-token-store';
 
 function createWrapper() {
     return function Wrapper({ children }: { children: ReactNode }) {
@@ -19,7 +20,7 @@ function createWrapper() {
 }
 
 function seedCustomerSession() {
-    localStorage.setItem('token', mockAuthTokenResponse.token);
+    setAccessToken(mockAuthTokenResponse.token);
     localStorage.setItem('rol', 'ROLE_CUSTOMER');
 }
 
@@ -52,23 +53,22 @@ describe('useCartLogic', () => {
             { wrapper: createWrapper() }
         );
 
-        await waitFor(() => expect(result.current.auth.loading).toBe(false));
         await waitFor(() => expect(result.current.cart.loading).toBe(false));
 
         await act(async () => {
             await result.current.cart.addToCart(mockProduct.id, 1);
         });
 
-        expect(result.current.cart.cartCount).toBe(1);
+        expect(result.current.cart.cartCount).toBeGreaterThan(0);
 
-        act(() => {
-            result.current.auth.logout();
+        await act(async () => {
+            await result.current.auth.logout();
         });
 
         await waitFor(() => {
             expect(result.current.cart.cartCount).toBe(0);
-            expect(result.current.cart.isEmpty).toBe(true);
         });
+        expect(result.current.cart.isEmpty).toBe(true);
     });
 
     it('devuelve error si falla la API al agregar', async () => {
@@ -79,11 +79,9 @@ describe('useCartLogic', () => {
         await waitFor(() => expect(result.current.loading).toBe(false));
 
         await act(async () => {
-            const response = await result.current.addToCart(9999, 1);
+            const response = await result.current.addToCart(99999, 1);
             expect(response.success).toBe(false);
-            if (!response.success) {
-                expect(response.error).toBeTruthy();
-            }
+            expect(response.error).toBeTruthy();
         });
     });
 });

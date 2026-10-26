@@ -11,8 +11,15 @@ import { resetDynamicFavorites } from './msw/fixtures/favorites-registry';
 import { resetDynamicUsers } from './msw/fixtures/users-registry';
 import { resetMockOrderIds } from './msw/fixtures/orders';
 import { server } from './msw/server';
+import { clearAuthTokens } from '@/shared/lib/auth-token-store';
 
 beforeAll(() => {
+    if (typeof Element.prototype.scrollTo !== 'function') {
+        Element.prototype.scrollTo = () => {};
+    }
+    if (typeof window.scrollTo !== 'function') {
+        window.scrollTo = () => {};
+    }
     server.listen({ onUnhandledRequest: 'error' });
     resetDynamicAddresses();
     resetDynamicOrders();
@@ -34,7 +41,9 @@ afterEach(() => {
     resetDynamicFavorites();
     resetDynamicUsers();
     resetMockOrderIds();
+    clearAuthTokens();
     localStorage.clear();
+    sessionStorage.clear();
 });
 
 afterAll(() => {

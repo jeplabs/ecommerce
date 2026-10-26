@@ -1,10 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-
-vi.mock('../BankTransferAccounts/BankTransferAccounts', () => ({
-    default: () => <div>Cuentas bancarias mock</div>,
-}));
-
+import { describe, expect, it } from 'vitest';
 import SimulatedBankTransferForm from './SimulatedBankTransferForm';
 
 describe('SimulatedBankTransferForm', () => {
@@ -13,7 +8,11 @@ describe('SimulatedBankTransferForm', () => {
 
         expect(screen.getByText('Transferencia bancaria')).toBeInTheDocument();
         expect(screen.getByText('Pago pendiente')).toBeInTheDocument();
-        expect(screen.getByText(/Tu pedido se registrará/)).toBeInTheDocument();
-        expect(screen.getByText('Cuentas bancarias mock')).toBeInTheDocument();
+        expect(
+            screen.getByText(/Transfiere o deposita el monto total/i)
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(/El pedido quedará registrado como/i)
+        ).toBeInTheDocument();
     });
 });

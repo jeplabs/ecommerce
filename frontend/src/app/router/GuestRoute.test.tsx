@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import { mockAdminAuthTokenResponse, mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { renderWithProviders } from '@/test/utils/renderWithProviders';
+import { setAccessToken } from '@/shared/lib/auth-token-store';
 
 function GuestRoutes() {
     return (
@@ -34,7 +35,7 @@ describe('GuestRoute', () => {
     });
 
     it('redirige al perfil si el cliente ya inició sesión', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
+        setAccessToken(mockAuthTokenResponse.token);
         localStorage.setItem('rol', 'ROLE_CUSTOMER');
 
         renderWithProviders(<GuestRoutes />, {
@@ -47,7 +48,7 @@ describe('GuestRoute', () => {
     });
 
     it('redirige al panel admin si el admin ya inició sesión', async () => {
-        localStorage.setItem('token', mockAdminAuthTokenResponse.token);
+        setAccessToken(mockAdminAuthTokenResponse.token);
         localStorage.setItem('rol', 'ROLE_ADMIN');
 
         renderWithProviders(<GuestRoutes />, {

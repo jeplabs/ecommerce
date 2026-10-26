@@ -7,10 +7,12 @@ describe('SimulatedQPayProForm', () => {
         render(<SimulatedQPayProForm />);
 
         expect(screen.getByText('QPayPro')).toBeInTheDocument();
-        expect(screen.getByText('1. Comercio')).toBeInTheDocument();
-        expect(screen.getByText('2. Banco')).toBeInTheDocument();
-        expect(screen.getByText('3. Confirmación')).toBeInTheDocument();
-        expect(screen.getByText(/No se realizará ningún cargo real/)).toBeInTheDocument();
-        expect(screen.getByText('Pago con tarjeta de crédito o débito')).toBeInTheDocument();
+        expect(screen.getByText(/Visa · Mastercard · Guatemala/)).toBeInTheDocument();
+        expect(
+            screen.getByText(/Al confirmar el pago se te redirigirá al sitio de QPayPro/i)
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(/Pago con tarjeta de crédito o débito/i)
+        ).toBeInTheDocument();
     });
 });

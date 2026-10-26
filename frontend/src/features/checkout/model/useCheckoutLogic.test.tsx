@@ -13,6 +13,7 @@ import { mockAddresses } from '@/test/msw/fixtures/addresses';
 import { mockProduct } from '@/test/msw/fixtures/products';
 import { API_BASE } from '@/test/msw/constants';
 import { server } from '@/test/msw/server';
+import { setAccessToken } from '@/shared/lib/auth-token-store';
 
 function createCheckoutWrapper() {
     return function Wrapper({ children }: { children: ReactNode }) {
@@ -27,7 +28,7 @@ function createCheckoutWrapper() {
 }
 
 function seedCustomerSession() {
-    localStorage.setItem('token', mockAuthTokenResponse.token);
+    setAccessToken(mockAuthTokenResponse.token);
     localStorage.setItem('rol', 'ROLE_CUSTOMER');
 }
 
@@ -38,6 +39,8 @@ async function selectNormalDelivery(result: { current: ReturnType<typeof useChec
     act(() => {
         const normal = result.current.deliveryServices[0];
         if (normal) result.current.setSelectedServicioEnvioId(normal.id);
+        const address = result.current.direcciones[0];
+        if (address) result.current.setSelectedAddressId(address.id);
     });
 }
 

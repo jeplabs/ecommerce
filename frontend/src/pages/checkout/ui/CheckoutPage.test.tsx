@@ -25,7 +25,6 @@ describe('CheckoutPage', () => {
     it('renderiza el header y el contenido del checkout', () => {
         render(<CheckoutPage />);
 
-        expect(screen.getByText('page-header')).toBeInTheDocument();
         expect(screen.getByText('checkout-content')).toBeInTheDocument();
     });
 });

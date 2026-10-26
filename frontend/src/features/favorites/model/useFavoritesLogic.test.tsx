@@ -6,6 +6,7 @@ import { AppProviders } from '@/app/providers/AppProviders';
 import { useFavoritesLogic } from './useFavoritesLogic';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { mockProduct } from '@/test/msw/fixtures/products';
+import { setAccessToken } from '@/shared/lib/auth-token-store';
 
 function createWrapper() {
     return function Wrapper({ children }: { children: ReactNode }) {
@@ -18,7 +19,7 @@ function createWrapper() {
 }
 
 function seedCustomerSession() {
-    localStorage.setItem('token', mockAuthTokenResponse.token);
+    setAccessToken(mockAuthTokenResponse.token);
     localStorage.setItem('rol', 'ROLE_CUSTOMER');
 }
 
@@ -52,15 +53,10 @@ describe('useFavoritesLogic', () => {
 
         await waitFor(() => expect(result.current.favorites).toHaveLength(0));
 
-        let toggleResult: Awaited<ReturnType<typeof result.current.toggleFavorite>> | undefined;
-
         await act(async () => {
-            toggleResult = await result.current.toggleFavorite(mockProduct);
+            const res = await result.current.toggleFavorite(mockProduct);
+            expect(res.success).toBe(false);
+            expect('requiresAuth' in res && res.requiresAuth).toBe(true);
         });
-
-        expect(toggleResult?.success).toBe(false);
-        if (toggleResult && !toggleResult.success) {
-            expect('requiresAuth' in toggleResult).toBe(true);
-        }
     });
 });
