@@ -39,13 +39,13 @@ describe('useFavoritesLogic', () => {
             }
         });
 
-        expect(result.current.isFavorite(mockProduct.id)).toBe(true);
+        await waitFor(() => expect(result.current.isFavorite(mockProduct.id)).toBe(true));
 
         await act(async () => {
             await result.current.removeFavorite(mockProduct.id);
         });
 
-        expect(result.current.isFavorite(mockProduct.id)).toBe(false);
+        await waitFor(() => expect(result.current.isFavorite(mockProduct.id)).toBe(false));
     });
 
     it('requiere autenticación para toggle', async () => {

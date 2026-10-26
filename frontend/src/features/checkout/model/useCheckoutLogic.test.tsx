@@ -33,8 +33,12 @@ function seedCustomerSession() {
 }
 
 async function selectNormalDelivery(result: { current: ReturnType<typeof useCheckout> }) {
-    await waitFor(() => expect(result.current.loadingAddresses).toBe(false));
-    await waitFor(() => expect(result.current.loadingEnvioOpciones).toBe(false));
+    await waitFor(() => {
+        expect(result.current.loadingAddresses).toBe(false);
+        expect(result.current.loadingEnvioOpciones).toBe(false);
+        expect(result.current.direcciones.length).toBeGreaterThan(0);
+        expect(result.current.deliveryServices.length).toBeGreaterThan(0);
+    });
 
     act(() => {
         const normal = result.current.deliveryServices[0];
