@@ -4,6 +4,7 @@ import type { RegisterFormValues, UserRole } from '@/entities/user';
 import {
     clearAuthStorage,
     subscribeSessionInvalidated,
+    subscribeSessionRefreshed,
     invalidateClientSession,
     broadcastAuthEvent,
     subscribeAuthBroadcast,
@@ -114,6 +115,15 @@ export function useAuthLogic() {
         });
     }, []);
 
+    // 2.1. Suscripción a eventos de renovación exitosa fuera de React (ej. interceptor HTTP fetchWithAuth)
+    useEffect(() => {
+        return subscribeSessionRefreshed((detail) => {
+            setUser({ token: detail.token, rol: detail.rol });
+            setUserRol(detail.rol);
+            setIsAuthenticated(true);
+        });
+    }, []);
+
     // 3. Sincronización multi-pestaña (BroadcastChannel)
     useEffect(() => {
         return subscribeAuthBroadcast(async (message) => {
@@ -174,6 +184,7 @@ export function useAuthLogic() {
                     if (refreshed) {
                         setUser({ token: refreshed.token, rol: refreshed.rol });
                         setUserRol(refreshed.rol);
+                        setIsAuthenticated(true);
                     }
                 }
             }
@@ -206,6 +217,7 @@ export function useAuthLogic() {
                 if (res) {
                     setUser({ token: res.token, rol: res.rol });
                     setUserRol(res.rol);
+                    setIsAuthenticated(true);
                 } else {
                     invalidateClientSession({ reason: 'jwt_expired' });
                 }
@@ -221,6 +233,7 @@ export function useAuthLogic() {
                 if (refreshed) {
                     setUser({ token: refreshed.token, rol: refreshed.rol });
                     setUserRol(refreshed.rol);
+                    setIsAuthenticated(true);
                     return;
                 }
             }

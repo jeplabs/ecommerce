@@ -6,6 +6,12 @@
 import { clearAuthTokens, getAccessToken, hasSessionFlag } from './auth-token-store';
 
 export const AUTH_SESSION_INVALIDATED = 'ecommerce:auth-session-invalidated';
+export const AUTH_SESSION_REFRESHED = 'ecommerce:auth-session-refreshed';
+
+export type SessionRefreshedDetail = {
+    token: string;
+    rol: string | null;
+};
 const BROADCAST_CHANNEL_NAME = 'ecommerce_auth_channel';
 
 export type AuthBroadcastMessage =
@@ -93,4 +99,28 @@ export function subscribeSessionInvalidated(
     };
     window.addEventListener(AUTH_SESSION_INVALIDATED, listener);
     return () => window.removeEventListener(AUTH_SESSION_INVALIDATED, listener);
+}
+
+export function notifySessionRefreshed(detail: SessionRefreshedDetail): void {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+            new CustomEvent(AUTH_SESSION_REFRESHED, { detail })
+        );
+    }
+}
+
+export function subscribeSessionRefreshed(
+    handler: (detail: SessionRefreshedDetail) => void
+): () => void {
+    if (typeof window === 'undefined') {
+        return () => {};
+    }
+    const listener = (event: Event) => {
+        const customEvent = event as CustomEvent<SessionRefreshedDetail>;
+        if (customEvent.detail && typeof customEvent.detail.token === 'string') {
+            handler(customEvent.detail);
+        }
+    };
+    window.addEventListener(AUTH_SESSION_REFRESHED, listener);
+    return () => window.removeEventListener(AUTH_SESSION_REFRESHED, listener);
 }

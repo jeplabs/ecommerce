@@ -199,6 +199,26 @@ En desarrollo local (`http://localhost:5173` y `http://localhost:8081`):
   3. `useAuthLogic.ts` deriva el rol 100% del JWT (`getJwtRole(token)`) o del payload del login/refresh en memoria RAM.
   4. En `Navbar.tsx`, la condición de vista de cliente se robusteció a `(userRol === 'ROLE_CUSTOMER' || userRol !== 'ROLE_ADMIN')`, asegurando que ningún usuario autenticado regular quede desprovisto de sus accesos a carrito y perfil.
 
+### 7.6. Desfase Visual en UI por Renovación Silenciosa fuera de React (`notifySessionRefreshed`)
+- **Síntoma:** Tras permanecer en otra pestaña por más de 15 minutos, al regresar la UI mostraba la sesión cerrada (Navbar mostrando *"Iniciar sesión"*). Sin embargo, al inspeccionar DevTools:
+  - En `localStorage` persistía `has_session: '1'`.
+  - En `sessionStorage` existía un `auth_access_token` válido.
+  - En Cookies de `localhost` existía la cookie `refresh_token` con vigencia de 14 días (`HttpOnly=✓`, `SameSite=Lax`, `Path=/api/auth`).
+  - Al presionar **F5**, la sesión volvía a mostrarse activa en la UI de inmediato sin solicitar credenciales.
+- **Causa Raíz:**
+  1. Al regresar a la pestaña, el interceptor HTTP `fetchWithAuth` (o el temporizador de visibilidad) invocó `silentRefresh()`.
+  2. La llamada a `POST /api/auth/refresh` fue exitosa, guardó el nuevo Access Token en `sessionStorage` y rotó la cookie HttpOnly en el navegador.
+  3. No obstante, al ejecutarse la renovación dentro de un interceptor de red fuera del árbol de renderizado de React, **no se notificó al estado de React (`AuthProvider`)**.
+  4. React mantenía en memoria el estado anterior en esa pestaña, creando la ilusión visual de que la sesión se había cerrado. Al hacer F5, la app se montó de nuevo desde cero, leyó el token fresco de `sessionStorage` y renderizó la sesión abierta.
+- **Comportamiento del Navegador y Seguridad (RFC 6265):**
+  - **Cookies sin distinción de puerto:** Las cookies web se aíslan por Host (`localhost`) y no por puerto. La cookie emitida por el backend (`:8081`) se almacena bajo el dominio compartido `localhost` con la ruta segura `Path=/api/auth`.
+  - **Aislamiento en `sessionStorage`:** El Access Token de 15 minutos en `sessionStorage` es temporal, vive aislado por pestaña y se autodestruye al cerrar el navegador, evitando riesgos de persistencia de largo plazo.
+- **Solución Implementada:**
+  1. Se implementó el canal de eventos `AUTH_SESSION_REFRESHED` mediante `notifySessionRefreshed` y `subscribeSessionRefreshed` en `auth-session-sync.ts`.
+  2. Las funciones `login` y `refreshToken` en `authApi.ts` emiten `notifySessionRefreshed({ token, rol })` tras cualquier renovación exitosa.
+  3. `useAuthLogic.ts` se suscribe a este evento y actualiza inmediatamente `setUser`, `setUserRol` e `setIsAuthenticated(true)`.
+  4. La UI se sincroniza de inmediato en tiempo real sin requerir que el usuario presione F5.
+
 ---
 
 ## 8. Verificación y Pruebas Automatizadas

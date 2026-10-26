@@ -7,6 +7,7 @@ import {
 } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { getAccessToken, setAccessToken } from '@/shared/lib/auth-token-store';
+import { notifySessionRefreshed } from '@/shared/lib/auth-session-sync';
 import {
     authTokenResponseSchema,
     userApiSchema,
@@ -56,6 +57,7 @@ export async function login(email: string, password: string): Promise<AuthTokenR
 
     const data = parseApi(authTokenResponseSchema, raw);
     setAccessToken(data.token);
+    notifySessionRefreshed({ token: data.token, rol: data.rol });
     return data;
 }
 
@@ -110,6 +112,7 @@ export async function refreshToken(): Promise<AuthTokenResponse> {
 
     const data = parseApi(authTokenResponseSchema, raw);
     setAccessToken(data.token);
+    notifySessionRefreshed({ token: data.token, rol: data.rol });
     return data;
 }
 

@@ -6,7 +6,8 @@ Guías complementarias al [README](../README.md) principal.
 |-----------|-------------|
 | [Evaluacion-Seguridad-Frontend.md](./Evaluacion-Seguridad-Frontend.md) | Auditoría de seguridad, corrección XSS en producto y guía de migración de JWT a Cookies `HttpOnly` |
 | [Evaluacion-Rendimiento-Frontend.md](./Evaluacion-Rendimiento-Frontend.md) | Análisis de rendimiento, optimizaciones de build, fuentes, LCP/CLS y eliminación de waterfalls |
-| [architecture-fsd.md](./architecture-fsd.md) | Arquitectura Feature-Sliced Design, capas, entities, mapeo legacy y convenciones del código |
+| [migracion-arquitectura-bulletproof-react.md](./migracion-arquitectura-bulletproof-react.md) | Hoja de ruta y plan de migración desde FSD hacia Bulletproof React (Feature-Driven / Vertical Slices) |
+| [architecture-fsd.md](./architecture-fsd.md) | Arquitectura Feature-Sliced Design (referencia histórica) |
 | [pnpm.md](./pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
 | [eslint-warnings.md](./eslint-warnings.md) | Inventario de warnings ESLint (React Hooks), impacto en rendimiento y registro de avances |
 | [payment-gateways.md](./payment-gateways.md) | Pasarelas de pago: demo (QPayPro, Webpay Plus, Stripe, Mercado Pago) e integración real |
