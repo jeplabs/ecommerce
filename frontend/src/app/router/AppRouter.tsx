@@ -59,6 +59,9 @@ const AdminUserEditPage = lazy(() =>
 const AdminOrdersPage = lazy(() =>
     import('@/pages/admin/orders').then((m) => ({ default: m.AdminOrdersPage }))
 );
+const NotFoundPage = lazy(() =>
+    import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage }))
+);
 
 export function AppRouter() {
     return (
@@ -214,6 +217,11 @@ export function AppRouter() {
                             </PrivateRoute>
                         }
                     />
+                </Route>
+
+                {/* 404 Not Found (dentro de ShopLayout sin nav de categorías) */}
+                <Route element={<ShopLayout showCategoriasNav={false} />}>
+                    <Route path="*" element={<NotFoundPage />} />
                 </Route>
             </Routes>
             </Suspense>

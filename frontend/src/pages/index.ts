@@ -16,3 +16,4 @@ export { AdminProductEditPage } from './admin/product-edit';
 export { AdminUsersPage } from './admin/users';
 export { AdminUserEditPage } from './admin/user-edit';
 export { AdminOrdersPage } from './admin/orders';
+export { NotFoundPage } from './not-found';

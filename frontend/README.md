@@ -179,6 +179,7 @@ frontend/
 │   │   │   └── index.ts
 │   │   ├── catalog/
 │   │   ├── checkout/
+│   │   ├── not-found/          # 404 Not Found (página accesible con acciones de recuperación)
 │   │   ├── admin/
 │   │   └── …
 │   │
@@ -461,10 +462,11 @@ El router está en `app/router/AppRouter.tsx`. **Todas las páginas se cargan co
 | Layout | Rutas | Shell |
 |--------|-------|-------|
 | `ShopLayout` + categorías | `/`, `/catalogo`, `/categoria/*`, `/producto/:slug` | Navbar + CategoriasNav + Footer |
-| `ShopLayout` sin categorías | login, registro, perfil, carrito, checkout | Navbar + Footer |
+| `ShopLayout` sin categorías | login, registro, perfil, carrito, checkout, 404 (`*`) | Navbar + Footer |
 | `AdminLayout` | `/admin/*` | Navbar admin |
 
 - Ruta canónica del carrito: **`/cart`** (`/carrito` redirige).
+- Ruta 404 (catch-all): **`*`** monta `NotFoundPage` dentro de `ShopLayout` manteniendo el Navbar y Footer para no aislar al usuario y ofrecer navegación de retorno (Inicio, Catálogo, Volver).
 - Rutas protegidas: `PrivateRoute` con rol (`ROLE_CUSTOMER`, `ROLE_ADMIN`).
 - Providers de página: `ProfileProvider` en `/profile`, `CheckoutProvider` en `/checkout`.
 
