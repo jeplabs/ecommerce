@@ -19,6 +19,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 login: auth.login,
                 register: auth.register,
                 logout: auth.logout,
+                logoutAll: auth.logoutAll,
                 desactivarUsuario: auth.desactivarUsuario,
                 activarUsuario: auth.activarUsuario,
             }}

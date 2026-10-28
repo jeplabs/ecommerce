@@ -113,7 +113,7 @@ if (almacenado.isRevocado()) {
 El endpoint implementado en el backend revoca todas las sesiones activas del usuario en todos sus dispositivos (`revocarTodosPorUsuario` en BD):
 
 1. **Acción voluntaria del usuario en "Mi Perfil" / "Seguridad":**
-   - Botón: *"Cerrar sesión en todos los demás dispositivos"* (útil si el cliente sospecha que olvidó su sesión abierta en un equipo compartido).
+   - Implementado en `ProfileDataTab.tsx` mediante el botón *"Cerrar sesión en todos los dispositivos"*, con confirmación previa y consumo de `useAuth().logoutAll()`. Útil si el cliente sospecha de actividad no autorizada o perdió un dispositivo móvil/compartido.
 2. **Eventos críticos de seguridad automáticos:**
    - **Cambio de contraseña:** Si el usuario actualiza su clave, el backend revoca automáticamente todas las familias para expulsar accesos previos.
    - **Restablecimiento por correo (*Forgot Password*):** Invalida sesiones anteriores tras recuperar la cuenta.

@@ -131,6 +131,48 @@
     margin-bottom: 1rem;
 }
 
+.sessionSection {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--surface2, #1a2235);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.sessionInfo {
+    max-width: 650px;
+}
+
+.sessionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.35rem 0;
+}
+
+.sessionDescription {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .sessionSection {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: left;
+    }
+
+    .sessionSection button {
+        width: 100%;
+    }
+}
+
 @media (max-width: 560px) {
     .formRow {
         grid-template-columns: 1fr;

@@ -345,6 +345,20 @@ export function useAuthLogic() {
         }
     }, []);
 
+    const logoutAll = useCallback(async () => {
+        try {
+            await authApi.logoutAll();
+        } catch {
+            // Ignorar
+        } finally {
+            clearAuthStorage();
+            broadcastAuthEvent({ type: 'LOGOUT' });
+            setIsAuthenticated(false);
+            setUser(null);
+            setUserRol(null);
+        }
+    }, []);
+
     const desactivarUsuario = useCallback(
         async (id: number): Promise<UserActionResult> => {
             try {
@@ -389,6 +403,7 @@ export function useAuthLogic() {
         login,
         register,
         logout,
+        logoutAll,
         desactivarUsuario,
         activarUsuario,
     };

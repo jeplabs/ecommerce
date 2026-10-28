@@ -124,4 +124,29 @@ describe('useAuthLogic', () => {
         expect(result.current.isAuthenticated).toBe(false);
         expect(result.current.userRol).toBeNull();
     });
+
+    it('logoutAll limpia la sesión local, todas las sesiones y desautentica al usuario', async () => {
+        sessionStorage.setItem('auth_access_token', mockAuthTokenResponse.token);
+        localStorage.setItem('has_session', '1');
+        localStorage.setItem('rol', 'ROLE_CUSTOMER');
+        localStorage.setItem('user', JSON.stringify({ email: MOCK_LOGIN_EMAIL }));
+
+        const { result } = renderHook(() => useAuthLogic());
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+        expect(result.current.isAuthenticated).toBe(true);
+
+        await act(async () => {
+            await result.current.logoutAll();
+        });
+
+        expect(getAccessToken()).toBeNull();
+        expect(sessionStorage.getItem('auth_access_token')).toBeNull();
+        expect(localStorage.getItem('has_session')).toBeNull();
+        expect(localStorage.getItem('token')).toBeNull();
+        expect(localStorage.getItem('rol')).toBeNull();
+        expect(localStorage.getItem('user')).toBeNull();
+        expect(result.current.isAuthenticated).toBe(false);
+        expect(result.current.userRol).toBeNull();
+    });
 });

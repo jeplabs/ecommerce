@@ -17,7 +17,7 @@ type ProfileFormData = {
 
 export default function ProfileDataTab() {
     const { profile } = useProfile();
-    const { logout } = useAuth();
+    const { logout, logoutAll } = useAuth();
     const { showSuccess, showError } = useToast();
 
     const { usuario, saving, updatePerfil } = profile;
@@ -25,8 +25,26 @@ export default function ProfileDataTab() {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<ProfileFormData>({ nombre: '', apellido: '', pais: '' });
     const [formError, setFormError] = useState<string | null>(null);
+    const [loggingOutAll, setLoggingOutAll] = useState(false);
 
     if (!usuario) return null;
+
+    const handleLogoutAll = async () => {
+        const confirmed = window.confirm(
+            '¿Cerrar sesión en todos los dispositivos?\n\nEsta acción revocará el acceso en este navegador y en cualquier otro dispositivo activo.'
+        );
+        if (!confirmed) return;
+
+        try {
+            setLoggingOutAll(true);
+            await logoutAll();
+            showSuccess('Has cerrado sesión en todos los dispositivos');
+        } catch {
+            showError('No se pudo cerrar sesión en todos los dispositivos');
+        } finally {
+            setLoggingOutAll(false);
+        }
+    };
 
     const startEditing = () => {
         setFormData({
@@ -159,6 +177,24 @@ export default function ProfileDataTab() {
                 </>
             )}
             <ChangePasswordForm />
+            </div>
+
+            <div className={styles.sessionSection}>
+                <div className={styles.sessionInfo}>
+                    <h3 className={styles.sessionTitle}>Seguridad de la sesión</h3>
+                    <p className={styles.sessionDescription}>
+                        ¿Perdiste un dispositivo o sospechas de actividad no autorizada? Puedes revocar y cerrar
+                        todas tus sesiones activas en cualquier otro navegador o dispositivo conectado.
+                    </p>
+                </div>
+                <Button
+                    type="button"
+                    variant="outlineDanger"
+                    onClick={handleLogoutAll}
+                    disabled={loggingOutAll}
+                >
+                    {loggingOutAll ? 'Cerrando sesiones…' : 'Cerrar sesión en todos los dispositivos'}
+                </Button>
             </div>
         </section>
     );
