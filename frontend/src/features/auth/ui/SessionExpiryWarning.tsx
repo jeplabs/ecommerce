@@ -52,16 +52,16 @@ export default function SessionExpiryWarning() {
             dialogRef.current?.showModal?.();
         };
 
-        let id: number | undefined;
         if (msUntilWarn <= 0) {
             openIfStillValid();
-        } else {
-            id = window.setTimeout(openIfStillValid, msUntilWarn);
+            return;
         }
 
-        return () => {
-            if (id) window.clearTimeout(id);
-        };
+        const MAX_TIMEOUT_MS = 2_147_483_647;
+        if (msUntilWarn <= MAX_TIMEOUT_MS) {
+            const id = window.setTimeout(openIfStillValid, msUntilWarn);
+            return () => window.clearTimeout(id);
+        }
     }, [isAuthenticated, user?.token]);
 
     return (

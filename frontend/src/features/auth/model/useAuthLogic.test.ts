@@ -32,13 +32,15 @@ describe('useAuthLogic', () => {
         });
 
         // En arquitectura de Doble Token, el Access Token NO va en localStorage, sino en memoria/sessionStorage
-        expect(getAccessToken()).toBe(mockAuthTokenResponse.token);
-        expect(sessionStorage.getItem('auth_access_token')).toBe(mockAuthTokenResponse.token);
-        expect(localStorage.getItem('token')).toBeNull();
-        expect(localStorage.getItem('has_session')).toBe('1');
-        expect(localStorage.getItem('rol')).toBeNull();
-        expect(result.current.userRol).toBe('ROLE_CUSTOMER');
-        expect(result.current.isAuthenticated).toBe(true);
+        await waitFor(() => {
+            expect(getAccessToken()).toBe(mockAuthTokenResponse.token);
+            expect(sessionStorage.getItem('auth_access_token')).toBe(mockAuthTokenResponse.token);
+            expect(localStorage.getItem('token')).toBeNull();
+            expect(localStorage.getItem('has_session')).toBe('1');
+            expect(localStorage.getItem('rol')).toBeNull();
+            expect(result.current.userRol).toBe('ROLE_CUSTOMER');
+            expect(result.current.isAuthenticated).toBe(true);
+        });
     });
 
     it('login de admin persiste rol admin y token en memoria', async () => {

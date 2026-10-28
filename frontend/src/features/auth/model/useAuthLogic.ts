@@ -222,24 +222,27 @@ export function useAuthLogic() {
                     invalidateClientSession({ reason: 'jwt_expired' });
                 }
             });
-            return undefined;
+            return;
         }
 
-        // Timer 60 segundos antes de expirar: renovar silenciosamente si hubo actividad reciente
-        const renewTimer = window.setTimeout(async () => {
-            const hadRecentActivity = Date.now() - lastActivityRef.current < 15 * 60 * 1000;
-            if (hadRecentActivity) {
-                const refreshed = await authApi.silentRefresh();
-                if (refreshed) {
-                    setUser({ token: refreshed.token, rol: refreshed.rol });
-                    setUserRol(refreshed.rol);
-                    setIsAuthenticated(true);
-                    return;
+        // Límite de 32 bits con signo para setTimeout (~24.8 días según HTML Living Standard).
+        // Solo programamos temporizador si el tiempo está en rango positivo y seguro.
+        const MAX_TIMEOUT_MS = 2_147_483_647;
+        if (msUntilRenew > 0 && msUntilRenew <= MAX_TIMEOUT_MS) {
+            const renewTimer = window.setTimeout(async () => {
+                const hadRecentActivity = Date.now() - lastActivityRef.current < 15 * 60 * 1000;
+                if (hadRecentActivity) {
+                    const refreshed = await authApi.silentRefresh();
+                    if (refreshed) {
+                        setUser({ token: refreshed.token, rol: refreshed.rol });
+                        setUserRol(refreshed.rol);
+                        setIsAuthenticated(true);
+                    }
                 }
-            }
-        }, msUntilRenew);
+            }, msUntilRenew);
 
-        return () => window.clearTimeout(renewTimer);
+            return () => window.clearTimeout(renewTimer);
+        }
     }, [isAuthenticated, user?.token]);
 
     const login = useCallback(
