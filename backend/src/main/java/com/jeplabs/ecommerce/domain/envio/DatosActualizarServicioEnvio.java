@@ -16,5 +16,17 @@ public record DatosActualizarServicioEnvio(
         BigDecimal recargoContraEntrega,
 
         String logoUrl,
-        Boolean sinContraEntrega // Boolean con mayúscula para permitir null
-) {}
+        Boolean sinContraEntrega, // Boolean con mayúscula para permitir null
+        Boolean retiroTienda
+) {
+    public DatosActualizarServicioEnvio(
+            String nombre,
+            String descripcion,
+            BigDecimal tarifa,
+            BigDecimal recargoContraEntrega,
+            String logoUrl,
+            Boolean sinContraEntrega
+    ) {
+        this(nombre, descripcion, tarifa, recargoContraEntrega, logoUrl, sinContraEntrega, null);
+    }
+}

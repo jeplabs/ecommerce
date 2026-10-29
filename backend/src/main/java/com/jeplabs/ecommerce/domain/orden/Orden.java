@@ -4,6 +4,7 @@ import com.jeplabs.ecommerce.domain.direccion.Direccion;
 import com.jeplabs.ecommerce.domain.envio.ServicioEnvio;
 import com.jeplabs.ecommerce.domain.pago.MetodoPago;
 import com.jeplabs.ecommerce.domain.pago.TipoMetodoPago;
+import com.jeplabs.ecommerce.domain.sucursal.Sucursal;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.infra.exceptions.EstadoInvalidoException;
 import jakarta.persistence.*;
@@ -32,7 +33,11 @@ public class Orden {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "direccion_id")
-    private Direccion direccion; // nullable, referencia informativa
+    private Direccion direccion; // nullable, referencia informativa para envío a domicilio
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sucursal_id")
+    private Sucursal sucursal; // nullable, referencia informativa para retiro en tienda
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "servicio_envio_id")
@@ -68,15 +73,16 @@ public class Orden {
     @Column(name = "nota_envio")
     private String notaEnvio;
 
-    // Copia de datos de dirección
-    @Column(name = "direccion_alias")     private String direccionAlias;
-    @Column(name = "direccion_calle")     private String direccionCalle;
-    @Column(name = "direccion_ciudad")    private String direccionCiudad;
-    @Column(name = "direccion_estado")    private String direccionEstado;
+    // Copia de datos de ubicación (dirección del cliente o sucursal de retiro)
+    @Column(name = "direccion_alias")         private String direccionAlias;
+    @Column(name = "direccion_calle")         private String direccionCalle;
+    @Column(name = "direccion_ciudad")        private String direccionCiudad;
+    @Column(name = "direccion_estado")        private String direccionEstado;
     @Column(name = "direccion_codigo_postal") private String direccionCodigoPostal;
-    @Column(name = "direccion_pais")      private String direccionPais;
-    @Column(name = "direccion_telefono")  private String direccionTelefono;
-    @Column(name = "direccion_referencias") private String direccionReferencias;
+    @Column(name = "direccion_pais")          private String direccionPais;
+    @Column(name = "direccion_telefono")      private String direccionTelefono;
+    @Column(name = "direccion_referencias")   private String direccionReferencias;
+    @Column(name = "sucursal_horario")        private String sucursalHorario;
 
     @Column(precision = 10, scale = 2) private BigDecimal subtotal;
     @Column(precision = 10, scale = 2) private BigDecimal iva;
@@ -96,6 +102,7 @@ public class Orden {
                  BigDecimal subtotal, BigDecimal iva) {
         this.usuario = usuario;
         this.direccion = direccion;
+        this.sucursal = null;
         this.servicioEnvio = servicioEnvio;
         this.formaPagoEnvio = formaPagoEnvio;
         this.costoEnvio = costoEnvio;
@@ -112,6 +119,7 @@ public class Orden {
         this.direccionPais           = direccion.getPais();
         this.direccionTelefono       = direccion.getTelefono();
         this.direccionReferencias    = direccion.getReferencias();
+        this.sucursalHorario         = null;
 
         this.subtotal     = subtotal;
         this.iva          = iva;
@@ -119,6 +127,39 @@ public class Orden {
                                                       // agrega el costo del envío.
         this.notas        = notas;
         this.creadoAt     = LocalDateTime.now();
+        this.actualizadoAt = LocalDateTime.now();
+    }
+
+    public Orden(Usuario usuario, Sucursal sucursal, ServicioEnvio servicioEnvio, FormaPagoEnvio formaPagoEnvio,
+                 String metodoPagoCodigo,
+                 BigDecimal costoEnvio, String notas,
+                 BigDecimal subtotal, BigDecimal iva) {
+        this.usuario = usuario;
+        this.direccion = null;
+        this.sucursal = sucursal;
+        this.servicioEnvio = servicioEnvio;
+        this.formaPagoEnvio = formaPagoEnvio;
+        this.costoEnvio = costoEnvio;
+        this.notaEnvio = generarNotaEnvio(formaPagoEnvio, servicioEnvio);
+        this.estado = EstadoOrden.PENDIENTE;
+        this.metodoPagoCodigo = metodoPagoCodigo;
+
+        // Snapshot de ubicación de la sucursal de retiro al momento de la orden
+        this.direccionAlias          = sucursal.getNombre();
+        this.direccionCalle          = sucursal.getDireccion();
+        this.direccionCiudad         = sucursal.getCiudad();
+        this.direccionEstado         = sucursal.getEstado();
+        this.direccionCodigoPostal   = sucursal.getCodigoPostal();
+        this.direccionPais           = sucursal.getPais();
+        this.direccionTelefono       = sucursal.getTelefono();
+        this.direccionReferencias    = sucursal.getReferencias();
+        this.sucursalHorario         = sucursal.getHorario();
+
+        this.subtotal      = subtotal;
+        this.iva           = iva;
+        this.total         = subtotal.add(costoEnvio);
+        this.notas         = notas;
+        this.creadoAt      = LocalDateTime.now();
         this.actualizadoAt = LocalDateTime.now();
     }
 

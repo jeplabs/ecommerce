@@ -48,6 +48,9 @@ public class ServicioEnvioService {
 
     @Transactional
     public DatosRespuestaServicioEnvio crear(DatosCrearServicioEnvio datos) {
+        boolean esRetiro = datos.retiroTienda() != null
+                ? datos.retiroTienda()
+                : (datos.nombre() != null && datos.nombre().toLowerCase().contains("retiro"));
         ServicioEnvio servicio = new ServicioEnvio(
                 null,
                 datos.nombre(),
@@ -56,7 +59,8 @@ public class ServicioEnvioService {
                 datos.recargoContraEntrega(),
                 true,
                 datos.logoUrl(),
-                datos.sinContraEntrega()
+                datos.sinContraEntrega(),
+                esRetiro
         );
         repositorio.save(servicio);
         return new DatosRespuestaServicioEnvio(servicio);

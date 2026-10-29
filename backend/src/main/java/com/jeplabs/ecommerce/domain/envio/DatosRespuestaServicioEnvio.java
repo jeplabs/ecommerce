@@ -14,6 +14,7 @@ public record DatosRespuestaServicioEnvio(
         BigDecimal costoContraEntrega,
         String logoUrl,
         boolean sinContraEntrega,
+        boolean retiroTienda,
         String notaExpress
 ) {
     public DatosRespuestaServicioEnvio(ServicioEnvio servicio) {
@@ -27,6 +28,7 @@ public record DatosRespuestaServicioEnvio(
                 servicio.calcularCostoTotal(FormaPagoEnvio.CONTRA_ENTREGA),
                 servicio.getLogoUrl(),
                 servicio.isSinContraEntrega(),
+                servicio.esRetiroEnTienda(),
                 servicio.isSinContraEntrega()
                         ? "No aplica para contra entrega"
                         : null

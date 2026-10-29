@@ -31,13 +31,47 @@ public class ServicioEnvio {
     private String logoUrl;
     private boolean sinContraEntrega;
 
+    @Column(name = "retiro_tienda")
+    private boolean retiroTienda;
+
+    public ServicioEnvio(
+            Long id,
+            String nombre,
+            String descripcion,
+            BigDecimal tarifa,
+            BigDecimal recargoContraEntrega,
+            boolean activo,
+            String logoUrl,
+            boolean sinContraEntrega
+    ) {
+        this(
+                id,
+                nombre,
+                descripcion,
+                tarifa,
+                recargoContraEntrega,
+                activo,
+                logoUrl,
+                sinContraEntrega,
+                nombre != null && nombre.toLowerCase().contains("retiro")
+        );
+    }
+
     public void actualizar(DatosActualizarServicioEnvio datos) {
         if (datos.nombre() != null)                 this.nombre = datos.nombre();
         if (datos.descripcion() != null)            this.descripcion = datos.descripcion();
         if (datos.tarifa() != null)                 this.tarifa = datos.tarifa();
         if (datos.recargoContraEntrega() != null)   this.recargoContraEntrega = datos.recargoContraEntrega();
         if (datos.logoUrl() != null)                this.logoUrl = datos.logoUrl();
-        if (datos.sinContraEntrega() != null)        this.sinContraEntrega = datos.sinContraEntrega();
+        if (datos.sinContraEntrega() != null)       this.sinContraEntrega = datos.sinContraEntrega();
+        if (datos.retiroTienda() != null)           this.retiroTienda = datos.retiroTienda();
+    }
+
+    public boolean esRetiroEnTienda() {
+        if (this.retiroTienda) {
+            return true;
+        }
+        return this.nombre != null && this.nombre.toLowerCase().contains("retiro");
     }
 
     public void activar()    { this.activo = true; }

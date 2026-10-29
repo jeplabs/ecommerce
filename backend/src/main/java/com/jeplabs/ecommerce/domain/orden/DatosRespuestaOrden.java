@@ -9,7 +9,8 @@ import java.util.List;
 public record DatosRespuestaOrden(
         Long id,
         EstadoOrden estado,
-        Long direccionId, // null si la dirección fue eliminada
+        Long direccionId, // null si la dirección fue eliminada o si es retiro en tienda
+        Long sucursalId,  // null si es envío a domicilio o si la sucursal fue eliminada
         DatosRespuestaDireccionOrden direccionEnvio,
         String servicioEnvio,       //  nombre del servicio
         FormaPagoEnvio formaPagoEnvio,        // forma de pago
@@ -29,11 +30,61 @@ public record DatosRespuestaOrden(
         LocalDateTime creadoAt,
         LocalDateTime actualizadoAt
 ) {
+    public DatosRespuestaOrden(
+            Long id,
+            EstadoOrden estado,
+            Long direccionId,
+            DatosRespuestaDireccionOrden direccionEnvio,
+            String servicioEnvio,
+            FormaPagoEnvio formaPagoEnvio,
+            String metodoPago,
+            String metodoPagoNombre,
+            TipoMetodoPago tipoMetodoPago,
+            List<DatosRespuestaOrdenItem> items,
+            BigDecimal subtotal,
+            BigDecimal iva,
+            BigDecimal costoEnvio,
+            String notaEnvio,
+            BigDecimal total,
+            String comprobanteUrl,
+            String comprobanteNombre,
+            LocalDateTime comprobanteFecha,
+            String notas,
+            LocalDateTime creadoAt,
+            LocalDateTime actualizadoAt
+    ) {
+        this(
+                id,
+                estado,
+                direccionId,
+                null,
+                direccionEnvio,
+                servicioEnvio,
+                formaPagoEnvio,
+                metodoPago,
+                metodoPagoNombre,
+                tipoMetodoPago,
+                items,
+                subtotal,
+                iva,
+                costoEnvio,
+                notaEnvio,
+                total,
+                comprobanteUrl,
+                comprobanteNombre,
+                comprobanteFecha,
+                notas,
+                creadoAt,
+                actualizadoAt
+        );
+    }
+
     public DatosRespuestaOrden(Orden orden) {
         this(
                 orden.getId(),
                 orden.getEstado(),
                 orden.getDireccion() != null ? orden.getDireccion().getId() : null,
+                orden.getSucursal() != null ? orden.getSucursal().getId() : null,
                 new DatosRespuestaDireccionOrden(orden),
                 orden.getServicioEnvio() != null ? orden.getServicioEnvio().getNombre() : null,
                 orden.getFormaPagoEnvio(),
@@ -48,9 +99,9 @@ public record DatosRespuestaOrden(
                 orden.getCostoEnvio(),
                 orden.getNotaEnvio(),
                 orden.getTotal(),
-                orden.getComprobanteUrl(),      // ← nuevo
-                orden.getComprobanteNombre(),   // ← nuevo
-                orden.getComprobanteFecha(),    // ← nuevo
+                orden.getComprobanteUrl(),
+                orden.getComprobanteNombre(),
+                orden.getComprobanteFecha(),
                 orden.getNotas(),
                 orden.getCreadoAt(),
                 orden.getActualizadoAt()

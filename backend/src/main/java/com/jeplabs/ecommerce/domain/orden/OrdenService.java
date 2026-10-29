@@ -13,6 +13,8 @@ import com.jeplabs.ecommerce.domain.pago.MetodoPagoService;
 import com.jeplabs.ecommerce.domain.pago.TipoMetodoPago;
 import com.jeplabs.ecommerce.domain.producto.Producto;
 import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
+import com.jeplabs.ecommerce.domain.sucursal.Sucursal;
+import com.jeplabs.ecommerce.domain.sucursal.SucursalRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import com.jeplabs.ecommerce.domain.usuario.Rol; // ← Importado
@@ -47,6 +49,7 @@ public class OrdenService {
     private final CarritoItemRepository carritoItemRepositorio;
     private final ProductoRepository productoRepositorio;
     private final DireccionRepository direccionRepositorio;
+    private final SucursalRepository sucursalRepositorio;
     private final UsuarioRepository usuarioRepositorio;
     private final IvaCalculator ivaCalculator;
     private final EmailService emailService;
@@ -105,15 +108,6 @@ public class OrdenService {
             throw new CarritoVacioException();
         }
 
-        // Verificar que la dirección existe y pertenece al usuario
-        Direccion direccion = direccionRepositorio
-                .findByIdAndUsuarioId(datos.direccionId(), usuario.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Dirección no encontrada"));
-
-        if (!direccion.isActivo()) {
-            throw new IllegalArgumentException("La dirección seleccionada no está disponible");
-        }
-
         // Buscar servicio de envío
         ServicioEnvio servicioEnvio = servicioEnvioRepositorio
                 .findById(datos.servicioEnvioId())
@@ -125,6 +119,32 @@ public class OrdenService {
 
         // Validar que express no se use con contra entrega
         servicioEnvio.validarDisponibilidad(datos.formaPagoEnvio());
+
+        // Resolver ubicación según sea retiro en tienda o envío a domicilio
+        Direccion direccion = null;
+        Sucursal sucursal = null;
+
+        if (servicioEnvio.esRetiroEnTienda()) {
+            if (datos.sucursalId() == null) {
+                throw new IllegalArgumentException("La sucursal de retiro es obligatoria");
+            }
+            sucursal = sucursalRepositorio
+                    .findById(datos.sucursalId())
+                    .orElseThrow(() -> new IllegalArgumentException("Sucursal no encontrada"));
+            if (!sucursal.isActivo()) {
+                throw new IllegalArgumentException("La sucursal seleccionada no está disponible");
+            }
+        } else {
+            if (datos.direccionId() == null) {
+                throw new IllegalArgumentException("La dirección de envío es obligatoria");
+            }
+            direccion = direccionRepositorio
+                    .findByIdAndUsuarioId(datos.direccionId(), usuario.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Dirección no encontrada"));
+            if (!direccion.isActivo()) {
+                throw new IllegalArgumentException("La dirección seleccionada no está disponible");
+            }
+        }
 
         MetodoPago metodoPago = metodoPagoService.buscarPorCodigo(datos.metodoPagoCodigo());
 
@@ -140,13 +160,21 @@ public class OrdenService {
             // Se calcula costo inicial provisional y se mapea completo el constructor incluyendo metodoPago
             BigDecimal costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPagoEnvio());
 
-            Orden orden = new Orden(
-                    usuario, direccion, servicioEnvio,
-                    datos.formaPagoEnvio(),
-                    datos.metodoPagoCodigo(),
-                    BigDecimal.ZERO, datos.notas(),
-                    BigDecimal.ZERO, BigDecimal.ZERO
-            );
+            Orden orden = (sucursal != null)
+                    ? new Orden(
+                            usuario, sucursal, servicioEnvio,
+                            datos.formaPagoEnvio(),
+                            datos.metodoPagoCodigo(),
+                            BigDecimal.ZERO, datos.notas(),
+                            BigDecimal.ZERO, BigDecimal.ZERO
+                    )
+                    : new Orden(
+                            usuario, direccion, servicioEnvio,
+                            datos.formaPagoEnvio(),
+                            datos.metodoPagoCodigo(),
+                            BigDecimal.ZERO, datos.notas(),
+                            BigDecimal.ZERO, BigDecimal.ZERO
+                    );
             ordenRepositorio.save(orden);
 
             for (CarritoItem carritoItem : carrito.getItems()) {

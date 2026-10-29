@@ -9,6 +9,8 @@ import com.jeplabs.ecommerce.domain.envio.ServicioEnvioRepository;
 import com.jeplabs.ecommerce.domain.producto.EstadoProducto;
 import com.jeplabs.ecommerce.domain.producto.Producto;
 import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
+import com.jeplabs.ecommerce.domain.sucursal.Sucursal;
+import com.jeplabs.ecommerce.domain.sucursal.SucursalRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import com.jeplabs.ecommerce.infra.email.EmailService;
@@ -44,6 +46,7 @@ class OrdenServiceTest {
     @Mock private CarritoItemRepository carritoItemRepositorio;
     @Mock private ProductoRepository productoRepositorio;
     @Mock private DireccionRepository direccionRepositorio;
+    @Mock private SucursalRepository sucursalRepositorio;
     @Mock private UsuarioRepository usuarioRepositorio;
     @Mock private ServicioEnvioRepository servicioEnvioRepositorio;
     @Mock private IvaCalculator ivaCalculator;
@@ -62,7 +65,9 @@ class OrdenServiceTest {
     private CarritoItem carritoItem;
     private Producto producto;
     private Direccion direccion;
+    private Sucursal sucursal;
     private ServicioEnvio servicioEnvio;
+    private ServicioEnvio servicioRetiro;
     private MetodoPago metodoPago;
     private DatosCrearOrden datosCrearOrden;
 
@@ -92,12 +97,35 @@ class OrdenServiceTest {
         when(direccion.getPais()).thenReturn("Guatemala");
         when(direccion.getTelefono()).thenReturn("+50212345678");
 
-        // Servicio de envío
+        // Sucursal de retiro
+        sucursal = mock(Sucursal.class);
+        when(sucursal.getId()).thenReturn(2L);
+        when(sucursal.isActivo()).thenReturn(true);
+        when(sucursal.getNombre()).thenReturn("Tienda Zona 10");
+        when(sucursal.getDireccion()).thenReturn("Boulevard Los Proceres 5-50, Zona 10");
+        when(sucursal.getCiudad()).thenReturn("Ciudad de Guatemala");
+        when(sucursal.getEstado()).thenReturn("Guatemala");
+        when(sucursal.getCodigoPostal()).thenReturn("01010");
+        when(sucursal.getPais()).thenReturn("GT");
+        when(sucursal.getTelefono()).thenReturn("+502 2456-7890");
+        when(sucursal.getHorario()).thenReturn("Lun-Vie: 10:00-19:00, Sáb: 10:00-14:00");
+        when(sucursal.getReferencias()).thenReturn("Plaza Comercial Zona 10");
+
+        // Servicio de envío a domicilio
         servicioEnvio = mock(ServicioEnvio.class);
         when(servicioEnvio.getId()).thenReturn(1L);
         when(servicioEnvio.getNombre()).thenReturn("Guatex");
         when(servicioEnvio.isActivo()).thenReturn(true);
+        when(servicioEnvio.esRetiroEnTienda()).thenReturn(false);
         when(servicioEnvio.calcularCostoTotal(any())).thenReturn(new BigDecimal("45.00"));
+
+        // Servicio de retiro en tienda
+        servicioRetiro = mock(ServicioEnvio.class);
+        when(servicioRetiro.getId()).thenReturn(3L);
+        when(servicioRetiro.getNombre()).thenReturn("Retiro en tienda");
+        when(servicioRetiro.isActivo()).thenReturn(true);
+        when(servicioRetiro.esRetiroEnTienda()).thenReturn(true);
+        when(servicioRetiro.calcularCostoTotal(any())).thenReturn(BigDecimal.ZERO);
 
         // MetodoPago
         metodoPago = mock(MetodoPago.class);
@@ -126,8 +154,12 @@ class OrdenServiceTest {
                 .thenReturn(Optional.of(usuario));
         when(direccionRepositorio.findByIdAndUsuarioId(1L, 1L))
                 .thenReturn(Optional.of(direccion));
+        when(sucursalRepositorio.findById(2L))
+                .thenReturn(Optional.of(sucursal));
         when(servicioEnvioRepositorio.findById(1L))
                 .thenReturn(Optional.of(servicioEnvio));
+        when(servicioEnvioRepositorio.findById(3L))
+                .thenReturn(Optional.of(servicioRetiro));
         when(productoRepositorio.findById(1L))
                 .thenReturn(Optional.of(producto));
 
@@ -169,7 +201,87 @@ class OrdenServiceTest {
             DatosRespuestaOrden respuesta = ordenService.crear("usuario@test.com", datosCrearOrden);
 
             assertThat(respuesta.estado()).isEqualTo(EstadoOrden.PENDIENTE);
+            assertThat(respuesta.direccionId()).isEqualTo(1L);
+            assertThat(respuesta.sucursalId()).isNull();
             verify(ordenRepositorio, atLeastOnce()).save(any(Orden.class));
+        }
+
+        @Test
+        @DisplayName("Retiro en tienda con sucursal activa guarda sucursalId y snapshot de ubicación")
+        void crear_retiroEnTiendaConSucursalActiva_debeGuardarSucursalYSnapshot() {
+            when(carritoRepositorio.findByUsuarioIdAndEstado(1L, EstadoCarrito.ACTIVO))
+                    .thenReturn(Optional.of(carrito));
+            when(envioCalculator.calcularCostoEnvio(any(), eq(servicioRetiro), any()))
+                    .thenReturn(BigDecimal.ZERO);
+
+            DatosCrearOrden datosRetiro = new DatosCrearOrden(
+                    null, 2L, 3L, FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", "Paso a recoger a las 3pm"
+            );
+
+            DatosRespuestaOrden respuesta = ordenService.crear("usuario@test.com", datosRetiro);
+
+            assertThat(respuesta.estado()).isEqualTo(EstadoOrden.PENDIENTE);
+            assertThat(respuesta.direccionId()).isNull();
+            assertThat(respuesta.sucursalId()).isEqualTo(2L);
+            assertThat(respuesta.servicioEnvio()).isEqualTo("Retiro en tienda");
+            assertThat(respuesta.direccionEnvio().alias()).isEqualTo("Tienda Zona 10");
+            assertThat(respuesta.direccionEnvio().calle()).isEqualTo("Boulevard Los Proceres 5-50, Zona 10");
+            assertThat(respuesta.direccionEnvio().ciudad()).isEqualTo("Ciudad de Guatemala");
+            assertThat(respuesta.direccionEnvio().pais()).isEqualTo("GT");
+            assertThat(respuesta.direccionEnvio().telefono()).isEqualTo("+502 2456-7890");
+            assertThat(respuesta.direccionEnvio().horario()).isEqualTo("Lun-Vie: 10:00-19:00, Sáb: 10:00-14:00");
+        }
+
+        @Test
+        @DisplayName("Retiro en tienda sin sucursalId lanza IllegalArgumentException")
+        void crear_retiroEnTiendaSinSucursalId_debeLanzarExcepcion() {
+            when(carritoRepositorio.findByUsuarioIdAndEstado(1L, EstadoCarrito.ACTIVO))
+                    .thenReturn(Optional.of(carrito));
+
+            DatosCrearOrden datosSinSucursal = new DatosCrearOrden(
+                    null, null, 3L, FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", null
+            );
+
+            assertThatThrownBy(() -> ordenService.crear("usuario@test.com", datosSinSucursal))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("La sucursal de retiro es obligatoria");
+
+            verify(ordenRepositorio, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Retiro en tienda con sucursal inactiva lanza IllegalArgumentException")
+        void crear_retiroEnTiendaSucursalInactiva_debeLanzarExcepcion() {
+            when(carritoRepositorio.findByUsuarioIdAndEstado(1L, EstadoCarrito.ACTIVO))
+                    .thenReturn(Optional.of(carrito));
+            when(sucursal.isActivo()).thenReturn(false);
+
+            DatosCrearOrden datosRetiro = new DatosCrearOrden(
+                    null, 2L, 3L, FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", null
+            );
+
+            assertThatThrownBy(() -> ordenService.crear("usuario@test.com", datosRetiro))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("La sucursal seleccionada no está disponible");
+
+            verify(ordenRepositorio, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Envío a domicilio sin direccionId lanza IllegalArgumentException")
+        void crear_envioDomicilioSinDireccionId_debeLanzarExcepcion() {
+            when(carritoRepositorio.findByUsuarioIdAndEstado(1L, EstadoCarrito.ACTIVO))
+                    .thenReturn(Optional.of(carrito));
+
+            DatosCrearOrden datosSinDireccion = new DatosCrearOrden(
+                    null, null, 1L, FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", null
+            );
+
+            assertThatThrownBy(() -> ordenService.crear("usuario@test.com", datosSinDireccion))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("La dirección de envío es obligatoria");
+
+            verify(ordenRepositorio, never()).save(any());
         }
 
         @Test

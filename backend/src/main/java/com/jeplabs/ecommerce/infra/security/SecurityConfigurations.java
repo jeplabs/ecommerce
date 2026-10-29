@@ -59,6 +59,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll() // ← público
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // ← público
                         .requestMatchers(HttpMethod.GET, "/api/banco").permitAll() // ← nuevo
+                        .requestMatchers(HttpMethod.GET, "/api/sucursales").permitAll() // ← sucursales públicas para checkout
                         .requestMatchers(HttpMethod.GET, "/api/pagos/metodos").permitAll() // ← nuevo
                         .requestMatchers(HttpMethod.GET, "/api/config").permitAll() // ← nuevo
                         .requestMatchers("/api/usuarios/perfil").authenticated()

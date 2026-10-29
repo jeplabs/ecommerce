@@ -8,8 +8,22 @@ public record DatosRespuestaDireccionOrden(
         String codigoPostal,
         String pais,
         String telefono,
-        String referencias
+        String referencias,
+        String horario
 ) {
+    public DatosRespuestaDireccionOrden(
+            String alias,
+            String calle,
+            String ciudad,
+            String estado,
+            String codigoPostal,
+            String pais,
+            String telefono,
+            String referencias
+    ) {
+        this(alias, calle, ciudad, estado, codigoPostal, pais, telefono, referencias, null);
+    }
+
     public DatosRespuestaDireccionOrden(Orden orden) {
         this(
                 orden.getDireccionAlias(),
@@ -19,7 +33,8 @@ public record DatosRespuestaDireccionOrden(
                 orden.getDireccionCodigoPostal(),
                 orden.getDireccionPais(),
                 orden.getDireccionTelefono(),
-                orden.getDireccionReferencias()
+                orden.getDireccionReferencias(),
+                orden.getSucursalHorario()
         );
     }
 }

@@ -22,5 +22,17 @@ public record DatosCrearServicioEnvio(
         BigDecimal recargoContraEntrega,
 
         String logoUrl,
-        boolean sinContraEntrega
-) {}
+        boolean sinContraEntrega,
+        Boolean retiroTienda
+) {
+    public DatosCrearServicioEnvio(
+            String nombre,
+            String descripcion,
+            BigDecimal tarifa,
+            BigDecimal recargoContraEntrega,
+            String logoUrl,
+            boolean sinContraEntrega
+    ) {
+        this(nombre, descripcion, tarifa, recargoContraEntrega, logoUrl, sinContraEntrega, null);
+    }
+}

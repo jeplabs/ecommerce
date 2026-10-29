@@ -5,8 +5,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record DatosCrearOrden(
 
-        @NotNull(message = "La dirección de envío es obligatoria")
         Long direccionId,
+
+        Long sucursalId,
 
         @NotNull(message = "El servicio de envío es obligatorio")
         Long servicioEnvioId,
@@ -18,4 +19,14 @@ public record DatosCrearOrden(
         String metodoPagoCodigo,
 
         String notas
-) {}
+) {
+    public DatosCrearOrden(
+            Long direccionId,
+            Long servicioEnvioId,
+            FormaPagoEnvio formaPagoEnvio,
+            String metodoPagoCodigo,
+            String notas
+    ) {
+        this(direccionId, null, servicioEnvioId, formaPagoEnvio, metodoPagoCodigo, notas);
+    }
+}

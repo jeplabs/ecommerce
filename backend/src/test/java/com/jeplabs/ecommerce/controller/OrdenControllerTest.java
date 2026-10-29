@@ -134,6 +134,65 @@ class OrdenControllerTest {
         }
 
         @Test
+        @DisplayName("HTTP 201 al crear orden con retiro en tienda y sucursalId")
+        @WithMockUser(username = "usuario@test.com", roles = "CUSTOMER")
+        void crear_conRetiroEnTienda_debeRetornar201ConSucursalId() throws Exception {
+            DatosRespuestaOrden ordenRetiroRespuesta = new DatosRespuestaOrden(
+                    2L,
+                    EstadoOrden.PENDIENTE,
+                    null,
+                    2L,
+                    new DatosRespuestaDireccionOrden(
+                            "Tienda Zona 10",
+                            "Boulevard Los Proceres 5-50, Zona 10",
+                            "Ciudad de Guatemala",
+                            "Guatemala",
+                            "01010",
+                            "GT",
+                            "+502 2456-7890",
+                            "Plaza Comercial Zona 10",
+                            "Lun-Vie: 10:00-19:00, Sáb: 10:00-14:00"
+                    ),
+                    "Retiro en tienda",
+                    FormaPagoEnvio.EN_LINEA,
+                    "TRANSFERENCIA",
+                    "Transferencia Bancaria",
+                    TipoMetodoPago.TRANSFERENCIA,
+                    List.of(),
+                    new BigDecimal("2799.00"),
+                    new BigDecimal("299.89"),
+                    BigDecimal.ZERO,
+                    null,
+                    new BigDecimal("2799.00"),
+                    null,
+                    null,
+                    null,
+                    null,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+
+            DatosCrearOrden datosRetiro = new DatosCrearOrden(
+                    null, 2L, 3L, FormaPagoEnvio.EN_LINEA, "TRANSFERENCIA", null
+            );
+
+            when(ordenService.crear(anyString(), any()))
+                    .thenReturn(ordenRetiroRespuesta);
+
+            mockMvc.perform(post("/api/ordenes")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(datosRetiro))
+                            .with(csrf()))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.estado").value("PENDIENTE"))
+                    .andExpect(jsonPath("$.sucursalId").value(2))
+                    .andExpect(jsonPath("$.direccionId").doesNotExist())
+                    .andExpect(jsonPath("$.servicioEnvio").value("Retiro en tienda"))
+                    .andExpect(jsonPath("$.direccionEnvio.alias").value("Tienda Zona 10"))
+                    .andExpect(jsonPath("$.direccionEnvio.horario").value("Lun-Vie: 10:00-19:00, Sáb: 10:00-14:00"));
+        }
+
+        @Test
         @DisplayName("HTTP 400 cuando el carrito está vacío")
         @WithMockUser(username = "usuario@test.com", roles = "CUSTOMER")
         void crear_carritoVacio_debeRetornar400() throws Exception {
