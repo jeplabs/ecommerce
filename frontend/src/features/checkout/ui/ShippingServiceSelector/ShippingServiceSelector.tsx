@@ -13,7 +13,7 @@ import {
 } from '@/entities/shipping';
 import type { ShippingServiceApi } from '@/entities/shipping';
 import ShippingAddressSelector from '../ReviewAndShippingStep/ShippingAddressSelector';
-import PickupBranchSelector, { MOCK_BRANCHES } from '../PickupBranchSelector/PickupBranchSelector';
+import PickupBranchSelector from '../PickupBranchSelector/PickupBranchSelector';
 import AddressSelectionModal from '../AddressSelectionModal/AddressSelectionModal';
 import styles from './ShippingServiceSelector.module.css';
 import sharedStyles from '../checkoutShared.module.css';
@@ -111,6 +111,7 @@ export default function ShippingServiceSelector() {
         setSelectedServicioEnvioId,
         selectedAddressId,
         selectedBranchId,
+        selectedBranch,
         direcciones,
         envioOpciones,
         loadingEnvioOpciones,
@@ -139,7 +140,7 @@ export default function ShippingServiceSelector() {
 
     const isPickup = isPickupService(selectedServicio);
     const selectedAddress = direcciones.find((d) => d.id === selectedAddressId);
-    const selectedBranch = MOCK_BRANCHES.find((b) => b.id === selectedBranchId);
+
 
     const handleServiceSelect = (id: number) => {
         const newlySelected = deliveryOptions.find((s) => s.id === id);

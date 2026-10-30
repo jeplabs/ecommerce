@@ -209,7 +209,8 @@ frontend/
 │   │   ├── cart/
 │   │   ├── category/
 │   │   ├── address/
-│   │   └── shipping/
+│   │   ├── shipping/
+│   │   └── branch/         # api/, model/ (sucursales físicas para retiro en tienda)
 │   │
 │   ├── shared/             # Código reutilizable sin lógica de negocio
 │   │   ├── ui/             # Design system (Button, Input, FormField, Select…)
@@ -599,6 +600,7 @@ Guía completa (handlers, fixtures, comandos Cypress, plan de cobertura, trouble
 | [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
 | [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (QPayPro, Webpay Plus, Stripe, Mercado Pago) |
 | [docs/testing.md](./docs/testing.md) | Vitest, RTL, MSW, Cypress: scripts, fixtures, evaluación de buenas prácticas y plan de cobertura |
+| [docs/sucursales-retiro-tienda-frontend.md](./docs/sucursales-retiro-tienda-frontend.md) | Integración de sucursales físicas (`GET /api/sucursales`), selección consciente en checkout y retiro en tienda |
 | [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
 ---

@@ -9,9 +9,11 @@ const EMPTY_SHIPPING_COSTS: ShippingServiceCosts = {
 };
 
 export function isPickupService(
-    servicio: Pick<ShippingServiceApi, 'nombre'> | null | undefined
+    servicio: (Pick<ShippingServiceApi, 'nombre'> & Partial<Pick<ShippingServiceApi, 'retiroTienda'>>) | null | undefined
 ): boolean {
-    if (!servicio?.nombre) return false;
+    if (!servicio) return false;
+    if (typeof servicio.retiroTienda === 'boolean') return servicio.retiroTienda;
+    if (!servicio.nombre) return false;
     return servicio.nombre.toLowerCase().includes('retiro');
 }
 

@@ -2,6 +2,7 @@ import type { CartApi } from '@/entities/cart/model/schemas/api';
 import type { OrderApi } from '@/entities/order/model/schemas/api';
 import type { SpringPage } from '@/shared/api/spring-page';
 import { mockAddresses } from './addresses';
+import { mockBranches } from './branches';
 import { findMockShippingService } from './shipping';
 
 let nextOrderId = 1001;
@@ -25,7 +26,8 @@ export function mockOrdersPage(content: OrderApi[] = []): SpringPage<OrderApi> {
 }
 
 type CreateMockOrderParams = {
-    direccionId: number;
+    direccionId?: number | null;
+    sucursalId?: number | null;
     servicioEnvioId: number;
     cart: CartApi;
     notas?: string | null;
@@ -35,13 +37,15 @@ type CreateMockOrderParams = {
 
 export function mockCreatedOrder({
     direccionId,
+    sucursalId,
     servicioEnvioId,
     cart,
     notas = null,
     formaPagoEnvio = 'EN_LINEA',
     metodoPago = 'STRIPE',
 }: CreateMockOrderParams): OrderApi {
-    const address = mockAddresses.find((entry) => entry.id === direccionId) ?? mockAddresses[0];
+    const branch = sucursalId ? mockBranches.find((b) => b.id === sucursalId) ?? mockBranches[0] : null;
+    const address = !branch ? mockAddresses.find((entry) => entry.id === direccionId) ?? mockAddresses[0] : null;
     const servicio = findMockShippingService(servicioEnvioId) ?? findMockShippingService(2)!;
     const subtotal = cart.total;
     const iva = Math.round(subtotal * 0.19 * 100) / 100;
@@ -49,20 +53,37 @@ export function mockCreatedOrder({
     const total = subtotal + iva + costoEnvio;
     const now = '2026-05-28T12:00:00';
 
+    const direccionEnvio = branch
+        ? {
+              alias: branch.nombre,
+              calle: branch.direccion,
+              ciudad: branch.ciudad,
+              estado: branch.estado ?? 'Guatemala',
+              codigoPostal: branch.codigoPostal ?? null,
+              pais: branch.pais,
+              telefono: branch.telefono,
+              referencias: branch.referencias ?? null,
+              horario: branch.horario,
+          }
+        : address
+        ? {
+              alias: address.alias,
+              calle: address.direccion,
+              ciudad: address.ciudad,
+              estado: address.estado,
+              codigoPostal: address.codigoPostal ?? null,
+              pais: address.pais,
+              telefono: address.telefono,
+              referencias: address.referencias ?? null,
+          }
+        : null;
+
     return {
         id: nextOrderId++,
         estado: 'PENDIENTE',
-        direccionId: address.id,
-        direccionEnvio: {
-            alias: address.alias,
-            calle: address.direccion,
-            ciudad: address.ciudad,
-            estado: address.estado,
-            codigoPostal: address.codigoPostal ?? null,
-            pais: address.pais,
-            telefono: address.telefono,
-            referencias: address.referencias ?? null,
-        },
+        direccionId: address?.id ?? null,
+        sucursalId: branch?.id ?? null,
+        direccionEnvio,
         servicioEnvio: servicio.nombre,
         formaPagoEnvio,
         metodoPago,

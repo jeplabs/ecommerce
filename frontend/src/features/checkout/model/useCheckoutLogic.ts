@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressApi } from '@/entities/address';
 import type { AddressApi } from '@/entities/address';
+import { branchApi, type BranchApi } from '@/entities/branch';
 import { orderApi } from '@/entities/order/api/orderApi';
 import { FORMA_PAGO_ENVIO } from '@/entities/order/model/constants';
 import type { OrderApi } from '@/entities/order';
@@ -95,6 +96,7 @@ export function useCheckoutLogic({
     const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
     const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
+    const [sucursales, setSucursales] = useState<BranchApi[]>([]);
     const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState<number | null>(null);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
     const currentStep = CHECKOUT_STEPS[step];
@@ -119,6 +121,7 @@ export function useCheckoutLogic({
     const [notas, setNotas] = useState('');
 
     const [loadingAddresses, setLoadingAddresses] = useState(true);
+    const [loadingBranches, setLoadingBranches] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [checkoutCompleted, setCheckoutCompleted] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -166,6 +169,27 @@ export function useCheckoutLogic({
         }
     }, [isEmpty, fetchDirecciones]);
 
+    const fetchSucursales = useCallback(async () => {
+        setLoadingBranches(true);
+        try {
+            const data = await branchApi.listar();
+            const activas = (Array.isArray(data) ? data : []).filter(
+                (b) => b.activo !== false
+            );
+            setSucursales(activas);
+        } catch (err) {
+            console.error('Error al cargar sucursales:', err);
+        } finally {
+            setLoadingBranches(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!isEmpty) {
+            void fetchSucursales();
+        }
+    }, [isEmpty, fetchSucursales]);
+
     useEffect(() => {
         if (processing || checkoutCompletedRef.current) return;
         if (isEmpty) {
@@ -199,6 +223,11 @@ export function useCheckoutLogic({
 
     const selectedAddress =
         direcciones.find((d) => d.id === selectedAddressId) ?? null;
+
+    const selectedBranch = useMemo(
+        () => sucursales.find((b) => b.id === selectedBranchId) ?? null,
+        [sucursales, selectedBranchId]
+    );
 
     const selectedServicio = useMemo(
         () => servicios.find((s) => s.id === selectedServicioEnvioId) ?? null,
@@ -256,8 +285,10 @@ export function useCheckoutLogic({
 
     const canContinueShipping =
         Boolean(selectedServicioEnvioId) &&
-        (isPickupSelected ? Boolean(selectedBranchId) : Boolean(selectedAddressId)) &&
-        !loadingAddresses &&
+        (isPickupSelected
+            ? !loadingBranches && Boolean(selectedBranchId)
+            : !loadingAddresses && Boolean(selectedAddressId)) &&
+
         !loadingEnvioOpciones &&
         !envioOpcionesError &&
         servicios.length > 0;
@@ -359,7 +390,8 @@ export function useCheckoutLogic({
                     : 'STRIPE';
 
             const orden = await orderApi.crearOrden({
-                direccionId: selectedAddressId,
+                direccionId: isPickupSelected ? null : selectedAddressId,
+                sucursalId: isPickupSelected ? selectedBranchId : null,
                 servicioEnvioId: selectedServicioEnvioId,
                 formaPagoEnvio: formaPagoEnvio,
                 metodoPagoCodigo,
@@ -429,6 +461,8 @@ export function useCheckoutLogic({
         }
     }, [
         selectedAddressId,
+        selectedBranchId,
+        isPickupSelected,
         selectedServicioEnvioId,
         isEmpty,
         paymentMethod,
@@ -529,6 +563,10 @@ export function useCheckoutLogic({
         selectedAddressId,
         setSelectedAddressId,
         selectedAddress,
+        sucursales,
+        loadingBranches,
+        fetchSucursales,
+        selectedBranch,
         selectedBranchId,
         setSelectedBranchId,
         selectedServicioEnvioId,

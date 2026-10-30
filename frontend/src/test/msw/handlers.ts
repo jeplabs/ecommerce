@@ -82,6 +82,7 @@ import {
     resetDynamicFavorites,
 } from './fixtures/favorites-registry';
 import { mockShippingOptions } from './fixtures/shipping';
+import { mockBranches } from './fixtures/branches';
 
 export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers, resetDynamicFavorites };
 
@@ -491,14 +492,15 @@ export const handlers = [
 
     http.post(`${API_BASE}/api/ordenes`, async ({ request }) => {
         const body = (await request.json()) as {
-            direccionId?: number;
+            direccionId?: number | null;
+            sucursalId?: number | null;
             servicioEnvioId?: number;
             notas?: string | null;
             formaPagoEnvio?: string;
             metodoPagoCodigo?: string;
         };
 
-        if (!body.direccionId || !body.servicioEnvioId) {
+        if ((!body.direccionId && !body.sucursalId) || !body.servicioEnvioId) {
             return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
         }
 
@@ -509,6 +511,7 @@ export const handlers = [
 
         const orden = mockCreatedOrder({
             direccionId: body.direccionId,
+            sucursalId: body.sucursalId,
             servicioEnvioId: body.servicioEnvioId,
             cart,
             notas: body.notas ?? null,
@@ -707,6 +710,10 @@ export const handlers = [
         const subtotal = Number(url.searchParams.get('subtotal') ?? 0);
 
         return HttpResponse.json(mockShippingOptions(subtotal));
+    }),
+
+    http.get(`${API_BASE}/api/sucursales`, () => {
+        return HttpResponse.json(mockBranches);
     }),
 
     http.get(`${API_BASE}/api/banco`, () => {

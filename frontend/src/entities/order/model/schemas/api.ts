@@ -64,6 +64,7 @@ export const orderShippingAddressApiSchema = z.object({
     pais: z.string(),
     telefono: z.string().nullable().optional(),
     referencias: nullableStringSchema,
+    horario: nullableStringSchema.optional(),
 });
 
 /** {@code DatosRespuestaOrdenItem}. */
@@ -87,6 +88,7 @@ export const orderApiSchema = z.object({
     id: positiveIntSchema,
     estado: orderStatusSchema,
     direccionId: z.number().int().positive().nullable().optional(),
+    sucursalId: z.number().int().positive().nullable().optional(),
     direccionEnvio: orderShippingAddressApiSchema.nullable().optional(),
     servicioEnvio: z.string().nullable().optional(),
     formaPagoEnvio: formaPagoSchema,

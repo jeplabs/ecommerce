@@ -15,7 +15,7 @@ type OrderShippingSummaryProps = {
 export default function OrderShippingSummary({ orden, className }: OrderShippingSummaryProps) {
     if (!orden) return null;
 
-    const pickup = isPickupFromServicioNombre(orden.servicioEnvio);
+    const pickup = isPickupFromServicioNombre(orden.servicioEnvio) || Boolean(orden.sucursalId);
     const direccion = orden.direccionEnvio;
     const costoEnvio = Number(orden.costoEnvio ?? 0);
     const isContraEntrega = orden.formaPagoEnvio === 'CONTRA_ENTREGA';
@@ -57,7 +57,7 @@ export default function OrderShippingSummary({ orden, className }: OrderShipping
                     aria-labelledby="order-shipping-address-heading"
                 >
                     <h4 id="order-shipping-address-heading" className={styles.heading}>
-                        {pickup ? 'Contacto del pedido' : 'Dirección de envío'}
+                        {pickup ? 'Sucursal de retiro' : 'Dirección de envío'}
                     </h4>
                     <div className={styles.address}>
                         <p><strong>{direccion.alias}</strong></p>
@@ -67,6 +67,7 @@ export default function OrderShippingSummary({ orden, className }: OrderShipping
                         </p>
                         <p>{direccion.pais}</p>
                         {direccion.telefono && <p>Tel: {direccion.telefono}</p>}
+                        {direccion.horario && <p>Horario: {direccion.horario}</p>}
                         {direccion.referencias && (
                             <p className={styles.refs}>{direccion.referencias}</p>
                         )}

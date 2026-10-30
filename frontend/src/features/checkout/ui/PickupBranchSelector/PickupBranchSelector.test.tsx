@@ -16,7 +16,7 @@ import { makeCheckoutMock } from '@/test/checkoutMock';
 const useCheckoutMock = vi.mocked(useCheckout);
 
 describe('PickupBranchSelector', () => {
-    it('muestra las sucursales disponibles', () => {
+    it('muestra las sucursales disponibles desde el contexto', () => {
         useCheckoutMock.mockReturnValue(
             makeCheckoutMock({ selectedBranchId: null }) as never
         );
@@ -26,9 +26,10 @@ describe('PickupBranchSelector', () => {
         expect(screen.getByText('Tienda Centro')).toBeInTheDocument();
         expect(screen.getByText('Tienda Zona 10')).toBeInTheDocument();
         expect(screen.getByText(/Tel:\s*\+502 2345-6789/)).toBeInTheDocument();
+        expect(screen.getByText(/Lun-Vie: 9:00-18:00/)).toBeInTheDocument();
     });
 
-    it('selecciona una sucursal al marcarla', () => {
+    it('permite al cliente seleccionar conscientemente una sucursal', () => {
         const setSelectedBranchId = vi.fn();
         useCheckoutMock.mockReturnValue(
             makeCheckoutMock({ selectedBranchId: null, setSelectedBranchId }) as never
@@ -41,5 +42,25 @@ describe('PickupBranchSelector', () => {
         fireEvent.click(zona10);
 
         expect(setSelectedBranchId).toHaveBeenCalledWith(2);
+    });
+
+    it('muestra estado de carga mientras se obtienen las sucursales', () => {
+        useCheckoutMock.mockReturnValue(
+            makeCheckoutMock({ loadingBranches: true, sucursales: [] }) as never
+        );
+        render(<PickupBranchSelector />);
+
+        expect(screen.getByText(/Cargando sucursales disponibles/i)).toBeInTheDocument();
+    });
+
+    it('muestra estado vacío si no hay sucursales disponibles', () => {
+        useCheckoutMock.mockReturnValue(
+            makeCheckoutMock({ loadingBranches: false, sucursales: [] }) as never
+        );
+        render(<PickupBranchSelector />);
+
+        expect(
+            screen.getByText(/No hay sucursales disponibles para retiro en este momento/i)
+        ).toBeInTheDocument();
     });
 });

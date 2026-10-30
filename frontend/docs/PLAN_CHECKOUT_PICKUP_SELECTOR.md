@@ -1,5 +1,8 @@
 # Plan: Checkout Step 1 — Selector condicional de dirección vs sucursal
 
+> [!NOTE]
+> **Estado: Completado e Integrado con Backend**. Los datos mock iniciales fueron reemplazados por la entidad `entities/branch` y el endpoint real `GET /api/sucursales`. Para consultar la documentación técnica de la integración completa, ver [sucursales-retiro-tienda-frontend.md](./sucursales-retiro-tienda-frontend.md).
+
 ## Contexto
 
 En el paso 1 del checkout ("Pedido y envío"), actualmente se muestran siempre dos componentes:

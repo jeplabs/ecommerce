@@ -13,7 +13,8 @@ const metodoPagoCodigoSchema = z.enum([
 
 /** {@code DatosCrearOrden} — el carrito se resuelve en servidor. */
 export const createOrderRequestSchema = z.object({
-    direccionId: z.number().int().positive().nullable(),
+    direccionId: z.number().int().positive().nullable().optional(),
+    sucursalId: z.number().int().positive().nullable().optional(),
     servicioEnvioId: z.number().int().positive(),
     formaPagoEnvio: formaPagoSchema,
     metodoPagoCodigo: metodoPagoCodigoSchema,
@@ -30,7 +31,8 @@ export type UpdateOrderStatusRequest = z.infer<typeof updateOrderStatusRequestSc
 
 /** Checkout — selección de envío en UI (mapea a CreateOrderRequest). */
 export const checkoutOrderFormSchema = z.object({
-    direccionId: z.number().int().positive('Selecciona una dirección'),
+    direccionId: z.number().int().positive('Selecciona una dirección').nullable().optional(),
+    sucursalId: z.number().int().positive('Selecciona una sucursal').nullable().optional(),
     servicioEnvioId: z.number().int().positive('Selecciona un servicio de envío'),
     formaPagoEnvio: formaPagoSchema,
     metodoPagoEnvio: paymentMethodSchema,
@@ -44,6 +46,7 @@ export function mapCheckoutFormToCreateOrderRequest(
 ): CreateOrderRequest {
     return {
         direccionId: values.direccionId,
+        sucursalId: values.sucursalId,
         servicioEnvioId: values.servicioEnvioId,
         formaPagoEnvio: values.formaPagoEnvio,
         metodoPagoCodigo:

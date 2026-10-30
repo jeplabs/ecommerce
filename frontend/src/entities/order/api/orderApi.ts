@@ -60,8 +60,6 @@ export type ListOrdersAdminParams = {
     estado?: OrderStatus;
 };
 
-
-
 /** {@code GET /api/ordenes} */
 export async function listarMisOrdenes(page = 0, size = 10): Promise<OrderPage> {
     const params = new URLSearchParams({ page: String(page), size: String(size) });
@@ -96,7 +94,8 @@ export async function crearOrden(body: CreateOrderRequest): Promise<OrderApi> {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
         body: JSON.stringify({
-            direccionId: body.direccionId,
+            direccionId: body.direccionId ?? null,
+            sucursalId: body.sucursalId ?? null,
             servicioEnvioId: body.servicioEnvioId,
             formaPagoEnvio: body.formaPagoEnvio,
             metodoPagoCodigo: body.metodoPagoCodigo,

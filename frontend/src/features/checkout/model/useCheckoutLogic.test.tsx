@@ -282,4 +282,56 @@ describe('useCheckoutLogic', () => {
             { timeout: 5000 }
         );
     });
+
+    it('retiro en tienda: exige selección consciente de sucursal y envía sucursalId con direccionId null', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await waitFor(() => {
+            expect(result.current.loadingBranches).toBe(false);
+            expect(result.current.sucursales.length).toBeGreaterThan(0);
+            expect(result.current.pickupServices.length).toBeGreaterThan(0);
+        });
+
+        act(() => {
+            const pickupService = result.current.pickupServices[0];
+            result.current.setSelectedServicioEnvioId(pickupService.id);
+        });
+
+        expect(result.current.isPickupSelected).toBe(true);
+        expect(result.current.selectedBranchId).toBeNull();
+        expect(result.current.canContinueShipping).toBe(false);
+
+        act(() => {
+            result.current.setSelectedBranchId(2);
+        });
+
+        expect(result.current.selectedBranch?.nombre).toBe('Tienda Zona 10');
+        expect(result.current.canContinueShipping).toBe(true);
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.BANK_TRANSFER);
+        });
+
+        expect(result.current.canContinuePayment).toBe(true);
+
+        let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
+
+        await act(async () => {
+            checkoutResult = await result.current.completeCheckout();
+        });
+
+        expect(checkoutResult?.success).toBe(true);
+        if (checkoutResult?.success && !checkoutResult.needsRedirect) {
+            expect(checkoutResult.orden.sucursalId).toBe(2);
+            expect(checkoutResult.orden.direccionId).toBeNull();
+            expect(checkoutResult.orden.direccionEnvio?.alias).toBe('Tienda Zona 10');
+            expect(checkoutResult.orden.direccionEnvio?.horario).toBeTruthy();
+        }
+    });
 });

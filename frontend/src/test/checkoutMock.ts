@@ -1,5 +1,6 @@
 import { PAYMENT_METHODS } from '@/features/checkout';
 import { mockAddresses } from './msw/fixtures/addresses';
+import { mockBranches } from './msw/fixtures/branches';
 import { mockShippingServices } from './msw/fixtures/shipping';
 import { mockProduct } from './msw/fixtures/products';
 import { CHECKOUT_STEPS } from '@/features/checkout/model/checkoutSteps';
@@ -42,6 +43,13 @@ export function makeCheckoutMock(overrides: CheckoutMockOverrides = {}) {
         loadingAddresses: false,
         notas: '',
         setNotas: () => {},
+
+        sucursales: mockBranches,
+        loadingBranches: false,
+        fetchSucursales: () => {},
+        selectedBranchId: null,
+        setSelectedBranchId: () => {},
+        selectedBranch: null,
 
         envioOpciones: { envioGratis: false, montoMinimoGratis: 150, servicios: mockShippingServices },
         loadingEnvioOpciones: false,
