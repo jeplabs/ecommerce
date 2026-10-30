@@ -82,9 +82,17 @@ import {
     resetDynamicFavorites,
 } from './fixtures/favorites-registry';
 import { mockShippingOptions } from './fixtures/shipping';
-import { mockBranches } from './fixtures/branches';
+import {
+    activarDynamicBranch,
+    createDynamicBranch,
+    desactivarDynamicBranch,
+    findDynamicBranch,
+    getDynamicBranches,
+    resetDynamicBranches,
+    updateDynamicBranch,
+} from './fixtures/branches-registry';
 
-export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers, resetDynamicFavorites };
+export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers, resetDynamicFavorites, resetDynamicBranches };
 
 function resolveLogin(body: { email?: string; password?: string }) {
     if (body.email === MOCK_LOGIN_EMAIL && body.password === MOCK_LOGIN_PASSWORD) {
@@ -713,7 +721,60 @@ export const handlers = [
     }),
 
     http.get(`${API_BASE}/api/sucursales`, () => {
-        return HttpResponse.json(mockBranches);
+        return HttpResponse.json(getDynamicBranches(true));
+    }),
+
+    http.get(`${API_BASE}/api/sucursales/admin`, () => {
+        return HttpResponse.json(getDynamicBranches(false));
+    }),
+
+    http.get(`${API_BASE}/api/sucursales/admin/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const branch = findDynamicBranch(id);
+        if (!branch) {
+            return HttpResponse.json({ error: 'Sucursal no encontrada' }, { status: 404 });
+        }
+        return HttpResponse.json(branch);
+    }),
+
+    http.post(`${API_BASE}/api/sucursales`, async ({ request }) => {
+        const body = (await request.json()) as any;
+        if (!body.nombre || !body.direccion || !body.ciudad || !body.telefono || !body.horario) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+        const created = createDynamicBranch(body);
+        return HttpResponse.json(created, { status: 200 });
+    }),
+
+    http.patch(`${API_BASE}/api/sucursales/:id/activar`, ({ params }) => {
+        const id = Number(params.id);
+        try {
+            activarDynamicBranch(id);
+            return new HttpResponse(null, { status: 204 });
+        } catch {
+            return HttpResponse.json({ error: 'Sucursal no encontrada' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/sucursales/:id`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as any;
+        try {
+            const updated = updateDynamicBranch(id, body);
+            return HttpResponse.json(updated, { status: 200 });
+        } catch {
+            return HttpResponse.json({ error: 'Sucursal no encontrada' }, { status: 404 });
+        }
+    }),
+
+    http.delete(`${API_BASE}/api/sucursales/:id`, ({ params }) => {
+        const id = Number(params.id);
+        try {
+            desactivarDynamicBranch(id);
+            return new HttpResponse(null, { status: 204 });
+        } catch {
+            return HttpResponse.json({ error: 'Sucursal no encontrada' }, { status: 404 });
+        }
     }),
 
     http.get(`${API_BASE}/api/banco`, () => {

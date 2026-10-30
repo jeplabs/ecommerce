@@ -180,7 +180,7 @@ frontend/
 │   │   ├── catalog/
 │   │   ├── checkout/
 │   │   ├── not-found/          # 404 Not Found (página accesible con acciones de recuperación)
-│   │   ├── admin/
+│   │   ├── admin/              # dashboard, products, users, orders, branches
 │   │   └── …
 │   │
 │   ├── widgets/            # Composiciones de página
@@ -600,7 +600,7 @@ Guía completa (handlers, fixtures, comandos Cypress, plan de cobertura, trouble
 | [docs/architecture-fsd.md](./docs/architecture-fsd.md) | Referencia detallada FSD: mapeo legacy, hooks, providers, entities, rutas |
 | [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (QPayPro, Webpay Plus, Stripe, Mercado Pago) |
 | [docs/testing.md](./docs/testing.md) | Vitest, RTL, MSW, Cypress: scripts, fixtures, evaluación de buenas prácticas y plan de cobertura |
-| [docs/sucursales-retiro-tienda-frontend.md](./docs/sucursales-retiro-tienda-frontend.md) | Integración de sucursales físicas (`GET /api/sucursales`), selección consciente en checkout y retiro en tienda |
+| [docs/sucursales-retiro-tienda-frontend.md](./docs/sucursales-retiro-tienda-frontend.md) | Integración de sucursales físicas (`GET /api/sucursales`), selección consciente en checkout, retiro en tienda y panel de administración CRUD (`/admin/sucursales`) |
 | [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
 ---

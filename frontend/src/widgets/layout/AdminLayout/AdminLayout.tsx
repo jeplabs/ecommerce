@@ -9,6 +9,7 @@ const ROUTE_LABELS: Record<string, string> = {
     products: 'Productos',
     users: 'Usuarios',
     orders: 'Pedidos',
+    sucursales: 'Sucursales',
     new: 'Nuevo',
     edit: 'Editar',
 };
@@ -61,6 +62,9 @@ export default function AdminLayout() {
                         </NavLink>
                         <NavLink to="/admin/orders" className={({ isActive }) => `${styles.tab} ${isActive ? styles.tabActive : ''}`}>
                             Pedidos
+                        </NavLink>
+                        <NavLink to="/admin/sucursales" className={({ isActive }) => `${styles.tab} ${isActive ? styles.tabActive : ''}`}>
+                            Sucursales
                         </NavLink>
                     </nav>
                 )}

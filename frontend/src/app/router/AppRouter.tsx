@@ -59,6 +59,9 @@ const AdminUserEditPage = lazy(() =>
 const AdminOrdersPage = lazy(() =>
     import('@/pages/admin/orders').then((m) => ({ default: m.AdminOrdersPage }))
 );
+const AdminBranchesPage = lazy(() =>
+    import('@/pages/admin/branches').then((m) => ({ default: m.AdminBranchesPage }))
+);
 const NotFoundPage = lazy(() =>
     import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage }))
 );
@@ -214,6 +217,14 @@ export function AppRouter() {
                         element={
                             <PrivateRoute requiredRol="ROLE_ADMIN">
                                 <AdminOrdersPage />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/sucursales"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_ADMIN">
+                                <AdminBranchesPage />
                             </PrivateRoute>
                         }
                     />

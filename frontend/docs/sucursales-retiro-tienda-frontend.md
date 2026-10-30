@@ -11,22 +11,39 @@ Siguiendo la arquitectura **Feature-Sliced Design**, la funcionalidad se organiz
 ```
 src/
 ├── entities/
-│   ├── branch/                  # Dominio de sucursales
-│   │   ├── api/branchApi.ts     # Client HTTP (listar sucursales activas)
-│   │   ├── api/branchApi.test.ts
-│   │   ├── model/schemas/api.ts # Validación Zod y tipos TypeScript
-│   │   └── index.ts             # API pública del slice
-│   ├── shipping/                # Esquemas de envío con retiroTienda
-│   └── order/                   # Creación de orden y snapshot inmutable con horario
+│   ├── branch/                      # Dominio de sucursales
+│   │   ├── api/branchApi.ts         # Client HTTP público y admin
+│   │   ├── api/branchApi.test.ts    # Tests cliente público
+│   │   ├── api/branchApi.admin.test.ts # Tests cliente admin
+│   │   ├── model/schemas/api.ts     # Esquemas Zod y tipos TypeScript (API)
+│   │   ├── model/schemas/forms.ts   # Esquema Zod de formulario de sucursal
+│   │   └── index.ts                 # API pública del slice
+│   ├── shipping/                    # Esquemas de envío con retiroTienda
+│   └── order/                       # Creación de orden y snapshot inmutable con horario
 │
 ├── features/
 │   ├── checkout/
-│   │   ├── model/useCheckoutLogic.ts # Estado global de checkout, carga y validación
+│   │   ├── model/useCheckoutLogic.ts # Estado de checkout y selección de sucursal
 │   │   └── ui/
-│   │       ├── PickupBranchSelector/ # Lista de selección de sucursales
+│   │       ├── PickupBranchSelector/ # Lista interactiva de sucursales en checkout
 │   │       └── ShippingServiceSelector/
+│   ├── admin/
+│   │   ├── model/useAdminBranches.ts # Hook con lógica de negocio CRUD admin
+│   │   ├── model/useAdminBranches.test.tsx
+│   │   └── ui/
+│   │       ├── AdminBranchesTable/   # Tabla responsiva de sucursales
+│   │       └── BranchModalForm/      # Modal de creación y edición
 │   └── order/
 │       └── ui/OrderShippingSummary/  # Resumen y detalle con datos de la sucursal y horario
+│
+├── widgets/
+│   ├── admin/
+│   │   ├── AdminBranchesView.tsx     # Vista compuesta con métricas, tabla y modal
+│   │   └── AdminBranchesView.test.tsx
+│   └── layout/AdminLayout/           # Navegación y enlace a /admin/sucursales
+│
+└── pages/
+    └── admin/branches/               # Ruta protegida /admin/sucursales (ROLE_ADMIN)
 ```
 
 ---
@@ -150,3 +167,38 @@ La integración cuenta con suite de pruebas automatizadas:
 | `features/order/ui/OrderShippingSummary.test.tsx` | Renderizado adaptativo de "Sucursal de retiro", datos de contacto y horario snapshot. |
 | `test/msw/` | Fixtures y handlers simulando el endpoint real del backend Spring Boot. |
 
+
+
+---
+
+## 5. Módulo de Administración de Sucursales (`/admin/sucursales`)
+
+El panel de administración incluye gestión integral de los puntos de retiro físico bajo `ROLE_ADMIN`:
+
+### 5.1. Endpoints Consumidos en Modo Admin
+- `GET /api/sucursales/admin`: listado completo (activas e inactivas).
+- `GET /api/sucursales/admin/{id}`: detalle por ID.
+- `POST /api/sucursales`: alta de sucursal con `DatosCrearSucursal`.
+- `PATCH /api/sucursales/{id}`: edición parcial con `DatosActualizarSucursal`.
+- `PATCH /api/sucursales/{id}/activar`: reactivación (`204 No Content`).
+- `DELETE /api/sucursales/{id}`: desactivación soft-delete (`204 No Content`).
+
+### 5.2. Componentes y Flujo
+1. **Pestaña en Navegación**: Integrado en `AdminLayout` con enlace `/admin/sucursales`.
+2. **Hook `useAdminBranches`**: Gestiona el ciclo de vida del CRUD con feedback inmediato vía toasts (`useToast`) y manejo de sesiones expiradas (`redirectUnauthorized`).
+3. **Tabla `AdminBranchesTable`**: Visualización de sucursales con orden de visualización, dirección, ciudad, horario, teléfono, badges de estado (Activa / Inactiva) y botones de acción (Editar y Activar/Desactivar con confirmación modal).
+4. **Formulario `BranchModalForm`**: Modal reutilizable para alta y edición validado con Zod (`branchFormSchema`) y React Hook Form.
+
+### 5.3. Diseño Responsivo y Experiencia de Usuario (UI/UX)
+- **Adaptabilidad de la Tabla en Tablet y Móvil (`<= 900px`)**:
+  - **Badges de estado (`● Activa` / `○ Inactiva`)**: Cuentan con `white-space: nowrap;` y `flex-shrink: 0;`, asegurando que el glifo circular y el texto permanezcan unidos en un solo renglón sin quiebres de línea no deseados.
+  - **Botones de acción**: En resoluciones de tablet y móviles, los botones ("Editar" y "Activar/Desactivar") pasan de alineación horizontal a apilarse verticalmente en columna centrada (`flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem;`), con ancho completo uniforme (`width: 100%; min-width: 5.5rem; text-align: center;`) que facilita la interacción táctil.
+- **Modal de Formulario (`BranchModalForm`)**:
+  - **Jerarquía z-index frente al Navbar**: El fondo oscuro (`.overlay`) se posiciona con `z-index: 20000;`, superando al `Navbar` sticky de la aplicación (`z-index: 10000;`). Esto atenúa la pantalla completa, impide la interacción no deseada con la barra de navegación superior mientras el modal está activo y evita que el header del modal quede tapado o cortado.
+  - **Contención de Elementos y Scroll Interno**: El modal se estructura con flexbox vertical (`display: flex; flex-direction: column; max-height: calc(100vh - 3.5rem); overflow: hidden;`). La etiqueta `<form>` hereda `min-height: 0; flex: 1 1 auto; overflow: hidden;`, encapsulando el scroll en el cuerpo `.body` (`overflow-y: auto;`). Esto garantiza que tanto la cabecera como el pie de acciones (`Cancelar` / `Guardar`) permanezcan siempre fijos con su fondo intacto, mientras los campos se desplazan limpiamente en pantallas de cualquier altura.
+
+### 5.4. Cobertura de Pruebas Admin
+- `src/entities/branch/api/branchApi.admin.test.ts`: Pruebas de integración para cada llamada HTTP admin (`listarAdmin`, `crearAdmin`, `actualizarAdmin`, `activarAdmin`, `desactivarAdmin`).
+- `src/features/admin/model/useAdminBranches.test.tsx`: Pruebas de integración del hook con estado y llamadas a la API.
+- `src/features/admin/ui/AdminBranchesTable/AdminBranchesTable.test.tsx`: Renderizado, eventos de edición/desactivación y comportamiento del layout.
+- `src/widgets/admin/AdminBranchesView.test.tsx`: Flujo completo de la vista de administración, apertura y cierre del modal y confirmaciones.

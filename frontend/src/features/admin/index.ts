@@ -19,3 +19,6 @@ export { default as AdminOrdersTable } from './ui/AdminOrdersTable/AdminOrdersTa
 export { default as AdminUsersTable } from './ui/AdminUsersTable/AdminUsersTable';
 export { CategoryForm } from './ui/CategoryForm';
 export { ProductForm } from './ui/ProductForm';
+export { useAdminBranches } from './model/useAdminBranches';
+export { default as AdminBranchesTable } from './ui/AdminBranchesTable/AdminBranchesTable';
+export { default as BranchModalForm } from './ui/BranchModalForm/BranchModalForm';
