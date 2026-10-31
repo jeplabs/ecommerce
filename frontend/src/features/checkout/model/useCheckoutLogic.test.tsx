@@ -36,6 +36,8 @@ async function selectNormalDelivery(result: { current: ReturnType<typeof useChec
     await waitFor(() => {
         expect(result.current.loadingAddresses).toBe(false);
         expect(result.current.loadingEnvioOpciones).toBe(false);
+        expect(result.current.cartLoading).toBe(false);
+        expect(result.current.isEmpty).toBe(false);
         expect(result.current.direcciones.length).toBeGreaterThan(0);
         expect(result.current.deliveryServices.length).toBeGreaterThan(0);
     });
@@ -293,6 +295,8 @@ describe('useCheckoutLogic', () => {
 
         await waitFor(() => {
             expect(result.current.loadingBranches).toBe(false);
+            expect(result.current.cartLoading).toBe(false);
+            expect(result.current.isEmpty).toBe(false);
             expect(result.current.sucursales.length).toBeGreaterThan(0);
             expect(result.current.pickupServices.length).toBeGreaterThan(0);
         });
