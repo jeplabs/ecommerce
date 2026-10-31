@@ -7,23 +7,28 @@ import type { FavoriteProduct, ToggleFavoriteResult } from './types';
 export function useFavoritesLogic() {
     const { isAuthenticated } = useAuth();
     const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const reloadFavorites = useCallback(async () => {
         if (!isAuthenticated) {
             setFavorites([]);
+            setLoading(false);
             return;
         }
 
+        setLoading(true);
         try {
             const items = await fetchFavorites();
             setFavorites(items);
         } catch {
             setFavorites([]);
+        } finally {
+            setLoading(false);
         }
     }, [isAuthenticated]);
 
     useEffect(() => {
-        reloadFavorites();
+        void reloadFavorites();
     }, [reloadFavorites, isAuthenticated]);
 
     const isFavorite = useCallback(
@@ -77,6 +82,7 @@ export function useFavoritesLogic() {
 
     return {
         favorites,
+        loading,
         isFavorite,
         toggleFavorite,
         removeFavorite,

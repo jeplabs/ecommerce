@@ -61,8 +61,27 @@
     max-width: 100%;
     min-width: 0;
     justify-items: center;
+    justify-content: center;
 }
 
+.productGridItem {
+    min-width: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Tablet (641px a 1024px): 2 columnas centradas */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .productGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+        max-width: 740px;
+        margin-inline: auto;
+    }
+}
+
+/* Desktop (>= 1025px): 3 columnas */
 @media (min-width: 1025px) {
     .productGrid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -70,21 +89,8 @@
     }
 }
 
-.productGridItem {
-    min-width: 0;
-}
-
+/* Tablet y Mobile (<= 1024px): Ocultar sidebar fija, contenido al 100% */
 @media (max-width: 1024px) {
-    .container {
-        gap: 1.25rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .catalog {
-        padding: 0;
-    }
-
     .container {
         display: block;
         width: 100%;
@@ -104,11 +110,24 @@
     }
 
     .title {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
+    }
+}
+
+/* Mobile pequeno (<= 640px): 1 columna */
+@media (max-width: 640px) {
+    .catalog {
+        padding: 0;
+    }
+
+    .title {
+        font-size: 1.15rem;
     }
 
     .productGrid {
         grid-template-columns: 1fr;
         gap: 0.85rem;
+        max-width: 360px;
+        margin-inline: auto;
     }
 }

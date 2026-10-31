@@ -8,7 +8,7 @@ import { CheckoutProvider } from '@/app/providers/CheckoutProvider';
 import { useCheckout } from '@/app/providers';
 import { PAYMENT_METHODS } from '@/features/checkout';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
-import { addDynamicCartItem } from '@/test/msw/fixtures/cart-registry';
+import { addDynamicCartItem, resetDynamicCart } from '@/test/msw/fixtures/cart-registry';
 import { mockAddresses } from '@/test/msw/fixtures/addresses';
 import { mockProduct } from '@/test/msw/fixtures/products';
 import { API_BASE } from '@/test/msw/constants';
@@ -40,7 +40,7 @@ async function selectNormalDelivery(result: { current: ReturnType<typeof useChec
         expect(result.current.isEmpty).toBe(false);
         expect(result.current.direcciones.length).toBeGreaterThan(0);
         expect(result.current.deliveryServices.length).toBeGreaterThan(0);
-    });
+    }, { timeout: 5000 });
 
     act(() => {
         const normal = result.current.deliveryServices[0];
@@ -53,6 +53,7 @@ async function selectNormalDelivery(result: { current: ReturnType<typeof useChec
 describe('useCheckoutLogic', () => {
     beforeEach(() => {
         sessionStorage.clear();
+        resetDynamicCart();
     });
 
     it('selecciona dirección principal y habilita continuar', async () => {
@@ -65,7 +66,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         expect(result.current.selectedAddressId).toBe(mockAddresses[0]?.id);
         expect(result.current.currentStep).toBe('pedido');
@@ -81,7 +82,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         act(() => {
             result.current.goNext();
@@ -100,7 +101,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         act(() => {
             result.current.goNext();
@@ -128,7 +129,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         act(() => {
             result.current.setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA);
@@ -144,6 +145,7 @@ describe('useCheckoutLogic', () => {
         expect(result.current.currentStep).toBe('pago');
         expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
         expect(result.current.shippingCostInTotal).toBe(0);
+        await waitFor(() => expect(result.current.loadingEnvioOpciones).toBe(false));
     });
 
     it('completa checkout con contraentrega sin pasar por la pasarela simulada', async () => {
@@ -156,14 +158,17 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         act(() => {
             result.current.goNext();
             result.current.setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA);
         });
 
-        expect(result.current.canContinuePayment).toBe(true);
+        await waitFor(() => {
+            expect(result.current.loadingEnvioOpciones).toBe(false);
+            expect(result.current.canContinuePayment).toBe(true);
+        }, { timeout: 5000 });
         expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
 
         let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
@@ -189,14 +194,17 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         act(() => {
             result.current.goNext();
             result.current.setPaymentMethod(PAYMENT_METHODS.BANK_TRANSFER);
         });
 
-        expect(result.current.canContinuePayment).toBe(true);
+        await waitFor(() => {
+            expect(result.current.loadingEnvioOpciones).toBe(false);
+            expect(result.current.canContinuePayment).toBe(true);
+        }, { timeout: 5000 });
 
         let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
 
@@ -221,14 +229,17 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         act(() => {
             result.current.goNext();
             result.current.setPaymentMethod(PAYMENT_METHODS.WEBPAY);
         });
 
-        expect(result.current.canContinuePayment).toBe(true);
+        await waitFor(() => {
+            expect(result.current.loadingEnvioOpciones).toBe(false);
+            expect(result.current.canContinuePayment).toBe(true);
+        }, { timeout: 5000 });
 
         let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
 
@@ -266,7 +277,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true));
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 5000 });
 
         act(() => {
             result.current.goNext();

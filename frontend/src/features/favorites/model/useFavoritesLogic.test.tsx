@@ -29,7 +29,10 @@ describe('useFavoritesLogic', () => {
 
         const { result } = renderHook(() => useFavoritesLogic(), { wrapper: createWrapper() });
 
-        await waitFor(() => expect(result.current.favorites).toHaveLength(0));
+        await waitFor(() => {
+            expect(result.current.loading).toBe(false);
+            expect(result.current.favorites).toHaveLength(0);
+        });
 
         await act(async () => {
             const added = await result.current.toggleFavorite(mockProduct);
@@ -51,7 +54,10 @@ describe('useFavoritesLogic', () => {
     it('requiere autenticación para toggle', async () => {
         const { result } = renderHook(() => useFavoritesLogic(), { wrapper: createWrapper() });
 
-        await waitFor(() => expect(result.current.favorites).toHaveLength(0));
+        await waitFor(() => {
+            expect(result.current.loading).toBe(false);
+            expect(result.current.favorites).toHaveLength(0);
+        });
 
         await act(async () => {
             const res = await result.current.toggleFavorite(mockProduct);

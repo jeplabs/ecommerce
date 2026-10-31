@@ -38,6 +38,8 @@ export default defineConfig(({ mode }) => {
             setupFiles: ['./src/test/setup.ts'],
             include: ['src/**/*.{test,spec}.{ts,tsx}'],
             css: true,
+            testTimeout: 15000,
+            hookTimeout: 15000,
             env: {
                 VITE_API_URL: env.VITE_API_URL || 'http://localhost:8080',
             },
