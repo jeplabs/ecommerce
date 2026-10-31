@@ -16,6 +16,7 @@ export function useProductosByCategory(categoriaSlugPath: string, searchParams?:
     const [error, setError] = useState<string | null>(null);
     const [paginaActual, setPaginaActual] = useState(1);
     const [totalPaginas, setTotalPaginas] = useState(1);
+    const [totalElementos, setTotalElementos] = useState(0);
 
     const { arbolCategorias } = useCategorias();
 
@@ -25,6 +26,7 @@ export function useProductosByCategory(categoriaSlugPath: string, searchParams?:
         if (!categoriaSlugPath) {
             setProductos([]);
             setFacets(undefined);
+            setTotalElementos(0);
             setLoading(false);
             return;
         }
@@ -64,15 +66,18 @@ export function useProductosByCategory(categoriaSlugPath: string, searchParams?:
                     setProductos(data.content);
                     setFacets(data.facets as Record<string, SpecFacetOption[]> | undefined);
                     setTotalPaginas(data.totalPages ?? 1);
+                    setTotalElementos(data.totalElements ?? data.content.length);
                 } else if (Array.isArray(data)) {
                     setProductos(data as ProductApi[]);
                     setFacets(undefined);
                     setTotalPaginas(1);
+                    setTotalElementos((data as ProductApi[]).length);
                 } else {
                     console.warn('Estructura de respuesta inesperada:', data);
                     setProductos([]);
                     setFacets(undefined);
                     setTotalPaginas(1);
+                    setTotalElementos(0);
                 }
             } catch (err) {
                 setError(toErrorMessage(err));
@@ -93,5 +98,6 @@ export function useProductosByCategory(categoriaSlugPath: string, searchParams?:
         paginaActual,
         setPaginaActual,
         totalPaginas,
+        totalElementos,
     };
 }

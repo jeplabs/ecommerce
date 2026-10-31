@@ -33,6 +33,7 @@ type ProductCatalogProps = {
     facetsExternas?: Record<string, SpecFacetOption[]> | null;
     loadingExterno?: boolean;
     totalPaginasExterno?: number;
+    totalElementosExterno?: number;
 };
 
 export const ProductCatalog = ({
@@ -40,6 +41,7 @@ export const ProductCatalog = ({
     facetsExternas = null,
     loadingExterno = false,
     totalPaginasExterno,
+    totalElementosExterno,
 }: ProductCatalogProps) => {
     const { isAuthenticated } = useAuth();
     const { addToCart } = useCart();
@@ -200,7 +202,7 @@ export const ProductCatalog = ({
         : (serverData?.totalPages ?? 1);
 
     const totalConteo = isExternal
-        ? listaOrdenada.length
+        ? (totalElementosExterno ?? listaOrdenada.length)
         : (serverData?.totalElements ?? listaOrdenada.length);
 
     const paginaActual = useMemo(

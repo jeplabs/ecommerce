@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCategorias } from '@/app/providers';
 import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
-import { Pagination } from '@/shared/ui';
 import { ProductCatalog } from '@/widgets/layout/ProductCatalog';
 import { useProductosByCategory } from '@/features/catalog';
 import { buildCategoryBreadcrumbs } from './lib/category-tree';
@@ -23,6 +22,7 @@ export default function CategoryProductsView({ slugPath, segmentos }: CategoryPr
         paginaActual,
         setPaginaActual,
         totalPaginas,
+        totalElementos,
     } = useProductosByCategory(slugPath, searchParams);
     const { arbolCategorias } = useCategorias();
 
@@ -59,15 +59,10 @@ export default function CategoryProductsView({ slugPath, segmentos }: CategoryPr
                 facetsExternas={facets}
                 loadingExterno={loading}
                 totalPaginasExterno={totalPaginas}
+                totalElementosExterno={totalElementos}
             />
 
-            {!loading && totalPaginas > 1 && (
-                <Pagination
-                    currentPage={paginaActual}
-                    totalPages={totalPaginas}
-                    onPageChange={setPaginaActual}
-                />
-            )}
+
         </div>
     );
 }
