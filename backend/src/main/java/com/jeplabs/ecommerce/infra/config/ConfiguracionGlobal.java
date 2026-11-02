@@ -5,5 +5,8 @@ import java.math.BigDecimal;
 public record ConfiguracionGlobal(
         DatosRespuestaMoneda moneda,
         BigDecimal montoMinimoEnvioGratis,
-        String storageProvider
+        String storageProvider,
+        String paisCodigo,
+        String paisNombre,
+        BigDecimal porcentajeIva
 ) {}
