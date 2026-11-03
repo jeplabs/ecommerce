@@ -1,3 +1,0 @@
-ALTER TABLE carritos
-    ADD COLUMN expira_at TIMESTAMP NOT NULL DEFAULT NOW() + INTERVAL '72 hours',
-    ADD COLUMN notificacion_enviada BOOLEAN NOT NULL DEFAULT FALSE;

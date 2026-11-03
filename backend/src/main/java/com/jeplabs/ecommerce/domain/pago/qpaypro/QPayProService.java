@@ -63,9 +63,12 @@ public class QPayProService {
     @Value("${qpaypro.api.webhook-secret}")
     private String webhookSecret;
 
+    @Value("${api.moneda.codigo:GTQ}")
+    private String currencyCode;
+
     @Transactional
     public String iniciarPago(Orden orden, Integer cuotas) {
-        String currency = "GTQ";
+        String currency = (currencyCode != null && !currencyCode.isBlank()) ? currencyCode : "GTQ";
 
         QPayProTransaccion transaccion = new QPayProTransaccion(orden, orden.getTotal(), cuotas);
         qpayproRepository.save(transaccion);

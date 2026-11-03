@@ -24,9 +24,18 @@ public class ConfiguracionController {
     @Value("${api.storage.provider}")
     private String storageProvider;
 
+    @Value("${api.pais.codigo:GT}")
+    private String paisCodigo;
+
+    @Value("${api.pais.nombre:Guatemala}")
+    private String paisNombre;
+
+    @Value("${api.impuestos.iva:0.12}")
+    private BigDecimal porcentajeIva;
+
     @GetMapping
     @Operation(summary = "Obtener configuración global",
-            description = "Público. El frontend lo consulta al iniciar para obtener moneda, límites y configuraciones")
+            description = "Público. El frontend lo consulta al iniciar para obtener moneda, país, impuestos, límites y configuraciones")
     public ResponseEntity<ConfiguracionGlobal> obtenerConfiguracion() {
         return ResponseEntity.ok(new ConfiguracionGlobal(
                 new DatosRespuestaMoneda(
@@ -37,7 +46,10 @@ public class ConfiguracionController {
                         monedaConfig.getDecimales()
                 ),
                 montoMinimoEnvioGratis,
-                storageProvider
+                storageProvider,
+                paisCodigo,
+                paisNombre,
+                porcentajeIva
         ));
     }
 }

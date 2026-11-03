@@ -6,6 +6,9 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/NOMBRE_BASE_DATOS
 spring.datasource.username=USUARIO_POSTGRES
 spring.datasource.password=PASSWORD_POSTGRES
 
+# Flyway (en dev carga las migraciones base + semillas de catálogo en db/seed)
+spring.flyway.locations=classpath:db/migration,classpath:db/seed
+
 # JWT - Doble Token (Access Token + Refresh Token)
 api.security.secret=${JWT_SECRET:CUALQUIER_STRING_LARGO_PARA_DEV}
 # Tiempo de expiracion general en segundos (fallback: 15 min)
@@ -62,7 +65,7 @@ api.orden.expiracion-minutos=10
 api.orden.expiracion-fixed-delay-ms=300000
 api.orden.expiracion-delay-inicial-ms=120000
 
-# Porcentaje IVA
+# Porcentaje IVA (por defecto GT 0.12; sobreescrito por application-gt.properties o application-cl.properties)
 api.impuestos.iva=0.12
 
 # Servicios de envio
@@ -80,25 +83,32 @@ api.storage.cloudinary.cloud-name=CLOUDINARY_CLOUD_NAME
 api.storage.cloudinary.api-key=CLOUDINARY_API_KEY
 api.storage.cloudinary.api-secret=CLOUDINARY_API_SECRET
 
-# Moneda
+# País y Moneda por defecto en dev (sobreescrito por application-gt.properties o application-cl.properties)
+api.pais.codigo=GT
+api.pais.nombre=Guatemala
 api.moneda.codigo=GTQ
 api.moneda.simbolo=Q
 api.moneda.nombre=Quetzal
 api.moneda.locale=es-GT
 api.moneda.decimales=2
 
-# Moneda - Peso chileno
-api.moneda.codigo=CLP
-api.moneda.simbolo=$
-api.moneda.nombre=Peso Chileno
-api.moneda.locale=es-CL
-api.moneda.decimales=0
+# Si activas el perfil "cl" (spring.profiles.active=dev,cl), application-cl.properties aplicará:
+# api.pais.codigo=CL
+# api.pais.nombre=Chile
+# api.moneda.codigo=CLP
+# api.moneda.simbolo=$
+# api.moneda.nombre=Peso Chileno
+# api.moneda.locale=es-CL
+# api.moneda.decimales=0
+# api.impuestos.iva=0.19
+# api.envio.monto-minimo-gratis=50000
 
 # Webpay Plus
 api.webpay.ambiente=integracion
 # Credenciales de produccion (vacias en dev, el SDK usa las de integracion automaticamente)
 api.webpay.commerce-code=
 api.webpay.api-key=
+# URL base del frontend para retornos
 api.webpay.return-url=http://localhost:5173/checkout/webpay/retorno
 api.webpay.webhook-secret=SECRET_WEBHOOK
 
