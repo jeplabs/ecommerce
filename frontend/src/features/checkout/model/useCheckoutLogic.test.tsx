@@ -238,7 +238,8 @@ describe('useCheckoutLogic', () => {
 
         await waitFor(() => {
             expect(result.current.loadingEnvioOpciones).toBe(false);
-            expect(result.current.canContinuePayment).toBe(true);
+            expect(result.current.canContinuePayment).toBe(true);    
+            expect(result.current.isEmpty).toBe(false);
         }, { timeout: 5000 });
 
         let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
@@ -247,7 +248,8 @@ describe('useCheckoutLogic', () => {
             checkoutResult = await result.current.completeCheckout();
         });
 
-        expect(checkoutResult?.success).toBe(true);
+        // expect(checkoutResult?.success).toBe(true);
+        expect(checkoutResult).toEqual(expect.objectContaining({ success: true }));
         if (checkoutResult?.success && checkoutResult.needsRedirect) {
             expect(checkoutResult.urlRedireccion).toContain('https://');
             expect(checkoutResult.token).toContain('tok_test_');

@@ -111,6 +111,18 @@ function resolveLogin(body: { email?: string; password?: string }) {
 }
 
 export const handlers = [
+    http.get(`${API_BASE}/api/config`, () => {
+        return HttpResponse.json({
+            moneda: {
+                codigo: 'GTQ',
+                simbolo: 'Q',
+                nombre: 'Quetzal',
+                locale: 'es-GT',
+                decimales: 2,
+            },
+        });
+    }),
+
     http.get(`${API_BASE}/api/categorias`, () => {
         return HttpResponse.json(mockCategories);
     }),
