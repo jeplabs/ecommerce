@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { ProductImage } from '@/shared/ui/ProductImage';
 import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
 import styles from './ProductCard.module.css';
+import { formatCurrency } from '@/shared';
 
 const MAX_TITLE_LENGTH = 50;
 
@@ -49,7 +50,8 @@ export const ProductCard = ({
                     aria-label={`Ver detalles de ${title}`}
                 />
                 {outOfStock && <SoldOutBadge placement="start" />}
-                {price && <span className={styles.priceTag}>${price}</span>}
+                {price != null && <span className={styles.priceTag}>{formatCurrency(price)}</span>}
+                {/* {price && <span className={styles.priceTag}>${price}</span>} */}
             </figure>
 
             <div className={styles.body}>

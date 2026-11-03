@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import styles from './CartView.module.css';
 
 import CartExpirationBanner from './CartExpirationBanner';
+import { formatCurrency } from '@/shared/lib/format';
 
 type CartViewProps = {
     onProceedToCheckout: () => void;
@@ -46,7 +47,8 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
     };
 
     const totalDisplay = useMemo(() => {
-        return cartTotal.toLocaleString('es-ES', { minimumFractionDigits: 2 });
+        return formatCurrency(cartTotal);
+        // return cartTotal.toLocaleString('es-ES', { minimumFractionDigits: 2 });
     }, [cartTotal]);
 
     return (
@@ -78,10 +80,11 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                             <span role="columnheader">Acción</span>
                         </div>
                         {items.map((item) => {
-                            const subtotalFormatted = (item.price * item.quantity).toLocaleString(
-                                'es-ES',
-                                { minimumFractionDigits: 2 }
-                            );
+                            const subtotalFormatted = formatCurrency(item.price * item.quantity);
+                            // const subtotalFormatted = (item.price * item.quantity).toLocaleString(
+                            //     'es-ES',
+                            //     { minimumFractionDigits: 2 }
+                            // );
                             return (
                                 <article key={item.id} className={styles.tableRow} role="row">
                                     <div className={styles.itemInfo} role="cell">
@@ -99,9 +102,11 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                             
                                             <p className={styles.itemPrice}>
                                                 $
+                                                {formatCurrency(item.price)}{' '}
+                                                {/* $
                                                 {item.price.toLocaleString('es-ES', {
                                                     minimumFractionDigits: 2,
-                                                })}{' '}
+                                                })}{' '} */}
                                                 <span className={styles.itemPriceUnit}>c/u</span>
                                             </p>
                                         </div>

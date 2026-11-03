@@ -6,6 +6,7 @@ import { Button } from '@/shared/ui/Button';
 import { Pagination } from '@/shared/ui';
 import { ProductImage } from '@/shared/ui/ProductImage';
 import styles from './AdminProductListView.module.css';
+import { formatCurrency } from '@/shared/lib/format';
 
 const PAGE_SIZE = 12;
 
@@ -102,7 +103,8 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
                         alt={producto.nombre}
                         className={styles.productImage}
                     />
-                    <div className={styles.productPriceTag}>${producto.precioVenta || 'N/A'}</div>
+                    <div className={styles.productPriceTag}>{producto.precioVenta != null ? formatCurrency(producto.precioVenta) : 'N/A'}</div>
+                    {/* <div className={styles.productPriceTag}>${producto.precioVenta || 'N/A'}</div> */}
                 </div>
             )}
 

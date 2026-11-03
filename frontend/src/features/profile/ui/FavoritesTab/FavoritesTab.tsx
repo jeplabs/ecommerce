@@ -4,6 +4,7 @@ import { Button } from '@/shared/ui/Button';
 import { ProductImage } from '@/shared/ui/ProductImage';
 import { getMainProductImageUrl } from '@/entities/product';
 import styles from './FavoritesTab.module.css';
+import { formatCurrency } from '@/shared/lib/format';
 
 export default function FavoritesTab() {
     const navigate = useNavigate();
@@ -11,11 +12,11 @@ export default function FavoritesTab() {
     const { productos } = useProduct();
     const { showError } = useToast();
 
-    const formatPrice = (value: number, moneda: string | null) =>
-        new Intl.NumberFormat('es-CL', {
-            style: 'currency',
-            currency: moneda || 'CLP',
-        }).format(value);
+    // const formatPrice = (value: number, moneda: string | null) =>
+    //     new Intl.NumberFormat('es-CL', {
+    //         style: 'currency',
+    //         currency: moneda || 'CLP',
+    //     }).format(value);
 
     const handleRemove = async (productId: number, nombre: string) => {
         try {
@@ -64,7 +65,8 @@ export default function FavoritesTab() {
                                         <h3 className={styles.name}>{item.nombre}</h3>
                                     </Link>
                                     <p className={styles.price}>
-                                        {formatPrice(item.precioVenta, item.moneda)}
+                                        {formatCurrency(item.precioVenta)}
+                                        {/* {formatPrice(item.precioVenta, item.moneda)} */}
                                     </p>
                                 </div>
 

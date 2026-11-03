@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import styles from './CartDrawer.module.css';
 
 import CartExpirationBanner from './CartExpirationBanner';
+import { formatCurrency } from '@/shared/lib/format';
 
 type CartDrawerProps = {
     isOpen: boolean;
@@ -200,15 +201,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                     <div className={styles.itemQuantityAndPrice}>
                                             <p className={styles.itemMeta}>
                                                 {item.quantity} x $
-                                                {item.price.toLocaleString('es-ES', {
+                                                {formatCurrency(item.price)}
+                                                {/* {item.price.toLocaleString('es-ES', {
                                                     minimumFractionDigits: 2,
-                                                })}
+                                                })} */}
                                             </p>
                                             <p className={styles.itemSubtotal}>
                                                 Subtotal: $
-                                                {(item.price * item.quantity).toLocaleString('es-ES', {
+                                                {formatCurrency(item.price * item.quantity)}
+                                                {/* {(item.price * item.quantity).toLocaleString('es-ES', {
                                                     minimumFractionDigits: 2,
-                                                })}
+                                                })} */}
                                             </p>
                                     </div>
                                 </li>
@@ -223,7 +226,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             <span>Total</span>
                             <span className={styles.totalAmount}>
                                 $
-                                {cartTotal.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                                {formatCurrency(cartTotal)}
+                                {/* {cartTotal.toLocaleString('es-ES', { minimumFractionDigits: 2 })} */}
                             </span>
                         </div>
 

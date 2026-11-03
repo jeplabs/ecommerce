@@ -10,6 +10,7 @@ import ProductInfo from '@/widgets/product-detail/ProductInfo/ProductInfo';
 import ProductTabs from '@/widgets/product-detail/ProductTabs/ProductTabs';
 import { findCategoryPathInTree } from '@/widgets/catalog/lib/category-tree';
 import styles from './ProductDetailView.module.css';
+import { formatCurrency } from '@/shared/lib/format';
 
 type ProductDetailViewProps = {
     slug: string;
@@ -129,10 +130,11 @@ export default function ProductDetailView({ slug, onBackHome }: ProductDetailVie
 
     breadcrumbs.push({ label: producto.nombre, path: null });
 
-    const precioFormateado = new Intl.NumberFormat('es-CL', {
-        style: 'currency',
-        currency: producto.moneda || 'CLP',
-    }).format(producto.precioVenta);
+    // const precioFormateado = new Intl.NumberFormat('es-CL', {
+    //     style: 'currency',
+    //     currency: producto.moneda || 'CLP',
+    // }).format(producto.precioVenta);
+    const precioFormateado = formatCurrency(producto.precioVenta)
 
     return (
         <div className={styles.container}>

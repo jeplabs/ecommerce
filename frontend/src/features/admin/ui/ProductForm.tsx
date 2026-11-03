@@ -12,6 +12,7 @@ import { Input } from '@/shared/ui/Input';
 import { Select } from '@/shared/ui/Select';
 import { Textarea } from '@/shared/ui/Textarea';
 import styles from './ProductForm.module.css';
+import { getCurrencyConfig } from '@/shared/lib/format';
 
 type ProductFormImage = AdminProductFormImage;
 
@@ -730,7 +731,7 @@ export const ProductForm = ({
             precio: {
                 precioVenta: Number(formData.price),
                 precioCosto: Number(formData.price),
-                moneda: formData.moneda || 'USD'
+                moneda: formData.moneda || getCurrencyConfig().codigo || 'USD'
             },
             // categoriaIds: categoriasIds,
             categoriaIds: Array.from(allCategoryIds),
@@ -837,9 +838,9 @@ export const ProductForm = ({
                             value={formData.moneda}
                             onChange={handleChange}
                         >
+                            <option value="GTQ">GTQ</option>
+                            <option value="CLP">CLP</option>
                             <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
-                            <option value="ARS">ARS</option>
                         </Select>
                     </FormField>
 
