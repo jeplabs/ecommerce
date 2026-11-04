@@ -1,4 +1,7 @@
 export { AppProviders } from './AppProviders';
+export { ConfigProvider } from './ConfigProvider';
+export { useConfig } from './useConfig';
+export type { ConfigContextValue } from './config-context';
 export { AuthProvider } from './AuthProvider';
 export { useAuth, type AuthContextValue } from './useAuth';
 export { CartProvider } from './CartProvider';

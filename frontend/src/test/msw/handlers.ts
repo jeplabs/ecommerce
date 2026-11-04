@@ -120,6 +120,11 @@ export const handlers = [
                 locale: 'es-GT',
                 decimales: 2,
             },
+            montoMinimoEnvioGratis: 500.0,
+            storageProvider: 'cloudinary',
+            paisCodigo: 'GT',
+            paisNombre: 'Guatemala',
+            porcentajeIva: 0.12,
         });
     }),
 
