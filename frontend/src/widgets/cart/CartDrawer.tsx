@@ -200,18 +200,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                     </div>
                                     <div className={styles.itemQuantityAndPrice}>
                                             <p className={styles.itemMeta}>
-                                                {item.quantity} x $
-                                                {formatCurrency(item.price)}
-                                                {/* {item.price.toLocaleString('es-ES', {
-                                                    minimumFractionDigits: 2,
-                                                })} */}
+                                                {item.quantity} x {formatCurrency(item.price)}
                                             </p>
                                             <p className={styles.itemSubtotal}>
-                                                Subtotal: $
-                                                {formatCurrency(item.price * item.quantity)}
-                                                {/* {(item.price * item.quantity).toLocaleString('es-ES', {
-                                                    minimumFractionDigits: 2,
-                                                })} */}
+                                                Subtotal: {formatCurrency(item.price * item.quantity)}
                                             </p>
                                     </div>
                                 </li>
@@ -225,9 +217,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <div className={styles.total}>
                             <span>Total</span>
                             <span className={styles.totalAmount}>
-                                $
                                 {formatCurrency(cartTotal)}
-                                {/* {cartTotal.toLocaleString('es-ES', { minimumFractionDigits: 2 })} */}
                             </span>
                         </div>
 

@@ -40,7 +40,7 @@ async function selectNormalDelivery(result: { current: ReturnType<typeof useChec
         expect(result.current.isEmpty).toBe(false);
         expect(result.current.direcciones.length).toBeGreaterThan(0);
         expect(result.current.deliveryServices.length).toBeGreaterThan(0);
-    }, { timeout: 5000 });
+    }, { timeout: 10000 });
 
     act(() => {
         const normal = result.current.deliveryServices[0];

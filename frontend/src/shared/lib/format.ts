@@ -31,7 +31,7 @@ export function formatCurrency(value: number | string | null | undefined): strin
         minimumFractionDigits: activeCurrency.decimales,
         maximumFractionDigits: activeCurrency.decimales,
     }).format(num);
-    return `${activeCurrency.simbolo}${formattedNumber}`;
+    return `${activeCurrency.simbolo} ${formattedNumber}`;
 }
 
 export function formatDateTime(isoString: string | null | undefined): string {

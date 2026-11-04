@@ -101,12 +101,7 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                             </Link>
                                             
                                             <p className={styles.itemPrice}>
-                                                $
                                                 {formatCurrency(item.price)}{' '}
-                                                {/* $
-                                                {item.price.toLocaleString('es-ES', {
-                                                    minimumFractionDigits: 2,
-                                                })}{' '} */}
                                                 <span className={styles.itemPriceUnit}>c/u</span>
                                             </p>
                                         </div>
@@ -147,7 +142,7 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                         role="cell"
                                         data-label="Subtotal"
                                     >
-                                        ${subtotalFormatted}
+                                        {subtotalFormatted}
                                     </div>
                                     <div
                                         className={styles.itemActions}
@@ -172,7 +167,7 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                     <div className={styles.summary}>
                         <div className={styles.summaryTotal}>
                             <span>Total</span>
-                            <strong>${totalDisplay}</strong>
+                            <strong>{totalDisplay}</strong>
                         </div>
                         <div className={styles.summaryActions}>
                             <Button
