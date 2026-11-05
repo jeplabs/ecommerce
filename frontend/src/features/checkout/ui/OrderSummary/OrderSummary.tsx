@@ -3,6 +3,7 @@ import { formatCurrency } from '@/shared/lib/format';
 import { ProductImage } from '@/shared/ui/ProductImage';
 import type { CartItemUiView } from '@/entities/cart';
 import type { ShippingServiceCosts } from '@/entities/shipping';
+import CheckoutReservationBanner from '../CheckoutReservationBanner/CheckoutReservationBanner';
 import styles from './OrderSummary.module.css';
 
 type OrderSummaryProps = {
@@ -35,6 +36,7 @@ export default function OrderSummary({
 
     return (
         <aside className={clsx(styles.root, compact && styles.compact)}>
+            <CheckoutReservationBanner />
             <h3 className={styles.title}>Resumen del pedido</h3>
 
             {!totalsOnly && (

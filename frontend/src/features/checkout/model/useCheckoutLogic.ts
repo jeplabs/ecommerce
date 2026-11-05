@@ -46,6 +46,7 @@ export type CheckoutLogicParams = {
     cartTotal: number;
     isEmpty: boolean;
     refreshCart: () => Promise<void>;
+    showExpiredModal?: boolean;
 };
 
 export type CheckoutCompleteResult =
@@ -78,6 +79,7 @@ export function useCheckoutLogic({
     cartTotal,
     isEmpty,
     refreshCart,
+    showExpiredModal = false,
 }: CheckoutLogicParams) {
     const navigate = useNavigate();
     const checkoutCompletedRef = useRef(false);
@@ -191,11 +193,11 @@ export function useCheckoutLogic({
     }, [isEmpty, fetchSucursales]);
 
     useEffect(() => {
-        if (processing || checkoutCompletedRef.current) return;
+        if (processing || checkoutCompletedRef.current || showExpiredModal) return;
         if (isEmpty) {
             navigate('/cart', { replace: true });
         }
-    }, [isEmpty, navigate, processing]);
+    }, [isEmpty, navigate, processing, showExpiredModal]);
 
     // useEffect(() => {
     //     if (loadingEnvioOpciones || servicios.length === 0) return;
@@ -284,26 +286,29 @@ export function useCheckoutLogic({
     );
 
     const canContinueShipping =
+        !isEmpty &&
+        !showExpiredModal &&
         Boolean(selectedServicioEnvioId) &&
         (isPickupSelected
             ? !loadingBranches && Boolean(selectedBranchId)
             : !loadingAddresses && Boolean(selectedAddressId)) &&
-
         !loadingEnvioOpciones &&
         !envioOpcionesError &&
         servicios.length > 0;
 
     const canContinuePayment =
-        isBankTransferPaymentMethod(paymentMethod) ||
-        paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA ||
-        paymentMethod === PAYMENT_METHODS.WEBPAY ||
-        paymentMethod === PAYMENT_METHODS.QPAYPRO ||
-        paymentMethod === PAYMENT_METHODS.MERCADOPAGO ||
-        (paymentMethod === PAYMENT_METHODS.STRIPE &&
-            Boolean(cardData.cardholder) &&
-            Boolean(cardData.cardNumber) &&
-            Boolean(cardData.expiry) &&
-            Boolean(cardData.cvc));
+        !isEmpty &&
+        !showExpiredModal &&
+        (isBankTransferPaymentMethod(paymentMethod) ||
+            paymentMethod === PAYMENT_METHODS.CONTRA_ENTREGA ||
+            paymentMethod === PAYMENT_METHODS.WEBPAY ||
+            paymentMethod === PAYMENT_METHODS.QPAYPRO ||
+            paymentMethod === PAYMENT_METHODS.MERCADOPAGO ||
+            (paymentMethod === PAYMENT_METHODS.STRIPE &&
+                Boolean(cardData.cardholder) &&
+                Boolean(cardData.cardNumber) &&
+                Boolean(cardData.expiry) &&
+                Boolean(cardData.cvc)));
 
     const goNext = useCallback(() => {
         setError(null);
@@ -452,6 +457,9 @@ export function useCheckoutLogic({
             }
             if (toErrorStatus(err) === 410) {
                 await refreshCart();
+                const expiredMessage = 'Tu reserva ha expirado. Puedes restaurar tus productos para continuar.';
+                setError(expiredMessage);
+                return { success: false, error: expiredMessage };
             }
             const message = toErrorMessage(err) || 'Error al procesar el pedido';
             setError(message);

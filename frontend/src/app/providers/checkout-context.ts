@@ -4,6 +4,7 @@ import type { useCheckoutLogic } from '@/features/checkout/model/useCheckoutLogi
 export type CheckoutContextValue = ReturnType<typeof useCheckoutLogic> & {
     cartLoading: boolean;
     isEmpty: boolean;
+    showExpiredModal: boolean;
 };
 
 export const CheckoutContext = createContext<CheckoutContextValue | null>(null);

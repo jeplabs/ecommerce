@@ -43,6 +43,7 @@ export default function CheckoutContent() {
         completeCheckout,
         paymentMethod,
         redirectInfo,
+        showExpiredModal,
     } = useCheckout();
 
     useScrollToTopOnPageChange(step);
@@ -52,7 +53,7 @@ export default function CheckoutContent() {
     const isWebpay = paymentMethod === PAYMENT_METHODS.WEBPAY;
     const isQPayPro = paymentMethod === PAYMENT_METHODS.QPAYPRO;
 
-    if ((cartLoading || isEmpty) && !processing && !checkoutCompleted) {
+    if ((cartLoading || (isEmpty && !showExpiredModal)) && !processing && !checkoutCompleted) {
         return <p className={pageStyles.loading}>Preparando checkout…</p>;
     }
 

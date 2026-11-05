@@ -16,6 +16,7 @@ Guías complementarias al [README](../README.md) principal.
 | [testing.md](./testing.md) | Testing: stack, buenas prácticas, plan de cobertura por fases, fixtures |
 | [Propuesta-Ajuste-Backend-Favoritos-Imagenes.md](./Propuesta-Ajuste-Backend-Favoritos-Imagenes.md) | Diagnóstico técnico y propuesta de resolución dinámica de imágenes para el equipo backend (`GET /api/favoritos`) |
 | [sucursales-retiro-tienda-frontend.md](./sucursales-retiro-tienda-frontend.md) | Integración de sucursales físicas (`GET /api/sucursales`), selección consciente en checkout, retiro en tienda y panel de administración CRUD (`/admin/sucursales`) |
+| [expiracion-carrito-checkout.md](./expiracion-carrito-checkout.md) | Diagnóstico, mejores prácticas y plan de integración de expiración/renovación del carrito en el flujo de Checkout |
 
 ## Convención
 
