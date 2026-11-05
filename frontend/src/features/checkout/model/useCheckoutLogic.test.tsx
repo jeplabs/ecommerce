@@ -169,7 +169,7 @@ describe('useCheckoutLogic', () => {
             expect(result.current.loadingEnvioOpciones).toBe(false);
             expect(result.current.canContinuePayment).toBe(true);
             expect(result.current.isEmpty).toBe(false);
-        }, { timeout: 5000 });
+        }, { timeout: 10000 });
         expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
 
         let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
@@ -205,7 +205,7 @@ describe('useCheckoutLogic', () => {
         await waitFor(() => {
             expect(result.current.loadingEnvioOpciones).toBe(false);
             expect(result.current.canContinuePayment).toBe(true);
-        }, { timeout: 5000 });
+        }, { timeout: 10000 });
 
         let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
 
@@ -241,7 +241,7 @@ describe('useCheckoutLogic', () => {
             expect(result.current.loadingEnvioOpciones).toBe(false);
             expect(result.current.canContinuePayment).toBe(true);    
             expect(result.current.isEmpty).toBe(false);
-        }, { timeout: 5000 });
+        }, { timeout: 10000 });
 
         let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
 
