@@ -168,6 +168,7 @@ describe('useCheckoutLogic', () => {
         await waitFor(() => {
             expect(result.current.loadingEnvioOpciones).toBe(false);
             expect(result.current.canContinuePayment).toBe(true);
+            expect(result.current.isEmpty).toBe(false);
         }, { timeout: 5000 });
         expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
 

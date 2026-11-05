@@ -1,6 +1,6 @@
 import { getAccessToken } from '@/shared/lib/auth-token-store';
 import { API_URL } from '@/shared/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
+import { fetchWithAuth, getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/shared';
 import { cartApiSchema, restauracionCartApiSchema, type CartApi, type RestauracionCartApi } from '../model/schemas/api';
 import type { AddCartItemRequest, UpdateCartItemQuantityRequest } from '../model/schemas/forms';
@@ -28,7 +28,7 @@ async function handleCartJson(response: Response, fallback: string): Promise<Car
 
 /** {@code GET /api/carrito} */
 export async function getCart(): Promise<CartApi> {
-    const response = await fetch(`${API_URL}/api/carrito`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito`, {
         method: 'GET',
         headers: getAuthHeaders(getToken()),
     });
@@ -38,7 +38,7 @@ export async function getCart(): Promise<CartApi> {
 /** {@code POST /api/carrito/items} */
 export async function addToCart(productId: number, quantity = 1): Promise<CartApi> {
     const body: AddCartItemRequest = { productoId: productId, cantidad: quantity };
-    const response = await fetch(`${API_URL}/api/carrito/items`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito/items`, {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
         body: JSON.stringify(body),
@@ -48,7 +48,7 @@ export async function addToCart(productId: number, quantity = 1): Promise<CartAp
 
 /** Variante tipada con {@code DatosAgregarItem}. */
 export async function addCartItem(body: AddCartItemRequest): Promise<CartApi> {
-    const response = await fetch(`${API_URL}/api/carrito/items`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito/items`, {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
         body: JSON.stringify(body),
@@ -59,7 +59,7 @@ export async function addCartItem(body: AddCartItemRequest): Promise<CartApi> {
 /** {@code PATCH /api/carrito/items/{itemId}} */
 export async function updateItemQuantity(itemId: number, quantity: number): Promise<CartApi> {
     const body: UpdateCartItemQuantityRequest = { cantidad: quantity };
-    const response = await fetch(`${API_URL}/api/carrito/items/${itemId}`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito/items/${itemId}`, {
         method: 'PATCH',
         headers: getAuthHeaders(getToken()),
         body: JSON.stringify(body),
@@ -69,7 +69,7 @@ export async function updateItemQuantity(itemId: number, quantity: number): Prom
 
 /** {@code DELETE /api/carrito/items/{itemId}} */
 export async function removeItem(itemId: number): Promise<CartApi> {
-    const response = await fetch(`${API_URL}/api/carrito/items/${itemId}`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito/items/${itemId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(getToken()),
     });
@@ -78,7 +78,7 @@ export async function removeItem(itemId: number): Promise<CartApi> {
 
 /** {@code DELETE /api/carrito} */
 export async function clearCart(): Promise<CartApi> {
-    const response = await fetch(`${API_URL}/api/carrito`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito`, {
         method: 'DELETE',
         headers: getAuthHeaders(getToken()),
     });
@@ -87,7 +87,7 @@ export async function clearCart(): Promise<CartApi> {
 
 /** {@code POST /api/carrito/renovar} */
 export async function renovarCart(): Promise<CartApi> {
-    const response = await fetch(`${API_URL}/api/carrito/renovar`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito/renovar`, {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
     });
@@ -96,7 +96,7 @@ export async function renovarCart(): Promise<CartApi> {
 
 /** {@code POST /api/carrito/restaurar} */
 export async function restaurarCart(): Promise<RestauracionCartApi> {
-    const response = await fetch(`${API_URL}/api/carrito/restaurar`, {
+    const response = await fetchWithAuth(`${API_URL}/api/carrito/restaurar`, {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
     });

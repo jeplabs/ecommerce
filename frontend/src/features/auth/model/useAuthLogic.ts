@@ -230,15 +230,15 @@ export function useAuthLogic() {
         const MAX_TIMEOUT_MS = 2_147_483_647;
         if (msUntilRenew > 0 && msUntilRenew <= MAX_TIMEOUT_MS) {
             const renewTimer = window.setTimeout(async () => {
-                const hadRecentActivity = Date.now() - lastActivityRef.current < 15 * 60 * 1000;
-                if (hadRecentActivity) {
+                // const hadRecentActivity = Date.now() - lastActivityRef.current < 15 * 60 * 1000;
+                // if (hadRecentActivity) {
                     const refreshed = await authApi.silentRefresh();
                     if (refreshed) {
                         setUser({ token: refreshed.token, rol: refreshed.rol });
                         setUserRol(refreshed.rol);
                         setIsAuthenticated(true);
                     }
-                }
+                // }
             }, msUntilRenew);
 
             return () => window.clearTimeout(renewTimer);
