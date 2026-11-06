@@ -143,6 +143,11 @@ frontend/src/
 │   ├── ui/                       # Botones, Inputs, Modales, Spinners, Badges, etc.
 │   └── layout/                   # Navbar, Footer, CategoriasNav, AdminLayout, ShopLayout
 │
+├── config/                       # ⭐ Configuración global del sistema
+│   ├── env.ts                    # Variables de entorno
+│   ├── constants.ts              # Constantes globales
+│   └── territories/              # Localización territorial multi-país (GT y CL, regiones, comunas, departamentos)
+│
 ├── hooks/                        # Custom hooks utilitarios globales (useClickOutside, etc.)
 ├── lib/                          # Clientes e infraestructura (fetchWithAuth, auth-token-store, etc.)
 ├── utils/                        # Funciones puras independientes (formatPrice, formatDate, etc.)
@@ -165,11 +170,11 @@ features/cart/
 │   │   ├── CartView.module.css
 │   │   └── CartView.test.tsx
 │   ├── CartDrawer/               # Sub-componente (drawer lateral)
-│   │   ├── CartDrawer.tsx
-│   │   └── CartDrawer.module.css
+│   ├── CartExpirationBanner/     # Banner de cuenta regresiva y botón de renovación
+│   ├── CartExpiredModal/         # Modal de expiración y restauración de productos
 │   ├── CartItem/
 │   └── CartSummary/
-├── hooks/                        # Lógica de negocio, timers y sincronizaciones
+├── hooks/                        # Lógica de negocio, timers regresivos y sincronizaciones
 │   ├── useCartLogic.ts
 │   └── useCartLogic.test.ts
 ├── types/                        # Contratos de TypeScript y esquemas Zod
@@ -207,6 +212,7 @@ import { CartView } from '@/features/cart/components/CartView/CartView';
 | **Shared UI** | `src/shared/ui/` | `src/components/ui/` | Componentes agnósticos: `Button`, `Input`, `Select`, `Modal`, `ProductImage`, `Toast`. |
 | **Layouts** | `src/widgets/layout/` | `src/components/layout/` | `Navbar`, `Footer`, `CategoriasNav`, `ShopLayout`, `AdminLayout`. |
 | **Shared Lib** | `src/shared/lib/` | `src/lib/` y `src/utils/` | Clientes HTTP y sesión en `src/lib/`. Formateadores de moneda/fecha en `src/utils/`. |
+| **Localización Territorial** | `src/shared/config/territories/` | `src/config/territories/` | Configuración GT/CL, departamentos/municipios, regiones/comunas y labels dinámicos. |
 
 ---
 
@@ -236,21 +242,37 @@ flowchart LR
        '@/features': path.resolve(__dirname, './src/features'),
        '@/lib': path.resolve(__dirname, './src/lib'),
        '@/utils': path.resolve(__dirname, './src/utils'),
+       '@/config': path.resolve(__dirname, './src/config'),
      }
    }
    ```
-2. Replicar los paths en `tsconfig.app.json`.
+2. Replicar los paths en `tsconfig.json` manteniendo retrocompatibilidad:
+   ```json
+   "paths": {
+       "@/*": ["src/*"],
+       "@/components/*": ["src/components/*"],
+       "@/features/*": ["src/features/*"],
+       "@/lib/*": ["src/lib/*"],
+       "@/utils/*": ["src/utils/*"],
+       "@/config/*": ["src/config/*"],
+       "@/entities/*": ["src/entities/*"],
+       "@/widgets/*": ["src/widgets/*"],
+       "@/shared/*": ["src/shared/*"],
+       "@/app/*": ["src/app/*"]
+   }
+   ```
 
 ---
 
-### Fase 1: Infraestructura Compartida (`lib/`, `utils/`, `components/`)
+### Fase 1: Infraestructura Compartida (`lib/`, `utils/`, `config/`, `components/`)
 **Objetivo:** Establecer la base compartida antes de mover los módulos de negocio.
 
-1. Mover `src/shared/lib/http-session.ts`, `auth-token-store.ts`, `jwt-expiry.ts` a `src/lib/`.
-2. Mover formateadores de precios y fechas de `src/shared/lib/` a `src/utils/`.
-3. Mover `src/shared/ui/` (`Button`, `Modal`, `ProductImage`, etc.) a `src/components/ui/`.
-4. Mover `src/widgets/layout/` (`Navbar`, `Footer`, `ShopLayout`, `AdminLayout`) a `src/components/layout/`.
-5. Ejecutar la suite de tests para asegurar que todo compile:
+1. Mover infraestructura HTTP y sesión (`src/shared/lib/http-session.ts`, `auth-token-store.ts`, `jwt-expiry.ts`) a `src/lib/`.
+2. Mover formateadores puros (`format.ts`, precios, fechas) a `src/utils/`.
+3. Mover la configuración territorial multi-país (`src/shared/config/territories/`) a `src/config/territories/`.
+4. Mover `src/shared/ui/` (`Button`, `Modal`, `ProductImage`, `Toast`, etc.) a `src/components/ui/`.
+5. Mover layouts compartidos `src/widgets/layout/` (`Navbar`, `Footer`, `ShopLayout`, `AdminLayout`) a `src/components/layout/`.
+6. Ejecutar la suite completa de pruebas para asegurar que los 423 tests pasen:
    ```bash
    pnpm test
    ```
@@ -274,9 +296,9 @@ flowchart LR
 
 #### 2.3. Feature `cart`
 1. Consolidar en `src/features/cart/`:
-   - `entities/cart/model/useCartLogic.ts` -> `hooks/useCartLogic.ts`.
+   - `entities/cart/model/useCartLogic.ts` y mappers -> `hooks/useCartLogic.ts`.
    - `entities/cart/api/cartApi.ts` -> `api/cartApi.ts`.
-   - `widgets/cart/CartView.tsx`, `CartDrawer.tsx`, `CartExpiredModal.tsx` -> `components/`.
+   - `widgets/cart/CartView.tsx`, `CartDrawer.tsx`, `CartExpirationBanner.tsx`, `CartExpiredModal.tsx` -> `components/`.
 2. Crear `src/features/cart/index.ts` exportando `CartView`, `CartDrawer`, `useCart`.
 3. Crear la ruta `src/app/routes/cart.tsx` importando directamente `CartView` de `@/features/cart`.
 
@@ -308,7 +330,7 @@ flowchart LR
 
 #### 3.3. Feature `checkout`
 1. Consolidar en `src/features/checkout/`:
-   - `features/checkout/` (lógica de pasos, validadores, Webpay con polling, QPayPro, Transferencia bancaria).
+   - `features/checkout/` (lógica de pasos, validadores, Webpay con polling, QPayPro, Transferencia bancaria, y el nuevo `CheckoutReservationBanner`).
    - `widgets/checkout/` (`CheckoutPageHeader`, `CheckoutSuccessView`).
    - Integración de `PickupBranchSelector` (desde `branches`) y cálculo de tarifas de despacho (`shipping`).
 2. Crear las rutas correspondientes:

@@ -26,8 +26,14 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"],
-            "@/entities/*": ["src/entities/*"],
+            "@/components/*": ["src/components/*"],
             "@/features/*": ["src/features/*"],
+            "@/lib/*": ["src/lib/*"],
+            "@/utils/*": ["src/utils/*"],
+            "@/config/*": ["src/config/*"],
+            "@/hooks/*": ["src/hooks/*"],
+            "@/assets/*": ["src/assets/*"],
+            "@/entities/*": ["src/entities/*"],
             "@/widgets/*": ["src/widgets/*"],
             "@/shared/*": ["src/shared/*"],
             "@/app/*": ["src/app/*"]

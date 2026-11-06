@@ -1,0 +1,34 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-top: 1rem;
+}
+
+.auth {
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    padding: 1rem;
+}
+
+.wide {
+    width: 100%;
+    max-width: 600px;
+}
+
+.sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.sub a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(129, 140, 248, 0.3);
+    transition: border-color 0.2s;
+}
+
+.sub a:hover {
+    border-color: var(--accent);
+}

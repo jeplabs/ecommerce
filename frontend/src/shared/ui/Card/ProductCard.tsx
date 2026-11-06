@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { ProductImage } from '@/shared/ui/ProductImage';
 import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
 import styles from './ProductCard.module.css';
-import { formatCurrency } from '@/shared';
+import { formatCurrency } from '@/shared/lib/format';
 
 const MAX_TITLE_LENGTH = 50;
 
