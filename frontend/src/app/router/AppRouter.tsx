@@ -91,8 +91,22 @@ export function AppRouter() {
                             </GuestRoute>
                         }
                     />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route
+                        path="/register"
+                        element={
+                            <GuestRoute>
+                                <RegisterPage />
+                            </GuestRoute>
+                        }
+                    />
+                    <Route
+                        path="/reset-password"
+                        element={
+                            <GuestRoute>
+                                <ResetPasswordPage />
+                            </GuestRoute>
+                        }
+                    />
                     <Route
                         path="/profile/*"
                         element={

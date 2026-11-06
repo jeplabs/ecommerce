@@ -19,6 +19,14 @@ function GuestRoutes() {
                     </GuestRoute>
                 }
             />
+            <Route
+                path="/register"
+                element={
+                    <GuestRoute>
+                        <h1>Crear cuenta</h1>
+                    </GuestRoute>
+                }
+            />
         </Routes>
     );
 }
@@ -57,6 +65,19 @@ describe('GuestRoute', () => {
 
         await waitFor(() => {
             expect(screen.getByRole('heading', { name: 'Panel admin' })).toBeInTheDocument();
+        });
+    });
+
+    it('redirige al perfil desde registro si el cliente ya inició sesión', async () => {
+        setAccessToken(mockAuthTokenResponse.token);
+        localStorage.setItem('rol', 'ROLE_CUSTOMER');
+
+        renderWithProviders(<GuestRoutes />, {
+            routerProps: { initialEntries: ['/register'] },
+        });
+
+        await waitFor(() => {
+            expect(screen.getByRole('heading', { name: 'Perfil privado' })).toBeInTheDocument();
         });
     });
 });
