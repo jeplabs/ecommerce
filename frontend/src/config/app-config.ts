@@ -1,6 +1,5 @@
-import { getCurrencyConfig, setCurrencyConfig, type CurrencyConfig } from '@/shared/lib/format';
-
-export type CountryCode = 'GT' | 'CL';
+import { getCurrencyConfig, setCurrencyConfig, type CurrencyConfig } from '@/utils/format';
+import type { CountryCode } from './territories';
 
 export interface AppConfig {
     paisCodigo: CountryCode;
