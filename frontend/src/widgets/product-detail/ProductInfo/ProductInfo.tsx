@@ -1,9 +1,10 @@
-import { useAuth, useToast, useFavorites } from '@/app/providers';
+import { useAuth, useToast } from '@/app/providers';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ProductApi } from '@/entities/product';
 import type { CartActionResult } from '@/entities/cart';
 import { Button } from '@/shared/ui/Button';
+import { FavoriteButton } from '@/features/favorites';
 import clsx from 'clsx';
 import styles from './ProductInfo.module.css';
 
@@ -19,9 +20,7 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
     const [agregando, setAgregando] = useState(false);
     const { isAuthenticated } = useAuth();
     const { showSuccess, showError } = useToast();
-    const { isFavorite, toggleFavorite } = useFavorites();
     const navigate = useNavigate();
-    const favorito = isFavorite(producto.id);
 
     useEffect(() => {
         setCantidad((prev) => {
@@ -50,29 +49,6 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
             showError(message);
         } finally {
             setAgregando(false);
-        }
-    };
-
-    const handleToggleFavorite = async () => {
-        if (!isAuthenticated) {
-            navigate('/login');
-            return;
-        }
-
-        const result = await toggleFavorite(producto);
-        if (!result.success) {
-            if ('requiresAuth' in result) {
-                navigate('/login');
-            } else {
-                showError(result.error);
-            }
-            return;
-        }
-
-        if (result.added) {
-            showSuccess(`${producto.nombre} agregado a favoritos`);
-        } else {
-            showError(`${producto.nombre} eliminado de favoritos`);
         }
     };
 
@@ -136,17 +112,11 @@ export default function ProductInfo({ producto, precioFormateado, onAddToCart }:
                 >
                     {agregando ? 'Agregando...' : disponible ? 'Añadir al Carrito' : 'Sin Stock'}
                 </Button>
-                <button
-                    type="button"
-                    className={clsx(styles.favBtn, favorito && styles.favBtnActive)}
-                    onClick={handleToggleFavorite}
-                    aria-label={favorito ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-                    aria-pressed={favorito}
-                >
-                    <span className="material-symbols-outlined">
-                        {favorito ? 'favorite' : 'favorite_border'}
-                    </span>
-                </button>
+                <FavoriteButton
+                    product={producto}
+                    className={styles.favBtn}
+                    activeClassName={styles.favBtnActive}
+                />
             </div>
 
             <div className={styles.trust}>

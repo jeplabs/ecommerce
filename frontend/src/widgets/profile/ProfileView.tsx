@@ -1,5 +1,5 @@
 import { ProfileProvider } from '@/app/providers';
-import ProfileContent from '@/features/profile/ui/ProfileContent/ProfileContent';
+import { ProfileContent } from '@/features/profile';
 import styles from './ProfileView.module.css';
 
 export default function ProfileView() {

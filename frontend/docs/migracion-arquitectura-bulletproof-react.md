@@ -194,6 +194,37 @@ import { CartView, CartDrawer, useCart, type CartItem } from '@/features/cart';
 import { CartView } from '@/features/cart/components/CartView/CartView';
 ```
 
+### Convenciones Canónicas de Anatomía en Bulletproof React
+
+1. **Patrón Carpeta por Componente (*Component Folder Pattern*):**
+   - Cuando un componente posee archivos satélites (`.module.css`, `.test.tsx`, o sub-componentes auxiliares directos), **siempre reside en su propia carpeta**:
+     ```text
+     components/
+     ├── CartView/
+     │   ├── CartView.tsx
+     │   ├── CartView.module.css
+     │   └── CartView.test.tsx
+     └── LoginForm/
+         ├── LoginForm.tsx
+         └── LoginForm.test.tsx
+     ```
+   - Solo se dejan planos en la raíz de `components/` aquellos componentes atómicos de un único archivo `.tsx` sin CSS dedicado ni pruebas satélites.
+
+2. **Diferenciación Estricta: `hooks/` vs. `types/` (Adiós a `model/` de FSD):**
+   - **`hooks/`:** Dedicado exclusivamente a funciones React Hook (`useCartLogic.ts`, `useAuthLogic.ts`, `useFavoritesLogic.ts`, `useProfileLogic.ts`).
+   - **`types/`:** Dedicado a contratos TypeScript, DTOs y validadores Zod (`index.ts`, `schemas.ts`).
+   - La carpeta `model/` (convención híbrida de FSD que mezclaba hooks con tipos) queda **formalmente abolida** en todas las features de BPR.
+
+3. **Capa de Presentación: `components/` vs. `ui/`:**
+   - Dentro de cada feature, **la capa de presentación se denomina exclusivamente `components/`**. La carpeta `ui/` no existe dentro de las features.
+   - El término `ui/` queda reservado únicamente para el UI Kit agnóstico global en `src/components/ui/` (`Button`, `Input`, `Modal`, `Toast`, etc.).
+
+4. **Autonomía de Dominio en `favorites`:**
+   - La feature `favorites` no es meramente un API; es **dueña de sus propios componentes UI**:
+     - `FavoriteButton`: botón de corazón reutilizable en fichas y tarjetas.
+     - `FavoritesList`: lista interactiva de productos favoritos.
+   - Las demás features (como `profile` o `catalog`) componen la UI de favoritos importándola desde `@/features/favorites`.
+
 ---
 
 ## 6. Matriz de Mapeo Exhaustiva: Estado Actual vs. Bulletproof React
@@ -230,8 +261,9 @@ flowchart LR
 
 ---
 
-### Fase 0: Configuración de Aliases en Vite y TypeScript
+### Fase 0: Configuración de Aliases en Vite y TypeScript `[COMPLETADA]`
 **Objetivo:** Permitir que las nuevas rutas coexistan con las anteriores durante la transición sin errores de compilación.
+*Estado:* ✅ Completado y verificado. Build y suite en verde.
 
 1. Actualizar `vite.config.ts`:
    ```ts
@@ -264,8 +296,9 @@ flowchart LR
 
 ---
 
-### Fase 1: Infraestructura Compartida (`lib/`, `utils/`, `config/`, `components/`)
+### Fase 1: Infraestructura Compartida (`lib/`, `utils/`, `config/`, `components/`) `[COMPLETADA]`
 **Objetivo:** Establecer la base compartida antes de mover los módulos de negocio.
+*Estado:* ✅ Completado y verificado (101 suites, 493 tests pasados). Solucionado el issue de single source of truth para `CountryCode` en `src/config/territories/`. Re-exports retrocompatibles en `src/shared/lib/` para evitar estados singletons duplicados.
 
 1. Mover infraestructura HTTP y sesión (`src/shared/lib/http-session.ts`, `auth-token-store.ts`, `jwt-expiry.ts`) a `src/lib/`.
 2. Mover formateadores puros (`format.ts`, precios, fechas) a `src/utils/`.
@@ -279,8 +312,36 @@ flowchart LR
 
 ---
 
-### Fase 2: Features Aisladas y sus Rutas (`favorites`, `auth`, `cart`, `profile`)
-**Objetivo:** Migrar los módulos más directos creando de inmediato sus rutas delgadas en `src/app/routes/`.
+### Fase 2: Features Aisladas y sus Rutas (`favorites`, `auth`, `cart`, `profile`) `[COMPLETADA & HOMOGENEIZADA]`
+**Objetivo:** Migrar los módulos directos aplicando fielmente la anatomía canónica BPR y el patrón de carpeta por componente.
+*Estado:* ✅ Completado, homogeneizado y verificado (106 suites, 518 tests pasados, `pnpm build` limpio en 9.00s).
+- **2.1 `favorites`**: 
+  - `api/` (`favoritesApi.ts`).
+  - `hooks/` (`useFavoritesLogic.ts`, `useFavoritesLogic.test.tsx`).
+  - `types/` (`index.ts`).
+  - `components/` con patrón de carpeta por componente (`FavoriteButton/`, `FavoritesList/`).
+  - Barrel export en `src/features/favorites/index.ts`.
+- **2.2 `auth`**: 
+  - `api/` (`authApi.ts`, tests).
+  - `hooks/` (`useAuthLogic.ts`, `useAuthLogic.test.ts`).
+  - `types/` (`index.ts`).
+  - `components/` con carpetas individuales (`LoginForm/`, `RegisterForm/`, `ForgotPasswordForm/`, `ResetPasswordForm/`, `LoginDropdown/`, `SessionExpiryWarning/`, `AuthSessionListeners/`).
+  - Removido el remanente `ui/`.
+  - Rutas creadas en `src/app/routes/auth/` (`login.tsx`, `register.tsx`, `reset-password.tsx`).
+- **2.3 `cart`**: 
+  - `api/` (`cartApi.ts`, tests).
+  - `hooks/` (`useCartLogic.ts`, tests, mappers).
+  - `types/` (`types.ts`, `schemas/`).
+  - `components/` (`CartView/`, `CartDrawer/`, `CartExpirationBanner/`, `CartExpiredModal/`).
+  - Ruta creada en `src/app/routes/cart.tsx`.
+- **2.4 `profile`**: 
+  - `api/` (`profileApi.ts`, tests).
+  - `hooks/` (`useProfileLogic.ts`).
+  - `types/` (`index.ts`).
+  - `components/` (`ProfileView/`, `ProfileContent/`, `ProfileTabs/`, `ProfileDataTab/`, `AddressesTab/`, `AddressForm/`, `ChangePasswordForm/`, `OrdersTab/`, `OrderDetail/`, `OrderDetailModal/`, `FavoritesTab/` que compone `FavoritesList` de `@/features/favorites`).
+  - Removido el remanente `ui/`.
+  - Ruta creada en `src/app/routes/profile.tsx`.
+  - Re-exports en puente para `src/shared/lib` garantizando singleton único para tokens en memoria y sesiones.
 
 #### 2.1. Feature `favorites`
 1. Consolidar en `src/features/favorites/`: `favoritesApi.ts`, `useFavoritesLogic.ts`, tipos y schemas.

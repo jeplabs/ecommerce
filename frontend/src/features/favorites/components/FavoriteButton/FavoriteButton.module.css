@@ -1,0 +1,28 @@
+.favBtn {
+    width: 54px;
+    background-color: transparent;
+    border: none;
+    color: var(--pd-text-main, inherit);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.favBtn:hover {
+    color: #f472b6;
+}
+
+.favBtnActive {
+    color: #f472b6;
+}
+
+.favBtnActive span {
+    font-variation-settings: 'FILL' 1;
+}
+
+.favBtnActive:hover {
+    color: #fb7185;
+}

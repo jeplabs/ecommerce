@@ -1,4 +1,4 @@
-import ProfileContent from '@/features/profile/ui/ProfileContent/ProfileContent';
+import { ProfileContent } from '@/features/profile';
 import styles from '@/widgets/profile/ProfileView.module.css';
 
 export function ProfilePage() {

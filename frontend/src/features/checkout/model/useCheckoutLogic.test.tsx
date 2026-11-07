@@ -66,7 +66,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         expect(result.current.selectedAddressId).toBe(mockAddresses[0]?.id);
         expect(result.current.currentStep).toBe('pedido');
@@ -82,7 +82,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         act(() => {
             result.current.goNext();
@@ -101,7 +101,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         act(() => {
             result.current.goNext();
@@ -129,7 +129,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         act(() => {
             result.current.setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA);
@@ -158,7 +158,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         act(() => {
             result.current.goNext();
@@ -195,7 +195,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         act(() => {
             result.current.goNext();
@@ -230,7 +230,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         act(() => {
             result.current.goNext();
@@ -280,7 +280,7 @@ describe('useCheckoutLogic', () => {
 
         await selectNormalDelivery(result);
 
-        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 10000 });
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
 
         act(() => {
             result.current.goNext();

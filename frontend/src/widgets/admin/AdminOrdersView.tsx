@@ -1,6 +1,6 @@
 import type { OrderStatus } from '@/entities/order';
 import AdminOrdersTable from '@/features/admin/ui/AdminOrdersTable/AdminOrdersTable';
-import OrderDetailModal from '@/features/profile/ui/OrderDetailModal/OrderDetailModal';
+import { OrderDetailModal } from '@/features/profile';
 import { useAdminOrdersLogic } from '@/features/admin';
 import type { AdminOrderStatusFilter } from '@/features/admin/model/types';
 import { ORDEN_ESTADOS_FILTRO } from '@/entities/order';

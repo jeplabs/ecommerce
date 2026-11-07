@@ -1,9 +1,10 @@
-import { getAccessToken } from '@/shared/lib/auth-token-store';
-import { API_URL } from '@/shared/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
-import { ApiError, getErrorMessage, moneySchema, parseApi } from '@/shared';
+import { getAccessToken } from '@/lib/auth-token-store';
+import { API_URL } from '@/config';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
+import { ApiError, getErrorMessage, parseApi } from '@/lib';
+import { moneySchema } from '@/utils';
 import { z } from 'zod';
-import type { FavoriteProduct } from '../model/types';
+import type { FavoriteProduct } from '../types';
 
 export const favoriteProductSchema = z.object({
     productId: z.number(),
@@ -73,3 +74,9 @@ export async function removeFavorite(productId: number): Promise<void> {
         throwApiError(response, raw, 'No se pudo eliminar el favorito');
     }
 }
+
+export const favoritesApi = {
+    fetchFavorites,
+    addFavorite,
+    removeFavorite,
+};

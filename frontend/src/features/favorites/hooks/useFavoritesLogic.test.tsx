@@ -1,0 +1,68 @@
+import type { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { AppProviders } from '@/app/providers/AppProviders';
+import { useFavoritesLogic } from './useFavoritesLogic';
+import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
+import { mockProduct } from '@/test/msw/fixtures/products';
+import { setAccessToken } from '@/lib/auth-token-store';
+
+function createWrapper() {
+    return function Wrapper({ children }: { children: ReactNode }) {
+        return (
+            <MemoryRouter>
+                <AppProviders>{children}</AppProviders>
+            </MemoryRouter>
+        );
+    };
+}
+
+function seedCustomerSession() {
+    setAccessToken(mockAuthTokenResponse.token);
+    localStorage.setItem('rol', 'ROLE_CUSTOMER');
+}
+
+describe('useFavoritesLogic', () => {
+    it('toggleFavorite agrega y quita productos', async () => {
+        seedCustomerSession();
+
+        const { result } = renderHook(() => useFavoritesLogic(), { wrapper: createWrapper() });
+
+        await waitFor(() => {
+            expect(result.current.loading).toBe(false);
+            expect(result.current.favorites).toHaveLength(0);
+        });
+
+        await act(async () => {
+            const added = await result.current.toggleFavorite(mockProduct);
+            expect(added.success).toBe(true);
+            if (added.success) {
+                expect(added.added).toBe(true);
+            }
+        });
+
+        await waitFor(() => expect(result.current.isFavorite(mockProduct.id)).toBe(true));
+
+        await act(async () => {
+            await result.current.removeFavorite(mockProduct.id);
+        });
+
+        await waitFor(() => expect(result.current.isFavorite(mockProduct.id)).toBe(false));
+    });
+
+    it('requiere autenticación para alternar favoritos', async () => {
+        const { result } = renderHook(() => useFavoritesLogic(), { wrapper: createWrapper() });
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        await act(async () => {
+            const added = await result.current.toggleFavorite(mockProduct);
+            expect(added.success).toBe(false);
+            if (!added.success && 'requiresAuth' in added) {
+                expect(added.requiresAuth).toBe(true);
+            }
+        });
+    });
+});
+

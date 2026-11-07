@@ -1,2 +1,4 @@
-export type { FavoriteProduct, ToggleFavoriteResult } from './model/types';
-export { useFavoritesLogic } from './model/useFavoritesLogic';
+export * from './api/favoritesApi';
+export * from './hooks/useFavoritesLogic';
+export * from './types';
+export * from './components';

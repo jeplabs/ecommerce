@@ -45,8 +45,9 @@
     flex: 0 0 100%;
     max-width: 100%;
     min-width: 0;
-    overflow: hidden;
     scroll-snap-align: start;
+    display: flex;
+    justify-content: center;
 }
 
 @media (min-width: 768px) {
