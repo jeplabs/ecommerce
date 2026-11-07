@@ -565,3 +565,6 @@ VALUES
 (559, 15670.00, 9800.00, 'CLP', NOW(), NULL),
 (560, 22530.00, 14700.00, 'CLP', NOW(), NULL);
 
+
+-- Reinicio de secuencia de historial de precios
+SELECT setval('precio_historial_id_seq', (SELECT MAX(id) FROM precio_historial));

@@ -48,7 +48,7 @@ VALUES
 -- Esto evita errores de "duplicate key" al crear nuevos productos desde la aplicación.
 
 -- Secuencia de Productos (último ID: 560, siguiente será 561)
-SELECT setval('productos_id_seq', (SELECT MAX(id) FROM productos));
+-- (Ejecutado en V4__seed_productos_dev.sql)
 
 -- Secuencia de Imágenes (último ID: 29, siguiente será 30)
 SELECT setval('producto_imagenes_id_seq', (SELECT MAX(id) FROM producto_imagenes));

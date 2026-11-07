@@ -565,3 +565,6 @@ VALUES
 (559, 123.92, 77.50, 'GTQ', NOW(), NULL),
 (560, 178.17, 116.25, 'GTQ', NOW(), NULL);
 
+
+-- Reinicio de secuencia de historial de precios
+SELECT setval('precio_historial_id_seq', (SELECT MAX(id) FROM precio_historial));
