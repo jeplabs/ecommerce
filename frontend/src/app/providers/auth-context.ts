@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { useAuthLogic } from '@/features/auth/model/useAuthLogic';
+import type { useAuthLogic } from '@/features/auth';
 
 export type AuthContextValue = ReturnType<typeof useAuthLogic>;
 

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth, useCart } from '@/app/providers';
 import useClickOutside from '@/shared/lib/useClickOutside';
-import LoginDropdown from '@/shared/ui/Dropdown/LoginDropdown';
-import CartDrawer from '@/widgets/cart/CartDrawer';
+import { LoginDropdown } from '@/features/auth';
+import { CartDrawer } from '@/features/cart';
 import styles from './Navbar.module.css';
 
 /** Rutas donde el buscador sincroniza ?search= con la URL del catálogo. */

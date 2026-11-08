@@ -10,17 +10,11 @@ import { ProfileProvider } from '@/app/providers';
 import { LazyRouteFallback } from './LazyRouteFallback';
 
 const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
-const LoginPage = lazy(() => import('@/pages/login').then((m) => ({ default: m.LoginPage })));
-const RegisterPage = lazy(() =>
-    import('@/pages/register').then((m) => ({ default: m.RegisterPage }))
-);
-const ResetPasswordPage = lazy(() =>
-    import('@/pages/reset-password').then((m) => ({ default: m.ResetPasswordPage }))
-);
-const ProfilePage = lazy(() =>
-    import('@/pages/profile').then((m) => ({ default: m.ProfilePage }))
-);
-const CartPage = lazy(() => import('@/pages/cart').then((m) => ({ default: m.CartPage })));
+const LoginPage = lazy(() => import('@/app/routes/auth/login'));
+const RegisterPage = lazy(() => import('@/app/routes/auth/register'));
+const ResetPasswordPage = lazy(() => import('@/app/routes/auth/reset-password'));
+const ProfilePage = lazy(() => import('@/app/routes/profile'));
+const CartPage = lazy(() => import('@/app/routes/cart'));
 const CheckoutPage = lazy(() =>
     import('@/pages/checkout').then((m) => ({ default: m.CheckoutPage }))
 );

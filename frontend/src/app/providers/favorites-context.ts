@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { useFavoritesLogic } from '@/features/favorites/model/useFavoritesLogic';
+import type { useFavoritesLogic } from '@/features/favorites';
 
 export type FavoritesContextValue = ReturnType<typeof useFavoritesLogic>;
 

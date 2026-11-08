@@ -1,4 +1,4 @@
-import LoginForm from '@/shared/ui/Form/LoginForm';
+import { LoginForm } from '@/features/auth';
 import styles from '@/pages/login/ui/LoginPage.module.css';
 
 export function LoginPage() {

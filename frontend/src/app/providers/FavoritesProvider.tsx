@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useFavoritesLogic } from '@/features/favorites/model/useFavoritesLogic';
+import { useFavoritesLogic } from '@/features/favorites';
 import { FavoritesContext, type FavoritesContextValue } from './favorites-context';
 
 type FavoritesProviderProps = {
