@@ -53,9 +53,7 @@ const AdminUserEditPage = lazy(() =>
 const AdminOrdersPage = lazy(() =>
     import('@/pages/admin/orders').then((m) => ({ default: m.AdminOrdersPage }))
 );
-const AdminBranchesPage = lazy(() =>
-    import('@/pages/admin/branches').then((m) => ({ default: m.AdminBranchesPage }))
-);
+const AdminBranchesPage = lazy(() => import('@/app/routes/admin/branches'));
 const NotFoundPage = lazy(() =>
     import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage }))
 );

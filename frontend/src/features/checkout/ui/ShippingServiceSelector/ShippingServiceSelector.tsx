@@ -13,7 +13,7 @@ import {
 } from '@/entities/shipping';
 import type { ShippingServiceApi } from '@/entities/shipping';
 import ShippingAddressSelector from '../ReviewAndShippingStep/ShippingAddressSelector';
-import PickupBranchSelector from '../PickupBranchSelector/PickupBranchSelector';
+import { PickupBranchSelector } from '@/features/branches';
 import AddressSelectionModal from '../AddressSelectionModal/AddressSelectionModal';
 import styles from './ShippingServiceSelector.module.css';
 import sharedStyles from '../checkoutShared.module.css';

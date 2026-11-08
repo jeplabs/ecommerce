@@ -1,4 +1,4 @@
-import AdminBranchesView from '@/widgets/admin/AdminBranchesView';
+import { AdminBranchesView } from '@/features/branches';
 
 export function AdminBranchesPage() {
     return <AdminBranchesView />;

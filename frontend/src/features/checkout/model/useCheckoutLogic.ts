@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressApi } from '@/entities/address';
 import type { AddressApi } from '@/entities/address';
-import { branchApi, type BranchApi } from '@/entities/branch';
+import { branchApi, type BranchApi } from '@/features/branches';
 import { orderApi } from '@/entities/order/api/orderApi';
 import { FORMA_PAGO_ENVIO } from '@/entities/order/model/constants';
 import type { OrderApi } from '@/entities/order';
