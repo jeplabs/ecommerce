@@ -48,6 +48,9 @@ flowchart TD
   2. **Validación de precios e inventario:** Al restaurar (`POST /api/carrito/restaurar`), el backend revalida el stock actual del inventario y recalcula los precios vigentes, evitando compras con precios congelados obsoletos.
   3. **Campañas de Remarketing:** Permite al equipo de marketing conocer qué productos dejaron los usuarios para enviar recordatorios por correo de carrito abandonado.
 
+> [!NOTE]
+> Para el diagnóstico detallado sobre la condición de carrera entre el scheduler y la emisión del flag `carritoAnteriorExpirado`, y la propuesta de mejora para retención continua, consultar: [`Diagnostico-y-Mejora-Restauracion-Carrito-Expirado.md`](./Diagnostico-y-Mejora-Restauracion-Carrito-Expirado.md).
+
 ---
 
 ### 2.2 Etapa 2: Purga Física Definitiva (*Hard-Purge*, Día 31 en adelante)
