@@ -9,7 +9,7 @@ Este documento explica cómo funciona la nueva estructura de migraciones de Flyw
 | Ubicación en el proyecto | Archivos | Cuándo se ejecuta | Propósito |
 |---|---|---|---|
 | `src/main/resources/db/migration/` | `V1__init_schema.sql`<br/>`V2__seed_initial_data.sql` | **Siempre** (todos los perfiles: `dev`, `prod`, etc.) | `V1` crea las 16 tablas e índices en limpio (0 `ALTER TABLE`).<br/>`V2` inserta la configuración mínima operativa (`metodos_pago`, los 3 `servicios_envio` activos, `sucursales` y `cuentas_bancarias`). |
-| `src/main/resources/db/seed/` | `V3__seed_categorias_dev.sql`<br/>`V4__seed_productos_dev.sql` | **Solo en perfil `dev`** (`application-dev.properties`) | Carga automáticamente las 80 categorías y los 56 productos del catálogo con sus imágenes y precios cuando estás en entorno de desarrollo. |
+| `src/main/resources/db/seed/` | `V3__seed_categorias_dev.sql`<br/>`V4__seed_productos_dev.sql`<br/>`V5__seed_producto_imagenes_dev.sql`<br/>`V6__seed_producto_categorias_dev.sql`<br/>`V7__seed_producto_precios_dev.sql` | **Solo en perfil `dev`** (`application-dev.properties`) | Carga automáticamente las 80 categorías y los 560 productos del catálogo con sus imágenes, relaciones `producto_categorias` y precios en `GTQ` cuando estás en entorno de desarrollo. |
 
 > **¿Cómo desactivar la carga automática del catálogo en `dev` si algún día quieres probar con catálogo vacío?**
 > En `application-dev.properties`, basta con comentar o dejar únicamente `db/migration`:

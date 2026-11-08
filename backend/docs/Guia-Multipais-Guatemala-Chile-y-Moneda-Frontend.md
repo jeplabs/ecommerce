@@ -1,6 +1,6 @@
 # Guía de Configuración Multi-País (Guatemala y Chile) e Integración de Moneda en Frontend
 
-Este documento detalla cómo operar el e-commerce en **Guatemala (`gt`)** y **Chile (`cl`)** desde un único código fuente, cómo alternar entre perfiles en desarrollo y producción, y qué ajustes exactos debe realizar el equipo de Frontend para reflejar dinámicamente la moneda, impuestos y métodos de pago de cada país.
+Este documento detalla cómo operar el e-commerce en **Guatemala (`gt`)** y **Chile (`cl`)** desde un único código fuente, cómo están estructuradas las semillas modulares en `db/seed` (`V3` a `V7`), cómo alternar entre perfiles y precios (`GTQ` / `CLP`), y qué ajustes debe realizar el equipo de Frontend para reflejar dinámicamente la moneda, impuestos y métodos de pago de cada país.
 
 ---
 
@@ -168,9 +168,46 @@ En `PaymentStep.tsx`, filtrar los botones de pasarela según los métodos devuel
 
 ---
 
-## 4. Script SQL para Ajustar Datos Operativos en una Base de Datos de Chile (`CL`)
+## 4. Estructura Modular de Semillas (`db/seed`) y Cómo Cambiar Datos/Precios a Chile (`CL`)
 
-Por defecto, `V2__seed_initial_data.sql` y `V4__seed_productos_dev.sql` inicializan los datos para **Guatemala (`GTQ`)**. Si deseas inicializar o convertir una base de datos local o de producción para **Chile (`CLP`)**, ejecuta el siguiente bloque SQL en pgAdmin o `psql`:
+### 4.1 Desacoplamiento de las migraciones y semillas (`V1` a `V7`)
+
+Las semillas de desarrollo en `src/main/resources/db/seed/` están separadas modularmente siguiendo el orden estricto de llaves foráneas (`FOREIGN KEY`). Los archivos `V3` a `V6` son **100% universales** (no dependen del país ni de la moneda), mientras que únicamente **`V2`** y **`V7`** contienen datos específicos del país:
+
+| Versión | Ubicación | Tabla afectada | ¿Depende del país/moneda? | Descripción |
+|---|---|---|---|---|
+| **`V1`** | `db/migration/V1__init_schema.sql` | Las 16 tablas del sistema | **No (Universal)** | Crea la estructura completa de tablas e índices. |
+| **`V2`** | `db/migration/V2__seed_initial_data.sql` | `metodos_pago`, `servicios_envio`, `sucursales`, `cuentas_bancarias` | **Sí (Por defecto GT)** | Inicializa `QPAYPRO` activo, envíos `Cargo Express`/`Guatex`, sucursales en Guatemala y cuenta `Banrural` (`GTQ`). |
+| **`V3`** | `db/seed/V3__seed_categorias_dev.sql` | `categorias` | **No (Universal)** | 80 categorías jerárquicas + `setval('categorias_id_seq')`. |
+| **`V4`** | `db/seed/V4__seed_productos_dev.sql` | `productos` | **No (Universal)** | 560 productos base (`sku`, `nombre`, `slug`, `specs`, `stock`) + `setval('productos_id_seq')`. |
+| **`V5`** | `db/seed/V5__seed_producto_imagenes_dev.sql` | `producto_imagenes` | **No (Universal)** | 29 imágenes de productos + `setval('producto_imagenes_id_seq')`. |
+| **`V6`** | `db/seed/V6__seed_producto_categorias_dev.sql` | `producto_categorias` | **No (Universal)** | Asociación `ManyToMany` de los 560 productos con sus categorías. |
+| **`V7`** | `db/seed/V7__seed_producto_precios_dev.sql` | `precio_historial` | **Sí (Por defecto GTQ)** | 560 precios vigentes en Quetzales (`GTQ`) + `setval('precio_historial_id_seq')`. |
+
+---
+
+### 4.2 Cómo cambiar los precios del catálogo a Pesos Chilenos (`CLP`)
+
+El archivo con los **560 precios reales en Pesos Chilenos (`CLP`)** se encuentra en `backend/docs/sql/productosPreciosCLP.sql`. Existen dos formas de aplicarlo:
+
+#### Opción A: En caliente sobre una BD ya creada (Sin borrar productos ni recrear la BD)
+Dado que los 560 productos (`id` 1 al 560), imágenes (`V5`) y categorías (`V3`, `V6`) son idénticos en Guatemala y Chile, puedes reemplazar únicamente los precios sin alterar el historial de Flyway (`flyway_schema_history`):
+1. En pgAdmin (Query Tool) o `psql`, limpia solo la tabla de precios:
+   ```sql
+   TRUNCATE TABLE precio_historial RESTART IDENTITY;
+   ```
+2. Ejecuta el contenido de `backend/docs/sql/productosPreciosCLP.sql`.
+
+#### Opción B: Al crear la BD desde cero para Chile
+Si vas a inicializar una base de datos limpia desde cero para Chile en desarrollo:
+1. Reemplaza el contenido de `src/main/resources/db/seed/V7__seed_producto_precios_dev.sql` con el contenido de `backend/docs/sql/productosPreciosCLP.sql` antes de ejecutar `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`.
+2. Arranca el backend con `SPRING_PROFILES_ACTIVE=dev,cl`.
+
+---
+
+### 4.3 Script SQL para Ajustar Datos Operativos de `V2` a Chile (`CL`)
+
+Por defecto, `V2__seed_initial_data.sql` y `V7__seed_producto_precios_dev.sql` inicializan los datos operativos y precios para **Guatemala (`GTQ`)**. Para configurar la pasarela (`WEBPAY`), paqueterías (`Starken` / `Chilexpress`), sucursales físicas y cuenta bancaria para **Chile (`CLP`)**, ejecuta el siguiente bloque SQL en pgAdmin o `psql`:
 
 ```sql
 BEGIN;
@@ -227,9 +264,6 @@ INSERT INTO sucursales (
 DELETE FROM cuentas_bancarias;
 INSERT INTO cuentas_bancarias (banco, titular, tipo_cuenta, numero_cuenta, moneda, activo, orden_visualizacion)
 VALUES ('BancoEstado', 'JPELabs SpA', 'Cuenta Corriente', '12-345-67890-1', 'CLP', true, 1);
-
--- 5. (Opcional en dev) Actualizar moneda del catálogo semilla a CLP
-UPDATE precio_historial SET moneda = 'CLP' WHERE moneda = 'GTQ';
 
 COMMIT;
 ```
