@@ -1,0 +1,130 @@
+.catalog {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    gap: 1.75rem;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    color: var(--text);
+}
+
+.searchHint {
+    margin: 0 0 1rem 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+.productGrid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    justify-items: center;
+    justify-content: center;
+}
+
+.productGridItem {
+    min-width: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Tablet (641px a 1024px): 2 columnas centradas */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .productGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+        max-width: 740px;
+        margin-inline: auto;
+    }
+}
+
+/* Desktop (>= 1025px): 3 columnas */
+@media (min-width: 1025px) {
+    .productGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* Tablet y Mobile (<= 1024px): Ocultar sidebar fija, contenido al 100% */
+@media (max-width: 1024px) {
+    .container {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .sidebar {
+        display: contents;
+    }
+
+    .content {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+}
+
+/* Mobile pequeno (<= 640px): 1 columna */
+@media (max-width: 640px) {
+    .catalog {
+        padding: 0;
+    }
+
+    .title {
+        font-size: 1.15rem;
+    }
+
+    .productGrid {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+        max-width: 360px;
+        margin-inline: auto;
+    }
+}

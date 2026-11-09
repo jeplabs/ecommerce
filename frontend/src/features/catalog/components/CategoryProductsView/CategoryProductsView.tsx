@@ -1,0 +1,67 @@
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useCategorias } from '@/app/providers';
+import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
+import { ProductCatalog } from '../ProductCatalog/ProductCatalog';
+import { useProductosByCategory } from '../../hooks/useProductosByCategory';
+import { buildCategoryBreadcrumbs } from '../../lib/category-tree';
+import styles from './CategoryProductsView.module.css';
+
+export type CategoryProductsViewProps = {
+    slugPath: string;
+    segmentos: string[];
+};
+
+export function CategoryProductsView({ slugPath, segmentos }: CategoryProductsViewProps) {
+    const [searchParams] = useSearchParams();
+    const {
+        productos,
+        facets,
+        loading,
+        error,
+        paginaActual,
+        totalPaginas,
+        totalElementos,
+    } = useProductosByCategory(slugPath, searchParams);
+    const { arbolCategorias } = useCategorias();
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }, [paginaActual]);
+
+    const { breadcrumbs, categoriaActual } = buildCategoryBreadcrumbs(
+        arbolCategorias,
+        segmentos
+    );
+    const nombreCategoria = categoriaActual
+        ? categoriaActual.nombre
+        : segmentos.length === 0
+          ? 'Categorías'
+          : 'Categoría';
+
+    if (error) {
+        return (
+            <div className={styles.container}>
+                <p>Error al cargar los productos: {error}</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <h1>{nombreCategoria || 'Categoría'}</h1>
+                <Breadcrumbs items={breadcrumbs} className={styles.breadcrumbsSlot} />
+            </div>
+            <ProductCatalog
+                productosExternos={productos}
+                facetsExternas={facets}
+                loadingExterno={loading}
+                totalPaginasExterno={totalPaginas}
+                totalElementosExterno={totalElementos}
+            />
+        </div>
+    );
+}
+
+export default CategoryProductsView;

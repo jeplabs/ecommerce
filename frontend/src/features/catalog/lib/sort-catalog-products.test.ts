@@ -6,19 +6,25 @@ describe('sortCatalogProducts', () => {
     it('ordena por precio ascendente', () => {
         const sorted = sortCatalogProducts(catalogProductsFixture, 'price-asc');
         expect(sorted[0]?.precioVenta).toBe(49.99);
-        expect(sorted.at(-1)?.precioVenta).toBe(199.99);
+        expect(sorted[sorted.length - 1]?.precioVenta).toBe(199.99);
     });
 
     it('ordena por precio descendente', () => {
         const sorted = sortCatalogProducts(catalogProductsFixture, 'price-desc');
         expect(sorted[0]?.precioVenta).toBe(199.99);
-        expect(sorted.at(-1)?.precioVenta).toBe(49.99);
+        expect(sorted[sorted.length - 1]?.precioVenta).toBe(49.99);
     });
 
     it('ordena por nombre A-Z', () => {
         const sorted = sortCatalogProducts(catalogProductsFixture, 'name-asc');
         expect(sorted[0]?.nombre).toBe('Auriculares Alpha');
-        expect(sorted.at(-1)?.nombre).toBe('Producto de prueba');
+        expect(sorted[sorted.length - 1]?.nombre).toBe('Producto de prueba');
+    });
+
+    it('ordena por nombre Z-A', () => {
+        const sorted = sortCatalogProducts(catalogProductsFixture, 'name-desc');
+        expect(sorted[0]?.nombre).toBe('Producto de prueba');
+        expect(sorted[sorted.length - 1]?.nombre).toBe('Auriculares Alpha');
     });
 
     it('ordena por más reciente', () => {

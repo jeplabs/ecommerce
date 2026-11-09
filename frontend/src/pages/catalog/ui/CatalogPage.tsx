@@ -1,4 +1,4 @@
-import CatalogView from '@/widgets/catalog/CatalogView';
+import { CatalogView } from '@/features/catalog';
 
 export function CatalogPage() {
     return <CatalogView />;

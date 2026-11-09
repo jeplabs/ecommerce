@@ -1,0 +1,114 @@
+.section {
+    background-color: var(--pd-card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.header {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid var(--pd-border);
+    margin-bottom: 2rem;
+}
+
+.tabBtn {
+    background: none;
+    border: none;
+    color: var(--pd-text-muted);
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding-bottom: 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.tabBtnActive {
+    color: var(--pd-accent);
+}
+
+.tabBtn:focus {
+    outline: none;
+}
+
+.tabBtnActive::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--pd-accent);
+}
+
+.content {
+    min-width: 0;
+}
+
+.content h3 {
+    margin-top: 0;
+    color: var(--pd-text-main);
+    margin-bottom: 1.5rem;
+}
+
+.fullDescription {
+    line-height: 1.8;
+    color: var(--pd-text-muted);
+    white-space: pre-wrap;
+}
+
+.specsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.specsTable td {
+    padding: 0.5rem;
+    border: 1px solid var(--pd-border);
+}
+
+.specKey {
+    font-size: 0.85rem;
+    color: var(--pd-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.specValue {
+    font-size: 1rem;
+    color: var(--pd-text-main);
+    font-weight: 500;
+}
+
+.fadeIn {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .section {
+        padding: 1.5rem;
+    }
+
+    .header {
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tabBtn {
+        font-size: 0.95rem;
+        padding-bottom: 0.75rem;
+    }
+}

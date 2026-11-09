@@ -78,6 +78,7 @@ export const ProductSlider = ({ title, products, onAddToCart }: ProductSliderPro
                     {products.map((producto) => (
                         <div key={producto.id} className={styles.cardItem}>
                             <ProductCard
+                                product={producto}
                                 imageSrc={getMainProductImageUrl(producto)}
                                 altText={producto.nombre}
                                 title={producto.nombre}

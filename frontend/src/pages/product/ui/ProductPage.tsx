@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import ProductDetailView from '@/widgets/product-detail/ProductDetailView';
-import styles from '@/widgets/product-detail/ProductDetailView.module.css';
+import { ProductDetailView } from '@/features/catalog';
+import styles from '@/features/catalog/components/ProductDetailView/ProductDetailView.module.css';
 
 export function ProductPage() {
     const { slug } = useParams();

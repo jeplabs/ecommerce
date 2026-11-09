@@ -372,22 +372,66 @@ flowchart LR
 
 ### Fase 3: Features Complejas y Transaccionales (`branches`, `catalog`, `checkout`, `admin`)
 
-#### 3.1. Feature `branches`
-1. Consolidar contratos y `branchApi.ts` en `src/features/branches/`.
-2. Exponer hooks y componentes de sucursales mediante su `index.ts`.
+#### 3.1. Feature `branches` `[COMPLETADA & VERIFICADA]`
+- **Estado:** ✅ Completado, testeado (24 tests en verde) y build verificado.
+- **Estructura BPR:**
+  - `types/` (`api.ts`, `forms.ts`, `index.ts`).
+  - `api/` (`branchApi.ts` unificando cliente y admin, tests unitarios).
+  - `hooks/` (`useAdminBranches.ts`, tests).
+  - `components/` con *Component Folder Pattern*:
+    - `PickupBranchSelector/` (integrado en checkout).
+    - `AdminBranchesTable/` (tabla responsive de gestión).
+    - `BranchModalForm/` (modal con selects dinámicos para Región/Comuna o Departamento/Municipio y bloqueo de país según perfil territorial).
+    - `AdminBranchesView/` (vista principal administrativa con métricas).
+- **Ruta:** `src/app/routes/admin/branches.tsx`.
+- **Conexiones seguras:** `useCheckoutLogic`, `ShippingServiceSelector`, `AdminBranchesPage` y `AppRouter` apuntando a `@/features/branches`. Cero archivos legacy eliminados.
 
-#### 3.2. Feature `catalog`
-1. Integrar en `src/features/catalog/`:
-   - `entities/product/` (APIs, schemas y mappers).
-   - `entities/category/` (APIs, schemas y mappers).
-   - `features/catalog/` (`useProductosByCategory`, filtros, paginación responsiva).
-   - `widgets/product-detail/` (`ProductGallery`, `ProductInfo`, `ProductTabs` integrados en `ProductDetailView.tsx`).
-   - `widgets/catalog/CategoryProductsView.tsx` y `ProductCatalog.tsx` -> consolidados en `CatalogView.tsx` y `CategoryView.tsx`.
-2. Crear las rutas correspondientes:
-   - `src/app/routes/home.tsx` -> monta `HomeView`
-   - `src/app/routes/catalog.tsx` -> monta `CatalogView`
-   - `src/app/routes/category.tsx` -> monta `CategoryView`
-   - `src/app/routes/product.tsx` -> monta `ProductDetailView`
+#### 3.2. Feature `catalog` `[COMPLETADA & VERIFICADA]`
+- **Estado:** ✅ Completado al 100%, testeado (77 tests verdes en 25 archivos de prueba dentro de `src/features/catalog`, 603 tests verdes en todo el proyecto) y compilación de producción impecable (`vite build` exitoso en 13s).
+- **Diagnóstico de Ordenamiento y Paginación:** Documentado en detalle en `backend/docs/Diagnostico-Ordenamiento-Paginacion-Catalogo.md` explicando la interacción entre el corte alfabético fijo de la base de datos y el reordenamiento de la rebanada en memoria en el cliente.
+- **Decisión Arquitectónica Clave:** Para evitar archivos monolíticos sobrecargados (el archivo legacy `productApi.ts` superaba las 430 líneas al mezclar lecturas del cliente con mutaciones del panel de admin), se dividió la feature en submódulos especializados:
+  - `api/`:
+    - `productsApi.ts`: Endpoints públicos de productos (`getById`, `getBySlug`, `getAll`, `getByCategory`). Tests unitarios en `productsApi.test.ts`.
+    - `productsAdminApi.ts`: Endpoints administrativos de productos (`getAdmin`, `getByIdAdmin`, `create`, `update`, `deleteProduct`, `updateStatus`, gestión y asignación de imagen principal) para garantizar cero pérdida de funcionalidad administrativa sin acoplar código legacy. Tests en `productsAdminApi.test.ts`.
+    - `categoriesApi.ts`: Endpoints de categorías y árbol jerárquico (`getAll`, `create`). Tests en `categoriesApi.test.ts`.
+    - `catalogApi.ts`: Endpoint específico de búsqueda y filtrado por facetas (`/api/productos/catalogo`) con gestión de caché en memoria e invalidación. Tests en `catalogApi.test.ts`.
+    - `index.ts`: Barrel export que expone la API pública con re-exportaciones explícitas sin ambigüedad (`getAllProducts`, `createProduct`, `getAllCategories`, `createCategory`) y una fachada `productApi` unificada para retrocompatibilidad 100%.
+  - `types/`:
+    - `product.ts`: Schemas Zod de producto, imágenes, estados, mutaciones y requests de admin. Desacoplamiento explícito de `ProductDetailViewModel` para evitar colisión nominal con el componente React `ProductDetailView`.
+    - `category.ts`: Schemas Zod de categorías jerárquicas y breadcrumbs.
+    - `facets.ts`: Schemas y tipos para filtros, ordenamiento, facetas y páginas Spring Data.
+    - `index.ts`: Barrel export.
+  - `lib/`:
+    - `filter-facets.ts` & `.test.ts`: Extracción y mapeo de facetas y conteos.
+    - `catalog-query-params.ts` & `.test.ts`: Sincronización bidireccional de filtros con URL search params.
+    - `category-path.ts` & `.test.ts`: Búsqueda de nodo por path en árbol de categorías.
+    - `category-tree.ts` & `.test.ts`: Generación de breadcrumbs y ancestros para vistas de categorías y detalle.
+    - `sort-catalog-products.ts` & `.test.ts`: Algoritmos de ordenamiento en memoria y selector de criterio.
+    - `product-images.ts` & `.test.ts`: Normalización de imágenes principales y placeholders.
+    - `mappers.ts`: Mapeo desacoplado de view models para tarjetas y detalle.
+  - `hooks/`:
+    - `useProductosByCategory.ts` & `useProductosByCategory.test.ts`: Carga paginada de productos para `/categoria/*`.
+    - `useProductFilterForm.ts`: Gestión de estado de filtros, borrador móvil (drawer) y reseteos.
+    - `useProductDetail.ts` & `useProductDetail.test.ts`: Carga reactiva de producto por slug/id con revalidación por visibilidad y sincronización con el contexto global.
+    - `index.ts`: Barrel export de hooks.
+  - `components/` (*Component Folder Pattern* estricto con `.tsx`, `.module.css`, `.test.tsx`, `index.ts`):
+    - `ProductCard/`: Tarjeta responsive de producto con imagen, precio formateado y botón agregar al carrito.
+    - `ProductFilters/`: Panel lateral con acordeón por faceta y drawer móvil con portal en `document.body` y botón flotante FAB con badge de filtros activos (desacoplado del `.sidebar { display: none }` de desktop para visibilidad perfecta en tablet y mobile).
+    - `ProductCatalog/`: Grilla de catálogo con ordenamiento, estado de carga, paginador y soporte para productos externos.
+    - `CatalogView/`: Vista completa de catálogo general (`/catalogo`).
+    - `CategoryProductsView/`: Vista dinámica de productos por categoría jerárquica con breadcrumbs dinámicos.
+    - `ProductGallery/`: Galería interactiva con vista principal y miniaturas.
+    - `ProductInfo/`: Bloque de metadatos, SKU, stock, precio, selector de cantidad, botón añadir al carrito y favoritos.
+    - `ProductTabs/`: Pestañas accesibles para Descripción detallada y Especificaciones técnicas.
+    - `ProductDetailView/`: Vista integral del detalle de producto (`/producto/:slug`).
+  - **Rutas asociadas en `src/app/routes/`:**
+    - `src/app/routes/catalog.tsx` -> para `/catalogo`
+    - `src/app/routes/category.tsx` -> para `/categoria/*`
+    - `src/app/routes/product.tsx` -> para `/producto/:slug`
+- **Conexiones seguras y Coexistencia:**
+  - `src/app/router/AppRouter.tsx` actualizado para cargar `ProductPage`, `CatalogPage` y `CategoryPage` mediante `lazy()` apuntando a `src/app/routes/*`.
+  - Vistas legacy (`src/widgets/catalog/`, `src/widgets/product-detail/`, `src/widgets/layout/ProductCatalog.tsx`, `src/pages/catalog/`, `src/pages/category/`, `src/pages/product/`) delegadas limpiamente a `@/features/catalog`.
+  - Cero eliminación de archivos legacy; 100% preservación de selectores CSS Modules y accesibilidad ARIA.
 
 #### 3.3. Feature `checkout`
 1. Consolidar en `src/features/checkout/`:

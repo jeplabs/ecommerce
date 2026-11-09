@@ -1,0 +1,29 @@
+.container {
+    padding: 2rem;
+}
+
+.header {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.breadcrumbsSlot {
+    margin: 0;
+}
+
+.pagination {
+    margin-top: 2rem;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.paginationInfo {
+    align-self: center;
+}

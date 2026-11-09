@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import CategoryProductsView from '@/widgets/catalog/CategoryProductsView';
+import { CategoryProductsView } from '@/features/catalog';
 
 export function CategoryPage() {
     const location = useLocation();

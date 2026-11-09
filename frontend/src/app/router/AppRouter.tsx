@@ -27,11 +27,9 @@ const QPayProReturnPage = lazy(() =>
 const CheckoutSuccessPage = lazy(() =>
     import('@/pages/checkout-success').then((m) => ({ default: m.CheckoutSuccessPage }))
 );
-const ProductPage = lazy(() => import('@/pages/product').then((m) => ({ default: m.ProductPage })));
-const CatalogPage = lazy(() => import('@/pages/catalog').then((m) => ({ default: m.CatalogPage })));
-const CategoryPage = lazy(() =>
-    import('@/pages/category').then((m) => ({ default: m.CategoryPage }))
-);
+const ProductPage = lazy(() => import('@/app/routes/product'));
+const CatalogPage = lazy(() => import('@/app/routes/catalog'));
+const CategoryPage = lazy(() => import('@/app/routes/category'));
 const AdminDashboardPage = lazy(() =>
     import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboardPage }))
 );
