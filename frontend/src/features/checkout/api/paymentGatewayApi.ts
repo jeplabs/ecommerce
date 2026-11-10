@@ -16,7 +16,7 @@ import {
     qpayproEstadoSchema,
     type QPayProInitResult,
     type QPayProEstadoSchema,
-} from '../model/schemas/payment';
+} from '../types/payment';
 
 const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 

@@ -1,0 +1,35 @@
+.root {
+    padding: 1.25rem;
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.08), var(--surface2));
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #10b981;
+}
+
+.badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+}
+
+.text {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+}

@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { UseEnvioOpcionesResult } from '@/entities/shipping';
+import type { UseEnvioOpcionesResult } from '@/features/checkout/types';
 
 export type EnvioOpcionesContextValue = UseEnvioOpcionesResult;
 

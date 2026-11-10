@@ -1,0 +1,206 @@
+.root {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    /* position: sticky; */
+    /* top: 100px; */
+}
+
+.title {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.items {
+    list-style: none;
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 0.65rem;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.thumb,
+.thumbPlaceholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.thumbPlaceholder {
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.name {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text);
+}
+
+.itemInfo {
+    min-width: 0;
+}
+
+.qty {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.price {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.breakdown {
+    margin: 0 0 0.5rem;
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--border);
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    margin-bottom: 0.35rem;
+}
+
+.row:last-child {
+    margin-bottom: 0;
+}
+
+.row dt {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.row dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.rowEnvio dt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.envioMode {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.rowSub {
+    font-size: 0.8rem;
+    padding-left: 0.5rem;
+}
+
+.rowSub dt {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+.freeWrap {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.struck {
+    text-decoration: line-through;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.envioContra {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.1rem;
+}
+
+.envioNote {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.contraNote {
+    margin: 0.35rem 0 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.35;
+}
+
+.free {
+    color: #22c55e;
+}
+
+.contraEntregaNote {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fbbf24;
+    background: rgba(234, 179, 8, 0.15);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    line-height: 1.25;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75rem;
+    font-size: 1.05rem;
+    border-top: 1px solid var(--border);
+}
+
+.total strong {
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
+.note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    text-align: right;
+}
+
+.compact .items {
+    max-height: 160px;
+}
+
+@media (max-width: 900px) {
+    .root {
+        position: static;
+    }
+}

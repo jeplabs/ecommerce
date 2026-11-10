@@ -1,1 +1,1 @@
-export { CheckoutSuccessPage, default } from './ui/CheckoutSuccessPage';
+export { CheckoutSuccessView as CheckoutSuccessPage } from '@/features/checkout';

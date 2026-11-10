@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useProfileLogic } from '@/entities/user/model/useProfileLogic';
 import { useDireccionesLogic } from '@/entities/address/model/useDireccionesLogic';
-import { useOrdenesLogic } from '@/entities/order/model/useOrdenesLogic';
+import { useOrdenesLogic } from '@/features/checkout/hooks/useOrdenesLogic';
 import { getProfileTabFromPath } from '@/features/profile/lib/profileRoutes';
 import { ProfileContext, type ProfileContextValue } from './profile-context';
 

@@ -1,0 +1,218 @@
+.root {
+    margin-top: 1.25rem;
+    margin-bottom: 1.75rem;
+    padding: 1rem;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.06);
+}
+
+.title {
+    margin: 0 0 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.subtitle {
+    margin: 0 0 1rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.upload {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.uploadHeader {
+    margin-bottom: 0.85rem;
+}
+
+.uploadLabel {
+    display: block;
+    margin: 0 0 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.uploadHint {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.uploadHint strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.fileInputHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.dropzone {
+    position: relative;
+    border: 2px dashed rgba(16, 185, 129, 0.35);
+    border-radius: 12px;
+    background: var(--surface);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dropzone:focus-within {
+    border-color: rgba(99, 102, 241, 0.55);
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.dropzoneInner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1.25rem 1rem;
+    text-align: center;
+}
+
+.dropzoneIcon {
+    font-size: 1.75rem;
+    line-height: 1;
+    margin-bottom: 0.15rem;
+}
+
+.dropzoneText {
+    margin: 0;
+    max-width: 16rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.fileName {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-word;
+}
+
+.fileMeta {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.pickBtn {
+    margin-top: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.pickBtn:hover {
+    border-color: var(--indigo);
+    color: var(--accent);
+}
+
+.preview {
+    margin-top: 0.85rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 0.82rem;
+}
+
+.previewLabel {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.previewLink {
+    color: var(--accent);
+    word-break: break-all;
+    font-weight: 600;
+}
+
+.previewMeta {
+    margin: 0.35rem 0 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.submitBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: min(100%, 14rem);
+    min-height: 2.75rem;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.4);
+}
+
+.submitBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.successMsg {
+    margin: 0.75rem 0 0;
+    font-size: 0.82rem;
+    color: #4ade80;
+    text-align: center;
+}
+
+.errorMsg {
+    margin: 0.75rem 0 0;
+    font-size: 0.82rem;
+    color: var(--error);
+    text-align: center;
+}

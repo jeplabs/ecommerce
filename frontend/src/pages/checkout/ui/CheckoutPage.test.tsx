@@ -11,6 +11,10 @@ vi.mock('@/app/providers', async (importOriginal) => {
     };
 });
 
+vi.mock('@/features/checkout/components/CheckoutContent/CheckoutContent', () => ({
+    default: () => <div>checkout-content</div>,
+}));
+
 vi.mock('@/features/checkout/ui/CheckoutContent/CheckoutContent', () => ({
     default: () => <div>checkout-content</div>,
 }));

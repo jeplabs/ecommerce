@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
-import OrderShippingSummary from '@/features/order/ui/OrderShippingSummary/OrderShippingSummary';
+import { OrderShippingSummary } from '@/components/ui/OrderShippingSummary';
 //import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
 import OrderBankTransferSection from '@/features/checkout/ui/OrderBankTransferSection/OrderBankTransferSection';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';

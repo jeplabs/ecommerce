@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { EnvioOpcionesContext } from './envio-opciones-context';
-import type { UseEnvioOpcionesResult } from '@/entities/shipping';
+import type { UseEnvioOpcionesResult } from '@/features/checkout/types';
 
 export function useEnvioOpcionesContext(): UseEnvioOpcionesResult {
     const context = useContext(EnvioOpcionesContext);

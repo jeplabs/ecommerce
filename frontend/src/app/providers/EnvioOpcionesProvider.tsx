@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { useCart } from '@/app/providers/useCart';
-import { useEnvioOpciones } from '@/entities/shipping/model/useEnvioOpciones';
+import { useEnvioOpciones } from '@/features/checkout/hooks/useEnvioOpciones';
 import { EnvioOpcionesContext } from './envio-opciones-context';
 
 type EnvioOpcionesProviderProps = {

@@ -433,18 +433,64 @@ flowchart LR
   - Vistas legacy (`src/widgets/catalog/`, `src/widgets/product-detail/`, `src/widgets/layout/ProductCatalog.tsx`, `src/pages/catalog/`, `src/pages/category/`, `src/pages/product/`) delegadas limpiamente a `@/features/catalog`.
   - Cero eliminación de archivos legacy; 100% preservación de selectores CSS Modules y accesibilidad ARIA.
 
-#### 3.3. Feature `checkout`
-1. Consolidar en `src/features/checkout/`:
-   - `features/checkout/` (lógica de pasos, validadores, Webpay con polling, QPayPro, Transferencia bancaria, y el nuevo `CheckoutReservationBanner`).
-   - `widgets/checkout/` (`CheckoutPageHeader`, `CheckoutSuccessView`).
-   - Integración de `PickupBranchSelector` (desde `branches`) y cálculo de tarifas de despacho (`shipping`).
-2. Crear las rutas correspondientes:
-   - `src/app/routes/checkout.tsx` -> monta `CheckoutView`
-   - `src/app/routes/checkout-success.tsx` -> monta `CheckoutSuccessView`
+#### 3.3. Feature `checkout` `[COMPLETADA & VERIFICADA]`
+- **Estado:** ✅ Completado al 100%, cobertura unitaria completa (268 tests verdes en 58 archivos de prueba dentro de `src/features/checkout`) y compilación de producción impecable (`vite build` exitoso).
+- **Estructura Canónica en `src/features/checkout/`:**
+  - `api/`: `paymentApi.ts`, `paymentGatewayApi.ts`, `orderApi.ts` (absorbido de `entities/order`), `shippingApi.ts` (absorbido de `entities/shipping`) y tests unitarios correspondientes.
+  - `types/`: `paymentMethods.ts` (módulo hoja desacoplado para evitar ciclos circulares), `order.ts` (schemas y tipos de órdenes, formularios y vistas), `shipping.ts` (schemas de opciones de despacho y costos), `payment.ts` (schemas Zod de pasarelas Webpay, QPayPro, Stripe, etc.) y `checkout.ts` (steps, location states).
+  - `hooks/`: `useCheckoutLogic.ts` (con named y default export, tests de polling, reanudación y flujo base), `useCheckoutSuccessRecommendations.ts`, `useOrdenesLogic.ts` (absorbido de `entities/order`) y `useEnvioOpciones.ts` (absorbido de `entities/shipping`).
+  - `lib/`: `bank-transfer-accounts.ts`, `checkout-recommendations.ts`, `transfer-order-storage.ts`, `webpay-pending-order.ts`, `qpaypro-pending-order.ts`, `checkoutSteps.ts`, `orderConstants.ts`, `orderMappers.ts`, `shippingMappers.ts` (con tests unitarios para resolución de costos y selección consciente de sucursal de retiro).
+  - `components/` (*Component Folder Pattern* estricto con `.tsx`, `.module.css`, `.test.tsx`, `index.ts`):
+    - `CheckoutView/`: Vista principal de checkout con `CheckoutProvider` y `CheckoutContent`. Tests en `CheckoutView.test.tsx`.
+    - `CheckoutSuccessView/`: Vista de confirmación con resolución por state o query param (`ordenId`), sincronización de carrito y recomendaciones. Tests en `CheckoutSuccessView.test.tsx`.
+    - `CheckoutReturnView/`: Vista de retorno de pasarela Webpay (`CheckoutPageHeader` + `CheckoutReturn`). Tests en `CheckoutReturnView.test.tsx`.
+    - `QPayProReturnView/`: Vista de retorno de pasarela QPayPro (`CheckoutPageHeader` + `QPayProReturn`). Tests en `QPayProReturnView.test.tsx`.
+    - `CheckoutPageHeader/`: Encabezado responsive con enlace de retorno personalizable y título. Tests en `CheckoutPageHeader.test.tsx`.
+    - Submódulos de formularios y pasos: `CheckoutContent`, `CheckoutSteps`, `ReviewAndShippingStep`, `PaymentStep`, `CheckoutLineItems`, `OrderSummary`, `CheckoutReservationBanner`, `BankTransferAccounts`, `BankTransferModal`, `ContraEntregaForm`, `SimulatedBankTransferForm`, `SimulatedMercadoPagoForm`, `SimulatedQPayProForm`, `SimulatedStripeForm`, `SimulatedWebpayForm`, `OrderBankTransferSection`, `OrderContraEntregaSection`, `RedirectToWebpay`, `RedirectToQPayPro`, `CheckoutReturn`, `QPayProReturn`, `ShippingAddressSelector`, `ShippingServiceSelector`, y submódulos de éxito (`CheckoutSuccessActions`, `CheckoutSuccessHeader`, `CheckoutSuccessRecommendations`, `OrderConfirmationSummary`).
+  - `index.ts`: Barrel export canónico unificado que preserva 100% retrocompatibilidad con imports previos.
+- **Rutas unificadas en subcarpeta `src/app/routes/checkout/`:**
+  - `src/app/routes/checkout/index.tsx` -> para `/checkout` (monta `CheckoutView`)
+  - `src/app/routes/checkout/success.tsx` -> para `/checkout/success` (monta `CheckoutSuccessView`)
+  - `src/app/routes/checkout/webpay-return.tsx` -> para `/checkout/retorno` y `/checkout/webpay/retorno` (monta `CheckoutReturnView`)
+  - `src/app/routes/checkout/qpaypro-return.tsx` -> para `/checkout/qpaypro/retorno` y `/checkout/error` (monta `QPayProReturnView`)
+- **Conexiones seguras y Coexistencia:**
+  - `src/app/router/AppRouter.tsx` actualizado para cargar `CheckoutPage`, `CheckoutSuccessPage`, `CheckoutReturnPage` y `QPayProReturnPage` mediante `lazy()` apuntando a `src/app/routes/checkout/*`.
+  - Vistas legacy (`src/pages/checkout/`, `src/pages/checkout-success/`, `src/widgets/checkout/`) preservadas y enlazadas limpiamente a `@/features/checkout` para garantizar 100% de compatibilidad en pruebas existentes sin romper dependencias.
+  - **`OrderShippingSummary` reubicado temporalmente en UI compartida (`src/components/ui/OrderShippingSummary/`):** Al ser un componente puramente presentacional consumido por `checkout` (`OrderConfirmationSummary`) y `profile` (`OrderDetail`), se movió fuera de `features/order/ui/` hacia `src/components/ui/OrderShippingSummary/` con contrato estructural sin imports hacia `features/*` (manteniendo proxy en `src/features/order/ui/OrderShippingSummary/`).
 
 #### 3.4. Feature `admin`
 1. Consolidar paneles, dashboards, tablas de productos, órdenes, usuarios y sucursales en `src/features/admin/`.
 2. Crear las rutas en `src/app/routes/admin/` (`dashboard.tsx`, `products.tsx`, `orders.tsx`, `branches.tsx`, `users.tsx`).
+3. Migrar `home` (`/`) y `not-found` (`*`) desde `src/pages/` hacia `src/app/routes/` (y sus componentes asociados).
+
+---
+
+### Evaluación Arquitectónica Pendiente (Post-`admin`): `OrderShippingSummary`, `orders` vs `checkout` en Bulletproof React
+
+Al migrar `checkout` y `profile` detectamos un caso clásico donde se cruzan el diseño de dominio y las reglas estrictas de **Bulletproof React (BPR)** en torno a las **órdenes (`Order`)**:
+
+#### 1. Por qué el dominio «Orden» aparece en 3 features distintas
+Actualmente, el concepto de orden atraviesa tres rebanadas verticales de negocio:
+- **`checkout`**: crea la orden (`crearOrden`), procesa/confirma el pago y muestra la confirmación de compra (`OrderConfirmationSummary`).
+- **`profile`**: lista el historial de pedidos del cliente (`useOrdenesLogic`), abre el detalle (`OrderDetail`, `OrderDetailModal`) y permite subir comprobante de transferencia (`OrderBankTransferSection`).
+- **`admin`**: gestiona y audita todas las órdenes de la tienda (`AdminOrdersView`, `AdminDashboardView`, `getOpcionesEstadoAdmin`, `actualizarEstadoOrdenAdmin`).
+
+Por otro lado, en la estructura FSD previa existía una micro-carpeta `src/features/order/` que contenía únicamente un componente visual (`OrderShippingSummary.tsx`), usado tanto en `checkout` (`OrderConfirmationSummary`) como en `profile` (`OrderDetail`).
+
+#### 2. Cómo lo resuelve Bulletproof React (Caminos limpios)
+En BPR la regla clave es **evitar dependencias horizontales entre features** (una feature no debe importar UI privada de otra feature; las piezas comunes bajan a `src/components/` o suben a composición en `app/`). Bajo este principio, existen **dos caminos válidos**:
+
+- **Camino 1 — `OrderShippingSummary` en `src/components/ui/` (Implementado temporalmente):**  
+  [`OrderShippingSummary`](../src/components/ui/OrderShippingSummary/OrderShippingSummary.tsx) es un componente 100% presentacional (~79 líneas, sin llamadas a API ni hooks propios): únicamente recibe los datos de envío de la orden y los renderiza. Moverlo a `src/components/ui/OrderShippingSummary/` (desacoplado con un contrato estructural que no importa nada de `features/*`) elimina la micro-feature residual `features/order/` y resuelve de raíz que `checkout` y `profile` dependan entre sí a nivel de UI.
+
+- **Camino 2 — Extraer una feature `src/features/orders/` dedicada (si crece con `admin`):**  
+  Si al migrar **`admin`** se observa que `AdminOrdersView`, `OrdersTab`, `OrderDetail`, `OrderDetailModal` y `OrderBankTransferSection` comparten demasiada lógica, DTOs y componentes de gestión de pedidos, tiene sentido promover un vertical slice **`src/features/orders/`** independiente (alojando `orderApi`, `types/order`, `orderMappers`, `orderConstants`, `useOrdenesLogic`, `OrderDetail`, `OrderShippingSummary`, etc.). En ese escenario, `checkout` quedaría estrictamente acotado al flujo carrito ➔ envío ➔ pago ➔ confirmación.
+
+#### 3. Recomendación y criterio de decisión tras migrar `admin`
+- **Decisión actual:** No duplicar ni sobre-fragmentar antes de tiempo. Mantener [`OrderShippingSummary`](../src/components/ui/OrderShippingSummary/OrderShippingSummary.tsx) en `src/components/ui/` como UI compartida entre `checkout` y `profile` (con proxy de retrocompatibilidad en `src/features/order/ui/`).
+- **Re-evaluación obligatoria al cerrar `admin` (antes de Fase 4):** Con todo el código de `AdminOrdersView` y `AdminDashboardView` ya migrado a BPR sobre la mesa, comparar si las dependencias de órdenes entre `checkout`, `profile` y `admin` justifican:
+  1. **Mantener la distribución actual** (`OrderShippingSummary` en `src/components/ui/` + `orderApi`/`useOrdenesLogic` en `checkout`), **o bien**
+  2. **Consolidar un slice `src/features/orders/`** para aislar completamente el dominio de pedidos respecto al proceso de compra (`checkout`).
 
 ---
 

@@ -11,11 +11,11 @@ export type {
     OrderSummaryCardView,
     OrderDetailView,
     OrderListFilters,
-} from './model/types';
-
-export type {
-    BancoAccountApi
-} from './model/schemas/api';
+    BancoAccountApi,
+    MetodoPagoApi,
+    MetodoPago,
+    TipoMetodoPago,
+} from '@/features/checkout';
 
 export {
     orderStatusSchema,
@@ -30,16 +30,10 @@ export {
     updateOrderStatusRequestSchema,
     checkoutOrderFormSchema,
     mapCheckoutFormToCreateOrderRequest,
-} from './model/types';
-
-export {
     FORMA_PAGO_ENVIO,
     ADMIN_ESTADOS_SIGUIENTES,
     getOpcionesEstadoAdmin,
     ORDEN_ESTADOS_FILTRO,
-} from './model/constants';
-
-export {
     mapOrderApiToSummaryCard,
     formatOrderStatus,
     formatFormaPago,
@@ -48,9 +42,6 @@ export {
     getContraEntregaShippingNote,
     ORDER_STATUS_LABELS,
     FORMA_PAGO_LABELS,
-} from './model/mappers';
-
-export {
     orderApi,
     listarMisOrdenes,
     obtenerOrden,
@@ -62,9 +53,6 @@ export {
     listarCuentasBancarias,
     subirComprobanteOrder,
     type ListOrdersAdminParams,
-} from './api';
-
-export {
     useOrdenesLogic,
     type OrderActionResult,
-} from './model/useOrdenesLogic';
+} from '@/features/checkout';

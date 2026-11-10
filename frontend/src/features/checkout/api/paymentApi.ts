@@ -1,11 +1,10 @@
+import { PAYMENT_METHODS, type PaymentMethod } from '../types/paymentMethods';
 import {
-    PAYMENT_METHODS,
     processPaymentInputSchema,
-    type PaymentMethod,
     type PaymentResult,
     type ProcessPaymentInput,
     type StripeCardFormValues,
-} from '../model/schemas/payment';
+} from '../types/payment';
 
 export { PAYMENT_METHODS, type PaymentMethod, type PaymentResult, type ProcessPaymentInput };
 

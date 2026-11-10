@@ -15,18 +15,10 @@ const RegisterPage = lazy(() => import('@/app/routes/auth/register'));
 const ResetPasswordPage = lazy(() => import('@/app/routes/auth/reset-password'));
 const ProfilePage = lazy(() => import('@/app/routes/profile'));
 const CartPage = lazy(() => import('@/app/routes/cart'));
-const CheckoutPage = lazy(() =>
-    import('@/pages/checkout').then((m) => ({ default: m.CheckoutPage }))
-);
-const CheckoutReturnPage = lazy(() =>
-    import('@/pages/checkout').then((m) => ({ default: m.CheckoutReturnPage }))
-);
-const QPayProReturnPage = lazy(() =>
-    import('@/pages/checkout').then((m) => ({ default: m.QPayProReturnPage }))
-);
-const CheckoutSuccessPage = lazy(() =>
-    import('@/pages/checkout-success').then((m) => ({ default: m.CheckoutSuccessPage }))
-);
+const CheckoutPage = lazy(() => import('@/app/routes/checkout'));
+const CheckoutReturnPage = lazy(() => import('@/app/routes/checkout/webpay-return'));
+const QPayProReturnPage = lazy(() => import('@/app/routes/checkout/qpaypro-return'));
+const CheckoutSuccessPage = lazy(() => import('@/app/routes/checkout/success'));
 const ProductPage = lazy(() => import('@/app/routes/product'));
 const CatalogPage = lazy(() => import('@/app/routes/catalog'));
 const CategoryPage = lazy(() => import('@/app/routes/category'));

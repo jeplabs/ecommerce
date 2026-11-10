@@ -1,0 +1,80 @@
+.root {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+}
+
+.hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 520px;
+}
+
+.btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: inherit;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.btnPrimary {
+    border: none;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    color: #fff;
+}
+
+.btnPrimary:hover {
+    filter: brightness(1.06);
+}
+
+.btnSecondary {
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+}
+
+.btnSecondary:hover {
+    border-color: rgba(99, 102, 241, 0.45);
+    color: var(--accent);
+}
+
+@media (max-width: 600px) {
+    .buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

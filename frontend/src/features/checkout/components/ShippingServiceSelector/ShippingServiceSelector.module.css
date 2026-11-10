@@ -1,0 +1,334 @@
+.root {
+    /* Step 1 container */
+}
+
+.title {
+    margin: 0 0 0.35rem;
+    font-weight: 400;
+    color: var(--text);
+}
+
+.subtitle {
+    margin: 0 0 1rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.bannerContainer {
+    display: flex;
+    gap: .5rem;
+}
+
+.banner {
+    margin: 0 0 1rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    font-size: 0.85rem;
+    color: var(--text);
+    width: fit-content;
+}
+
+.hintFree {
+    margin: 0 0 1rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    font-size: 0.85rem;
+    color: var(--text);
+    width: fit-content;
+}
+
+.optionsRow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    /* margin-bottom: 1.25rem; */
+}
+
+.optionsRow > li {
+    width: 100%;
+}
+
+.optionItem {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    min-height: 4.5rem;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.85rem 1.15rem;
+    background: var(--surface2);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    box-sizing: border-box;
+    gap: 0.85rem;
+    position: relative;
+}
+
+.radioInput {
+    accent-color: var(--indigo);
+    width: 1.15rem;
+    height: 1.15rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.cardSelected {
+    border-color: var(--indigo);
+    border-width: 2px;
+    box-shadow: 0 0 0 1px var(--indigo), 0 4px 14px rgba(99, 102, 241, 0.22);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.cardPickup {
+    border-style: dashed;
+}
+
+.cardPickup.cardSelected {
+    border-style: solid;
+}
+
+.cardExpress {
+    border-color: rgba(245, 158, 11, 0.45);
+}
+
+.cardExpress.cardSelected {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b, 0 4px 14px rgba(245, 158, 11, 0.25);
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.logo {
+    width: 2.25rem;
+    height: 2.25rem;
+    object-fit: contain;
+    border-radius: 8px;
+    background: var(--surface);
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
+.logoPlaceholder {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 8px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
+.body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    align-items: flex-start;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.name {
+    display: inline-block;
+    font-size: 0.92rem;
+    line-height: 1.3;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.expressNote {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fbbf24;
+    background: rgba(234, 179, 8, 0.15);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.priceContainer {
+    margin-left: auto;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.priceTag {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.priceWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.1rem;
+}
+
+.priceStruck {
+    text-decoration: line-through;
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.priceTagFree {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+.desc {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.35;
+    width: 100%;
+}
+/* 
+.locationContainer {
+    margin-top: 1rem;
+} */
+
+.selectedLocationCard,
+.locationPromptCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+}
+
+.selectedLocationCard {
+    border-color: var(--border2);
+}
+
+.locationPromptCard {
+    border: 1px dashed var(--border2);
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.locationHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+.locationIcon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.locationDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.locationTitle {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+}
+
+.locationName {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.locationSub {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selectBtn,
+.changeBtn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.loading,
+.error,
+.empty {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.error {
+    color: var(--error);
+}
+
+.retry {
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.retry:hover {
+    border-color: var(--indigo);
+}
+
+@media (max-width: 720px) {
+    .optionsRow {
+        grid-template-columns: 1fr;
+    }
+    .bannerContainer {
+        flex-direction: column;
+        gap: 0rem;
+    }
+    .selectedLocationCard,
+    .locationPromptCard {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .selectBtn,
+    .changeBtn {
+        width: 100%;
+    }
+}

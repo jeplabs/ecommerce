@@ -1,12 +1,10 @@
-export {
-    paymentApi,
-    processPayment,
-    PAYMENT_METHODS,
-    type PaymentMethod,
-    type PaymentResult,
-    type ProcessPaymentInput,
-} from './api';
+export * from './types';
+export * from './lib';
+export * from './api';
+export * from './hooks';
+export * from './components';
 
+// Compatibilidad con imports antiguos que leían directamente de `features/checkout`
 export {
     paymentMethodSchema,
     stripeCardFormSchema,
@@ -17,29 +15,16 @@ export {
     type PaymentSuccessResult,
     type PaymentFailureResult,
     type StripeCardFormValues,
-} from './model/schemas/payment';
+    PAYMENT_METHODS,
+    type PaymentMethod,
+} from './types/payment';
 
-export { useCheckoutLogic } from './model/useCheckoutLogic';
 export {
     CHECKOUT_STEPS,
     CHECKOUT_STEP_LABELS,
     CHECKOUT_SUCCESS_STEP_INDEX,
     CHECKOUT_FLOW_LAST_INDEX,
     type CheckoutStep,
-} from './model/checkoutSteps';
-export { useCheckoutSuccessRecommendations } from './model/useCheckoutSuccessRecommendations';
+} from './lib/checkoutSteps';
 
 export { pickPostCheckoutProducts } from './lib/checkout-recommendations';
-
-export {
-    CheckoutContent,
-    CheckoutSteps,
-    ReviewAndShippingStep,
-    PaymentStep,
-    CheckoutLineItems,
-    OrderSummary,
-    CheckoutSuccessHeader,
-    OrderConfirmationSummary,
-    CheckoutSuccessActions,
-    CheckoutSuccessRecommendations,
-} from './ui';

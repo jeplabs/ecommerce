@@ -1,0 +1,95 @@
+.root {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.embedded {
+    margin-bottom: 1.15rem;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.block + .block {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.heading {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 0.55rem;
+}
+
+.service {
+    margin: 0 0 0.65rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.meta {
+    margin: 0;
+    display: grid;
+    gap: 0.4rem;
+}
+
+.metaRow {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 0.88rem;
+}
+
+.metaRow dt {
+    margin: 0;
+    color: var(--muted);
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+}
+
+.metaRow dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.free {
+    color: #22c55e;
+}
+
+.contraNote {
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    color: var(--muted) !important;
+    line-height: 1.35;
+    max-width: 14rem;
+}
+
+.pickupNote {
+    margin: 0.5rem 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.45;
+    width: 50%;
+}
+
+.address p {
+    margin: 0 0 0.15rem;
+    font-size: 0.88rem;
+    color: var(--text);
+}
+
+.refs {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.82rem;
+}

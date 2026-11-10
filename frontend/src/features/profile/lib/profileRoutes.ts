@@ -1,4 +1,4 @@
-import type { ProfileTabId } from '@/app/providers';
+export type ProfileTabId = 'datos' | 'direcciones' | 'ordenes' | 'favoritos';
 
 export function getProfileTabFromPath(pathname: string): ProfileTabId {
     if (pathname.startsWith('/profile/direcciones')) {

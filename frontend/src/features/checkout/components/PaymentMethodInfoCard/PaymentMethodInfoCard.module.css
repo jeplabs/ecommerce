@@ -1,0 +1,71 @@
+.root {
+    padding: 1.25rem;
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.08), var(--surface2));
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    border-radius: 12px;
+    margin-top: 1rem;
+    animation: fadeIn 0.25s ease-out forwards;
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #10b981;
+}
+
+.badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+    font-weight: 600;
+}
+
+.text {
+    margin: 0 0 0.85rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.features {
+    list-style: none;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin: 0;
+    padding: 0;
+}
+
+.features li {
+    padding: 0.25rem 0;
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.45;
+}
+
+.features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #24d698;
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { useCart } from '@/app/providers/useCart';
 import { EnvioOpcionesProvider } from '@/app/providers/EnvioOpcionesProvider';
-import { useCheckoutLogic } from '@/features/checkout/model/useCheckoutLogic';
+import { useCheckoutLogic } from '@/features/checkout/hooks/useCheckoutLogic';
 import { CheckoutContext } from './checkout-context';
 
 type CheckoutProviderInnerProps = {

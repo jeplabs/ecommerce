@@ -1,5 +1,5 @@
-import type { OrderItemApi } from '@/entities/order';
-import type { ProductApi } from '@/entities/product';
+import type { OrderItemApi } from '../types/order';
+import type { ProductApi } from '@/features/catalog';
 
 /**
  * Productos sugeridos tras una compra (excluye lo ya pedido).

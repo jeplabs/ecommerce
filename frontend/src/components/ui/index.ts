@@ -31,4 +31,10 @@ export { SortSelector } from './SortSelector/SortSelector';
 export { Toast, ToastContainer } from './Toast/Toast';
 export { Pagination } from './Pagination/Pagination';
 export type { PaginationProps } from './Pagination/Pagination';
+export { OrderShippingSummary } from './OrderShippingSummary';
+export type {
+    OrderShippingSummaryProps,
+    OrderShippingSummaryData,
+    OrderShippingAddressSummary,
+} from './OrderShippingSummary';
 

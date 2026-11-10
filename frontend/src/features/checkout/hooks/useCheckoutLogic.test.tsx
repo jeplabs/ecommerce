@@ -1,0 +1,367 @@
+import type { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { AppProviders } from '@/app/providers/AppProviders';
+import { CheckoutProvider } from '@/app/providers/CheckoutProvider';
+import { useCheckout } from '@/app/providers';
+import { PAYMENT_METHODS } from '@/features/checkout';
+import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
+import { addDynamicCartItem, resetDynamicCart } from '@/test/msw/fixtures/cart-registry';
+import { mockAddresses } from '@/test/msw/fixtures/addresses';
+import { mockProduct } from '@/test/msw/fixtures/products';
+import { API_BASE } from '@/test/msw/constants';
+import { server } from '@/test/msw/server';
+import { setAccessToken } from '@/shared/lib/auth-token-store';
+
+function createCheckoutWrapper() {
+    return function Wrapper({ children }: { children: ReactNode }) {
+        return (
+            <MemoryRouter initialEntries={['/checkout']}>
+                <AppProviders>
+                    <CheckoutProvider>{children}</CheckoutProvider>
+                </AppProviders>
+            </MemoryRouter>
+        );
+    };
+}
+
+function seedCustomerSession() {
+    setAccessToken(mockAuthTokenResponse.token);
+    localStorage.setItem('rol', 'ROLE_CUSTOMER');
+}
+
+async function selectNormalDelivery(result: { current: ReturnType<typeof useCheckout> }) {
+    await waitFor(() => {
+        expect(result.current.loadingAddresses).toBe(false);
+        expect(result.current.loadingEnvioOpciones).toBe(false);
+        expect(result.current.cartLoading).toBe(false);
+        expect(result.current.isEmpty).toBe(false);
+        expect(result.current.direcciones.length).toBeGreaterThan(0);
+        expect(result.current.deliveryServices.length).toBeGreaterThan(0);
+    }, { timeout: 15000 });
+
+    act(() => {
+        const normal = result.current.deliveryServices[0];
+        if (normal) result.current.setSelectedServicioEnvioId(normal.id);
+        const address = result.current.direcciones[0];
+        if (address) result.current.setSelectedAddressId(address.id);
+    });
+}
+
+describe('useCheckoutLogic', () => {
+    beforeEach(() => {
+        sessionStorage.clear();
+        resetDynamicCart();
+    });
+
+    it('selecciona dirección principal y habilita continuar', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        expect(result.current.selectedAddressId).toBe(mockAddresses[0]?.id);
+        expect(result.current.currentStep).toBe('pedido');
+    });
+
+    it('avanza al paso de pago', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        act(() => {
+            result.current.goNext();
+        });
+
+        expect(result.current.currentStep).toBe('pago');
+    });
+
+    it('requiere tarjeta completa para pagar con Stripe', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        act(() => {
+            result.current.goNext();
+        });
+
+        expect(result.current.canContinuePayment).toBe(false);
+
+        act(() => {
+            result.current.updateCardField('cardholder', 'Test User');
+            result.current.updateCardField('cardNumber', '4242 4242 4242 4242');
+            result.current.updateCardField('expiry', '12/30');
+            result.current.updateCardField('cvc', '123');
+        });
+
+        expect(result.current.canContinuePayment).toBe(true);
+    });
+
+    it('cambia a costo 0 en paso de pago al seleccionar contraentrega', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        act(() => {
+            result.current.setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA);
+        });
+
+        expect(result.current.currentStep).toBe('pedido');
+        expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.EN_LINEA);
+
+        act(() => {
+            result.current.goNext();
+        });
+
+        expect(result.current.currentStep).toBe('pago');
+        expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
+        expect(result.current.shippingCostInTotal).toBe(0);
+        await waitFor(() => expect(result.current.loadingEnvioOpciones).toBe(false));
+    });
+
+    it('completa checkout con contraentrega sin pasar por la pasarela simulada', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.CONTRA_ENTREGA);
+        });
+
+        await waitFor(() => {
+            expect(result.current.loadingEnvioOpciones).toBe(false);
+            expect(result.current.canContinuePayment).toBe(true);
+            expect(result.current.isEmpty).toBe(false);
+        }, { timeout: 15000 });
+        expect(result.current.formaPagoEnvio).toBe(result.current.FORMA_PAGO_ENVIO.CONTRA_ENTREGA);
+
+        let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
+
+        await act(async () => {
+            checkoutResult = await result.current.completeCheckout();
+        });
+
+        expect(checkoutResult?.success).toBe(true);
+        if (checkoutResult?.success && !checkoutResult.needsRedirect) {
+            expect(checkoutResult.orden.formaPagoEnvio).toBe('CONTRA_ENTREGA');
+            expect(checkoutResult.payment).toBeNull();
+        }
+    });
+
+    it('completa checkout con transferencia bancaria', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.BANK_TRANSFER);
+        });
+
+        await waitFor(() => {
+            expect(result.current.loadingEnvioOpciones).toBe(false);
+            expect(result.current.canContinuePayment).toBe(true);
+        }, { timeout: 15000 });
+
+        let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
+
+        await act(async () => {
+            checkoutResult = await result.current.completeCheckout();
+        });
+
+        expect(checkoutResult?.success).toBe(true);
+        if (checkoutResult?.success && !checkoutResult.needsRedirect) {
+            expect(checkoutResult.isBankTransfer).toBe(true);
+            expect(checkoutResult.orden.items.length).toBeGreaterThan(0);
+        }
+    });
+
+    it('webpay: crea la orden PENDIENTE e inicia la redirección', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.WEBPAY);
+        });
+
+        await waitFor(() => {
+            expect(result.current.loadingEnvioOpciones).toBe(false);
+            expect(result.current.canContinuePayment).toBe(true);    
+            expect(result.current.isEmpty).toBe(false);
+        }, { timeout: 15000 });
+
+        let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
+
+        await act(async () => {
+            checkoutResult = await result.current.completeCheckout();
+        });
+
+        // expect(checkoutResult?.success).toBe(true);
+        expect(checkoutResult).toEqual(expect.objectContaining({ success: true }));
+        if (checkoutResult?.success && checkoutResult.needsRedirect) {
+            expect(checkoutResult.urlRedireccion).toContain('https://');
+            expect(checkoutResult.token).toContain('tok_test_');
+            expect(checkoutResult.orden.metodoPago).toBe('WEBPAY');
+            expect(checkoutResult.orden.estado).toBe('PENDIENTE');
+        }
+        expect(result.current.redirectInfo).not.toBeNull();
+    });
+
+    it('webpay: limpia el pedido pendiente y navega a éxito cuando el estado es APROBADA', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        server.use(
+            http.get(`${API_BASE}/api/pagos/webpay/estado/:ordenId`, ({ params }) =>
+                HttpResponse.json({
+                    ordenId: Number(params.ordenId),
+                    estado: 'APROBADA',
+                    motivo: null,
+                })
+            )
+        );
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await selectNormalDelivery(result);
+
+        await waitFor(() => expect(result.current.canContinueShipping).toBe(true), { timeout: 15000 });
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.WEBPAY);
+        });
+
+        expect(result.current.canContinuePayment).toBe(true);
+
+        await act(async () => {
+            await result.current.completeCheckout();
+        });
+
+        await waitFor(
+            () => expect(sessionStorage.getItem('webpay:ordenPendienteId')).toBeNull(),
+            { timeout: 10000 }
+        );
+    });
+
+    it('retiro en tienda: exige selección consciente de sucursal y envía sucursalId con direccionId null', async () => {
+        seedCustomerSession();
+        addDynamicCartItem(mockProduct.id, 1);
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        await waitFor(() => {
+            expect(result.current.loadingBranches).toBe(false);
+            expect(result.current.cartLoading).toBe(false);
+            expect(result.current.isEmpty).toBe(false);
+            expect(result.current.sucursales.length).toBeGreaterThan(0);
+            expect(result.current.pickupServices.length).toBeGreaterThan(0);
+        });
+
+        act(() => {
+            const pickupService = result.current.pickupServices[0];
+            result.current.setSelectedServicioEnvioId(pickupService.id);
+        });
+
+        expect(result.current.isPickupSelected).toBe(true);
+        expect(result.current.selectedBranchId).toBeNull();
+        expect(result.current.canContinueShipping).toBe(false);
+
+        act(() => {
+            result.current.setSelectedBranchId(2);
+        });
+
+        expect(result.current.selectedBranch?.nombre).toBe('Tienda Zona 10');
+        expect(result.current.canContinueShipping).toBe(true);
+
+        act(() => {
+            result.current.goNext();
+            result.current.setPaymentMethod(PAYMENT_METHODS.BANK_TRANSFER);
+        });
+
+        expect(result.current.canContinuePayment).toBe(true);
+
+        let checkoutResult: Awaited<ReturnType<typeof result.current.completeCheckout>> | undefined;
+
+        await act(async () => {
+            checkoutResult = await result.current.completeCheckout();
+        });
+
+        expect(checkoutResult?.success).toBe(true);
+        if (checkoutResult?.success && !checkoutResult.needsRedirect) {
+            expect(checkoutResult.orden.sucursalId).toBe(2);
+            expect(checkoutResult.orden.direccionId).toBeNull();
+            expect(checkoutResult.orden.direccionEnvio?.alias).toBe('Tienda Zona 10');
+            expect(checkoutResult.orden.direccionEnvio?.horario).toBeTruthy();
+        }
+    });
+
+    it('bloquea continuar al pago si el carrito está vacío', () => {
+        seedCustomerSession();
+        resetDynamicCart();
+
+        const { result } = renderHook(() => useCheckout(), {
+            wrapper: createCheckoutWrapper(),
+        });
+
+        expect(result.current.canContinueShipping).toBe(false);
+        expect(result.current.canContinuePayment).toBe(false);
+    });
+});

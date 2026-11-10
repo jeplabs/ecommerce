@@ -54,6 +54,7 @@ export default defineConfig(({ mode }) => {
                 provider: 'v8',
                 reporter: ['text', 'html'],
                 include: [
+                    'src/features/checkout/**',
                     'src/features/checkout/ui/**',
                     'src/features/checkout/model/**',
                     'src/features/checkout/lib/**',

@@ -1,4 +1,1 @@
-export {
-    shippingApi,
-    getOpciones,
-} from './shippingApi';
+export * from './shippingApi';

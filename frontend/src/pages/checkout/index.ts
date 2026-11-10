@@ -1,3 +1,5 @@
-export { CheckoutPage, default } from './ui/CheckoutPage';
-export { CheckoutReturnPage } from './ui/CheckoutReturnPage';
-export { QPayProReturnPage } from './ui/QPayProReturnPage';
+export {
+    CheckoutView as CheckoutPage,
+    CheckoutReturnView as CheckoutReturnPage,
+    QPayProReturnView as QPayProReturnPage,
+} from '@/features/checkout';

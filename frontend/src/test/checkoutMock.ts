@@ -1,9 +1,9 @@
-import { PAYMENT_METHODS } from '@/features/checkout';
+import { PAYMENT_METHODS } from '@/features/checkout/types';
 import { mockAddresses } from './msw/fixtures/addresses';
 import { mockBranches } from './msw/fixtures/branches';
 import { mockShippingServices } from './msw/fixtures/shipping';
 import { mockProduct } from './msw/fixtures/products';
-import { CHECKOUT_STEPS } from '@/features/checkout/model/checkoutSteps';
+import { CHECKOUT_STEPS } from '@/features/checkout/lib';
 
 export type CheckoutMockOverrides = Partial<Record<string, unknown>> & {
     [key: string]: unknown;

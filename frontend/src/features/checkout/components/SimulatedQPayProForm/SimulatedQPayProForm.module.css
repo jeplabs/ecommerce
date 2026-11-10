@@ -1,0 +1,86 @@
+.root {
+    padding: 1.25rem;
+    background: linear-gradient(180deg, rgba(43, 187, 69, 0.08), var(--surface2));
+    border: 1px solid rgba(36, 150, 59, 0.655);
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #24d677;
+}
+
+.badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: rgba(214, 36, 52, 0.15);
+    color: #71f8a5;
+}
+
+.flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.78rem;
+}
+
+.step {
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--muted);
+}
+
+.stepDone {
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.stepActive {
+    background: rgba(36, 214, 143, 0.15);
+    color: #a5fcd8;
+    font-weight: 600;
+}
+
+.arrow {
+    color: var(--muted);
+}
+
+.text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.features {
+    list-style: none;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.features li {
+    padding: 0.25rem 0;
+    padding-left: 1.1rem;
+    position: relative;
+}
+
+.features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #24d698;
+}

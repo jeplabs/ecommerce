@@ -1,0 +1,91 @@
+.stepTitle {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.stepSubtitle {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+}
+
+.stepLoading {
+    color: var(--muted);
+    padding: 2rem;
+    text-align: center;
+}
+
+.field {
+    margin-bottom: 1rem;
+}
+
+.fieldAfterShipping {
+    margin-top: 1.5rem;
+    padding-top: 0.25rem;
+}
+
+.field label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.92rem;
+}
+
+.field input:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+}
+
+.btnPrimary {
+    background: var(--indigo);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+.btnPrimary:hover:not(:disabled) {
+    background: #4f46e5;
+    transform: translateY(-1px);
+}
+
+.btnSecondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+}
+
+.btnSecondary:hover:not(:disabled) {
+    border-color: var(--indigo);
+}
+
+.btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}

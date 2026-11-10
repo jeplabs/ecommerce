@@ -8,21 +8,18 @@ export type {
     ShippingOptionsView,
     EnvioOpcionesState,
     UseEnvioOpcionesResult,
-} from './model/types';
+} from '@/features/checkout';
 
 export {
     shippingServiceApiSchema,
     shippingOptionsApiSchema,
     shippingOptionsQuerySchema,
     shippingPaymentFormSchema,
-} from './model/types';
-
-export {
     isPickupService,
     isExpressService,
     qualifiesForFreeShipping,
-    getCheckoutShippingOptions,
     sortShippingServices,
+    getCheckoutShippingOptions,
     getExpressDeliveryHint,
     getShippingServiceDescription,
     getShippingServiceCosts,
@@ -32,8 +29,7 @@ export {
     mapShippingServiceToView,
     mapShippingOptionsToView,
     partitionShippingServices,
-} from './model/mappers';
-
-export { shippingApi, getOpciones } from './api';
-
-export { useEnvioOpciones } from './model/useEnvioOpciones';
+    shippingApi,
+    getOpciones,
+    useEnvioOpciones,
+} from '@/features/checkout';

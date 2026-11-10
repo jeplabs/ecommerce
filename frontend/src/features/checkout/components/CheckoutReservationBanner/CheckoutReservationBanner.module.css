@@ -1,0 +1,80 @@
+.banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    margin-bottom: 0.85rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    transition: all 0.2s ease-in-out;
+}
+
+.bannerNormal {
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: var(--text);
+}
+
+.bannerWarning {
+    background: rgba(234, 179, 8, 0.12);
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    color: #fbbf24;
+}
+
+.bannerCritical {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #f87171;
+}
+
+.info {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.icon {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.text {
+    font-weight: 500;
+}
+
+.timer {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+}
+
+.renewBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    transition: opacity 0.15s, transform 0.15s;
+}
+
+.renewBtn:hover:not(:disabled) {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+.renewBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+

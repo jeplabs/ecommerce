@@ -1,0 +1,156 @@
+.root {
+    margin-top: 0;
+}
+
+.headerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.headerText {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0.6rem;
+}
+
+.toggleBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.toggleBtn:hover {
+    background: var(--surface);
+    border-color: var(--indigo);
+    color: var(--indigo);
+}
+
+.chevronIcon {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: transform 0.25s ease;
+}
+
+.chevronRotated {
+    transform: rotate(180deg);
+}
+
+.title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.15rem;
+    color: var(--text);
+}
+
+.subtitle {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.list > li {
+    width: 100%;
+}
+
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-height: auto;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface2);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+    gap: 0.65rem;
+}
+
+.radioInput {
+    accent-color: var(--indigo);
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.cardSelected {
+    border-color: var(--indigo);
+    border-width: 1.5px;
+    box-shadow: 0 1px 6px rgba(99, 102, 241, 0.1);
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.cardContent {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.cardHeader strong {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cardDetails {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+}
+
+.cardLine {
+    color: var(--text);
+    font-weight: 400;
+}
+
+.cardMeta {
+    color: var(--muted);
+}
+
+
+.emptyState,
+.loadingState {
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding: 0.75rem 0;
+    margin: 0;
+}

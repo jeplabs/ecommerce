@@ -1,5 +1,3 @@
-export { formatOrderStatus as formatEstadoOrden } from '@/entities/order';
-
 export interface CurrencyConfig {
     codigo: string;
     simbolo: string;
@@ -47,3 +45,5 @@ export function getInitials(nombre?: string | null, apellido?: string | null): s
     const a = (apellido || '').charAt(0);
     return `${n}${a}`.toUpperCase() || '?';
 }
+
+export { formatOrderStatus as formatEstadoOrden } from '@/features/checkout/lib/orderMappers';

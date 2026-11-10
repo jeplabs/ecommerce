@@ -1,0 +1,27 @@
+.header {
+    margin-bottom: 1.25rem;
+}
+
+.back {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    text-decoration: none;
+}
+
+.back:hover {
+    text-decoration: underline;
+}
+
+.header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    text-align: left;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    color: var(--muted);
+    font-size: 0.92rem;
+}
