@@ -21,17 +21,17 @@ Actualmente, existen dos flujos divergentes según el momento en que el usuario 
 ```mermaid
 flowchart TD
     A["Cliente regresa a la tienda tras inactividad"] --> B{"¿Cuándo regresa?"}
-    
-    B -->|Caso A: Antes de que el Scheduler marque el carrito| C["Carrito en BD sigue con estado 'ACTIVO' pero expira_at vencido"]
-    C --> D["CarritoService.obtenerOCrearCarritoVigente() detecta c.estaExpirado()"]
+
+    B -->|"Caso A: Antes de que el Scheduler marque el carrito"| C["Carrito en BD sigue con estado ACTIVO pero expira_at vencido"]
+    C --> D["obtenerOCrearCarritoVigente detecta estaExpirado"]
     D --> E["Marca carrito como EXPIRADO y genera nuevo carrito"]
     E --> F["Retorna carritoAnteriorExpirado = TRUE"]
     F --> G["Frontend muestra Modal de Restauración ✅"]
-    
-    B -->|Caso B: Horas o días después (Scheduler ya corrió)| H["CarritoScheduler ya cambió el estado a 'EXPIRADO' en BD"]
-    H --> I["CarritoService ejecuta findByUsuarioIdAndEstado(ACTIVO)"]
-    I --> J["No encuentra nada: cae en .orElseGet()"]
-    J --> K["Crea nuevo carrito activo pero retorna carritoAnteriorExpirado = FALSE"]
+
+    B -->|"Caso B: Horas o días después - Scheduler ya corrió"| H["CarritoScheduler ya cambió el estado a EXPIRADO en BD"]
+    H --> I["CarritoService ejecuta findByUsuarioIdAndEstado ACTIVO"]
+    I --> J["No encuentra nada y cae en orElseGet"]
+    J --> K["Crea nuevo carrito activo con carritoAnteriorExpirado = FALSE"]
     K --> L["Frontend recibe carrito vacío en silencio ❌"]
 ```
 
