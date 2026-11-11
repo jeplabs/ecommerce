@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { NotFoundPage } from './NotFoundPage';
+import NotFoundRoute from './index';
 
 const mockNavigate = vi.fn();
 
@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
-describe('NotFoundPage', () => {
+describe('NotFoundRoute', () => {
     beforeEach(() => {
         mockNavigate.mockClear();
     });
@@ -22,7 +22,7 @@ describe('NotFoundPage', () => {
     it('renderiza el código 404, encabezado principal y mensaje de ayuda', () => {
         render(
             <MemoryRouter>
-                <NotFoundPage />
+                <NotFoundRoute />
             </MemoryRouter>
         );
 
@@ -40,7 +40,7 @@ describe('NotFoundPage', () => {
         document.title = 'Título Original';
         const { unmount } = render(
             <MemoryRouter>
-                <NotFoundPage />
+                <NotFoundRoute />
             </MemoryRouter>
         );
 
@@ -54,7 +54,7 @@ describe('NotFoundPage', () => {
         const user = userEvent.setup();
         render(
             <MemoryRouter>
-                <NotFoundPage />
+                <NotFoundRoute />
             </MemoryRouter>
         );
 
@@ -66,7 +66,7 @@ describe('NotFoundPage', () => {
         const user = userEvent.setup();
         render(
             <MemoryRouter>
-                <NotFoundPage />
+                <NotFoundRoute />
             </MemoryRouter>
         );
 
@@ -78,7 +78,7 @@ describe('NotFoundPage', () => {
         const user = userEvent.setup();
         render(
             <MemoryRouter>
-                <NotFoundPage />
+                <NotFoundRoute />
             </MemoryRouter>
         );
 
@@ -87,13 +87,13 @@ describe('NotFoundPage', () => {
     });
 });
 
-describe('NotFoundPage Router Integration', () => {
+describe('NotFoundRoute Router Integration', () => {
     it('se monta automáticamente cuando una ruta desconocida es accedida', () => {
         render(
             <MemoryRouter initialEntries={['/ruta-que-definitivamente-no-existe-999']}>
                 <Routes>
                     <Route path="/" element={<div>Inicio</div>} />
-                    <Route path="*" element={<NotFoundPage />} />
+                    <Route path="*" element={<NotFoundRoute />} />
                 </Routes>
             </MemoryRouter>
         );
@@ -102,4 +102,3 @@ describe('NotFoundPage Router Integration', () => {
         expect(screen.getByText('404')).toBeInTheDocument();
     });
 });
-

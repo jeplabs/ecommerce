@@ -9,7 +9,7 @@ import ScrollToTop from './ScrollToTop';
 import { ProfileProvider } from '@/app/providers';
 import { LazyRouteFallback } from './LazyRouteFallback';
 
-const HomePage = lazy(() => import('@/pages/home').then((m) => ({ default: m.HomePage })));
+const HomePage = lazy(() => import('@/app/routes/home'));
 const LoginPage = lazy(() => import('@/app/routes/auth/login'));
 const RegisterPage = lazy(() => import('@/app/routes/auth/register'));
 const ResetPasswordPage = lazy(() => import('@/app/routes/auth/reset-password'));
@@ -44,9 +44,7 @@ const AdminOrdersPage = lazy(() =>
     import('@/pages/admin/orders').then((m) => ({ default: m.AdminOrdersPage }))
 );
 const AdminBranchesPage = lazy(() => import('@/app/routes/admin/branches'));
-const NotFoundPage = lazy(() =>
-    import('@/pages/not-found').then((m) => ({ default: m.NotFoundPage }))
-);
+const NotFoundPage = lazy(() => import('@/app/routes/not-found'));
 
 export function AppRouter() {
     return (

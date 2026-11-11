@@ -1,11 +1,19 @@
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
-import type { HomeHeroSlide } from '@/widgets/home/home-slides';
 import styles from './Carousel.module.css';
 
+export type CarouselSlide = {
+    desktopSrc: string;
+    mobileSrc: string;
+    alt: string;
+    link: string;
+};
+
+export type HomeHeroSlide = CarouselSlide;
+
 type CarouselProps = {
-    slides: HomeHeroSlide[];
+    slides: CarouselSlide[];
 };
 
 const Carousel = ({ slides }: CarouselProps) => {

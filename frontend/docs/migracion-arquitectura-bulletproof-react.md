@@ -458,10 +458,20 @@ flowchart LR
   - Vistas legacy (`src/pages/checkout/`, `src/pages/checkout-success/`, `src/widgets/checkout/`) preservadas y enlazadas limpiamente a `@/features/checkout` para garantizar 100% de compatibilidad en pruebas existentes sin romper dependencias.
   - **`OrderShippingSummary` reubicado temporalmente en UI compartida (`src/components/ui/OrderShippingSummary/`):** Al ser un componente puramente presentacional consumido por `checkout` (`OrderConfirmationSummary`) y `profile` (`OrderDetail`), se movió fuera de `features/order/ui/` hacia `src/components/ui/OrderShippingSummary/` con contrato estructural sin imports hacia `features/*` (manteniendo proxy en `src/features/order/ui/OrderShippingSummary/`).
 
-#### 3.4. Feature `admin`
+#### 3.4. Ruta `not-found` (`404`) & Organización de `src/app/router/` `[COMPLETADA & VERIFICADA]`
+- **Estado:** ✅ Completado:
+  - `not-found`: migrado en carpeta propia `src/app/routes/not-found/` (`index.tsx`, `not-found.module.css` y `not-found.test.tsx`), importando `Button` desde `@/components/ui/Button`.
+  - `src/app/router/`: componentes con archivos satélite encapsulados en carpetas (`GuestRoute/`, `PrivateRoute/`, `LazyRouteFallback/`), manteniendo planos los atómicos `AppRouter.tsx` y `ScrollToTop.tsx`.
+- **Conexiones seguras:** `src/app/router/AppRouter.tsx` actualizado para cargar `lazy(() => import('@/app/routes/not-found'))` y proxy retrocompatible en `src/pages/not-found/`.
+
+#### 3.5. Ruta `home` (`/`) `[COMPLETADA & VERIFICADA]`
+- **Estado:** ✅ Completado y con suite unitaria nueva (`src/app/routes/home/home.test.tsx`, 4 tests en verde). Al ser una ruta puramente compositiva (sin API ni dominio de negocio propio), se agrupó en carpeta `src/app/routes/home/` (`index.tsx`, `HomeContent.tsx`, `home-slides.ts`, `home.test.tsx`).
+- **Desacoplamiento limpio:** `src/components/ui/Carousel/Carousel.tsx` define ahora el contrato `CarouselSlide` (`HomeHeroSlide`) localmente para no depender de `@/widgets/home/`, y `HomeContent.tsx` consume `useProduct` desde `@/app/providers` y `Carousel`/`ProductSlider` desde `@/components/ui`.
+- **Conexiones seguras:** `src/app/router/AppRouter.tsx` actualizado para cargar `lazy(() => import('@/app/routes/home'))`; proxies preservados en `src/pages/home/` y `src/widgets/home/`.
+
+#### 3.6. Feature `admin`
 1. Consolidar paneles, dashboards, tablas de productos, órdenes, usuarios y sucursales en `src/features/admin/`.
 2. Crear las rutas en `src/app/routes/admin/` (`dashboard.tsx`, `products.tsx`, `orders.tsx`, `branches.tsx`, `users.tsx`).
-3. Migrar `home` (`/`) y `not-found` (`*`) desde `src/pages/` hacia `src/app/routes/` (y sus componentes asociados).
 
 ---
 
