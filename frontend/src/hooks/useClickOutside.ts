@@ -3,7 +3,7 @@ import { useEffect, useRef, type RefObject } from 'react';
 /**
  * Detecta clics fuera de un elemento contenedor.
  */
-export default function useClickOutside<T extends HTMLElement = HTMLElement>(
+export function useClickOutside<T extends HTMLElement = HTMLElement>(
     handler: (event: MouseEvent) => void
 ): RefObject<T | null> {
     const ref = useRef<T | null>(null);
@@ -24,3 +24,5 @@ export default function useClickOutside<T extends HTMLElement = HTMLElement>(
 
     return ref;
 }
+
+export default useClickOutside;

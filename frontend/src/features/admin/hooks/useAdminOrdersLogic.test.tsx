@@ -76,7 +76,7 @@ describe('useAdminOrdersLogic', () => {
 
         expect(updateResult?.success).toBe(true);
         if (updateResult?.success) {
-            expect(updateResult.data.estado).toBe('CONFIRMADA');
+            expect(updateResult.data?.estado).toBe('CONFIRMADA');
         }
     });
 });

@@ -2,8 +2,8 @@ import { useCategorias } from '@/app/providers';
 import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { CategoryApi } from '@/entities/category';
-import useEscapeKey from '@/shared/lib/useEscapeKey';
+import type { CategoryApi } from '@/features/catalog';
+import { useEscapeKey } from '@/hooks';
 import styles from './CategoriasNav.module.css';
 
 const buildCategoryPath = (parentPath: string, categoria: CategoryApi): string =>

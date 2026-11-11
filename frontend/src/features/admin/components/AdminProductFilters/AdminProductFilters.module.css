@@ -1,0 +1,102 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1rem 1.15rem;
+    background: var(--surface2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+}
+
+.controlsGrid {
+    display: grid;
+    grid-template-columns: minmax(220px, 2fr) minmax(180px, 1.3fr) minmax(150px, 1fr) minmax(130px, 0.8fr);
+    gap: 0.85rem;
+    align-items: end;
+}
+
+.fieldSearch,
+.field,
+.fieldCompact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.searchWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.searchInput {
+    padding-right: 2rem;
+}
+
+.clearSearchBtn {
+    position: absolute;
+    right: 0.5rem;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clearSearchBtn:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.summaryRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    /* height: 3rem; */
+}
+
+.summaryText {
+    margin: 0;
+    font-size: 0.86rem;
+    color: var(--muted);
+}
+
+.summaryText strong {
+    color: var(--text);
+}
+
+@media (max-width: 960px) {
+    .controlsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fieldSearch {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 560px) {
+    .controlsGrid {
+        grid-template-columns: 1fr;
+    }
+}

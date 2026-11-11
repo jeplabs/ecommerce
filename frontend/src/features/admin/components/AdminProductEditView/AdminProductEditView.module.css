@@ -1,0 +1,51 @@
+.root {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.loading {
+    font-size: 1.1rem;
+    color: var(--muted);
+}
+
+.notice {
+    margin: 0 0 1rem 0;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fde68a;
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.back {
+    display: inline-block;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: var(--accent);
+    cursor: pointer;
+    margin: 1.5rem 0 0.75rem 2rem;
+}
+
+.back:hover {
+    text-decoration: underline;
+}
+
+@media (min-width: 1200px) {
+    .back {
+        margin-left: 12rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .back {
+        margin-left: 1rem;
+    }
+}

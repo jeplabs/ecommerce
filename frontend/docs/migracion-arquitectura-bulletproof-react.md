@@ -469,9 +469,18 @@ flowchart LR
 - **Desacoplamiento limpio:** `src/components/ui/Carousel/Carousel.tsx` define ahora el contrato `CarouselSlide` (`HomeHeroSlide`) localmente para no depender de `@/widgets/home/`, y `HomeContent.tsx` consume `useProduct` desde `@/app/providers` y `Carousel`/`ProductSlider` desde `@/components/ui`.
 - **Conexiones seguras:** `src/app/router/AppRouter.tsx` actualizado para cargar `lazy(() => import('@/app/routes/home'))`; proxies preservados en `src/pages/home/` y `src/widgets/home/`.
 
-#### 3.6. Feature `admin`
-1. Consolidar paneles, dashboards, tablas de productos, órdenes, usuarios y sucursales en `src/features/admin/`.
-2. Crear las rutas en `src/app/routes/admin/` (`dashboard.tsx`, `products.tsx`, `orders.tsx`, `branches.tsx`, `users.tsx`).
+#### 3.6. Feature `admin` `[COMPLETADA & VERIFICADA]`
+- **Estado:** ✅ Completado y verificado con **42 pruebas unitarias en verde a través de 17 suites** en `src/features/admin/`:
+  - `types/` (`index.ts`): Contratos `DashboardStats`, `AdminOrderStatusFilter`, `AdminActionResult`, `UseAdminOrdersLogicResult`, `UseAdminUsersListResult`, `UseAdminUserResult`. Se añadió también `CategoryTreeNode` al barril de `@/features/catalog`.
+  - `lib/` (`product-image-admin.ts` + `index.ts` + `product-image-admin.test.ts` [5 tests]): Helpers de normalización de imágenes de producto y resolución de imagen principal en edición.
+  - `hooks/` (`useDashboardStats`, `useAdminOrdersLogic`, `useAdminUsersList`, `useAdminUser`, más re-export de `useAdminBranches` desde `@/features/branches`): Con suites unitarias en `useDashboardStats.test.tsx`, `useAdminOrdersLogic.test.tsx`, `useAdminUsersList.test.tsx` y `useAdminUser.test.tsx`.
+  - `components/` (12 componentes encapsulados con Component Folder Pattern `.tsx` + `.module.css` + `.test.tsx` + `index.ts`): `StatCard`, `CategoryForm`, `ProductForm`, `AdminOrdersTable`, `AdminUsersTable`, `AdminDashboardView`, `AdminOrdersView`, `AdminProductListView`, `AdminProductNewView`, `AdminProductEditView`, `AdminUsersListView`, `AdminUserEditView`, además de re-exportar `AdminBranchesView`, `AdminBranchesTable` y `BranchModalForm` desde `@/features/branches`.
+  - `index.ts`: Barril público limpio exponiendo `types`, `lib`, `hooks` y `components`.
+- **Rutas y Conexiones Seguras:**
+  - Rutas delgadas creadas en `src/app/routes/admin/` (`dashboard.tsx`, `products.tsx`, `product-new.tsx`, `product-edit.tsx`, `orders.tsx`, `users.tsx`, `user-edit.tsx`), sumándose a `branches.tsx`.
+  - `src/app/router/AppRouter.tsx` actualizado para cargar las 8 rutas `/admin/*` mediante `lazy()` apuntando a `src/app/routes/admin/*`.
+  - Coexistencia retrocompatible mediante proxies en `src/features/admin/{model, ui}`, `src/widgets/admin/` y `src/pages/admin/*/ui/*Page.tsx` (sin eliminar archivos legacy `.tsx`/`.ts`; únicamente se retiraron tests legacy duplicados de sucursales que ya residen en `src/features/branches/`).
+- **Siguiente paso:** Ejecutar la evaluación arquitectónica post-`admin` detallada abajo (decisión `OrderShippingSummary` / `orders/` vs distribución actual) antes de iniciar la **Fase 4** de limpieza definitiva.
 
 ---
 

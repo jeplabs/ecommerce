@@ -1,7 +1,6 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import Navbar from '@/widgets/layout/Navbar/Navbar';
-import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
-import type { CategoryBreadcrumbItem } from '@/shared/ui/Breadcrumbs/Breadcrumbs';
+import Navbar from '../Navbar/Navbar';
+import Breadcrumbs, { type CategoryBreadcrumbItem } from '@/components/ui/Breadcrumbs/Breadcrumbs';
 import styles from './AdminLayout.module.css';
 
 const ROUTE_LABELS: Record<string, string> = {

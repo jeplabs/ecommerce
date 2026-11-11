@@ -59,6 +59,8 @@ function toProductAdminApi(product: DynamicProduct): ProductAdminApi {
         sku: product.sku,
         nombre: product.nombre,
         slug: product.slug,
+        descripcion: product.descripcion ?? null,
+        specs: product.specs ?? null,
         stock: product.stock,
         estado: product.estado,
         precioVenta: product.precioVenta,
@@ -66,6 +68,7 @@ function toProductAdminApi(product: DynamicProduct): ProductAdminApi {
         margenPorcentaje: product.margenPorcentaje,
         moneda: product.moneda,
         imagenes: product.imagenes.map((img) => ({ ...img })),
+        categorias: product.categorias,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
     };
@@ -157,16 +160,58 @@ export function getDynamicAdminProducts(estado: ProductStatus): ProductAdminApi[
     return products.filter((p) => p.estado === estado).map(toProductAdminApi);
 }
 
-export function mockDynamicAdminProductsPage(estado: ProductStatus): SpringPage<ProductAdminApi> {
-    const content = getDynamicAdminProducts(estado);
+export type AdminProductsFilterParams = {
+    estado?: ProductStatus;
+    nombre?: string;
+    categoriaId?: number;
+    page?: number;
+    size?: number;
+};
+
+export function mockDynamicAdminProductsPage(
+    estadoOrParams?: ProductStatus | AdminProductsFilterParams
+): SpringPage<ProductAdminApi> {
+    const params: AdminProductsFilterParams =
+        typeof estadoOrParams === 'string'
+            ? { estado: estadoOrParams }
+            : (estadoOrParams ?? {});
+
+    const query = params.nombre?.trim().toLowerCase();
+    const filtered = products
+        .filter((p) => {
+            if (params.estado && p.estado !== params.estado) return false;
+            if (
+                query &&
+                !p.nombre.toLowerCase().includes(query) &&
+                !p.sku.toLowerCase().includes(query)
+            ) {
+                return false;
+            }
+            if (
+                params.categoriaId != null &&
+                !p.categorias.some((c) => c.id === params.categoriaId)
+            ) {
+                return false;
+            }
+            return true;
+        })
+        .map(toProductAdminApi);
+
+    const size = params.size ?? 20;
+    const page = params.page ?? 0;
+    const totalElements = filtered.length;
+    const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / size);
+    const start = page * size;
+    const content = filtered.slice(start, start + size);
+
     return {
         content,
-        totalElements: content.length,
-        totalPages: 1,
-        size: 20,
-        number: 0,
-        first: true,
-        last: true,
+        totalElements,
+        totalPages,
+        size,
+        number: page,
+        first: page === 0,
+        last: totalPages === 0 || page >= totalPages - 1,
         empty: content.length === 0,
         numberOfElements: content.length,
     };

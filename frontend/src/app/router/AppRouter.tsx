@@ -1,8 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthSessionListeners } from '@/features/auth';
-import ShopLayout from '@/widgets/layout/ShopLayout/ShopLayout';
-import AdminLayout from '@/widgets/layout/AdminLayout/AdminLayout';
+import { AdminLayout, ShopLayout } from '@/components/layout';
 import PrivateRoute from './PrivateRoute';
 import GuestRoute from './GuestRoute';
 import ScrollToTop from './ScrollToTop';
@@ -22,27 +21,13 @@ const CheckoutSuccessPage = lazy(() => import('@/app/routes/checkout/success'));
 const ProductPage = lazy(() => import('@/app/routes/product'));
 const CatalogPage = lazy(() => import('@/app/routes/catalog'));
 const CategoryPage = lazy(() => import('@/app/routes/category'));
-const AdminDashboardPage = lazy(() =>
-    import('@/pages/admin/dashboard').then((m) => ({ default: m.AdminDashboardPage }))
-);
-const AdminProductsPage = lazy(() =>
-    import('@/pages/admin/products').then((m) => ({ default: m.AdminProductsPage }))
-);
-const AdminProductNewPage = lazy(() =>
-    import('@/pages/admin/product-new').then((m) => ({ default: m.AdminProductNewPage }))
-);
-const AdminProductEditPage = lazy(() =>
-    import('@/pages/admin/product-edit').then((m) => ({ default: m.AdminProductEditPage }))
-);
-const AdminUsersPage = lazy(() =>
-    import('@/pages/admin/users').then((m) => ({ default: m.AdminUsersPage }))
-);
-const AdminUserEditPage = lazy(() =>
-    import('@/pages/admin/user-edit').then((m) => ({ default: m.AdminUserEditPage }))
-);
-const AdminOrdersPage = lazy(() =>
-    import('@/pages/admin/orders').then((m) => ({ default: m.AdminOrdersPage }))
-);
+const AdminDashboardPage = lazy(() => import('@/app/routes/admin/dashboard'));
+const AdminProductsPage = lazy(() => import('@/app/routes/admin/products'));
+const AdminProductNewPage = lazy(() => import('@/app/routes/admin/product-new'));
+const AdminProductEditPage = lazy(() => import('@/app/routes/admin/product-edit'));
+const AdminUsersPage = lazy(() => import('@/app/routes/admin/users'));
+const AdminUserEditPage = lazy(() => import('@/app/routes/admin/user-edit'));
+const AdminOrdersPage = lazy(() => import('@/app/routes/admin/orders'));
 const AdminBranchesPage = lazy(() => import('@/app/routes/admin/branches'));
 const NotFoundPage = lazy(() => import('@/app/routes/not-found'));
 

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import Navbar from '@/widgets/layout/Navbar/Navbar';
-import CategoriasNav from '@/widgets/layout/CategoriasNav/CategoriasNav';
-import Footer from '@/widgets/layout/Footer/Footer';
+import Navbar from '../Navbar/Navbar';
+import CategoriasNav from '../CategoriasNav/CategoriasNav';
+import Footer from '../Footer/Footer';
 import styles from './ShopLayout.module.css';
 
 type ShopLayoutProps = {

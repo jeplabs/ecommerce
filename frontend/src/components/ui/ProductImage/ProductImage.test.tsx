@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { ProductImage } from './ProductImage';
-import { PRODUCT_PLACEHOLDER_IMAGE } from '@/shared/assets/product-placeholder';
+import { PRODUCT_PLACEHOLDER_IMAGE } from '@/assets/product-placeholder';
 
 describe('ProductImage', () => {
     it('renderiza la imagen proporcionada si el src es válido', () => {

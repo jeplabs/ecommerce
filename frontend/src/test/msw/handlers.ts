@@ -159,16 +159,26 @@ export const handlers = [
 
     http.get(`${API_BASE}/api/productos/admin`, ({ request }) => {
         const url = new URL(request.url);
-        const estado = url.searchParams.get('estado');
-
-        if (!estado) {
-            return HttpResponse.json({ error: 'Estado requerido' }, { status: 400 });
-        }
+        const estado = url.searchParams.get('estado') as
+            | 'DISPONIBLE'
+            | 'SIN_STOCK'
+            | 'OCULTO'
+            | 'DESCONTINUADO'
+            | null;
+        const nombre = url.searchParams.get('nombre') ?? undefined;
+        const categoriaIdParam = url.searchParams.get('categoriaId');
+        const categoriaId = categoriaIdParam != null ? Number(categoriaIdParam) : undefined;
+        const page = Number(url.searchParams.get('page') ?? 0);
+        const size = Number(url.searchParams.get('size') ?? 20);
 
         return HttpResponse.json(
-            mockDynamicAdminProductsPage(
-                estado as 'DISPONIBLE' | 'SIN_STOCK' | 'OCULTO' | 'DESCONTINUADO'
-            )
+            mockDynamicAdminProductsPage({
+                estado: estado || undefined,
+                nombre,
+                categoriaId: Number.isFinite(categoriaId) ? categoriaId : undefined,
+                page,
+                size,
+            })
         );
     }),
 

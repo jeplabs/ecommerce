@@ -1,0 +1,463 @@
+.root {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.06));
+    border-bottom: 1px solid var(--border);
+}
+
+.title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.35rem;
+    margin: 0 0 0.2rem 0;
+    color: var(--text);
+}
+
+.subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.grid {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    font-size: 0.88rem;
+}
+
+.grid thead {
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.grid th {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.colNumeric {
+    width: 5.5rem;
+    text-align: center;
+}
+
+.grid th.colNumeric {
+    text-align: center;
+}
+
+.colUser {
+    min-width: 9.5rem;
+}
+
+.colEmail {
+    min-width: 7rem;
+}
+
+.colRole {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.colActions {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.grid th.colActions {
+    text-align: center;
+}
+
+.grid td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.row:last-child td {
+    border-bottom: none;
+}
+
+.row:hover td {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.cellUser {
+    overflow: visible;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.avatar {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.userText {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.name {
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.id {
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.cellEmail {
+    word-break: break-word;
+}
+
+.badge {
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.25;
+    vertical-align: middle;
+}
+
+.cellRole {
+    white-space: nowrap;
+}
+
+.badgeAdmin {
+    background: rgba(168, 85, 247, 0.2);
+    color: #c084fc;
+}
+
+.badgeCustomer {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--accent);
+}
+
+.statusWrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.pill {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.pillOk {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.pillOff {
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--muted);
+}
+
+.pillWarn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+.cellNumeric {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.cellActions {
+    text-align: center;
+    overflow: visible;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+/* Escritorio: mismos anchos para que “Editar” y “Desactivar/Activar” no se desalineen */
+@media (min-width: 1101px) {
+    .cellActions .btn {
+        min-width: 9rem;
+        flex: 1 1 auto;
+        max-width: 10.5rem;
+    }
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    max-width: none;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.btnSecondary {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: var(--border2);
+}
+
+.btnSecondary:hover {
+    border-color: var(--indigo);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.btnPrimary {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+.btnPrimary:hover {
+    background: rgba(34, 197, 94, 0.3);
+}
+
+.btnDanger {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.btnDanger:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.state {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    border-radius: 16px;
+    border: 1px dashed var(--border2);
+}
+
+.stateLoading {
+    color: var(--muted);
+}
+
+.stateError {
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+.stateEmpty {
+    color: var(--muted);
+}
+
+/* ——— Ventanas estrechas / tablet ancha / mitad de monitor: tarjetas (sin scroll horizontal) ——— */
+@media (max-width: 1100px) {
+    /* Huecos entre usuarios = fondo de la página (sin franja del panel) */
+    .root {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .toolbar {
+        background-color: var(--surface);
+        background-image: linear-gradient(
+            135deg,
+            rgba(99, 102, 241, 0.08),
+            rgba(168, 85, 247, 0.06)
+        );
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        margin-bottom: 1rem;
+    }
+
+    .scroll {
+        overflow-x: visible;
+        background: transparent;
+    }
+
+    .grid {
+        min-width: 0;
+        display: block;
+    }
+
+    .grid thead {
+        display: none;
+    }
+
+    .grid tbody {
+        display: block;
+    }
+
+    .row {
+        display: block;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface2);
+        overflow: hidden;
+    }
+
+    .row:hover td {
+        background: transparent;
+    }
+
+    .grid td {
+        display: grid;
+        grid-template-columns: minmax(6.5rem, 32%) 1fr;
+        gap: 0.5rem 0.75rem;
+        align-items: center;
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        overflow: visible;
+    }
+
+    .grid td:last-child {
+        border-bottom: none;
+        padding-bottom: 0.85rem;
+    }
+
+    .grid td::before {
+        content: attr(data-label);
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+        color: var(--muted);
+        line-height: 1.3;
+    }
+
+    .actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        max-width: min(100%, 15rem);
+        margin-inline: auto;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .cellActions > .actions {
+        justify-self: center;
+        width: 100%;
+        max-width: min(100%, 15rem);
+    }
+
+    /* Tablet: botones en fila, alineados a la izquierda (como el resto de la tarjeta) */
+    @media (min-width: 641px) {
+        .actions {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: stretch;
+            width: 100%;
+            max-width: none;
+            margin-inline: 0;
+            gap: 0.45rem;
+        }
+
+        .btn {
+            flex: 1 1 auto;
+            min-width: 6.75rem;
+            width: auto;
+            max-width: none;
+        }
+
+        .cellActions > .actions {
+            justify-self: stretch;
+            max-width: none;
+        }
+    }
+
+    .cellNumeric {
+        text-align: left;
+    }
+
+    /* El contenido de la 2.ª columna del grid no debe estirarse (badges como “Activo”) */
+    .grid td > * {
+        justify-self: start;
+        min-width: 0;
+    }
+
+    .cellUser > .user {
+        justify-self: stretch;
+        width: 100%;
+    }
+
+    .cellRole {
+        white-space: normal;
+    }
+
+    .cellRole > .badge {
+        width: fit-content;
+        max-width: 100%;
+    }
+}

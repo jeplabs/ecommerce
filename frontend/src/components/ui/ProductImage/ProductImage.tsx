@@ -1,5 +1,5 @@
 import { useState, useEffect, SyntheticEvent, ImgHTMLAttributes } from 'react';
-import { PRODUCT_PLACEHOLDER_IMAGE, resolveProductImageUrl } from '@/shared/assets/product-placeholder';
+import { PRODUCT_PLACEHOLDER_IMAGE, resolveProductImageUrl } from '@/assets/product-placeholder';
 
 export type ProductImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
     src?: string | null;

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useAuth } from '@/app/providers';
-import type { UserRole } from '@/entities/user';
+import type { UserRole } from '@/features/auth';
 import { Navigate, useLocation } from 'react-router-dom';
 
 type PrivateRouteProps = {

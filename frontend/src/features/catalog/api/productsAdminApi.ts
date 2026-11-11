@@ -73,6 +73,41 @@ function normalizeProductStatus(estado: string): ProductStatus {
     return productStatusSchema.parse(estadoBackend);
 }
 
+export type AdminProductsQueryParams = {
+    nombre?: string;
+    categoriaId?: number;
+    estado?: ProductStatus;
+    page?: number;
+    size?: number;
+};
+
+/** {@code GET /api/productos/admin?nombre=&categoriaId=&estado=&page=&size=} */
+export async function getAdminPage(
+    query: AdminProductsQueryParams = {}
+): Promise<ProductAdminPage> {
+    const params = new URLSearchParams({
+        page: String(query.page ?? 0),
+        size: String(query.size ?? 24),
+    });
+
+    const trimmedNombre = query.nombre?.trim();
+    if (trimmedNombre) {
+        params.set('nombre', trimmedNombre);
+    }
+    if (query.categoriaId != null) {
+        params.set('categoriaId', String(query.categoriaId));
+    }
+    if (query.estado) {
+        params.set('estado', query.estado);
+    }
+
+    const response = await fetch(`${API_URL}/api/productos/admin?${params}`, {
+        headers: getAuthHeaders(getToken(), false),
+    });
+
+    return handleProductAdminPageJson(response, 'Error al cargar productos admin');
+}
+
 /** {@code GET /api/productos/admin?estado=&page=&size=} */
 export async function getAdmin(
     estado: ProductStatus,
@@ -320,6 +355,7 @@ export async function setMainImage(
 }
 
 export const productsAdminApi = {
+    getAdminPage,
     getAdmin,
     getByIdAdmin,
     create,

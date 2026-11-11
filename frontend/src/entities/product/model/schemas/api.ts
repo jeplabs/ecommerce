@@ -45,6 +45,8 @@ export const productAdminApiSchema = z.object({
     sku: z.string(),
     nombre: z.string(),
     slug: z.string(),
+    descripcion: nullableStringSchema.optional(),
+    specs: z.record(z.string(), z.unknown()).nullable().optional(),
     stock: z.number().int(),
     estado: productStatusSchema,
     precioVenta: moneySchema,
@@ -52,6 +54,7 @@ export const productAdminApiSchema = z.object({
     margenPorcentaje: moneySchema,
     moneda: z.string(),
     imagenes: z.array(productImageApiSchema).default([]),
+    categorias: z.array(categoryApiSchema).default([]),
     createdAt: localDateTimeSchema,
     updatedAt: localDateTimeSchema.optional(),
 });

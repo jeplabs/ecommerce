@@ -1,10 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { Route, Routes } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import { mockAdminAuthTokenResponse, mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { renderWithProviders } from '@/test/utils/renderWithProviders';
-import { setAccessToken } from '@/shared/lib/auth-token-store';
+import { setAccessToken } from '@/lib/auth-token-store';
 
 function AuthRoutes({ requiredRol }: { requiredRol?: 'ROLE_ADMIN' | 'ROLE_CUSTOMER' }) {
     return (

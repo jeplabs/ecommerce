@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 /**
  * Ejecuta un callback al presionar la tecla Escape.
  */
-export default function useEscapeKey(onEscape: () => void): void {
+export function useEscapeKey(onEscape: () => void): void {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
@@ -18,3 +18,5 @@ export default function useEscapeKey(onEscape: () => void): void {
         };
     }, [onEscape]);
 }
+
+export default useEscapeKey;

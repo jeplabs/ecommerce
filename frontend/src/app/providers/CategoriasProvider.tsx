@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { useCategorias as useCategoriasHook } from '@/entities/category/model/useCategorias';
+import { useCategorias as useCategoriasHook } from '@/features/catalog';
 import { CategoriasContext } from './categorias-context';
 
 type CategoriasProviderProps = {

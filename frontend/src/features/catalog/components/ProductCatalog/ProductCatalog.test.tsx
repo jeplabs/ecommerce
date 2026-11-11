@@ -17,6 +17,7 @@ vi.mock('@/app/providers', () => ({
 
 vi.mock('../../api/catalogApi', () => ({
     getCatalogo: vi.fn(),
+    invalidateCatalogoCache: vi.fn(),
 }));
 
 describe('ProductCatalog (BPR)', () => {

@@ -1,7 +1,1 @@
-import AdminDashboardView from '@/widgets/admin/AdminDashboardView';
-
-export function AdminDashboardPage() {
-    return <AdminDashboardView />;
-}
-
-export default AdminDashboardPage;
+export { AdminDashboardPage, default } from '@/app/routes/admin/dashboard';

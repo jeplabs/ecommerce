@@ -1,7 +1,1 @@
-import AdminOrdersView from '@/widgets/admin/AdminOrdersView';
-
-export function AdminOrdersPage() {
-    return <AdminOrdersView />;
-}
-
-export default AdminOrdersPage;
+export { AdminOrdersPage, default } from '@/app/routes/admin/orders';

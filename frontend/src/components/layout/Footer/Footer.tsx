@@ -1,4 +1,4 @@
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import styles from './Footer.module.css';
 
 type IconProps = {

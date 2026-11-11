@@ -1,6 +1,7 @@
 import { getCatalogo, invalidateCatalogoCache } from './catalogApi';
 import { getById, getBySlug, getAll, getByCategory } from './productsApi';
 import {
+    getAdminPage,
     getAdmin,
     getByIdAdmin,
     create,
@@ -25,6 +26,7 @@ export {
 } from './productsApi';
 export {
     productsAdminApi,
+    getAdminPage,
     getAdmin,
     getByIdAdmin,
     create,
@@ -37,6 +39,7 @@ export {
     setMainImage,
     create as createProduct,
     update as updateProduct,
+    type AdminProductsQueryParams,
 } from './productsAdminApi';
 export {
     categoriesApi,
@@ -52,6 +55,7 @@ export const productApi = {
     getBySlug,
     getAll,
     getByCategory,
+    getAdminPage,
     getAdmin,
     getByIdAdmin,
     create,

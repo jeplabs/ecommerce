@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { ConfigContext, type ConfigContextValue } from './config-context';
-import { getAppConfig, setAppConfig, type AppConfig } from '@/shared/lib/app-config';
+import { getAppConfig, setAppConfig, type AppConfig } from '@/config';
 
 interface ConfigProviderProps {
     children: ReactNode;

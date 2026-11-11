@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, type ReactNode } from 'react';
-import { ToastContainer } from '@/shared/ui/Toast/Toast';
+import { ToastContainer } from '@/components/ui/Toast/Toast';
 import { ToastContext, type ToastItem, type ToastType } from './toast-context';
 
 type ToastProviderProps = {

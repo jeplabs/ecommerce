@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { useProducts } from '@/entities/product/model/useProducts';
+import { useProducts } from '@/features/catalog';
 import { ProductContext } from './product-context';
 
 type ProductProviderProps = {

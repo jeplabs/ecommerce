@@ -27,6 +27,8 @@ export const createCategoryRequestSchema = z.object({
 
 export type CreateCategoryRequest = z.infer<typeof createCategoryRequestSchema>;
 
+export type CategoryTreeNode = CategoryApi;
+
 export type CategoryBreadcrumbItem = {
     label: string;
     path?: string | null;
