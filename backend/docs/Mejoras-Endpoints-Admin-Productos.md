@@ -46,3 +46,33 @@ Debido a esto, cualquier producto oculto o descontinuado no podía obtener su `d
    - `List<DatosRespuestaCategoria> categorias`
 2. **Anotar `buscarAdminPorId` y `listarAdmin` en `ProductoService` con `@Transactional(readOnly = true)`**, dado que `spring.jpa.open-in-view=false` requiere sesión activa para inicializar colecciones `LAZY` (`categorias`, `imagenes`, `precios`).
 3. *(Opcional, buena práctica)* Exponer `GET /api/productos/admin/{id}/imagenes` (`@PreAuthorize("hasRole('ADMIN')")`) delegando en `buscarProducto(id)` en lugar de `buscarProductoActivo(id)` para mantener estricto el endpoint público y brindar consulta dedicada en admin.
+
+---
+
+## Arquitectura del Flujo Mejorado (Backend + Frontend)
+
+```mermaid
+sequenceDiagram
+    actor U as Usuario
+    participant FE as Frontend (Bulletproof: features/checkout)
+    participant ORD as Backend (OrdenService / MonedaConfig)
+    participant GW as Backend (WebpayService / QPayProService)
+    participant EXT as API Externa (Transbank / QPayPro)
+
+    U->>FE: Confirmar y Pagar
+    FE->>ORD: 1. POST /api/ordenes (o reutiliza orden PENDIENTE en sesión)
+    Note over ORD: Normaliza subtotal, envío y total<br/>según monedaConfig.decimales (0 en CLP, 2 en GTQ)<br/>Convierte Carrito -> Orden PENDIENTE
+    ORD-->>FE: 200 OK (Orden con montos normalizados)
+
+    FE->>GW: 2. POST /api/pagos/{webpay|qpaypro}/iniciar
+    Note over GW: Valida moneda activa (CLP para Webpay, GTQ/USD para QPayPro)<br/>y escala entera en CLP
+    alt Iniciación exitosa en pasarela
+        GW->>EXT: Crear transacción
+        EXT-->>GW: Token + URL redirección
+        GW-->>FE: 200 OK (url, token)
+        FE->>EXT: Redirige navegador y guarda ordenId en sessionStorage
+    else Fallo al conectar con pasarela
+        GW--xFE: Error 4xx/5xx
+        Note over FE: Conserva pendingOrder en estado/sessionStorage<br/>Sincroniza refreshCart()<br/>Permite reintentar iniciar pasarela, cambiar método<br/>(PATCH /api/ordenes/{id}/metodo-pago) o cancelar orden
+    end
+```
