@@ -287,4 +287,50 @@ class CarritoServiceTest {
                     .hasMessageContaining("Stock disponible: 0");
         }
     }
+
+    @Nested
+    @DisplayName("Detección de carrito expirado previo (Caso B post-scheduler)")
+    class DeteccionCarritoExpiradoPrevioTests {
+
+        @Test
+        @DisplayName("verOCrearCarrito marca carritoAnteriorExpirado=true cuando existe carrito EXPIRADO con items")
+        void verOCrearCarrito_sinActivoPeroConExpiradoConItems_debeMarcarCarritoAnteriorExpiradoTrue() {
+            Carrito carritoExpirado = new Carrito(usuarioPrincipal);
+            carritoExpirado.getItems().add(item);
+            carritoExpirado.marcarComoExpirado();
+
+            when(usuarioRepositorio.findByEmail("usuario@test.com"))
+                    .thenReturn(Optional.of(usuarioPrincipal));
+            when(carritoRepositorio.findByUsuarioIdAndEstado(1L, EstadoCarrito.ACTIVO))
+                    .thenReturn(Optional.empty());
+            when(carritoRepositorio.save(any(Carrito.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(carritoRepositorio.findFirstByUsuarioIdAndEstadoOrderByActualizadoAtDesc(1L, EstadoCarrito.EXPIRADO))
+                    .thenReturn(Optional.of(carritoExpirado));
+
+            DatosRespuestaCarrito respuesta = carritoService.verOCrearCarrito("usuario@test.com");
+
+            assertThat(respuesta.expiracion().carritoAnteriorExpirado()).isTrue();
+        }
+
+        @Test
+        @DisplayName("verOCrearCarrito marca carritoAnteriorExpirado=false cuando el carrito EXPIRADO está vacío")
+        void verOCrearCarrito_sinActivoYExpiradoSinItems_debeMarcarCarritoAnteriorExpiradoFalse() {
+            Carrito carritoExpiradoVacio = new Carrito(usuarioPrincipal);
+            carritoExpiradoVacio.marcarComoExpirado();
+
+            when(usuarioRepositorio.findByEmail("usuario@test.com"))
+                    .thenReturn(Optional.of(usuarioPrincipal));
+            when(carritoRepositorio.findByUsuarioIdAndEstado(1L, EstadoCarrito.ACTIVO))
+                    .thenReturn(Optional.empty());
+            when(carritoRepositorio.save(any(Carrito.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+            when(carritoRepositorio.findFirstByUsuarioIdAndEstadoOrderByActualizadoAtDesc(1L, EstadoCarrito.EXPIRADO))
+                    .thenReturn(Optional.of(carritoExpiradoVacio));
+
+            DatosRespuestaCarrito respuesta = carritoService.verOCrearCarrito("usuario@test.com");
+
+            assertThat(respuesta.expiracion().carritoAnteriorExpirado()).isFalse();
+        }
+    }
 }

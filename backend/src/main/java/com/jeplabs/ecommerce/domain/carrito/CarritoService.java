@@ -240,7 +240,15 @@ public class CarritoService {
                     Carrito nuevo = crearNuevoCarrito(usuario);
                     return new ResultadoCarrito(nuevo, true);
                 })
-                .orElseGet(() -> new ResultadoCarrito(crearNuevoCarrito(usuario), false));
+                .orElseGet(() -> {
+                    Carrito nuevo = crearNuevoCarrito(usuario);
+                    boolean tieneCarritoExpiradoConItems = carritoRepositorio
+                            .findFirstByUsuarioIdAndEstadoOrderByActualizadoAtDesc(
+                                    usuario.getId(), EstadoCarrito.EXPIRADO)
+                            .map(c -> c.getItems() != null && !c.getItems().isEmpty())
+                            .orElse(false);
+                    return new ResultadoCarrito(nuevo, tieneCarritoExpiradoConItems);
+                });
     }
 
     private Carrito crearNuevoCarrito(Usuario usuario) {

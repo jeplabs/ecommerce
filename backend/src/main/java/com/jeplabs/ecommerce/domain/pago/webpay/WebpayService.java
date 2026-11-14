@@ -6,15 +6,18 @@ import cl.transbank.webpay.webpayplus.responses.WebpayPlusTransactionStatusRespo
 import com.jeplabs.ecommerce.domain.orden.*;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
+import com.jeplabs.ecommerce.infra.config.MonedaConfig;
 import com.jeplabs.ecommerce.infra.config.WebpayConfig;
 import com.jeplabs.ecommerce.infra.email.EmailService;
 import com.jeplabs.ecommerce.infra.exceptions.OrdenNoEncontradaException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +31,9 @@ public class WebpayService {
     private final UsuarioRepository usuarioRepositorio;
     private final EmailService emailService;
     private final WebpayConfig webpayConfig;
+
+    @Autowired(required = false)
+    private MonedaConfig monedaConfig;
 
     @Value("${api.webpay.return-url}")
     private String returnUrl;
@@ -74,8 +80,26 @@ public class WebpayService {
                     UUID.randomUUID().toString().substring(0, 8);
             String sessionId = UUID.randomUUID().toString();
 
-            // Monto SIEMPRE desde la BD, nunca del request
-            double monto = orden.getTotal().doubleValue();
+            // Monto SIEMPRE desde la BD, normalizado a entero CLP (escala 0)
+            // para evitar HTTP 400 "Commerce is CHILEAN_PESO so decimal amounts are not allowed"
+            // y mantener consistencia exacta con el Caso 7 en confirmación.
+            BigDecimal montoEnteroClp = orden.getTotal().setScale(0, RoundingMode.HALF_UP);
+            if (orden.getTotal().stripTrailingZeros().scale() > 0) {
+                BigDecimal subtotalEntero = orden.getSubtotal() != null
+                        ? orden.getSubtotal().setScale(0, RoundingMode.HALF_UP)
+                        : montoEnteroClp;
+                BigDecimal envioEntero = orden.getCostoEnvio() != null
+                        ? orden.getCostoEnvio().setScale(0, RoundingMode.HALF_UP)
+                        : BigDecimal.ZERO;
+                BigDecimal ivaEntero = orden.getIva() != null
+                        ? orden.getIva().setScale(0, RoundingMode.HALF_UP)
+                        : BigDecimal.ZERO;
+                orden.actualizarTotales(subtotalEntero, ivaEntero, envioEntero);
+                ordenRepositorio.save(orden);
+                montoEnteroClp = orden.getTotal().setScale(0, RoundingMode.HALF_UP);
+            }
+
+            double monto = montoEnteroClp.longValue();
 
             WebpayPlusTransactionCreateResponse response =
                     webpayConfig.crearTransaction()
@@ -83,7 +107,7 @@ public class WebpayService {
 
             WebpayTransaccion transaccion = new WebpayTransaccion(
                     orden, response.getToken(), buyOrder,
-                    sessionId, orden.getTotal(), response.getUrl()); // ← URL guardada
+                    sessionId, montoEnteroClp, response.getUrl()); // ← URL y monto entero guardados
 
             transaccionRepositorio.save(transaccion);
 
@@ -368,6 +392,11 @@ public class WebpayService {
     }
 
     private void validarOrdenParaPago(Orden orden) {
+        if (monedaConfig != null && monedaConfig.getCodigo() != null
+                && !"CLP".equalsIgnoreCase(monedaConfig.getCodigo())) {
+            throw new IllegalStateException(
+                    "Webpay Plus solo está disponible para pagos en pesos chilenos (CLP)");
+        }
         if (orden.getEstado() != EstadoOrden.PENDIENTE) {
             throw new IllegalArgumentException(
                     "Solo se pueden pagar órdenes en estado PENDIENTE");

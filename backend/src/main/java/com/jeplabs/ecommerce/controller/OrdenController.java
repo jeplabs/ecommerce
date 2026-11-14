@@ -84,6 +84,23 @@ public class OrdenController {
                 service.cancelarMiOrden(authentication.getName(), id));
     }
 
+    @Operation(summary = "Actualizar método de pago de mi orden pendiente",
+            description = "Cliente. Permite cambiar el método de pago de una orden propia en estado PENDIENTE ante fallos de pasarela en checkout.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Método de pago actualizado"),
+            @ApiResponse(responseCode = "400", description = "La orden no está en estado PENDIENTE o el método es inválido"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "404", description = "Orden no encontrada")
+    })
+    @PatchMapping("/{id}/metodo-pago")
+    public ResponseEntity<DatosRespuestaOrden> actualizarMetodoPago(
+            Authentication authentication,
+            @PathVariable Long id,
+            @RequestBody @Valid DatosActualizarMetodoPago datos) {
+        return ResponseEntity.ok(
+                service.actualizarMetodoPago(authentication.getName(), id, datos));
+    }
+
     @Operation(summary = "Listar todas las órdenes (ADMIN)", description = "Solo ADMIN. Retorna el listado paginado con filtro opcional por estado.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista paginada de todas las órdenes"),

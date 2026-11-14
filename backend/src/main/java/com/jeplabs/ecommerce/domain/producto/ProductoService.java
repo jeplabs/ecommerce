@@ -3,7 +3,9 @@ package com.jeplabs.ecommerce.domain.producto;
 import com.jeplabs.ecommerce.domain.categoria.Categoria;
 import com.jeplabs.ecommerce.domain.categoria.CategoriaRepository;
 import com.jeplabs.ecommerce.domain.categoria.DatosRespuestaCategoria;
+import com.jeplabs.ecommerce.infra.config.MonedaConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,20 @@ public class ProductoService {
     private final PrecioHistorialRepository precioRepositorio;
     private final ProductoImagenRepository imagenRepositorio;
     private final CategoriaRepository categoriaRepositorio;
+
+    @Autowired(required = false)
+    private MonedaConfig monedaConfig;
+
+    private DatosPrecio normalizarDatosPrecio(DatosPrecio datos) {
+        if (datos == null || monedaConfig == null) {
+            return datos;
+        }
+        return new DatosPrecio(
+                monedaConfig.normalizarMonto(datos.precioVenta()),
+                monedaConfig.normalizarMonto(datos.precioCosto()),
+                datos.moneda()
+        );
+    }
 
     // Listado público con paginación con Pageable y filtros
     public Page<DatosRespuestaProducto> listar(String nombre, Long categoriaId, Pageable pageable) {
@@ -196,7 +212,7 @@ public class ProductoService {
         productoRepositorio.save(producto);
 
         // Registrar precio inicial en el historial
-        PrecioHistorial precio = new PrecioHistorial(producto, datos.precio());
+        PrecioHistorial precio = new PrecioHistorial(producto, normalizarDatosPrecio(datos.precio()));
         precioRepositorio.save(precio);
 
         // Registrar imágenes si las hay
@@ -238,7 +254,7 @@ public class ProductoService {
                 });
 
         // Abrir nuevo precio
-        PrecioHistorial nuevoPrecio = new PrecioHistorial(producto, datos);
+        PrecioHistorial nuevoPrecio = new PrecioHistorial(producto, normalizarDatosPrecio(datos));
         precioRepositorio.save(nuevoPrecio);
 
         return new DatosRespuestaProductoAdmin(productoRepositorio.findById(id).orElseThrow());

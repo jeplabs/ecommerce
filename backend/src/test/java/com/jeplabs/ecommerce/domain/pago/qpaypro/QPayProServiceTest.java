@@ -206,5 +206,29 @@ class QPayProServiceTest {
         assertEquals("2", prod0.get(3));               // 3: quantity
         assertEquals("150.00", prod0.get(4));          // 4: Price
         assertEquals("300.00", prod0.get(5));          // 5: total_product
+        assertEquals("http://localhost:5173/checkout/qpaypro/retorno?orden=1&status=cancelled",
+                sentPayload.get("x_url_cancel"));
+    }
+
+    @Test
+    void consultarEstado_DebeRetornarEstadoDeUltimaTransaccion() {
+        transaccionMock.marcarComoAprobada("TX-777", "HASH-OK");
+        when(qpayproRepository.findFirstByOrdenIdOrderByCreadoAtDesc(1L))
+                .thenReturn(Optional.of(transaccionMock));
+
+        DatosEstadoQPayPro estado = qpayProService.consultarEstado(1L);
+
+        assertEquals(1L, estado.ordenId());
+        assertEquals(EstadoQPayPro.APROBADA, estado.estado());
+        assertEquals("TX-777", estado.transactionId());
+    }
+
+    @Test
+    void iniciarPago_DebeRechazarCuandoMonedaEsClp() {
+        ReflectionTestUtils.setField(qpayProService, "currencyCode", "CLP");
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> qpayProService.iniciarPago(ordenMock, 1));
+        assertTrue(ex.getMessage().contains("CLP"));
     }
 }
