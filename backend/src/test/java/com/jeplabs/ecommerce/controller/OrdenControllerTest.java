@@ -414,4 +414,25 @@ class OrdenControllerTest {
                             .value("No se puede cambiar de ENVIADA a CANCELADA"));
         }
     }
+
+    @Nested
+    @DisplayName("PATCH /api/ordenes/{id}/metodo-pago")
+    class ActualizarMetodoPagoTests {
+
+        @Test
+        @DisplayName("HTTP 200 al actualizar método de pago de una orden en PENDIENTE")
+        @WithMockUser(username = "usuario@test.com", roles = "CUSTOMER")
+        void actualizarMetodoPago_ordenPendiente_debeRetornar200() throws Exception {
+            when(ordenService.actualizarMetodoPago(anyString(), eq(1L), any()))
+                    .thenReturn(ordenRespuesta);
+
+            mockMvc.perform(patch("/api/ordenes/1/metodo-pago")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"metodoPagoCodigo\": \"TRANSFERENCIA\", \"formaPagoEnvio\": \"EN_LINEA\"}")
+                            .with(csrf()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.estado").value("PENDIENTE"))
+                    .andExpect(jsonPath("$.metodoPago").value("TRANSFERENCIA"));
+        }
+    }
 }

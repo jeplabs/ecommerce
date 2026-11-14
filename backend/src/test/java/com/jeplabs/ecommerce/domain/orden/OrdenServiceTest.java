@@ -351,6 +351,51 @@ class OrdenServiceTest {
 
             assertThat(respuesta.costoEnvio()).isEqualByComparingTo(BigDecimal.ZERO);
         }
+
+        @Test
+        @DisplayName("En perfil CLP (decimales=0) normaliza subtotal, costoEnvio y total como enteros exactos")
+        void crear_conMonedaClpSinDecimales_debeNormalizarMontosAEnteros() {
+            com.jeplabs.ecommerce.infra.config.MonedaConfig monedaClp =
+                    new com.jeplabs.ecommerce.infra.config.MonedaConfig();
+            org.springframework.test.util.ReflectionTestUtils.setField(monedaClp, "codigo", "CLP");
+            org.springframework.test.util.ReflectionTestUtils.setField(monedaClp, "decimales", 0);
+            org.springframework.test.util.ReflectionTestUtils.setField(ordenService, "monedaConfig", monedaClp);
+
+            when(carritoItem.getPrecioUnitario()).thenReturn(new BigDecimal("3871.125"));
+            when(carritoItem.getCantidad()).thenReturn(2);
+            when(envioCalculator.calcularCostoEnvio(any(), any(), any()))
+                    .thenReturn(new BigDecimal("2990.40"));
+            when(carritoRepositorio.findByUsuarioIdAndEstado(1L, EstadoCarrito.ACTIVO))
+                    .thenReturn(Optional.of(carrito));
+
+            DatosRespuestaOrden respuesta = ordenService.crear("usuario@test.com", datosCrearOrden);
+
+            assertThat(respuesta.subtotal().scale()).isEqualTo(0);
+            assertThat(respuesta.costoEnvio().scale()).isEqualTo(0);
+            assertThat(respuesta.total().scale()).isEqualTo(0);
+            assertThat(respuesta.subtotal()).isEqualByComparingTo(new BigDecimal("7742"));
+            assertThat(respuesta.costoEnvio()).isEqualByComparingTo(new BigDecimal("2990"));
+            assertThat(respuesta.total()).isEqualByComparingTo(new BigDecimal("10732"));
+        }
+
+        @Test
+        @DisplayName("Actualizar método de pago de una orden PENDIENTE recalcula envío y cambia método")
+        void actualizarMetodoPago_ordenPendiente_debeActualizarMetodoYTotales() {
+            Orden ordenPendiente = new Orden(usuario, direccion, servicioEnvio,
+                    FormaPagoEnvio.EN_LINEA, "WEBPAY", new BigDecimal("45.00"),
+                    null, new BigDecimal("2799.00"), new BigDecimal("299.89"));
+            when(ordenRepositorio.findByIdAndUsuarioId(1L, 1L))
+                    .thenReturn(Optional.of(ordenPendiente));
+
+            DatosActualizarMetodoPago datosCambio = new DatosActualizarMetodoPago(
+                    "TRANSFERENCIA", FormaPagoEnvio.EN_LINEA);
+
+            DatosRespuestaOrden respuesta = ordenService.actualizarMetodoPago(
+                    "usuario@test.com", 1L, datosCambio);
+
+            assertThat(respuesta.metodoPago()).isEqualTo("TRANSFERENCIA");
+            assertThat(respuesta.estado()).isEqualTo(EstadoOrden.PENDIENTE);
+        }
     }
 
     @Nested

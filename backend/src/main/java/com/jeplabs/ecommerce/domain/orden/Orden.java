@@ -189,6 +189,25 @@ public class Orden {
         this.actualizadoAt = LocalDateTime.now();
     }
 
+    public void actualizarMetodoPagoYEnvio(
+            String nuevoMetodoPagoCodigo,
+            FormaPagoEnvio nuevaFormaPagoEnvio,
+            BigDecimal nuevoCostoEnvio,
+            BigDecimal nuevoIva) {
+        if (this.estado != EstadoOrden.PENDIENTE) {
+            throw new EstadoInvalidoException(this.estado.name(), EstadoOrden.PENDIENTE.name());
+        }
+        this.metodoPagoCodigo = nuevoMetodoPagoCodigo;
+        this.formaPagoEnvio = nuevaFormaPagoEnvio;
+        this.costoEnvio = nuevoCostoEnvio;
+        this.iva = nuevoIva;
+        this.total = this.subtotal.add(nuevoCostoEnvio);
+        this.notaEnvio = this.servicioEnvio != null
+                ? generarNotaEnvio(nuevaFormaPagoEnvio, this.servicioEnvio)
+                : this.notaEnvio;
+        this.actualizadoAt = LocalDateTime.now();
+    }
+
     public void agregarComprobante(String url, String nombre) {
         this.comprobanteUrl    = url;
         this.comprobanteNombre = nombre;

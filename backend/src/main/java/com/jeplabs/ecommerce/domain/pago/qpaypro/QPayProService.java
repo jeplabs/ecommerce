@@ -68,7 +68,13 @@ public class QPayProService {
 
     @Transactional
     public String iniciarPago(Orden orden, Integer cuotas) {
+        if (orden.getEstado() != null && orden.getEstado() != EstadoOrden.PENDIENTE) {
+            throw new IllegalArgumentException("Solo se pueden pagar órdenes en estado PENDIENTE");
+        }
         String currency = (currencyCode != null && !currencyCode.isBlank()) ? currencyCode : "GTQ";
+        if ("CLP".equalsIgnoreCase(currency)) {
+            throw new IllegalStateException("QPayPro no está disponible para moneda CLP");
+        }
 
         QPayProTransaccion transaccion = new QPayProTransaccion(orden, orden.getTotal(), cuotas);
         qpayproRepository.save(transaccion);
@@ -201,7 +207,7 @@ public class QPayProService {
 
         // URLs de retorno
         payload.put("x_relay_url", baseUrl + "/api/pagos/qpaypro/retorno");
-        payload.put("x_url_cancel", frontendUrlBase + "/checkout");
+        payload.put("x_url_cancel", frontendUrlBase + "/checkout/qpaypro/retorno?orden=" + orden.getId() + "&status=cancelled");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -283,6 +289,27 @@ public class QPayProService {
         }
 
         return orden;
+    }
+
+    @Transactional(readOnly = true)
+    public DatosEstadoQPayPro consultarEstado(Long ordenId) {
+        return qpayproRepository.findFirstByOrdenIdOrderByCreadoAtDesc(ordenId)
+                .map(tx -> new DatosEstadoQPayPro(
+                        ordenId,
+                        tx.getEstado(),
+                        tx.getTransactionId()))
+                .orElseGet(() -> {
+                    Orden orden = ordenRepository.findById(ordenId)
+                            .orElseThrow(() -> new IllegalArgumentException(
+                                    "Orden no encontrada: " + ordenId));
+                    EstadoQPayPro estadoMapeado = switch (orden.getEstado()) {
+                        case CONFIRMADA, EN_PROCESO, ENVIADA, ENTREGADA -> EstadoQPayPro.APROBADA;
+                        case CANCELADA -> EstadoQPayPro.DENEGADA;
+                        case ANULADO, REEMBOLSADO -> EstadoQPayPro.ANULADA;
+                        default -> EstadoQPayPro.PENDIENTE;
+                    };
+                    return new DatosEstadoQPayPro(ordenId, estadoMapeado, null);
+                });
     }
 
     @Transactional

@@ -2,6 +2,7 @@ package com.jeplabs.ecommerce.controller;
 
 import com.jeplabs.ecommerce.domain.orden.Orden;
 import com.jeplabs.ecommerce.domain.orden.OrdenRepository;
+import com.jeplabs.ecommerce.domain.pago.qpaypro.DatosEstadoQPayPro;
 import com.jeplabs.ecommerce.domain.pago.qpaypro.QPayProService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,11 @@ public class QPayProController {
         String urlPago = qpayproService.iniciarPago(orden, cuotas);
 
         return ResponseEntity.ok(Map.of("url", urlPago));
+    }
+
+    @GetMapping("/estado/{ordenId}")
+    public ResponseEntity<DatosEstadoQPayPro> consultarEstado(@PathVariable Long ordenId) {
+        return ResponseEntity.ok(qpayproService.consultarEstado(ordenId));
     }
 
     @RequestMapping(value = "/retorno", method = {RequestMethod.GET, RequestMethod.POST})

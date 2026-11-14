@@ -18,6 +18,7 @@ import com.jeplabs.ecommerce.domain.sucursal.SucursalRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import com.jeplabs.ecommerce.domain.usuario.Rol; // ← Importado
+import com.jeplabs.ecommerce.infra.config.MonedaConfig;
 import com.jeplabs.ecommerce.infra.email.EmailService;
 import com.jeplabs.ecommerce.infra.exceptions.CarritoExpiradoException;
 import com.jeplabs.ecommerce.infra.exceptions.CarritoNoEncontradoException;
@@ -28,6 +29,7 @@ import com.jeplabs.ecommerce.infra.exceptions.StockInsuficienteException;
 import com.jeplabs.ecommerce.infra.storage.ArchivoValidator;
 import com.jeplabs.ecommerce.infra.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -59,6 +61,16 @@ public class OrdenService {
     private final StorageService storageService;
     private final ArchivoValidator archivoValidator;
     private final MetodoPagoService metodoPagoService;
+
+    @Autowired(required = false)
+    private MonedaConfig monedaConfig;
+
+    private BigDecimal normalizarMonto(BigDecimal monto) {
+        if (monto == null) {
+            return BigDecimal.ZERO;
+        }
+        return monedaConfig != null ? monedaConfig.normalizarMonto(monto) : monto;
+    }
 
     // Cliente lista sus propias órdenes
     public Page<DatosRespuestaOrden> listarMisOrdenes(String email, Pageable pageable) {
@@ -190,9 +202,9 @@ public class OrdenService {
                     throw new StockInsuficienteException(producto.getNombre(), producto.getStock());
                 }
 
-                BigDecimal precioUnitario = carritoItem.getPrecioUnitario();
-                BigDecimal precioBase     = ivaCalculator.extraerPrecioBase(precioUnitario);
-                BigDecimal ivaUnitario    = ivaCalculator.extraerIva(precioUnitario);
+                BigDecimal precioUnitario = normalizarMonto(carritoItem.getPrecioUnitario());
+                BigDecimal precioBase     = normalizarMonto(ivaCalculator.extraerPrecioBase(precioUnitario));
+                BigDecimal ivaUnitario    = normalizarMonto(ivaCalculator.extraerIva(precioUnitario));
 
                 OrdenItem ordenItem = new OrdenItem(
                         orden, producto, carritoItem.getCantidad(),
@@ -207,10 +219,11 @@ public class OrdenService {
             }
 
             // Recalcular costo de envío con subtotal real y desglosar IVA
-            costoEnvio = envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPagoEnvio());
-            BigDecimal ivaProductos = ivaCalculator.calcularIvaTotal(subtotal);
-            BigDecimal ivaEnvio     = ivaCalculator.extraerIva(costoEnvio);
-            BigDecimal ivaTotal     = ivaProductos.add(ivaEnvio);
+            subtotal = normalizarMonto(subtotal);
+            costoEnvio = normalizarMonto(envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPagoEnvio()));
+            BigDecimal ivaProductos = normalizarMonto(ivaCalculator.calcularIvaTotal(subtotal));
+            BigDecimal ivaEnvio     = normalizarMonto(ivaCalculator.extraerIva(costoEnvio));
+            BigDecimal ivaTotal     = normalizarMonto(ivaProductos.add(ivaEnvio));
 
             // Actualizar totales de la orden de forma definitiva
             orden.actualizarTotales(subtotal, ivaTotal, costoEnvio);
@@ -273,6 +286,50 @@ public class OrdenService {
             throw new com.jeplabs.ecommerce.infra.exceptions.EstadoInvalidoException(orden.getEstado().name(), "CANCELADA");
         }
         
+        return new DatosRespuestaOrden(orden);
+    }
+
+    // Cliente actualiza el método de pago de una orden propia aún en PENDIENTE (reintento/cambio en checkout)
+    @Transactional
+    public DatosRespuestaOrden actualizarMetodoPago(
+            String email,
+            Long ordenId,
+            DatosActualizarMetodoPago datos) {
+        Usuario usuario = buscarUsuario(email);
+        Orden orden = ordenRepositorio.findByIdAndUsuarioId(ordenId, usuario.getId())
+                .orElseThrow(() -> new OrdenNoEncontradaException(ordenId));
+
+        if (orden.getEstado() != EstadoOrden.PENDIENTE) {
+            throw new com.jeplabs.ecommerce.infra.exceptions.EstadoInvalidoException(
+                    orden.getEstado().name(), EstadoOrden.PENDIENTE.name());
+        }
+
+        MetodoPago metodoPago = metodoPagoService.buscarPorCodigo(datos.metodoPagoCodigo());
+        if (!metodoPago.isActivo()) {
+            throw new IllegalArgumentException("El método de pago seleccionado no está disponible");
+        }
+
+        ServicioEnvio servicioEnvio = orden.getServicioEnvio();
+        if (servicioEnvio != null) {
+            servicioEnvio.validarDisponibilidad(datos.formaPagoEnvio());
+        }
+
+        BigDecimal subtotal = normalizarMonto(orden.getSubtotal());
+        BigDecimal nuevoCostoEnvio = servicioEnvio != null
+                ? normalizarMonto(envioCalculator.calcularCostoEnvio(subtotal, servicioEnvio, datos.formaPagoEnvio()))
+                : normalizarMonto(orden.getCostoEnvio());
+        BigDecimal ivaProductos = normalizarMonto(ivaCalculator.calcularIvaTotal(subtotal));
+        BigDecimal ivaEnvio = normalizarMonto(ivaCalculator.extraerIva(nuevoCostoEnvio));
+        BigDecimal nuevoIvaTotal = normalizarMonto(ivaProductos.add(ivaEnvio));
+
+        orden.actualizarMetodoPagoYEnvio(
+                datos.metodoPagoCodigo(),
+                datos.formaPagoEnvio(),
+                nuevoCostoEnvio,
+                nuevoIvaTotal
+        );
+        ordenRepositorio.save(orden);
+
         return new DatosRespuestaOrden(orden);
     }
 
