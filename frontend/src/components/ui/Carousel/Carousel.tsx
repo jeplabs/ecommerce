@@ -54,6 +54,18 @@ const Carousel = ({ slides }: CarouselProps) => {
                                     decoding="async"
                                     width={index === 0 ? 1920 : undefined}
                                     height={index === 0 ? 600 : undefined}
+                                    onError={(e) => {
+                                        const fallback = '/images/product-placeholder.svg';
+                                        // Evita bucle si el propio placeholder llegara a fallar
+                                        if (e.currentTarget.src.includes(fallback)) return;
+                                        // 1. Reemplaza el srcSet del <source> para móviles
+                                        const sources = e.currentTarget.parentElement?.querySelectorAll('source');
+                                        sources?.forEach((source) => {
+                                            source.srcset = fallback;
+                                        });
+                                        // 2. Reemplaza el src del <img> para desktop/tablets
+                                        e.currentTarget.src = fallback;
+                                    }}
                                 />
                             </picture>
                             <div className={styles.slideOverlay} />
