@@ -2,11 +2,19 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressApi } from '@/entities/address';
 import type { AddressApi } from '@/entities/address';
+import { useConfig } from '@/app/providers';
 import { branchApi, type BranchApi } from '@/features/branches';
 import { orderApi } from '../api';
 import { FORMA_PAGO_ENVIO } from '../lib';
 import type { OrderApi } from '../types';
-import { paymentApi, PAYMENT_METHODS, iniciarWebpay, consultarEstadoWebpay, iniciarQPayPro } from '../api';
+import { 
+    paymentApi, 
+    PAYMENT_METHODS, 
+    consultarEstadoWebpay, 
+    consultarEstadoQPayPro,
+    iniciarWebpay, 
+    iniciarQPayPro 
+} from '../api';
 import type { PaymentMethod, PaymentSuccessResult, StripeCardFormValues } from '../types';
 import { isBankTransferPaymentMethod } from '../types';
 import { markOrderAsBankTransfer } from '../lib/transfer-order-storage';
@@ -14,10 +22,12 @@ import {
     guardarOrdenWebpayPendiente,
     limpiarOrdenWebpayPendiente,
     obtenerOrdenWebpayPendiente,
+    
 } from '../lib/webpay-pending-order';
 import {
     guardarOrdenQPayProPendiente,
-
+    limpiarOrdenQPayProPendiente, 
+    obtenerOrdenQPayProPendiente,
 
 } from '../lib/qpaypro-pending-order';
 import { redirectUnauthorized } from '@/shared/lib/http-session';
@@ -94,13 +104,20 @@ export function useCheckoutLogic({
         setFormaPagoEnvio: setContextFormaPagoEnvio,
     } = useEnvioOpcionesContext();
 
+    const { isChile } = useConfig();
     const [step, setStep] = useState(0);
     const [direcciones, setDirecciones] = useState<AddressApi[]>([]);
     const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
     const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
     const [sucursales, setSucursales] = useState<BranchApi[]>([]);
     const [selectedServicioEnvioId, setSelectedServicioEnvioId] = useState<number | null>(null);
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+        isChile ? PAYMENT_METHODS.WEBPAY : PAYMENT_METHODS.QPAYPRO
+    );
+    const [pendingOrder, setPendingOrder] = useState<OrderApi | null>(null);
+//     const [loadingPendingOrder, setLoadingPendingOrder] = useState(() => {
+//     return Boolean(obtenerOrdenWebpayPendiente() ?? obtenerOrdenQPayProPendiente());
+// });
     const currentStep = CHECKOUT_STEPS[step];
     const isPaymentStep = currentStep === 'pago';
     const formaPagoEnvio = useMemo(
@@ -110,6 +127,29 @@ export function useCheckoutLogic({
                 : FORMA_PAGO_ENVIO.EN_LINEA,
         [isPaymentStep, paymentMethod]
     );
+
+    // Recuperar orden pendiente si el usuario viene de vuelta de QPayPro o Webpay
+    // useEffect(() => {
+    //     const pendingId = obtenerOrdenWebpayPendiente() ?? obtenerOrdenQPayProPendiente();
+    //     if (!pendingId) return;
+    //     let mounted = true;
+    //     orderApi.obtenerOrden(pendingId)
+    //         .then((orden) => {
+    //             if (mounted && orden.estado === 'PENDIENTE') {
+    //                 setPendingOrder(orden);
+    //                 setStep(CHECKOUT_STEPS.indexOf('pago')); // Lo posiciona directo en el paso de pago
+    //             }
+    //         })
+    //         .catch(() => {
+    //             // Si la orden ya no existe, no hacemos nada
+    //         })
+    //         .finally(() => {
+    //             if (mounted) setLoadingPendingOrder(false);
+    //         });
+    //     return () => {
+    //         mounted = false;
+    //     };
+    // }, []);
 
     useEffect(() => {
         setContextFormaPagoEnvio(formaPagoEnvio);
@@ -243,12 +283,12 @@ export function useCheckoutLogic({
         ) {
             setPaymentMethod((prev) => {
                 if (prev === PAYMENT_METHODS.CONTRA_ENTREGA) {
-                    return PAYMENT_METHODS.WEBPAY;
+                    return isChile ? PAYMENT_METHODS.WEBPAY : PAYMENT_METHODS.QPAYPRO;
                 }
                 return prev;
             });
         }
-    }, [selectedServicio]);
+    }, [selectedServicio, isChile]);
 
     const isPickupSelected = useMemo(
         () => isPickupService(selectedServicio),
@@ -281,8 +321,8 @@ export function useCheckoutLogic({
     );
 
     const orderTotal = useMemo(
-        () => cartTotal + shippingCostInTotal,
-        [cartTotal, shippingCostInTotal]
+        () => (pendingOrder ? pendingOrder.total : cartTotal + shippingCostInTotal),
+        [pendingOrder, cartTotal, shippingCostInTotal]
     );
 
     const canContinueShipping =
@@ -394,14 +434,38 @@ export function useCheckoutLogic({
                     ? 'MERCADO_PAGO'
                     : 'STRIPE';
 
-            const orden = await orderApi.crearOrden({
-                direccionId: isPickupSelected ? null : selectedAddressId,
-                sucursalId: isPickupSelected ? selectedBranchId : null,
-                servicioEnvioId: selectedServicioEnvioId,
-                formaPagoEnvio: formaPagoEnvio,
-                metodoPagoCodigo,
-                notas: notas.trim() || null,
-            });
+            let orden: OrderApi;
+
+            if (pendingOrder) {
+                // Reintento: si cambió el método de pago, actualizamos en el backend
+                if (pendingOrder.metodoPago !== metodoPagoCodigo) {
+                    orden = await orderApi.actualizarMetodoPago(pendingOrder.id, {
+                        metodoPagoCodigo,
+                        formaPagoEnvio,
+                    });
+                    setPendingOrder(orden);
+                } else {
+                    orden = pendingOrder;
+                }
+            } else {
+                orden = await orderApi.crearOrden({
+                    direccionId: isPickupSelected ? null : selectedAddressId,
+                    sucursalId: isPickupSelected ? selectedBranchId : null,
+                    servicioEnvioId: selectedServicioEnvioId,
+                    formaPagoEnvio: formaPagoEnvio,
+                    metodoPagoCodigo,
+                    notas: notas.trim() || null,
+                });
+                setPendingOrder(orden);
+            }
+            // const orden = await orderApi.crearOrden({
+            //     direccionId: isPickupSelected ? null : selectedAddressId,
+            //     sucursalId: isPickupSelected ? selectedBranchId : null,
+            //     servicioEnvioId: selectedServicioEnvioId,
+            //     formaPagoEnvio: formaPagoEnvio,
+            //     metodoPagoCodigo,
+            //     notas: notas.trim() || null,
+            // });
 
             // Invalida cualquier polling reanudado de una orden previa
             // (p.ej. la recuperación del Caso 5 al volver a /checkout).
@@ -483,9 +547,13 @@ export function useCheckoutLogic({
     ]);
 
     useEffect(() => {
-        const ordenId = webpayOrdenIdRef.current ?? obtenerOrdenWebpayPendiente();
+        const webpayId = webpayOrdenIdRef.current ?? obtenerOrdenWebpayPendiente();
+        const qpayproId = obtenerOrdenQPayProPendiente();
+        const ordenId = webpayId ?? qpayproId;
+        // const ordenId = webpayOrdenIdRef.current ?? obtenerOrdenWebpayPendiente();
         if (!ordenId) return;
 
+        const isQPayProPoll = !webpayId && !!qpayproId;
         let activo = true;
         let detenido = false;
         let paso = 0;
@@ -503,31 +571,52 @@ export function useCheckoutLogic({
             if (!esVigente() || document.hidden) return;
 
             try {
-                const estado = await consultarEstadoWebpay(ordenId);
-                if (!esVigente() || document.hidden) return;
+                if (isQPayProPoll) {
+                    const estado = await consultarEstadoQPayPro(ordenId);
+                    if (!esVigente() || document.hidden) return;
+                    if (estado.estado === 'APROBADA') {
+                        detener();
+                        limpiarOrdenQPayProPendiente();
+                        setRedirectInfo(null);
+                        const orden = await orderApi.obtenerOrden(ordenId);
+                        await refreshCartRef.current();
+                        navigateRef.current('/checkout/success', {
+                            replace: true,
+                            state: { orden, payment: null, isBankTransfer: false },
+                        });
+                        return;
+                    }
+                    if (estado.estado === 'DENEGADA' || estado.estado === 'ANULADA') {
+                        detener();
+                        limpiarOrdenQPayProPendiente();
+                    }
+                } else {
+                    const estado = await consultarEstadoWebpay(ordenId);
+                    if (!esVigente() || document.hidden) return;
 
-                if (estado.estado === 'APROBADA') {
-                    detener();
-                    webpayOrdenIdRef.current = null;
-                    limpiarOrdenWebpayPendiente();
-                    setRedirectInfo(null);
+                    if (estado.estado === 'APROBADA') {
+                        detener();
+                        webpayOrdenIdRef.current = null;
+                        limpiarOrdenWebpayPendiente();
+                        setRedirectInfo(null);
 
-                    const orden = await orderApi.obtenerOrden(ordenId);
-                    await refreshCartRef.current();
-                    navigateRef.current('/checkout/success', {
-                        replace: true,
-                        state: { orden, payment: null, isBankTransfer: false },
-                    });
-                    return;
-                }
+                        const orden = await orderApi.obtenerOrden(ordenId);
+                        await refreshCartRef.current();
+                        navigateRef.current('/checkout/success', {
+                            replace: true,
+                            state: { orden, payment: null, isBankTransfer: false },
+                        });
+                        return;
+                    }
 
-                if (
-                    estado.estado === 'RECHAZADA' ||
-                    estado.estado === 'ABORTADA' ||
-                    estado.estado === 'TIMEOUT'
-                ) {
-                    detener();
-                    webpayOrdenIdRef.current = null;
+                    if (
+                        estado.estado === 'RECHAZADA' ||
+                        estado.estado === 'ABORTADA' ||
+                        estado.estado === 'TIMEOUT'
+                    ) {
+                        detener();
+                        webpayOrdenIdRef.current = null;
+                    }
                 }
             } catch {
                 // Error de red: el polling continúa (best-effort) hasta el deadline.
@@ -615,6 +704,7 @@ export function useCheckoutLogic({
         cartTotal,
         PAYMENT_METHODS,
         redirectInfo,
+        pendingOrder,
     };
 }
 

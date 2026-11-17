@@ -138,6 +138,8 @@ export function useCartLogic() {
             setExpiracion(null);
             setSegundosRestantes(null);
             deadlineMsRef.current = null;
+            setShowExpiredModal(false);
+            setItemsNoRestaurados([]);
         }
     }, [isAuthenticated, fetchCart]);
 

@@ -7,10 +7,11 @@ vi.mock('@/app/providers', async (importOriginal) => {
     return {
         ...mod,
         useCheckout: vi.fn(),
+        useConfig: vi.fn(() => ({ isChile: false, isGuatemala: true })),
     };
 });
 
-import { useCheckout } from '@/app/providers';
+import { useCheckout, useConfig } from '@/app/providers';
 import PaymentStep from './PaymentStep';
 import { makeCheckoutMock } from '@/test/checkoutMock';
 import { mockShippingServices } from '@/test/msw/fixtures/shipping';
@@ -18,9 +19,10 @@ import { PAYMENT_METHODS } from '../../types';
 import { formatCurrency } from '@/shared/lib/format';
 
 const useCheckoutMock = vi.mocked(useCheckout);
+const useConfigMock = vi.mocked(useConfig);
 
 describe('PaymentStep', () => {
-    it('muestra el total y los métodos de pago disponibles', async () => {
+    it('muestra el total y los métodos de pago disponibles según país', async () => {
         const user = userEvent.setup();
         const setPaymentMethod = vi.fn();
         useCheckoutMock.mockReturnValue(
@@ -30,18 +32,30 @@ describe('PaymentStep', () => {
 
         expect(screen.getByText(/Total a pagar:/)).toBeInTheDocument();
         expect(screen.getByText(formatCurrency(250))).toBeInTheDocument();
+        // En Guatemala se muestra QPayPro y se oculta Webpay Plus:
         expect(screen.getByRole('button', { name: /QPayPro/ })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Webpay Plus/ })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /Webpay Plus/ })).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Transferencia bancaria/ })).toBeInTheDocument();
-
-        await user.click(screen.getByRole('button', { name: /Webpay Plus/ }));
-        expect(setPaymentMethod).toHaveBeenCalledWith(PAYMENT_METHODS.WEBPAY);
 
         await user.click(screen.getByRole('button', { name: /QPayPro/ }));
         expect(setPaymentMethod).toHaveBeenCalledWith(PAYMENT_METHODS.QPAYPRO);
 
         await user.click(screen.getByRole('button', { name: /Transferencia bancaria/ }));
         expect(setPaymentMethod).toHaveBeenCalledWith(PAYMENT_METHODS.BANK_TRANSFER);
+    });
+
+    it('muestra Webpay Plus cuando el país activo es Chile', async () => {
+        const user = userEvent.setup();
+        const setPaymentMethod = vi.fn();
+        useConfigMock.mockReturnValue({ isChile: true, isGuatemala: false } as never);
+        useCheckoutMock.mockReturnValue(
+            makeCheckoutMock({ orderTotal: 250, setPaymentMethod }) as never
+        );
+        render(<PaymentStep />);
+        expect(screen.getByRole('button', { name: /Webpay Plus/ })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /QPayPro/ })).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: /Webpay Plus/ }));
+        expect(setPaymentMethod).toHaveBeenCalledWith(PAYMENT_METHODS.WEBPAY);
     });
 
     it('muestra contra entrega y su formulario', async () => {

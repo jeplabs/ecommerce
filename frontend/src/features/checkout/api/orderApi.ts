@@ -13,6 +13,7 @@ import {
     orderPageSchema,
     type OrderPage,
     type CreateOrderRequest,
+    type FormaPagoEnvio,
 } from '../types';
 import z from 'zod';
 
@@ -196,6 +197,18 @@ export async function listarMetodosPago(): Promise<MetodoPagoApi[]> {
     return handleMetodosPagoJson(response, 'Error al listar los metodos de pago');
 }
 
+export async function actualizarMetodoPago(
+    ordenId: number,
+    payload: { metodoPagoCodigo: string; formaPagoEnvio: FormaPagoEnvio }
+): Promise<OrderApi> {
+    const response = await fetch(`${API_URL}/api/ordenes/${ordenId}/metodo-pago`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(getToken()),
+        body: JSON.stringify(payload),
+    });
+    return handleOrderJson(response, 'Error al actualizar el método de pago');
+}
+
 export const orderApi = {
     listarMisOrdenes,
     obtenerOrden,
@@ -207,4 +220,5 @@ export const orderApi = {
     listarCuentasBancarias,
     listarMetodosPago,
     subirComprobanteOrder,
+    actualizarMetodoPago,
 };

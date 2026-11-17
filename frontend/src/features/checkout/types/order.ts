@@ -187,6 +187,7 @@ export function mapCheckoutFormToCreateOrderRequest(
 
 /** Forma de pago del envío en checkout (alias semántico). */
 export const formaPagoEnvioSchema = formaPagoSchema;
+export type FormaPagoEnvio = z.infer<typeof formaPagoEnvioSchema>;
 
 export type OrderSummaryCardView = {
     id: number;

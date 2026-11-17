@@ -132,10 +132,12 @@ export const ProductForm = ({
         categoria: '',
         subcategoria: '',
         subsubcategoria: '',
-        moneda: 'USD',
+        moneda: getCurrencyConfig().codigo || 'GTQ',
         images: [] 
     });
 
+    const isZeroDecimalCurrency = formData.moneda === 'CLP' || getCurrencyConfig().decimales === 0;
+    
     // Cargar datos si es edición
     useEffect(() => {
         if (initialData) {
@@ -193,7 +195,7 @@ export const ProductForm = ({
                 categoria: ramaPrincipal[0]?.toString() || '',
                 subcategoria: ramaPrincipal[1]?.toString() || '',
                 subsubcategoria: ramaPrincipal[2]?.toString() || '',
-                moneda: initialData.moneda || 'USD',
+                moneda: initialData.moneda || getCurrencyConfig().codigo || 'GTQ',
                 images: [] 
             });
 
@@ -631,6 +633,8 @@ export const ProductForm = ({
             newErrors.price = "El precio es obligatorio";
         } else if (Number.isNaN(Number(price))) {
             newErrors.price = "El precio debe ser un número mayor a 0";
+        } else if (isZeroDecimalCurrency && !Number.isInteger(Number(price))) {
+            newErrors.price = "Para pesos chilenos (CLP) el precio debe ser un número entero sin decimales";
         }
 
         if (!stock.trim()) {
@@ -733,7 +737,7 @@ export const ProductForm = ({
             precio: {
                 precioVenta: Number(formData.price),
                 precioCosto: Number(formData.price),
-                moneda: formData.moneda || getCurrencyConfig().codigo || 'USD'
+                moneda: formData.moneda || getCurrencyConfig().codigo || 'GTQ',
             },
             // categoriaIds: categoriasIds,
             categoriaIds: Array.from(allCategoryIds),
@@ -821,13 +825,15 @@ export const ProductForm = ({
                             value={formData.price}
                             onChange={handleChange}
                             min="0"
+                            step={isZeroDecimalCurrency ? '1' : '0.01'}
+                            placeholder={isZeroDecimalCurrency ? '0' : '0.00'}
+                            // placeholder="0.00"
                             onInput={(e) => {
                                 const input = e.target as HTMLInputElement;
                                 if (Number(input.value) < 0) {
                                     input.value = '';
                                 }
                             }}
-                            placeholder="0.00"
                             required
                             invalid={!!errors.price}
                         />
@@ -842,7 +848,7 @@ export const ProductForm = ({
                         >
                             <option value="GTQ">GTQ</option>
                             <option value="CLP">CLP</option>
-                            <option value="USD">USD</option>
+                            {/* <option value="USD">USD</option> */}
                         </Select>
                     </FormField>
 

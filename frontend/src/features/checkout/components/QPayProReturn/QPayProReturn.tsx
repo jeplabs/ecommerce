@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { useCart } from '@/app/providers';
+import { cartApi } from '@/features/cart/api/cartApi';
+import { markOrderAsBankTransfer } from '../../lib/transfer-order-storage';
 import { iniciarQPayPro } from '../../api';
 import type { PaymentSuccessResult } from '../../types/payment';
 import RedirectToQPayPro from '../RedirectToQPayPro/RedirectToQPayPro';
@@ -117,6 +119,62 @@ export default function QPayProReturn() {
         }
     }, [state, navigate]);
 
+    const [payingTransfer, setPayingTransfer] = useState(false);
+    const [modifyingOrder, setModifyingOrder] = useState(false);
+
+    // 👉 OPCIÓN A: Pagar esta misma orden con Transferencia Bancaria (sin tocar carrito)
+    const handlePayWithTransfer = useCallback(async () => {
+        if (state.status !== 'recovery') return;
+        setPayingTransfer(true);
+        setActionError(null);
+
+        try {
+            const updatedOrder = await orderApi.actualizarMetodoPago(state.orden.id, {
+                metodoPagoCodigo: 'TRANSFERENCIA',
+                formaPagoEnvio: state.orden.formaPagoEnvio,
+            });
+            markOrderAsBankTransfer(updatedOrder.id);
+            limpiarOrdenQPayProPendiente();
+            await refreshCart();
+            navigate('/checkout/success', {
+                replace: true,
+                state: { orden: updatedOrder, payment: null, isBankTransfer: true },
+            });
+        } catch (err) {
+            setActionError(err instanceof Error ? err.message : 'No pudimos cambiar el método de pago.');
+            setPayingTransfer(false);
+        }
+    }, [state, navigate, refreshCart]);
+
+    // 👉 OPCIÓN B: Modificar pedido (cancela orden, devuelve stock a bodega y reabre el carrito)
+    const handleModifyOrder = useCallback(async () => {
+        if (state.status !== 'recovery') return;
+        setModifyingOrder(true);
+        setActionError(null);
+
+        try {
+            // 1. Cancela la orden pendiente en backend (libera el stock inmediatamente)
+            await orderApi.cancelarOrden(state.orden.id);
+
+            // 2. Re-agrega los productos de la orden al carrito activo
+            for (const item of state.orden.items) {
+                await cartApi.addToCart(item.productoId, item.cantidad);
+            }
+
+            // 3. Limpia la orden pendiente de sessionStorage
+            limpiarOrdenQPayProPendiente();
+
+            // 4. Refresca el carrito global
+            await refreshCart();
+
+            // 5. Navega a /checkout: ¡Ahora SÍ hay carrito real con productos y direcciones!
+            navigate('/checkout', { replace: true });
+        } catch (err) {
+            setActionError(err instanceof Error ? err.message : 'No pudimos restaurar el carrito.');
+            setModifyingOrder(false);
+        }
+    }, [state, navigate, refreshCart]);
+
     const handleCancel = useCallback(async () => {
         if (state.status !== 'recovery') return;
 
@@ -212,14 +270,42 @@ export default function QPayProReturn() {
                     {actionError && <p className={styles.noticeError}>{actionError}</p>}
 
                     <div className={styles.actions}>
+                         {/* Reintentar pasarela */}
                         <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={handleRetry}
+                            disabled={retrying || payingTransfer || modifyingOrder || cancelling}
+                        >
+                            {retrying ? 'Preparando el pago…' : 'Intentar pagar nuevamente con QPayPro'}
+                        </Button>
+                        {/* Opción A: Pagar por transferencia */}
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={handlePayWithTransfer}
+                            disabled={retrying || payingTransfer || modifyingOrder || cancelling}
+                        >
+                            {payingTransfer ? 'Procesando…' : '🏛️ Pagar con transferencia bancaria'}
+                        </Button>
+                        {/* Opción B: Modificar pedido (restituye el carrito) */}
+                        <Button
+                            variant="outlinePrimary"
+                            fullWidth
+                            onClick={handleModifyOrder}
+                            disabled={retrying || payingTransfer || modifyingOrder || cancelling}
+                        >
+                            {modifyingOrder ? 'Restaurando carrito…' : '✏️ Modificar pedido (cambiar dirección o envío)'}
+                        </Button>
+                        {/* <Button
                             variant="primary"
                             fullWidth
                             onClick={handleRetry}
                             disabled={retrying}
                         >
                             {retrying ? 'Preparando el pago…' : 'Intentar pagar nuevamente con QPayPro'}
-                        </Button>
+                        </Button> */}
+                        {/* Cancelar pedido y salir */}
                         <Button
                             variant="outlinePrimary"
                             fullWidth
@@ -235,11 +321,11 @@ export default function QPayProReturn() {
                 </div>
             )}
 
-            {(state.status === 'rejected' || state.status === 'error') && (
+            {/* {(state.status === 'rejected' || state.status === 'error') && (
                 <Link className={styles.primaryBtn} to="/checkout">
                     Volver al checkout
                 </Link>
-            )}
+            )} */}
         </div>
     );
 }

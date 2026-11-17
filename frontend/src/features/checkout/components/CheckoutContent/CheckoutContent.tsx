@@ -44,6 +44,7 @@ export default function CheckoutContent() {
         paymentMethod,
         redirectInfo,
         showExpiredModal,
+        // pendingOrder,
     } = useCheckout();
 
     useScrollToTopOnPageChange(step);

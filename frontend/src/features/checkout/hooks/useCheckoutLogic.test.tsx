@@ -107,6 +107,10 @@ describe('useCheckoutLogic', () => {
             result.current.goNext();
         });
 
+        act(() => {
+            result.current.setPaymentMethod(PAYMENT_METHODS.STRIPE);
+        });
+
         expect(result.current.canContinuePayment).toBe(false);
 
         act(() => {

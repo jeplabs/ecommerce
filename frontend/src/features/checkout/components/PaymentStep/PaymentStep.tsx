@@ -1,9 +1,9 @@
-import { useCheckout } from '@/app/providers';
+import { useCheckout, useConfig } from '@/app/providers';
 import clsx from 'clsx';
 
 import { PAYMENT_METHODS } from '../../types';
 import { isExpressService, isPickupService } from '../../lib';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 import SimulatedQPayProForm from '../SimulatedQPayProForm/SimulatedQPayProForm';
 import SimulatedWebpayForm from '../SimulatedWebpayForm/SimulatedWebpayForm';
 // import SimulatedMercadoPagoForm from '../SimulatedMercadoPagoForm/SimulatedMercadoPagoForm';
@@ -15,6 +15,7 @@ import styles from './PaymentStep.module.css';
 
 export default function PaymentStep() {
     const { paymentMethod, setPaymentMethod, orderTotal, selectedServicio } = useCheckout();
+    const { isChile, isGuatemala } = useConfig();
     const isExpress = isExpressService(selectedServicio);
     const isPickup = isPickupService(selectedServicio);
     const isContraEntregaDisabled = isExpress || isPickup;
@@ -57,20 +58,22 @@ export default function PaymentStep() {
                         <small>Visa, Mastercard, Amex</small>
                     </span>
                 </button> */}
-                <button
-                    type="button"
-                    className={clsx(
-                        styles.method,
-                        paymentMethod === PAYMENT_METHODS.QPAYPRO && styles.methodActive
-                    )}
-                    onClick={() => setPaymentMethod(PAYMENT_METHODS.QPAYPRO)}
-                >
-                    <span className={styles.methodIcon}>💳</span>
-                    <span className={styles.methodInfo}>
-                        <strong>QPayPro</strong>
-                        <small>Visa, Mastercard · Guatemala</small>
-                    </span>
-                </button>
+                {(isGuatemala || !isChile) && (
+                    <button
+                        type="button"
+                        className={clsx(
+                            styles.method,
+                            paymentMethod === PAYMENT_METHODS.QPAYPRO && styles.methodActive
+                        )}
+                        onClick={() => setPaymentMethod(PAYMENT_METHODS.QPAYPRO)}
+                    >
+                        <span className={styles.methodIcon}>💳</span>
+                        <span className={styles.methodInfo}>
+                            <strong>QPayPro</strong>
+                            <small>Visa, Mastercard · Guatemala</small>
+                        </span>
+                    </button>
+                )}
 
                 {/* <button
                     type="button"
@@ -87,20 +90,22 @@ export default function PaymentStep() {
                     </span>
                 </button> */}
 
-                <button
-                    type="button"
-                    className={clsx(
-                        styles.method,
-                        paymentMethod === PAYMENT_METHODS.WEBPAY && styles.methodActive
-                    )}
-                    onClick={() => setPaymentMethod(PAYMENT_METHODS.WEBPAY)}
-                >
-                    <span className={styles.methodIcon}>🏦</span>
-                    <span className={styles.methodInfo}>
-                        <strong>Webpay Plus</strong>
-                        <small>Transbank · Chile</small>
-                    </span>
-                </button>
+                {isChile && (
+                    <button
+                        type="button"
+                        className={clsx(
+                            styles.method,
+                            paymentMethod === PAYMENT_METHODS.WEBPAY && styles.methodActive
+                        )}
+                        onClick={() => setPaymentMethod(PAYMENT_METHODS.WEBPAY)}
+                    >
+                        <span className={styles.methodIcon}>🏦</span>
+                        <span className={styles.methodInfo}>
+                            <strong>Webpay Plus</strong>
+                            <small>Transbank · Chile</small>
+                        </span>
+                    </button>
+                )}
 
                 <button
                     type="button"

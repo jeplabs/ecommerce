@@ -8,15 +8,15 @@ export type CheckoutPageHeaderProps = {
 };
 
 export function CheckoutPageHeader({
-    backTo = '/cart',
-    backLabel = '← Volver al carrito',
+    // backTo = '/checkout',
+    // backLabel = '← Volver al checkout',
     title = 'Checkout',
 }: CheckoutPageHeaderProps) {
     return (
         <header className={styles.header}>
-            <Link to={backTo} className={styles.back}>
+            {/* <Link to={backTo} className={styles.back}>
                 {backLabel}
-            </Link>
+            </Link> */}
             <h1>{title}</h1>
         </header>
     );
