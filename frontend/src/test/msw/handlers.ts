@@ -290,6 +290,16 @@ export const handlers = [
         }
     }),
 
+    http.get(`${API_BASE}/api/productos/admin/:id/imagenes`, ({ params }) => {
+        const id = Number(params.id);
+
+        try {
+            return HttpResponse.json(getDynamicProductImages(id));
+        } catch {
+            return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+        }
+    }),
+
     http.post(`${API_BASE}/api/productos/:id/imagenes`, async ({ params, request }) => {
         const id = Number(params.id);
         const body = (await request.json()) as { imagenesUrl?: string[] };

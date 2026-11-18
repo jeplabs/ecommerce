@@ -3,7 +3,6 @@ import type { NavigateFunction } from 'react-router-dom';
 import { useCategorias, useProduct, useToast } from '@/app/providers';
 import {
     productsAdminApi,
-    productsApi,
     type ProductAdminApi,
     type ProductApi,
     type ProductStatus,
@@ -108,29 +107,21 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
             setError(null);
 
             try {
-                // El endpoint público (/api/productos/:id) falla para OCULTO/DESCONTINUADO;
-                // por eso usamos el endpoint admin como fuente primaria (con fallback al público
-                // solo para completar metadata extendida si el backend aún no la envía en admin).
-                const [adminRes, publicRes] = await Promise.allSettled([
-                    productsAdminApi.getByIdAdmin(numericProductId),
-                    productsApi.getById(numericProductId),
-                ]);
+                // Ahora GET /api/productos/admin/:id devuelve el contrato completo
+                // (incluyendo descripción, specs, categorías e imágenes), incluso para productos OCULTO o DESCONTINUADO.
+                const adminProduct = await productsAdminApi.getByIdAdmin(numericProductId);
 
                 if (cancelled) return;
 
-                const adminProduct = adminRes.status === 'fulfilled' ? adminRes.value : null;
-                const publicProduct = publicRes.status === 'fulfilled' ? publicRes.value : null;
-
-                if (!adminProduct && !publicProduct) {
+                if (!adminProduct) {
                     setError('Producto no encontrado');
                     return;
                 }
 
-                const formData = mapLoadedProductToFormData(adminProduct, publicProduct);
+                const formData = mapLoadedProductToFormData(adminProduct, null);
                 const images = formData.images ?? [];
                 const missingMetadata =
-                    !publicProduct &&
-                    (!adminProduct?.categorias || adminProduct.categorias.length === 0);
+                    !adminProduct.categorias || adminProduct.categorias.length === 0;
 
                 setPreserveMissingMetadata(missingMetadata);
                 setStoredImages(images);

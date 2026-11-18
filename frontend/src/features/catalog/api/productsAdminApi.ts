@@ -296,9 +296,9 @@ export async function addImages(
     return parseApi(productImagesSchema, raw);
 }
 
-/** {@code GET /api/productos/{id}/imagenes} */
+/** {@code GET /api/productos/admin/{id}/imagenes} */
 export async function getImages(productId: number): Promise<ProductImageApi[]> {
-    const response = await fetch(`${API_URL}/api/productos/${productId}/imagenes`, {
+    const response = await fetch(`${API_URL}/api/productos/admin/${productId}/imagenes`, {
         headers: getAuthHeaders(getToken(), false),
     });
 
