@@ -189,6 +189,22 @@ public class ProductoController {
         return ResponseEntity.ok(service.listarImagenes(id));
     }
 
+    @Operation(
+            summary = "Listar imágenes de un producto (vista admin)",
+            description = "Solo ADMIN. Retorna las imágenes del producto sin importar su estado."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de imágenes retornada exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
+    @GetMapping("/admin/{id}/imagenes")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<DatosRespuestaImagen>> listarImagenesAdmin(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarImagenesAdmin(id));
+    }
+
     // Agregar imágenes a un producto existente
     // POST /api/productos/{id}/imagenes
     @PostMapping("/{id}/imagenes")

@@ -196,6 +196,7 @@ public class ProductoService {
     }
 
     // Vista admin con precio de costo y margen
+    @Transactional(readOnly = true)
     public DatosRespuestaProductoAdmin buscarAdminPorId(Long id) {
         return new DatosRespuestaProductoAdmin(buscarProducto(id));
     }
@@ -291,10 +292,12 @@ public class ProductoService {
     }
 
     //Para admin - devuelve lista de todos los productos con sus estados
+    @Transactional(readOnly = true)
     public Page<DatosRespuestaProductoAdmin> listarAdmin(
             String nombre, Long categoriaId, EstadoProducto estado, Pageable pageable) {
+        String nombreFiltro = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
         String estadoStr = estado != null ? estado.name() : null;
-        return productoRepositorio.buscarTodosAdmin(nombre, categoriaId, estadoStr, pageable)
+        return productoRepositorio.buscarTodosAdmin(nombreFiltro, categoriaId, estadoStr, pageable)
                 .map(DatosRespuestaProductoAdmin::new);
     }
 
@@ -310,6 +313,16 @@ public class ProductoService {
     // Listar todas las imágenes de un producto
     public List<DatosRespuestaImagen> listarImagenes(Long productoId) {
         buscarProductoActivo(productoId); // verifica que el producto exista y este activo
+        return imagenRepositorio.findByProductoIdOrderByPrincipalDesc(productoId)
+                .stream()
+                .map(DatosRespuestaImagen::new)
+                .toList();
+    }
+
+    // Listar todas las imágenes de un producto (vista admin, sin importar estado)
+    @Transactional(readOnly = true)
+    public List<DatosRespuestaImagen> listarImagenesAdmin(Long productoId) {
+        buscarProducto(productoId);
         return imagenRepositorio.findByProductoIdOrderByPrincipalDesc(productoId)
                 .stream()
                 .map(DatosRespuestaImagen::new)

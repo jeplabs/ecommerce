@@ -57,7 +57,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     @Query(value = """
             SELECT DISTINCT p.* FROM productos p
             LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
-            WHERE (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
+            WHERE (:nombre IS NULL
+                OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%'))
+                OR LOWER(p.sku::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
             AND (:categoriaId IS NULL OR pc.categoria_id = :categoriaId)
             AND (:estado IS NULL OR p.estado = :estado)
             ORDER BY p.nombre
@@ -65,7 +67,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
             countQuery = """
             SELECT COUNT(DISTINCT p.id) FROM productos p
             LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
-            WHERE (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
+            WHERE (:nombre IS NULL
+                OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%'))
+                OR LOWER(p.sku::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
             AND (:categoriaId IS NULL OR pc.categoria_id = :categoriaId)
             AND (:estado IS NULL OR p.estado = :estado)
             """,
