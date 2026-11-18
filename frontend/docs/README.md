@@ -19,6 +19,7 @@ Guías complementarias al [README](../README.md) principal.
 | [expiracion-carrito-checkout.md](./expiracion-carrito-checkout.md) | Diagnóstico, mejores prácticas y plan de integración de expiración/renovación del carrito en el flujo de Checkout |
 | [Propuesta-Polling-QPayPro-Checkout.md](./Propuesta-Polling-QPayPro-Checkout.md) | Propuesta técnica y evaluación de polling/recuperación Caso 5 para QPayPro (Guatemala) en Checkout |
 | [Diagnostico-Orden-Pendiente-Fallo-Pasarela-Checkout.md](./Diagnostico-Orden-Pendiente-Fallo-Pasarela-Checkout.md) | Diagnóstico del caso borde cuando `crearOrden` convierte el carrito pero falla `iniciar` de la pasarela externa, y alternativas de solución |
+| [Estrategia-Recuperacion-Ordenes-y-Checkout.md](./Estrategia-Recuperacion-Ordenes-y-Checkout.md) | Estrategia de recuperación de pedidos y checkout resiliente (Opciones A y B post-pasarela QPayPro / Webpay) |
 
 ## Convención
 

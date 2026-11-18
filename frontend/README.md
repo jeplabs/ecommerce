@@ -111,6 +111,10 @@ Vite expone variables con prefijo `VITE_`. Crear un `.env.local` en `frontend/` 
 ```env
 # URL base del backend Spring Boot
 VITE_API_URL=http://localhost:8080
+
+# Cloudinary (Subida de imágenes desde el panel de administración)
+VITE_CLOUDINARY_CLOUD_NAME=tu_cloud_name
+VITE_CLOUDINARY_UPLOAD_PRESET=tu_upload_preset_unsigned
 ```
 
 Valor por defecto definido en `src/shared/config/env.ts`:
@@ -601,6 +605,7 @@ Guía completa (handlers, fixtures, comandos Cypress, plan de cobertura, trouble
 | [docs/payment-gateways.md](./docs/payment-gateways.md) | Pasarelas de pago simuladas e integración real (QPayPro, Webpay Plus, Stripe, Mercado Pago) |
 | [docs/testing.md](./docs/testing.md) | Vitest, RTL, MSW, Cypress: scripts, fixtures, evaluación de buenas prácticas y plan de cobertura |
 | [docs/sucursales-retiro-tienda-frontend.md](./docs/sucursales-retiro-tienda-frontend.md) | Integración de sucursales físicas (`GET /api/sucursales`), selección consciente en checkout, retiro en tienda y panel de administración CRUD (`/admin/sucursales`) |
+| [docs/Estrategia-Recuperacion-Ordenes-y-Checkout.md](./docs/Estrategia-Recuperacion-Ordenes-y-Checkout.md) | Estrategia de recuperación de pedidos y checkout resiliente (Opciones A y B post-pasarela QPayPro / Webpay) |
 | [docs/README.md](./docs/README.md) | Índice de la documentación del frontend |
 
 ---
