@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Function;
 
 // Contiene toda la lógica de negocio
 @Service
@@ -52,9 +53,15 @@ public class ProductoService {
         if (filtro.categoriaInexistente()) {
             return Page.empty(pageable);
         }
-        return productoRepositorio.buscarActivos(
-                        nombre, filtro.filtrar(), filtro.categoriaIds(), pageable)
-                .map(DatosRespuestaProducto::new);
+        String nombreFiltro = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
+        List<Producto> productos = new ArrayList<>(productoRepositorio.buscarActivosSinPaginacion(
+                nombreFiltro, filtro.filtrar(), filtro.categoriaIds()));
+        ordenarProductos(productos, pageable.getSort());
+        List<DatosRespuestaProducto> content = sublistaPaginada(productos, pageable)
+                .stream()
+                .map(DatosRespuestaProducto::new)
+                .toList();
+        return new PageImpl<>(content, pageable, productos.size());
     }
 
     // Listado público avanzado con facetas, jerarquía de categorías y ordenamiento global multi-página
@@ -93,9 +100,9 @@ public class ProductoService {
             boolean matches = true;
 
             if (precioMin != null || precioMax != null) {
-                double precioActual = obtenerPrecioVentaActual(p).doubleValue();
-                if (precioMin != null && precioActual < precioMin) matches = false;
-                if (precioMax != null && precioActual > precioMax) matches = false;
+                BigDecimal precioActual = obtenerPrecioVentaActual(p);
+                if (precioMin != null && precioActual.compareTo(BigDecimal.valueOf(precioMin)) < 0) matches = false;
+                if (precioMax != null && precioActual.compareTo(BigDecimal.valueOf(precioMax)) > 0) matches = false;
             }
 
             if (matches && params != null) {
@@ -425,25 +432,22 @@ public class ProductoService {
     }
 
     private static BigDecimal obtenerPrecioVentaActual(Producto producto) {
-        return producto.getPrecios().stream()
-                .filter(p -> p.getFechaFin() == null)
-                .map(PrecioHistorial::getPrecioVenta)
-                .findFirst()
-                .orElse(BigDecimal.ZERO);
+        return obtenerValorPrecioActivo(producto, PrecioHistorial::getPrecioVenta);
     }
 
     private static BigDecimal obtenerPrecioCostoActual(Producto producto) {
-        return producto.getPrecios().stream()
-                .filter(p -> p.getFechaFin() == null)
-                .map(PrecioHistorial::getPrecioCosto)
-                .findFirst()
-                .orElse(BigDecimal.ZERO);
+        return obtenerValorPrecioActivo(producto, PrecioHistorial::getPrecioCosto);
     }
 
     private static BigDecimal obtenerMargenActual(Producto producto) {
+        return obtenerValorPrecioActivo(producto, PrecioHistorial::calcularMargen);
+    }
+
+    private static BigDecimal obtenerValorPrecioActivo(
+            Producto producto, Function<PrecioHistorial, BigDecimal> extractor) {
         return producto.getPrecios().stream()
                 .filter(p -> p.getFechaFin() == null)
-                .map(PrecioHistorial::calcularMargen)
+                .map(extractor)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
     }

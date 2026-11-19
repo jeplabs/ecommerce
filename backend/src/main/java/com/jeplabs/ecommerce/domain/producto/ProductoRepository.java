@@ -1,7 +1,5 @@
 package com.jeplabs.ecommerce.domain.producto;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,37 +15,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     boolean existsBySku(String sku);
     boolean existsBySlug(String slug);
 
-    // Busca productos activos con filtro opcional por nombre y/o lista de categorías (incluyendo subcategorías)
+    // Busca productos activos con filtro opcional por nombre y lista de categorías (el ordenamiento lo aplica ProductoService)
     @Query(value = """
         SELECT DISTINCT p.* FROM productos p
         LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
         WHERE p.estado IN ('DISPONIBLE', 'SIN_STOCK')
         AND (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
         AND (:filtrarCategoria = false OR pc.categoria_id IN (:categoriaIds))
-        ORDER BY p.nombre
-        """,
-            countQuery = """
-        SELECT COUNT(DISTINCT p.id) FROM productos p
-        LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
-        WHERE p.estado IN ('DISPONIBLE', 'SIN_STOCK')
-        AND (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
-        AND (:filtrarCategoria = false OR pc.categoria_id IN (:categoriaIds))
-        """,
-            nativeQuery = true)
-    Page<Producto> buscarActivos(
-            @Param("nombre") String nombre,
-            @Param("filtrarCategoria") boolean filtrarCategoria,
-            @Param("categoriaIds") List<Long> categoriaIds,
-            Pageable pageable
-    );
-
-    @Query(value = """
-        SELECT DISTINCT p.* FROM productos p
-        LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
-        WHERE p.estado IN ('DISPONIBLE', 'SIN_STOCK')
-        AND (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
-        AND (:filtrarCategoria = false OR pc.categoria_id IN (:categoriaIds))
-        ORDER BY p.nombre
         """, nativeQuery = true)
     List<Producto> buscarActivosSinPaginacion(
             @Param("nombre") String nombre,
@@ -55,7 +29,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
             @Param("categoriaIds") List<Long> categoriaIds
     );
 
-    // Endpoint admin - lista productos con todos los estados para ordenamiento global en servicio
+    // Endpoint admin - lista productos con todos los estados (el ordenamiento lo aplica ProductoService)
     @Query(value = """
             SELECT DISTINCT p.* FROM productos p
             LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
@@ -64,7 +38,6 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
                 OR LOWER(p.sku::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
             AND (:filtrarCategoria = false OR pc.categoria_id IN (:categoriaIds))
             AND (:estado IS NULL OR p.estado = :estado)
-            ORDER BY p.nombre
             """, nativeQuery = true)
     List<Producto> buscarTodosAdminSinPaginacion(
             @Param("nombre") String nombre,
