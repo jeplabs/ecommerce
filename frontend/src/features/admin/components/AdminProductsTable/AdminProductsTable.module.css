@@ -1,0 +1,224 @@
+.root {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.grid {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    font-size: 0.86rem;
+}
+
+.grid thead {
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.grid th {
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.grid th.colNarrow {
+    text-align: center;
+}
+
+.grid th.colAction {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.grid td {
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+}
+
+.row:last-child td {
+    border-bottom: none;
+}
+
+.row:hover td {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+/* Columna de Producto: miniatura + nombre + categoría */
+.cellProduct {
+    min-width: 200px;
+}
+
+.productCellWrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.productThumbnail {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+}
+
+.productDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.productName {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.88rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+}
+
+.productCategory {
+    font-size: 0.74rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+}
+
+/* SKU */
+.cellSku {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Precio */
+.cellPrice {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Stock */
+.cellStock {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.stockZero {
+    color: var(--error);
+    font-weight: 600;
+}
+
+/* Estado Pills */
+.pill {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pillAvailable {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.pillNoStock {
+    background: rgba(234, 179, 8, 0.18);
+    color: #fbbf24;
+}
+
+.pillHidden {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+
+.pillDiscontinued {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+}
+
+/* Acciones */
+.cellActions {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.actionsWrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btnEdit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.btnEdit:hover {
+    border-color: var(--indigo);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.btnDelete {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.btnDelete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+}

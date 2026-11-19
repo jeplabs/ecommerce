@@ -6,6 +6,8 @@ export { default as ProductForm } from './ProductForm';
 export * from './ProductForm';
 export { default as AdminOrdersTable } from './AdminOrdersTable';
 export * from './AdminOrdersTable';
+export { default as AdminProductsTable } from './AdminProductsTable';
+export * from './AdminProductsTable';
 export { default as AdminUsersTable } from './AdminUsersTable';
 export * from './AdminUsersTable';
 export { default as AdminDashboardView } from './AdminDashboardView';

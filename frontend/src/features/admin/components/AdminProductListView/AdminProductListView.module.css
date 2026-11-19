@@ -70,8 +70,13 @@
     margin: 0;
 }
 
+.desktopTable {
+    display: block;
+    width: 100%;
+}
+
 .grid {
-    display: grid;
+    display: none;
     grid-template-columns: repeat(3, minmax(250px, 1fr));
     gap: 1.5rem;
     width: 100%;
@@ -79,7 +84,12 @@
 }
 
 @media (max-width: 1024px) {
+    .desktopTable {
+        display: none;
+    }
+
     .grid {
+        display: grid;
         grid-template-columns: repeat(2, minmax(220px, 1fr));
     }
 }

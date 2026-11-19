@@ -8,6 +8,7 @@ import { useScrollToTopOnPageChange } from '@/hooks/useScrollToTopOnPageChange';
 import { formatCurrency } from '@/utils/format';
 import { useAdminProducts } from '../../hooks/useAdminProducts';
 import AdminProductFilters from '../AdminProductFilters';
+import AdminProductsTable from '../AdminProductsTable';
 import styles from './AdminProductListView.module.css';
 
 type AdminProductListViewProps = {
@@ -193,6 +194,13 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
                 <div className={styles.loading}>Cargando productos...</div>
             ) : productos.length > 0 ? (
                 <section aria-label="Listado de productos">
+                    <div className={styles.desktopTable}>
+                        <AdminProductsTable
+                            productos={productos}
+                            onEdit={(id) => onNavigate(`/admin/products/edit/${id}`)}
+                            onDelete={handleDelete}
+                        />
+                    </div>
                     <div className={styles.grid}>
                         {productos.map((producto) => renderProductCard(producto))}
                     </div>

@@ -94,7 +94,8 @@ describe('AdminProductListView', () => {
             expect(screen.getByText('560 productos registrados')).toBeInTheDocument();
         });
 
-        expect(screen.getByText(mockProduct.nombre)).toBeInTheDocument();
+        expect(screen.getAllByText(mockProduct.nombre)[0]).toBeInTheDocument();
+        expect(screen.getByRole('region', { name: 'Tabla de productos' })).toBeInTheDocument();
         expect(screen.getByRole('heading', { name: 'Productos' })).toBeInTheDocument();
 
         fireEvent.change(screen.getByLabelText('Categoría'), { target: { value: '2' } });
@@ -128,7 +129,7 @@ describe('AdminProductListView', () => {
         renderWithProviders(<AdminProductListView onNavigate={vi.fn()} />);
 
         await waitFor(() => {
-            expect(screen.getByText(mockProduct.nombre)).toBeInTheDocument();
+            expect(screen.getAllByText(mockProduct.nombre)[0]).toBeInTheDocument();
         });
 
         const deleteButtons = screen.getAllByRole('button', { name: /Eliminar/i });
