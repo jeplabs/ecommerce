@@ -77,7 +77,9 @@ import {
 } from './fixtures/users-registry';
 import {
     addDynamicFavorite,
+    getDynamicFavoriteIds,
     getDynamicFavorites,
+    getDynamicFavoritesPage,
     removeDynamicFavorite,
     resetDynamicFavorites,
 } from './fixtures/favorites-registry';
@@ -928,8 +930,15 @@ export const handlers = [
         }
     }),
 
-    http.get(`${API_BASE}/api/favoritos`, () => {
-        return HttpResponse.json(getDynamicFavorites());
+    http.get(`${API_BASE}/api/favoritos/ids`, () => {
+        return HttpResponse.json(getDynamicFavoriteIds());
+    }),
+
+    http.get(`${API_BASE}/api/favoritos`, ({ request }) => {
+        const url = new URL(request.url);
+        const page = Number(url.searchParams.get('page') ?? 0);
+        const size = Number(url.searchParams.get('size') ?? 12);
+        return HttpResponse.json(getDynamicFavoritesPage(page, size));
     }),
 
     http.post(`${API_BASE}/api/favoritos/:productId`, ({ params }) => {

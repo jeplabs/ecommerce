@@ -46,7 +46,9 @@ import {
 } from '../../src/test/msw/fixtures/profile-registry';
 import {
     addDynamicFavorite,
+    getDynamicFavoriteIds,
     getDynamicFavorites,
+    getDynamicFavoritesPage,
     removeDynamicFavorite,
     resetDynamicFavorites,
 } from '../../src/test/msw/fixtures/favorites-registry';
@@ -141,8 +143,20 @@ Cypress.Commands.add('stubAuthenticatedApi', () => {
     resetDynamicProfile();
     resetDynamicFavorites();
 
+    cy.intercept('GET', '**/api/favoritos/ids', (req) => {
+        req.reply(getDynamicFavoriteIds());
+    }).as('getFavoriteIds');
+    cy.intercept('GET', '**/api/favoritos?*', (req) => {
+        const url = new URL(req.url);
+        const page = Number(url.searchParams.get('page') ?? 0);
+        const size = Number(url.searchParams.get('size') ?? 12);
+        req.reply(getDynamicFavoritesPage(page, size));
+    }).as('getFavoritesPaged');
     cy.intercept('GET', '**/api/favoritos', (req) => {
-        req.reply(getDynamicFavorites());
+        const url = new URL(req.url);
+        const page = Number(url.searchParams.get('page') ?? 0);
+        const size = Number(url.searchParams.get('size') ?? 12);
+        req.reply(getDynamicFavoritesPage(page, size));
     }).as('getFavorites');
     cy.intercept('POST', '**/api/favoritos/*', (req) => {
         const productId = Number(req.url.split('/').pop());

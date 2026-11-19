@@ -8,11 +8,22 @@ function seedAuth() {
 }
 
 describe('favoritesApi', () => {
-    it('fetchFavorites devuelve lista de favoritos', async () => {
+    it('fetchFavorites devuelve página de favoritos', async () => {
         seedAuth();
 
-        const favorites = await favoritesApi.fetchFavorites();
-        expect(Array.isArray(favorites)).toBe(true);
+        const page = await favoritesApi.fetchFavorites();
+        expect(Array.isArray(page.content)).toBe(true);
+        expect(typeof page.totalElements).toBe('number');
+        expect(typeof page.totalPages).toBe('number');
+    });
+
+    it('fetchFavoriteIds devuelve array de IDs de favoritos', async () => {
+        seedAuth();
+
+        await favoritesApi.addFavorite(mockProduct.id);
+        const ids = await favoritesApi.fetchFavoriteIds();
+        expect(Array.isArray(ids)).toBe(true);
+        expect(ids).toContain(mockProduct.id);
     });
 
     it('addFavorite agrega un producto a favoritos', async () => {

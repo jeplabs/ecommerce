@@ -31,6 +31,27 @@ export function getDynamicFavorites(): FavoriteProduct[] {
     return favorites.map((favorite) => ({ ...favorite }));
 }
 
+export function getDynamicFavoriteIds(): number[] {
+    return favorites.map((favorite) => favorite.productId);
+}
+
+export function getDynamicFavoritesPage(page = 0, size = 12) {
+    const list = getDynamicFavorites();
+    const start = page * size;
+    const content = list.slice(start, start + size);
+    return {
+        content,
+        totalElements: list.length,
+        totalPages: Math.max(1, Math.ceil(list.length / size)),
+        size,
+        number: page,
+        first: page === 0,
+        last: start + size >= list.length,
+        empty: content.length === 0,
+        numberOfElements: content.length,
+    };
+}
+
 export function addDynamicFavorite(productId: number): FavoriteProduct {
     const existing = favorites.find((favorite) => favorite.productId === productId);
     if (existing) {

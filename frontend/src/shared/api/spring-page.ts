@@ -8,7 +8,27 @@ import { z } from 'zod';
  * Este helper normaliza ambas a la forma plana que usa el frontend.
  */
 export function normalizeSpringPageRaw(raw: unknown): unknown {
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    if (!raw) {
+        return raw;
+    }
+
+    // Compatibilidad defensiva: si el backend devuelve un arreglo plano
+    if (Array.isArray(raw)) {
+        const defaultPageSize = 12;
+        return {
+            content: raw,
+            totalElements: raw.length,
+            totalPages: Math.max(1, Math.ceil(raw.length / defaultPageSize)),
+            size: defaultPageSize,
+            number: 0,
+            first: true,
+            last: true,
+            empty: raw.length === 0,
+            numberOfElements: raw.length,
+        };
+    }
+
+    if (typeof raw !== 'object') {
         return raw;
     }
 

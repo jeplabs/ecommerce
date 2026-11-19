@@ -1,3 +1,5 @@
+import type { SpringPage } from '@/shared/api/spring-page';
+
 export type FavoriteProduct = {
     productId: number;
     slug: string;
@@ -8,8 +10,9 @@ export type FavoriteProduct = {
     guardadoAt: string;
 };
 
+export type FavoritePage = SpringPage<FavoriteProduct>;
+
 export type ToggleFavoriteResult =
     | { success: true; added: boolean }
     | { success: false; requiresAuth: true }
     | { success: false; error: string };
-

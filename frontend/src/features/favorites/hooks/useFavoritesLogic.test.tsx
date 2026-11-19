@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { useFavoritesLogic } from './useFavoritesLogic';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { mockProduct } from '@/test/msw/fixtures/products';
-import { setAccessToken } from '@/lib/auth-token-store';
+import { resetDynamicFavorites } from '@/test/msw/fixtures/favorites-registry';
+import { clearAuthTokens, setAccessToken } from '@/lib/auth-token-store';
 
 function createWrapper() {
     return function Wrapper({ children }: { children: ReactNode }) {
@@ -20,10 +21,16 @@ function createWrapper() {
 
 function seedCustomerSession() {
     setAccessToken(mockAuthTokenResponse.token);
+    localStorage.setItem('token', mockAuthTokenResponse.token);
     localStorage.setItem('rol', 'ROLE_CUSTOMER');
 }
 
 describe('useFavoritesLogic', () => {
+    beforeEach(() => {
+        resetDynamicFavorites();
+        clearAuthTokens();
+        localStorage.clear();
+    });
     it('toggleFavorite agrega y quita productos', async () => {
         seedCustomerSession();
 
