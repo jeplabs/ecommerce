@@ -3,6 +3,7 @@ package com.jeplabs.ecommerce.domain.producto;
 import com.jeplabs.ecommerce.domain.categoria.Categoria;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
@@ -59,6 +60,7 @@ Producto {
     private LocalDateTime updatedAt;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 50)
     @JoinTable(
             name = "producto_categorias",
             joinColumns = @JoinColumn(name = "producto_id"),
@@ -67,9 +69,11 @@ Producto {
     private List<Categoria> categorias = new ArrayList<>();
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @BatchSize(size = 50)
     private List<PrecioHistorial> precios = new ArrayList<>();
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @BatchSize(size = 50)
     @OrderBy("principal DESC")
     private List<ProductoImagen> imagenes = new ArrayList<>();
 
