@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/features/checkout/ui/success/OrderConfirmationSummary/OrderConfirmationSummary', () => ({
+vi.mock('@/features/checkout/components/success/OrderConfirmationSummary/OrderConfirmationSummary', () => ({
     default: ({ orden, isBankTransfer }: {
         orden: { id: number };
         payment: unknown;
@@ -9,11 +9,11 @@ vi.mock('@/features/checkout/ui/success/OrderConfirmationSummary/OrderConfirmati
     }) => <div>summary-{orden.id}-{String(isBankTransfer)}</div>,
 }));
 
-vi.mock('@/features/checkout/ui/success/CheckoutSuccessActions/CheckoutSuccessActions', () => ({
+vi.mock('@/features/checkout/components/success/CheckoutSuccessActions/CheckoutSuccessActions', () => ({
     default: () => <div>actions</div>,
 }));
 
-vi.mock('@/features/checkout/ui/success/CheckoutSuccessRecommendations/CheckoutSuccessRecommendations', () => ({
+vi.mock('@/features/checkout/components/success/CheckoutSuccessRecommendations/CheckoutSuccessRecommendations', () => ({
     default: () => <div>recommendations</div>,
 }));
 

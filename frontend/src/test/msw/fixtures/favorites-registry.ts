@@ -1,4 +1,4 @@
-import type { FavoriteProduct } from '@/features/favorites/model/types';
+import type { FavoriteProduct } from '@/features/favorites';
 import { findDynamicProductById } from './products-registry';
 
 let favorites: FavoriteProduct[] = [];

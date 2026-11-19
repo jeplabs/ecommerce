@@ -1,8 +1,10 @@
 import type { OrderApi } from '@/entities/order';
-import type { PaymentSuccessResult } from '@/features/checkout/model/schemas/payment';
-import OrderConfirmationSummary from '@/features/checkout/ui/success/OrderConfirmationSummary/OrderConfirmationSummary';
-import CheckoutSuccessActions from '@/features/checkout/ui/success/CheckoutSuccessActions/CheckoutSuccessActions';
-import CheckoutSuccessRecommendations from '@/features/checkout/ui/success/CheckoutSuccessRecommendations/CheckoutSuccessRecommendations';
+import type { PaymentSuccessResult } from '@/features/checkout';
+import {
+    OrderConfirmationSummary,
+    CheckoutSuccessActions,
+    CheckoutSuccessRecommendations,
+} from '@/features/checkout';
 import styles from '@/widgets/checkout/checkoutSuccessPage.module.css';
 
 type CheckoutSuccessViewProps = {
