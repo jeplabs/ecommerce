@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCategorias } from '@/app/providers';
-import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
+import Breadcrumbs from '@/components/ui/Breadcrumbs/Breadcrumbs';
 import { ProductCatalog } from '../ProductCatalog/ProductCatalog';
 import { useProductosByCategory } from '../../hooks/useProductosByCategory';
 import { buildCategoryBreadcrumbs } from '../../lib/category-tree';

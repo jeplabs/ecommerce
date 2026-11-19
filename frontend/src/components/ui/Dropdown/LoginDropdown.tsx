@@ -1,12 +1,12 @@
 import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import ForgotPasswordForm from '@/shared/ui/Form/ForgotPasswordForm';
-import { Form } from '@/shared/ui/Form/Form';
-import formStyles from '@/shared/ui/Form/Form.module.css';
-import { Button } from '@/shared/ui/Button';
-import { FieldError } from '@/shared/ui/FormField';
-import { Input } from '@/shared/ui/Input';
+import ForgotPasswordForm from '@/components/ui/Form/ForgotPasswordForm';
+import { Form } from '@/components/ui/Form/Form';
+import formStyles from '@/components/ui/Form/Form.module.css';
+import { Button } from '@/components/ui/Button';
+import { FieldError } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import styles from './LoginDropdown.module.css';
 
 type LoginDropdownProps = {

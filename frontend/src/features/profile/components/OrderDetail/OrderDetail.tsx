@@ -6,7 +6,7 @@ import OrderBankTransferSection from '@/features/checkout/ui/OrderBankTransferSe
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderApi, OrderStatus } from '@/entities/order';
 import { getContraEntregaShippingNote } from '@/entities/order';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import styles from './OrderDetail.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {

@@ -6,9 +6,10 @@ import {
     type ProductMutationResult,
 } from '@/features/catalog';
 import { ApiError, getAccessToken, redirectUnauthorized } from '@/lib';
-import type { AdminProductStatusFilter, UseAdminProductsResult } from '../types';
+import type { AdminProductSort, AdminProductStatusFilter, UseAdminProductsResult } from '../types';
 
 const DEFAULT_PAGE_SIZE = 24;
+const DEFAULT_SORT = 'nombre,asc';
 const SEARCH_DEBOUNCE_MS = 250;
 
 function toErrorMessage(error: unknown): string {
@@ -41,6 +42,7 @@ export function useAdminProducts(
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [categoriaId, setCategoriaIdState] = useState<number | ''>('');
     const [estadoFiltro, setEstadoFiltroState] = useState<AdminProductStatusFilter>('');
+    const [sort, setSortState] = useState<AdminProductSort | string>(DEFAULT_SORT);
 
     useEffect(() => {
         const trimmed = searchQuery.trim();
@@ -72,6 +74,7 @@ export function useAdminProducts(
                 estado: estadoFiltro || undefined,
                 page: Math.max(0, page - 1),
                 size: pageSize,
+                sort: sort || undefined,
             });
 
             const nextTotalPages = Math.max(1, pageData.totalPages ?? 1);
@@ -94,7 +97,7 @@ export function useAdminProducts(
         } finally {
             setLoading(false);
         }
-    }, [categoriaId, debouncedSearch, estadoFiltro, navigate, page, pageSize]);
+    }, [categoriaId, debouncedSearch, estadoFiltro, navigate, page, pageSize, sort]);
 
     useEffect(() => {
         void fetchProducts();
@@ -115,6 +118,11 @@ export function useAdminProducts(
         setPageState(1);
     }, []);
 
+    const setSort = useCallback((value: AdminProductSort | string) => {
+        setSortState(value);
+        setPageState(1);
+    }, []);
+
     const setPageSize = useCallback((size: number) => {
         setPageSizeState(size);
         setPageState(1);
@@ -129,13 +137,17 @@ export function useAdminProducts(
     );
 
     const hasActiveFilters =
-        searchQuery.trim() !== '' || categoriaId !== '' || estadoFiltro !== '';
+        searchQuery.trim() !== '' ||
+        categoriaId !== '' ||
+        estadoFiltro !== '' ||
+        sort !== DEFAULT_SORT;
 
     const clearFilters = useCallback(() => {
         setSearchQueryState('');
         setDebouncedSearch('');
         setCategoriaIdState('');
         setEstadoFiltroState('');
+        setSortState(DEFAULT_SORT);
         setPageState(1);
     }, []);
 
@@ -160,6 +172,8 @@ export function useAdminProducts(
         pageSize,
         totalPages,
         totalElements,
+        sort,
+        setSort,
         searchQuery,
         setSearchQuery,
         categoriaId,

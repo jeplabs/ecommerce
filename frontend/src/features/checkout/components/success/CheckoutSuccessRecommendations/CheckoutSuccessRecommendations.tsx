@@ -2,7 +2,7 @@ import { useAuth, useCart, useToast } from '@/app/providers';
 import { useNavigate } from 'react-router-dom';
 
 import { useCheckoutSuccessRecommendations } from '../../../hooks/useCheckoutSuccessRecommendations';
-import { ProductSlider } from '@/shared/ui/ProductSlider/ProductSlider';
+import { ProductSlider } from '@/components/ui/ProductSlider/ProductSlider';
 import type { OrderApi } from '../../../types/order';
 import styles from './CheckoutSuccessRecommendations.module.css';
 

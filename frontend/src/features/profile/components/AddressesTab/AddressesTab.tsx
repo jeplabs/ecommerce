@@ -9,7 +9,7 @@ import {
 import type { AddressApi } from '@/entities/address';
 import type { AddressFormValues } from '@/entities/address';
 import AddressForm from '../AddressForm/AddressForm';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import styles from './AddressesTab.module.css';
 
 export default function AddressesTab() {

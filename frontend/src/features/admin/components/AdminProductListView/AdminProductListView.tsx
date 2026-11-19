@@ -50,6 +50,8 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
         pageSize,
         totalPages,
         totalElements,
+        sort,
+        setSort,
         searchQuery,
         setSearchQuery,
         categoriaId,
@@ -165,6 +167,8 @@ export default function AdminProductListView({ onNavigate }: AdminProductListVie
                 onCategoryChange={setCategoriaId}
                 estadoFiltro={estadoFiltro}
                 onStatusChange={setEstadoFiltro}
+                sort={sort}
+                onSortChange={setSort}
                 pageSize={pageSize}
                 onPageSizeChange={setPageSize}
                 categorias={arbolCategorias}

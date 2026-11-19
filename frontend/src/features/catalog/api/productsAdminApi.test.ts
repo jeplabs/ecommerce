@@ -4,6 +4,7 @@ import {
     create,
     deleteProduct,
     getAdmin,
+    getAdminPage,
     getByIdAdmin,
     getImages,
     update,
@@ -79,5 +80,18 @@ describe('productsAdminApi', () => {
 
         const ocultos = await getAdmin('OCULTO');
         expect(ocultos?.some((p) => p.id === created.id)).toBe(true);
+    });
+
+    it('getAdminPage envía parámetros de paginación, filtros y sort', async () => {
+        const page = await getAdminPage({
+            page: 0,
+            size: 10,
+            sort: 'precioVenta,desc',
+            estado: 'DISPONIBLE',
+        });
+
+        expect(page.content).toBeDefined();
+        expect(page.size).toBe(10);
+        expect(page.number).toBe(0);
     });
 });

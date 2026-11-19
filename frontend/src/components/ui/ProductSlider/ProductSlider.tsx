@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import clsx from 'clsx';
-import { ProductCard } from '@/shared/ui/Card/ProductCard';
+import { ProductCard } from '@/components/ui/Card/ProductCard';
 import { getMainProductImageUrl } from '@/entities/product';
 import type { ProductApi } from '@/entities/product';
 import { useNavigate } from 'react-router-dom';

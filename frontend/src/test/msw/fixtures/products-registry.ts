@@ -166,6 +166,7 @@ export type AdminProductsFilterParams = {
     categoriaId?: number;
     page?: number;
     size?: number;
+    sort?: string;
 };
 
 export function mockDynamicAdminProductsPage(
@@ -196,6 +197,35 @@ export function mockDynamicAdminProductsPage(
             return true;
         })
         .map(toProductAdminApi);
+
+    if (params.sort) {
+        const [field, direction] = params.sort.split(',');
+        const isDesc = direction === 'desc';
+        filtered.sort((a, b) => {
+            if (field === 'nombre') {
+                return isDesc ? b.nombre.localeCompare(a.nombre) : a.nombre.localeCompare(b.nombre);
+            }
+            if (field === 'sku') {
+                return isDesc ? b.sku.localeCompare(a.sku) : a.sku.localeCompare(b.sku);
+            }
+            if (field === 'precioVenta') {
+                return isDesc ? (b.precioVenta || 0) - (a.precioVenta || 0) : (a.precioVenta || 0) - (b.precioVenta || 0);
+            }
+            if (field === 'precioCosto') {
+                return isDesc ? (b.precioCosto || 0) - (a.precioCosto || 0) : (a.precioCosto || 0) - (b.precioCosto || 0);
+            }
+            if (field === 'margenPorcentaje' || field === 'margen') {
+                return isDesc ? (b.margenPorcentaje || 0) - (a.margenPorcentaje || 0) : (a.margenPorcentaje || 0) - (b.margenPorcentaje || 0);
+            }
+            if (field === 'stock') {
+                return isDesc ? (b.stock || 0) - (a.stock || 0) : (a.stock || 0) - (b.stock || 0);
+            }
+            if (field === 'estado') {
+                return isDesc ? (b.estado || '').localeCompare(a.estado || '') : (a.estado || '').localeCompare(b.estado || '');
+            }
+            return 0;
+        });
+    }
 
     const size = params.size ?? 20;
     const page = params.page ?? 0;

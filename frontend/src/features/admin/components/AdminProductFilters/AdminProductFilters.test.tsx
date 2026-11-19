@@ -11,6 +11,8 @@ describe('AdminProductFilters', () => {
         onCategoryChange: vi.fn(),
         estadoFiltro: '' as const,
         onStatusChange: vi.fn(),
+        sort: 'nombre,asc',
+        onSortChange: vi.fn(),
         pageSize: 24,
         onPageSizeChange: vi.fn(),
         categorias: mockCategories,
@@ -45,6 +47,7 @@ describe('AdminProductFilters', () => {
         const onSearchChange = vi.fn();
         const onCategoryChange = vi.fn();
         const onStatusChange = vi.fn();
+        const onSortChange = vi.fn();
         const onPageSizeChange = vi.fn();
         const onClearFilters = vi.fn();
 
@@ -56,6 +59,7 @@ describe('AdminProductFilters', () => {
                 onSearchChange={onSearchChange}
                 onCategoryChange={onCategoryChange}
                 onStatusChange={onStatusChange}
+                onSortChange={onSortChange}
                 onPageSizeChange={onPageSizeChange}
                 onClearFilters={onClearFilters}
             />
@@ -78,6 +82,11 @@ describe('AdminProductFilters', () => {
             target: { value: 'OCULTO' },
         });
         expect(onStatusChange).toHaveBeenCalledWith('OCULTO');
+
+        fireEvent.change(screen.getByLabelText('Ordenar por'), {
+            target: { value: 'precioVenta,desc' },
+        });
+        expect(onSortChange).toHaveBeenCalledWith('precioVenta,desc');
 
         fireEvent.change(screen.getByLabelText('Mostrar'), {
             target: { value: '48' },

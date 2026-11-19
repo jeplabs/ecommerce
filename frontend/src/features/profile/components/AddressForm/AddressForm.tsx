@@ -4,11 +4,11 @@ import type { AddressFormValues } from '@/entities/address';
 import type { AddressActionResult } from '@/entities/address';
 import { useConfig } from '@/app/providers';
 import { getTerritoryConfig } from '@/shared/config/territories';
-import { Button } from '@/shared/ui/Button';
-import { FormField } from '@/shared/ui/FormField';
-import { Input } from '@/shared/ui/Input';
-import { Select } from '@/shared/ui/Select';
-import { Textarea } from '@/shared/ui/Textarea';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
 import styles from './AddressForm.module.css';
 
 const EMPTY: AddressFormValues = {

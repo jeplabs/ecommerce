@@ -24,7 +24,7 @@ vi.mock('../../../hooks/useCheckoutSuccessRecommendations', () => ({
     useCheckoutSuccessRecommendations: vi.fn(),
 }));
 
-vi.mock('@/shared/ui/ProductSlider/ProductSlider', () => ({
+vi.mock('@/components/ui/ProductSlider/ProductSlider', () => ({
     ProductSlider: ({ title, products, onAddToCart }: {
         title: string;
         products: { id: number; nombre: string }[];

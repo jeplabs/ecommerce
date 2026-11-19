@@ -30,12 +30,47 @@
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
 }
 
-/* Select nativo: flecha del SO oculta; icono en Select.module.css (.chevron) */
+/* Select nativo y customizable: flecha del SO oculta; icono en Select.module.css (.chevron) */
 select.control {
     color-scheme: dark;
     cursor: pointer;
     padding-right: 2.75rem;
     background-color: var(--surface);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+select.control,
+select.control::picker(select) {
+    appearance: base-select;
+}
+
+select.control::picker-icon {
+    display: none;
+}
+
+select.control::picker(select) {
+    inset: auto;
+    top: anchor(bottom);
+    bottom: auto;
+    left: anchor(left);
+    position-area: block-end;
+    margin-top: 4px;
+    max-height: 260px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    width: anchor-size(width);
+    max-width: calc(100vw - 2rem);
+    background-color: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    padding: 0.35rem;
 }
 
 select.control::-ms-expand {
@@ -51,6 +86,12 @@ select.control:focus {
 select.control option {
     background-color: var(--surface2);
     color: var(--text);
+    font-size: 0.88rem;
+    padding: 0.5rem 0.75rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .control:disabled {

@@ -1,6 +1,6 @@
 import { useCategorias, useCart } from '@/app/providers';
-import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
-import { Button } from '@/shared/ui/Button';
+import Breadcrumbs from '@/components/ui/Breadcrumbs/Breadcrumbs';
+import { Button } from '@/components/ui/Button';
 import { formatCurrency } from '@/utils/format';
 import type { CategoryBreadcrumbItem } from '../../types';
 import { useProductDetail } from '../../hooks/useProductDetail';

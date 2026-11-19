@@ -220,6 +220,7 @@ export const handlers = [
         const categoriaId = categoriaIdParam != null ? Number(categoriaIdParam) : undefined;
         const page = Number(url.searchParams.get('page') ?? 0);
         const size = Number(url.searchParams.get('size') ?? 20);
+        const sort = url.searchParams.get('sort') ?? undefined;
 
         return HttpResponse.json(
             mockDynamicAdminProductsPage({
@@ -228,6 +229,7 @@ export const handlers = [
                 categoriaId: Number.isFinite(categoriaId) ? categoriaId : undefined,
                 page,
                 size,
+                sort,
             })
         );
     }),

@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { useAuth, useToast } from '@/app/providers';
 import type { ProductApi } from '../../types';
 import type { CartActionResult } from '@/entities/cart';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import styles from './ProductInfo.module.css';
 

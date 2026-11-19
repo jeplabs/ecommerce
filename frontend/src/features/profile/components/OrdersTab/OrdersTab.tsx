@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
 import type { OrderStatus } from '@/entities/order';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { getOrderIdFromProfilePath, profileOrderDetailPath } from '@/features/profile/lib/profileRoutes';
 import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
 import styles from './OrdersTab.module.css';

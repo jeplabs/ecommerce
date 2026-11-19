@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useCart, useToast } from '@/app/providers';
-import { Pagination } from '@/shared/ui';
-import { SortSelector } from '@/shared/ui/SortSelector/SortSelector';
+import { Pagination } from '@/components/ui';
+import { SortSelector } from '@/components/ui/SortSelector/SortSelector';
 import { ProductCard } from '../ProductCard/ProductCard';
 import { ProductFilters } from '../ProductFilters/ProductFilters';
 import { getCatalogo } from '../../api/catalogApi';

@@ -69,6 +69,26 @@ export type UseAdminUserResult = {
 
 export type AdminProductStatusFilter = '' | ProductStatus;
 
+export type AdminProductSort =
+    | 'nombre,asc'
+    | 'nombre,desc'
+    | 'sku,asc'
+    | 'sku,desc'
+    | 'precioVenta,asc'
+    | 'precioVenta,desc'
+    | 'precioCosto,asc'
+    | 'precioCosto,desc'
+    | 'margenPorcentaje,asc'
+    | 'margenPorcentaje,desc'
+    | 'stock,asc'
+    | 'stock,desc'
+    | 'estado,asc'
+    | 'estado,desc'
+    | 'createdAt,desc'
+    | 'createdAt,asc'
+    | 'updatedAt,desc'
+    | 'updatedAt,asc';
+
 export type UseAdminProductsResult = {
     productos: ProductAdminApi[];
     loading: boolean;
@@ -77,6 +97,8 @@ export type UseAdminProductsResult = {
     pageSize: number;
     totalPages: number;
     totalElements: number;
+    sort: AdminProductSort | string;
+    setSort: (value: AdminProductSort | string) => void;
     searchQuery: string;
     setSearchQuery: (value: string) => void;
     categoriaId: number | '';

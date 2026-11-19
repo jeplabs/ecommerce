@@ -2,9 +2,9 @@ import { useProfile, useAuth, useToast } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { getInitials } from '@/shared/lib/format';
-import { Button } from '@/shared/ui/Button';
-import { FormField } from '@/shared/ui/FormField';
-import { Input } from '@/shared/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import type { UserApi } from '@/entities/user';
 import ChangePasswordForm from '../ChangePasswordForm/ChangePasswordForm';
 import styles from './ProfileDataTab.module.css';

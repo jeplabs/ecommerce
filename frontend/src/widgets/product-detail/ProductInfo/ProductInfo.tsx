@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ProductApi } from '@/entities/product';
 import type { CartActionResult } from '@/entities/cart';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { FavoriteButton } from '@/features/favorites';
 import clsx from 'clsx';
 import styles from './ProductInfo.module.css';

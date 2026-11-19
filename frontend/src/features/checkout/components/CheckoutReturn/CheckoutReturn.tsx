@@ -19,7 +19,7 @@ import { orderApi } from '../../api/orderApi';
 import type { OrderApi } from '../../types/order';
 import { formatCurrency } from '@/shared/lib/format';
 import { ApiError, redirectUnauthorized } from '@/shared';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import styles from './CheckoutReturn.module.css';
 
 type MotivoRecuperacion = 'aborted' | 'timeout' | 'rejected';

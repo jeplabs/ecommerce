@@ -1,5 +1,5 @@
 import type { CartItemUiView } from '@/entities/cart';
-import { ProductImage } from '@/shared/ui/ProductImage';
+import { ProductImage } from '@/components/ui/ProductImage';
 import { formatCurrency } from '@/shared/lib/format';
 import styles from './CheckoutLineItems.module.css';
 

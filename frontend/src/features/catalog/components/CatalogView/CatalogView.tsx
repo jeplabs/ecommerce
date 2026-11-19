@@ -1,4 +1,4 @@
-import Breadcrumbs from '@/shared/ui/Breadcrumbs/Breadcrumbs';
+import Breadcrumbs from '@/components/ui/Breadcrumbs/Breadcrumbs';
 import type { CategoryBreadcrumbItem } from '../../types';
 import { ProductCatalog } from '../ProductCatalog/ProductCatalog';
 import styles from './CatalogView.module.css';

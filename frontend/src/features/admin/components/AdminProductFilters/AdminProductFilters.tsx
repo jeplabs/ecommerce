@@ -19,6 +19,18 @@ const STATUS_OPTIONS: Array<{ value: AdminProductStatusFilter; label: string }> 
     { value: 'DESCONTINUADO', label: 'Descontinuado' },
 ];
 
+const SORT_OPTIONS: Array<{ value: string; label: string }> = [
+    { value: 'nombre,asc', label: 'Nombre: A - Z' },
+    { value: 'nombre,desc', label: 'Nombre: Z - A' },
+    { value: 'precioVenta,asc', label: 'Precio: menor a mayor' },
+    { value: 'precioVenta,desc', label: 'Precio: mayor a menor' },
+    { value: 'stock,asc', label: 'Stock: menor a mayor' },
+    { value: 'stock,desc', label: 'Stock: mayor a menor' },
+    { value: 'createdAt,desc', label: 'Más recientes primero' },
+    { value: 'createdAt,asc', label: 'Más antiguos primero' },
+    { value: 'updatedAt,desc', label: 'Última modificación' },
+];
+
 const PAGE_SIZE_OPTIONS = [12, 24, 48] as const;
 
 function flattenCategoryOptions(
@@ -43,6 +55,8 @@ export type AdminProductFiltersProps = {
     onCategoryChange: (value: number | '') => void;
     estadoFiltro: AdminProductStatusFilter;
     onStatusChange: (value: AdminProductStatusFilter) => void;
+    sort: string;
+    onSortChange: (value: string) => void;
     pageSize: number;
     onPageSizeChange: (size: number) => void;
     categorias: CategoryTreeNode[];
@@ -55,7 +69,7 @@ export type AdminProductFiltersProps = {
 };
 
 /**
- * Barra de búsqueda y filtros por categoría, estado y tamaño de página para productos en admin.
+ * Barra de búsqueda y filtros por categoría, estado, orden y tamaño de página para productos en admin.
  */
 export default function AdminProductFilters({
     searchQuery,
@@ -64,6 +78,8 @@ export default function AdminProductFilters({
     onCategoryChange,
     estadoFiltro,
     onStatusChange,
+    sort,
+    onSortChange,
     pageSize,
     onPageSizeChange,
     categorias,
@@ -142,6 +158,23 @@ export default function AdminProductFilters({
                     >
                         {STATUS_OPTIONS.map((opt) => (
                             <option key={opt.value || 'all'} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                    </Select>
+                </div>
+
+                <div className={styles.field}>
+                    <label className={styles.label} htmlFor="admin-products-sort">
+                        Ordenar por
+                    </label>
+                    <Select
+                        id="admin-products-sort"
+                        value={sort}
+                        onChange={(e) => onSortChange(e.target.value)}
+                    >
+                        {SORT_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
                                 {opt.label}
                             </option>
                         ))}

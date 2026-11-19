@@ -1,10 +1,10 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { forgotPassword } from '@/entities/user/api/authApi';
-import { Button } from '@/shared/ui/Button';
-import formStyles from '@/shared/ui/Form/Form.module.css';
-import { Form } from '@/shared/ui/Form/Form';
-import { FieldError, FormField } from '@/shared/ui/FormField';
-import { Input } from '@/shared/ui/Input';
+import { Button } from '@/components/ui/Button';
+import formStyles from '@/components/ui/Form/Form.module.css';
+import { Form } from '@/components/ui/Form/Form';
+import { FieldError, FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import clsx from 'clsx';
 
 type ForgotPasswordFormProps = {

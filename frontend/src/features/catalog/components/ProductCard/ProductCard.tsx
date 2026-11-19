@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { ProductImage } from '@/shared/ui/ProductImage';
-import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
+import { ProductImage } from '@/components/ui/ProductImage';
+import { SoldOutBadge } from '@/components/ui/SoldOutBadge/SoldOutBadge';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { formatCurrency } from '@/utils/format';
 import type { ProductApi } from '../../types';

@@ -151,4 +151,43 @@ describe('useAdminProducts', () => {
             expect(result.current.hasActiveFilters).toBe(true);
         });
     });
+
+    it('aplica ordenamiento global por sort y reinicia la página a 1', async () => {
+        let capturedSort: string | null = null;
+        server.use(
+            http.get(`${API_URL}/api/productos/admin`, ({ request }) => {
+                const url = new URL(request.url);
+                capturedSort = url.searchParams.get('sort');
+
+                return HttpResponse.json({
+                    content: [],
+                    totalElements: 0,
+                    totalPages: 1,
+                    size: 12,
+                    number: 0,
+                    first: true,
+                    last: true,
+                    empty: true,
+                    numberOfElements: 0,
+                });
+            })
+        );
+
+        const { result } = renderHook(() => useAdminProducts(12), {
+            wrapper: createWrapper(),
+        });
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+        expect(result.current.sort).toBe('nombre,asc');
+
+        act(() => {
+            result.current.setSort('precioVenta,desc');
+        });
+
+        await waitFor(() => {
+            expect(capturedSort).toBe('precioVenta,desc');
+            expect(result.current.page).toBe(1);
+            expect(result.current.sort).toBe('precioVenta,desc');
+        });
+    });
 });

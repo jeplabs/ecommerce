@@ -1,9 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useProfile, useToast } from '@/app/providers';
 import { updatePasswordFormSchema } from '@/entities/user';
-import { Button } from '@/shared/ui/Button';
-import { FormField } from '@/shared/ui/FormField';
-import { Input } from '@/shared/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import styles from '../ProfileDataTab/ProfileDataTab.module.css';
 
 const EMPTY_FORM = {

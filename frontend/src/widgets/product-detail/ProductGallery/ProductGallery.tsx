@@ -2,8 +2,8 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import type { ProductApi } from '@/entities/product';
 import { getProductImageUrls, getMainProductImageUrl } from '@/entities/product';
-import { ProductImage } from '@/shared/ui/ProductImage';
-import { SoldOutBadge } from '@/shared/ui/SoldOutBadge/SoldOutBadge';
+import { ProductImage } from '@/components/ui/ProductImage';
+import { SoldOutBadge } from '@/components/ui/SoldOutBadge/SoldOutBadge';
 import styles from './ProductGallery.module.css';
 
 type ProductGalleryProps = {

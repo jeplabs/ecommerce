@@ -1,7 +1,7 @@
 import { useAuth, useCart, useToast } from '@/app/providers';
-import { Button } from '@/shared/ui/Button';
-import buttonStyles from '@/shared/ui/Button/Button.module.css';
-import { ProductImage } from '@/shared/ui/ProductImage';
+import { Button } from '@/components/ui/Button';
+import buttonStyles from '@/components/ui/Button/Button.module.css';
+import { ProductImage } from '@/components/ui/ProductImage';
 import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';

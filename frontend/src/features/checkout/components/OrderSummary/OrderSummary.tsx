@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { formatCurrency } from '@/shared/lib/format';
-import { ProductImage } from '@/shared/ui/ProductImage';
+import { ProductImage } from '@/components/ui/ProductImage';
 import type { CartItemUiView } from '@/entities/cart';
 import type { ShippingServiceCosts } from '../../types/shipping';
 import CheckoutReservationBanner from '../CheckoutReservationBanner/CheckoutReservationBanner';

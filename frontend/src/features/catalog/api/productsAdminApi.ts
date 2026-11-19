@@ -79,9 +79,10 @@ export type AdminProductsQueryParams = {
     estado?: ProductStatus;
     page?: number;
     size?: number;
+    sort?: string;
 };
 
-/** {@code GET /api/productos/admin?nombre=&categoriaId=&estado=&page=&size=} */
+/** {@code GET /api/productos/admin?nombre=&categoriaId=&estado=&page=&size=&sort=} */
 export async function getAdminPage(
     query: AdminProductsQueryParams = {}
 ): Promise<ProductAdminPage> {
@@ -99,6 +100,9 @@ export async function getAdminPage(
     }
     if (query.estado) {
         params.set('estado', query.estado);
+    }
+    if (query.sort) {
+        params.set('sort', query.sort);
     }
 
     const response = await fetch(`${API_URL}/api/productos/admin?${params}`, {

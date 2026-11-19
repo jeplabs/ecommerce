@@ -1,5 +1,5 @@
 import { useCart, useToast } from '@/app/providers';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/components/ui/Button';
 import styles from './CartExpiredModal.module.css';
 
 function formatMotivo(motivo: string, solicitada?: number, restaurada?: number): string {

@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 import type { CatalogSortOrder } from '@/features/catalog';
-import { Select } from '@/shared/ui/Select';
+import { Select } from '@/components/ui/Select';
 import styles from './SortSelector.module.css';
 
 type SortSelectorProps = {
