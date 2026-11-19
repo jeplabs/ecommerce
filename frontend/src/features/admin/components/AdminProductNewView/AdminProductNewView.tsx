@@ -1,12 +1,12 @@
-import { useProduct, useCategorias, useToast } from '@/app/providers';
 import { useState } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
+import { useProduct, useCategorias, useToast } from '@/app/providers';
 import type { CreateProductRequest } from '@/features/catalog';
 import { ProductForm } from '../ProductForm';
 import { FieldError } from '@/components/ui/FormField';
 import type { ProductFormSubmitPayload } from '../ProductForm';
 import type { AdminProductFormImage } from '../../lib/product-image-admin';
-import styles from './AdminProductNewView.module.css';
+import AdminProductModal from '../AdminProductModal/AdminProductModal';
 
 type AdminProductNewViewProps = {
     onNavigate: NavigateFunction;
@@ -48,11 +48,11 @@ export default function AdminProductNewView({ onNavigate }: AdminProductNewViewP
     };
 
     return (
-        <main className="product-new-container">
-            <button type="button" className={styles.back} onClick={handleCancel}>
-                ← Volver a Productos
-            </button>
-            <h1>Crear Producto</h1>
+        <AdminProductModal
+            isOpen={true}
+            title="Crear Producto"
+            onClose={handleCancel}
+        >
             {error && <FieldError>{error}</FieldError>}
             <ProductForm
                 onSubmit={handleCreate}
@@ -60,6 +60,6 @@ export default function AdminProductNewView({ onNavigate }: AdminProductNewViewP
                 arbolCategorias={arbolCategorias}
                 onCancel={handleCancel}
             />
-        </main>
+        </AdminProductModal>
     );
 }

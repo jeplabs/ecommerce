@@ -38,7 +38,9 @@ function getBreadcrumbItems(pathname: string): CategoryBreadcrumbItem[] {
 
 export default function AdminLayout() {
     const location = useLocation();
-    const isSubRoute = /\/(new|edit|\d+\/edit)/.test(location.pathname);
+    const isSubRoute =
+        !location.pathname.startsWith('/admin/products') &&
+        /\/(new|edit|\d+\/edit)/.test(location.pathname);
 
     return (
         <div className={styles.layout}>

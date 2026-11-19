@@ -1,9 +1,14 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 import { AdminProductListView } from '@/features/admin';
 
 export function AdminProductsRoute() {
     const navigate = useNavigate();
-    return <AdminProductListView onNavigate={navigate} />;
+    return (
+        <>
+            <AdminProductListView onNavigate={navigate} />
+            <Outlet />
+        </>
+    );
 }
 
 export { AdminProductsRoute as AdminProductsPage };

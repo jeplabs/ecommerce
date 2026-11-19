@@ -158,23 +158,10 @@ export function AppRouter() {
                                 <AdminProductsPage />
                             </PrivateRoute>
                         }
-                    />
-                    <Route
-                        path="/admin/products/new"
-                        element={
-                            <PrivateRoute requiredRol="ROLE_ADMIN">
-                                <AdminProductNewPage />
-                            </PrivateRoute>
-                        }
-                    />
-                    <Route
-                        path="/admin/products/edit/:id"
-                        element={
-                            <PrivateRoute requiredRol="ROLE_ADMIN">
-                                <AdminProductEditPage />
-                            </PrivateRoute>
-                        }
-                    />
+                    >
+                        <Route path="new" element={<AdminProductNewPage />} />
+                        <Route path="edit/:id" element={<AdminProductEditPage />} />
+                    </Route>
                     <Route
                         path="/admin/users"
                         element={

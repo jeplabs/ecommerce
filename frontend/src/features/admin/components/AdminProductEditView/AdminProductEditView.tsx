@@ -11,6 +11,7 @@ import {
 import { ProductForm } from '../ProductForm';
 import { FieldError } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
+import AdminProductModal from '../AdminProductModal/AdminProductModal';
 import type {
     ProductFormInitialData,
     ProductFormSubmitPayload,
@@ -274,47 +275,54 @@ export default function AdminProductEditView({ productId, onNavigate }: AdminPro
 
     if (error) {
         return (
-            <main className={styles.root}>
-                <h1>Error al cargar producto</h1>
-                <FieldError>{error}</FieldError>
-                <Button type="button" variant="secondary" onClick={() => onNavigate('/admin/products')}>
-                    Volver a la lista
-                </Button>
-            </main>
+            <AdminProductModal
+                isOpen={true}
+                title="Editar Producto"
+                onClose={handleCancel}
+            >
+                <div className={styles.errorBox}>
+                    <h1>Error al cargar producto</h1>
+                    <FieldError>{error}</FieldError>
+                    <Button type="button" variant="secondary" onClick={() => onNavigate('/admin/products')}>
+                        Volver a la lista
+                    </Button>
+                </div>
+            </AdminProductModal>
         );
     }
 
     if (loadingProduct || !productData) {
         return (
-            <main className={styles.root}>
-                <div className={styles.loading}>Cargando producto...</div>
-            </main>
+            <AdminProductModal
+                isOpen={true}
+                title="Editar Producto"
+                onClose={handleCancel}
+                loading={true}
+            />
         );
     }
 
     return (
-        <>
-            <button type="button" className={styles.back} onClick={handleCancel}>
-                ← Volver a Productos
-            </button>
-            <main className={styles.root}>
-                <h1>Editar Producto</h1>
-                {preserveMissingMetadata && (
-                    <p className={styles.notice} role="status">
-                        Este producto no es público actualmente. Los campos de descripción,
-                        especificaciones y categorías no son devueltos por el endpoint admin actual;
-                        si los dejas sin cambios se conservarán los actuales en el servidor.
-                    </p>
-                )}
-                <ProductForm
-                    initialData={productData}
-                    onSubmit={handleUpdate}
-                    isSubmitting={isSaving}
-                    onCancel={handleCancel}
-                    arbolCategorias={arbolCategorias}
-                    preserveMissingMetadata={preserveMissingMetadata}
-                />
-            </main>
-        </>
+        <AdminProductModal
+            isOpen={true}
+            title="Editar Producto"
+            onClose={handleCancel}
+        >
+            {preserveMissingMetadata && (
+                <p className={styles.notice} role="status">
+                    Este producto no es público actualmente. Los campos de descripción,
+                    especificaciones y categorías no son devueltos por el endpoint admin actual;
+                    si los dejas sin cambios se conservarán los actuales en el servidor.
+                </p>
+            )}
+            <ProductForm
+                initialData={productData}
+                onSubmit={handleUpdate}
+                isSubmitting={isSaving}
+                onCancel={handleCancel}
+                arbolCategorias={arbolCategorias}
+                preserveMissingMetadata={preserveMissingMetadata}
+            />
+        </AdminProductModal>
     );
 }

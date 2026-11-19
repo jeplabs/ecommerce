@@ -20,6 +20,8 @@ export { default as AdminProductNewView } from './AdminProductNewView';
 export * from './AdminProductNewView';
 export { default as AdminProductEditView } from './AdminProductEditView';
 export * from './AdminProductEditView';
+export { default as AdminProductModal } from './AdminProductModal';
+export * from './AdminProductModal';
 export { default as AdminUsersListView } from './AdminUsersListView';
 export * from './AdminUsersListView';
 export { default as AdminUserEditView } from './AdminUserEditView';
