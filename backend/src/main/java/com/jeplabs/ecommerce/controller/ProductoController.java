@@ -29,8 +29,9 @@ public class ProductoController {
 
     @Operation(
             summary = "Listar productos",
-            description = "Público. Soporta filtros por nombre y categoría, y paginación. " +
-                    "Ejemplo: /api/productos?nombre=rtx&categoriaId=2&page=0&size=10"
+            description = "Público. Soporta filtros por búsqueda, categoría (incluye subcategorías), rango de precios, specs, " +
+                    "paginación y ordenamiento global multi-página (sort=precioVenta,asc|desc, nombre,asc|desc, createdAt,desc, stock,asc|desc). " +
+                    "Ejemplo: /api/productos?categoriaId=2&page=0&size=12&sort=precioVenta,asc"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de productos retornada exitosamente")
@@ -267,8 +268,12 @@ public class ProductoController {
         return ResponseEntity.ok(service.quitarCategorias(id, datos));
     }
 
-    // admin - endpoint para listar todos los productos sin importar estado, ve todos los estados.
-    // GET /api/productos/admin
+    @Operation(
+            summary = "Listar productos (vista admin)",
+            description = "Solo ADMIN. Retorna todos los productos sin importar estado con filtros por nombre/SKU, " +
+                    "categoría (incluye subcategorías), estado, paginación y ordenamiento global multi-página " +
+                    "(nombre, sku, precioVenta, precioCosto, margenPorcentaje, stock, estado, createdAt)."
+    )
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<DatosRespuestaProductoAdmin>> listarAdmin(

@@ -5,6 +5,8 @@ import com.jeplabs.ecommerce.domain.producto.ProductoRepository;
 import com.jeplabs.ecommerce.domain.usuario.Usuario;
 import com.jeplabs.ecommerce.domain.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +21,16 @@ public class FavoritoService {
     private final ProductoRepository productoRepository;
 
     @Transactional(readOnly = true)
-    public List<DatosRespuestaFavorito> listarFavoritos(String email) {
+    public Page<DatosRespuestaFavorito> listarFavoritos(String email, Pageable pageable) {
         Usuario usuario = buscarUsuario(email);
-        return favoritoRepository.findByUsuarioIdOrderByCreadoAtDesc(usuario.getId())
-                .stream()
-                .map(DatosRespuestaFavorito::new)
-                .toList();
+        return favoritoRepository.findByUsuarioId(usuario.getId(), pageable)
+                .map(DatosRespuestaFavorito::new);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> listarIdsFavoritos(String email) {
+        Usuario usuario = buscarUsuario(email);
+        return favoritoRepository.findProductoIdsByUsuarioId(usuario.getId());
     }
 
     @Transactional(readOnly = true)

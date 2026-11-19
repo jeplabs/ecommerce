@@ -7,12 +7,19 @@ import com.jeplabs.ecommerce.infra.config.MonedaConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 // Contiene toda la lógica de negocio
 @Service
@@ -39,12 +46,19 @@ public class ProductoService {
     }
 
     // Listado público con paginación con Pageable y filtros
+    @Transactional(readOnly = true)
     public Page<DatosRespuestaProducto> listar(String nombre, Long categoriaId, Pageable pageable) {
-        return productoRepositorio.buscarActivos(nombre, categoriaId, pageable)
+        FiltroCategoria filtro = resolverFiltroCategoria(categoriaId);
+        if (filtro.categoriaInexistente()) {
+            return Page.empty(pageable);
+        }
+        return productoRepositorio.buscarActivos(
+                        nombre, filtro.filtrar(), filtro.categoriaIds(), pageable)
                 .map(DatosRespuestaProducto::new);
     }
 
-    // Listado público avanzado con facetas (Enfoque híbrido H2-Compatible)
+    // Listado público avanzado con facetas, jerarquía de categorías y ordenamiento global multi-página
+    @Transactional(readOnly = true)
     public DatosRespuestaCatalogoPage listarFacetado(
             String nombre,
             Long categoriaId,
@@ -53,8 +67,25 @@ public class ProductoService {
             org.springframework.util.MultiValueMap<String, String> params,
             Pageable pageable) {
 
-        // 1. Base filtrada desde BD
-        List<Producto> productosBase = productoRepositorio.buscarActivosSinPaginacion(nombre, categoriaId);
+        FiltroCategoria filtro = resolverFiltroCategoria(categoriaId);
+        if (filtro.categoriaInexistente()) {
+            return new DatosRespuestaCatalogoPage(
+                    List.of(),
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    0,
+                    0,
+                    true,
+                    true,
+                    java.util.Map.of()
+            );
+        }
+
+        String nombreFiltro = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
+
+        // 1. Base filtrada desde BD (incluyendo subcategorías si categoriaId es padre)
+        List<Producto> productosBase = productoRepositorio.buscarActivosSinPaginacion(
+                nombreFiltro, filtro.filtrar(), filtro.categoriaIds());
 
         // 2. Filtros dinámicos en memoria (precio y specs)
         List<Producto> filtrados = new ArrayList<>();
@@ -62,10 +93,7 @@ public class ProductoService {
             boolean matches = true;
 
             if (precioMin != null || precioMax != null) {
-                double precioActual = p.getPrecios().stream()
-                        .filter(pr -> pr.getFechaFin() == null)
-                        .mapToDouble(pr -> pr.getPrecioVenta().doubleValue())
-                        .findFirst().orElse(0.0);
+                double precioActual = obtenerPrecioVentaActual(p).doubleValue();
                 if (precioMin != null && precioActual < precioMin) matches = false;
                 if (precioMax != null && precioActual > precioMax) matches = false;
             }
@@ -105,7 +133,7 @@ public class ProductoService {
             if (matches) filtrados.add(p);
         }
 
-        // 3. Cálculo de Facetas sobre los resultados
+        // 3. Cálculo de Facetas sobre los resultados filtrados
         java.util.Map<String, java.util.Map<String, DatosRespuestaFaceta>> tempFacets = new java.util.HashMap<>();
         for (Producto p : filtrados) {
             if (p.getSpecs() != null) {
@@ -133,22 +161,28 @@ public class ProductoService {
             finalFacets.put(key, list);
         });
 
-        // 4. Paginación Manual
+        // 4. Ordenamiento global antes de cortar la página
+        ordenarProductos(filtrados, pageable.getSort());
+
+        // 5. Paginación Manual sobre la lista ya ordenada
         int totalElements = filtrados.size();
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), totalElements);
-        List<Producto> paginatedList = start <= end ? filtrados.subList(start, end) : new ArrayList<>();
-        
-        int totalPages = pageable.getPageSize() == 0 ? 1 : (int) Math.ceil((double) totalElements / pageable.getPageSize());
-        boolean isFirst = start == 0;
+        List<Producto> paginatedList = sublistaPaginada(filtrados, pageable);
+        int start = pageable.isPaged() ? (int) pageable.getOffset() : 0;
+        int end = start + paginatedList.size();
+
+        int pageSize = pageable.isPaged() && pageable.getPageSize() > 0 ? pageable.getPageSize() : Math.max(totalElements, 1);
+        int totalPages = pageable.isPaged() && pageable.getPageSize() > 0
+                ? (int) Math.ceil((double) totalElements / pageable.getPageSize())
+                : (totalElements == 0 ? 0 : 1);
+        boolean isFirst = !pageable.isPaged() || pageable.getPageNumber() == 0;
         boolean isLast = end >= totalElements;
 
         List<DatosRespuestaProducto> content = paginatedList.stream().map(DatosRespuestaProducto::new).toList();
 
         return new DatosRespuestaCatalogoPage(
                 content,
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
+                pageable.isPaged() ? pageable.getPageNumber() : 0,
+                pageable.isPaged() ? pageSize : totalElements,
                 totalElements,
                 totalPages,
                 isFirst,
@@ -291,14 +325,137 @@ public class ProductoService {
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + id));
     }
 
-    //Para admin - devuelve lista de todos los productos con sus estados
+    // Para admin - devuelve lista paginada de todos los productos con ordenamiento global y jerarquía de categorías
     @Transactional(readOnly = true)
     public Page<DatosRespuestaProductoAdmin> listarAdmin(
             String nombre, Long categoriaId, EstadoProducto estado, Pageable pageable) {
+        FiltroCategoria filtro = resolverFiltroCategoria(categoriaId);
+        if (filtro.categoriaInexistente()) {
+            return Page.empty(pageable);
+        }
+
         String nombreFiltro = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
         String estadoStr = estado != null ? estado.name() : null;
-        return productoRepositorio.buscarTodosAdmin(nombreFiltro, categoriaId, estadoStr, pageable)
-                .map(DatosRespuestaProductoAdmin::new);
+
+        List<Producto> productos = new ArrayList<>(productoRepositorio.buscarTodosAdminSinPaginacion(
+                nombreFiltro, filtro.filtrar(), filtro.categoriaIds(), estadoStr));
+
+        ordenarProductos(productos, pageable.getSort());
+
+        List<DatosRespuestaProductoAdmin> content = sublistaPaginada(productos, pageable)
+                .stream()
+                .map(DatosRespuestaProductoAdmin::new)
+                .toList();
+
+        return new PageImpl<>(content, pageable, productos.size());
+    }
+
+    private record FiltroCategoria(boolean filtrar, List<Long> categoriaIds, boolean categoriaInexistente) {}
+
+    private FiltroCategoria resolverFiltroCategoria(Long categoriaId) {
+        if (categoriaId == null) {
+            return new FiltroCategoria(false, List.of(-1L), false);
+        }
+        return categoriaRepositorio.findById(categoriaId)
+                .map(categoria -> {
+                    List<Long> ids = new ArrayList<>();
+                    recolectarIdsCategoria(categoria, ids, new HashSet<>());
+                    return new FiltroCategoria(true, ids, false);
+                })
+                .orElseGet(() -> new FiltroCategoria(true, List.of(-1L), true));
+    }
+
+    private void recolectarIdsCategoria(Categoria categoria, List<Long> ids, Set<Long> visitados) {
+        if (categoria == null || categoria.getId() == null || !visitados.add(categoria.getId())) {
+            return;
+        }
+        ids.add(categoria.getId());
+        if (categoria.getSubcategorias() != null) {
+            for (Categoria subcategoria : categoria.getSubcategorias()) {
+                recolectarIdsCategoria(subcategoria, ids, visitados);
+            }
+        }
+    }
+
+    private void ordenarProductos(List<Producto> productos, Sort sort) {
+        if (productos.size() <= 1) {
+            return;
+        }
+        Comparator<Producto> comparador = null;
+        if (sort != null && sort.isSorted()) {
+            for (Sort.Order order : sort) {
+                Comparator<Producto> c = comparadorPorPropiedad(order.getProperty());
+                if (order.isDescending()) {
+                    c = c.reversed();
+                }
+                comparador = comparador == null ? c : comparador.thenComparing(c);
+            }
+        }
+        if (comparador == null) {
+            comparador = comparadorPorPropiedad("nombre");
+        }
+        comparador = comparador.thenComparing(Producto::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+        productos.sort(comparador);
+    }
+
+    private Comparator<Producto> comparadorPorPropiedad(String property) {
+        String prop = property == null ? "nombre" : property.trim().toLowerCase(Locale.ROOT);
+        return switch (prop) {
+            case "precioventa", "precio", "price" ->
+                    Comparator.comparing(ProductoService::obtenerPrecioVentaActual);
+            case "preciocosto" ->
+                    Comparator.comparing(ProductoService::obtenerPrecioCostoActual);
+            case "margenporcentaje", "margen" ->
+                    Comparator.comparing(ProductoService::obtenerMargenActual);
+            case "createdat", "fecha", "masrecientes", "recientes" ->
+                    Comparator.comparing(Producto::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+            case "updatedat" ->
+                    Comparator.comparing(Producto::getUpdatedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+            case "stock" ->
+                    Comparator.comparing(Producto::getStock, Comparator.nullsLast(Comparator.naturalOrder()));
+            case "sku" ->
+                    Comparator.comparing(p -> p.getSku() != null ? p.getSku() : "", String.CASE_INSENSITIVE_ORDER);
+            case "estado" ->
+                    Comparator.comparing(p -> p.getEstado() != null ? p.getEstado().name() : "");
+            case "id" ->
+                    Comparator.comparing(Producto::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+            default ->
+                    Comparator.comparing(p -> p.getNombre() != null ? p.getNombre() : "", String.CASE_INSENSITIVE_ORDER);
+        };
+    }
+
+    private static BigDecimal obtenerPrecioVentaActual(Producto producto) {
+        return producto.getPrecios().stream()
+                .filter(p -> p.getFechaFin() == null)
+                .map(PrecioHistorial::getPrecioVenta)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private static BigDecimal obtenerPrecioCostoActual(Producto producto) {
+        return producto.getPrecios().stream()
+                .filter(p -> p.getFechaFin() == null)
+                .map(PrecioHistorial::getPrecioCosto)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private static BigDecimal obtenerMargenActual(Producto producto) {
+        return producto.getPrecios().stream()
+                .filter(p -> p.getFechaFin() == null)
+                .map(PrecioHistorial::calcularMargen)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private <T> List<T> sublistaPaginada(List<T> items, Pageable pageable) {
+        if (pageable == null || pageable.isUnpaged()) {
+            return items;
+        }
+        int totalElements = items.size();
+        int start = (int) Math.min(pageable.getOffset(), totalElements);
+        int end = Math.min(start + pageable.getPageSize(), totalElements);
+        return start < end ? items.subList(start, end) : List.of();
     }
 
     // Admin - listar categorías

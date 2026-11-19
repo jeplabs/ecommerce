@@ -31,7 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -122,11 +124,57 @@ class ProductoControllerTest {
         }
 
         @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("ADMIN puede ordenar por precioVenta descendente")
+        void listarAdmin_conSortPrecioVentaDesc_pasaPageableConSort() throws Exception {
+            when(productoService.listarAdmin(eq(null), eq(null), eq(null), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(productoAdminRespuesta), PageRequest.of(0, 10), 1));
+
+            mockMvc.perform(get("/api/productos/admin")
+                            .param("sort", "precioVenta,desc"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[0].id").value(1));
+
+            verify(productoService).listarAdmin(eq(null), eq(null), eq(null), argThat(pageable ->
+                    pageable.getSort().getOrderFor("precioVenta") != null
+                            && pageable.getSort().getOrderFor("precioVenta").isDescending()));
+        }
+
+        @Test
         @WithMockUser(roles = "CUSTOMER")
         @DisplayName("CUSTOMER recibe 403 en GET /api/productos/admin")
         void listarAdmin_comoCustomer_retorna403() throws Exception {
             mockMvc.perform(get("/api/productos/admin"))
                     .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/productos")
+    class ListarPublicoTests {
+
+        @Test
+        @DisplayName("Propaga sort=precioVenta,asc y paginación al servicio de catálogo")
+        void listarPublico_conSortYCategoria_pasaPageableConSort() throws Exception {
+            DatosRespuestaCatalogoPage page = new DatosRespuestaCatalogoPage(
+                    List.of(), 1, 12, 0, 0, false, true, Map.of());
+            when(productoService.listarFacetado(eq(null), eq(5L), eq(null), eq(null), any(), any(Pageable.class)))
+                    .thenReturn(page);
+
+            mockMvc.perform(get("/api/productos")
+                            .param("categoriaId", "5")
+                            .param("page", "1")
+                            .param("size", "12")
+                            .param("sort", "precioVenta,asc"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.number").value(1))
+                    .andExpect(jsonPath("$.size").value(12));
+
+            verify(productoService).listarFacetado(eq(null), eq(5L), eq(null), eq(null), any(), argThat(pageable ->
+                    pageable.getPageNumber() == 1
+                            && pageable.getPageSize() == 12
+                            && pageable.getSort().getOrderFor("precioVenta") != null
+                            && pageable.getSort().getOrderFor("precioVenta").isAscending()));
         }
     }
 
