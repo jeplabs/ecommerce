@@ -1,5 +1,5 @@
 import { createDefaultFiltros, createEmptySpecs } from './filter-facets';
-import type { CatalogFilterOpciones, CatalogFiltros, CatalogSortOrder } from '../model/types';
+import type { CatalogFilterOpciones, CatalogFiltros, CatalogSortOrder } from '../types';
 
 const SORT_VALUES = new Set<CatalogSortOrder>([
     'price-asc',
@@ -37,6 +37,55 @@ export function getEffectiveSortOrder(
     searchParams: URLSearchParams | null | undefined
 ): CatalogSortOrder {
     return getPersistedSortParam(searchParams) ?? 'price-asc';
+}
+
+/**
+ * Traduce el criterio de ordenamiento del frontend al formato Spring Data `sort`
+ * soportado por `GET /api/productos`: `campo,asc` o `campo,desc`.
+ */
+export function mapCatalogSortToBackend(sort: CatalogSortOrder | null | undefined): string | null {
+    switch (sort) {
+        case 'price-asc':
+            return 'precioVenta,asc';
+        case 'price-desc':
+            return 'precioVenta,desc';
+        case 'name-asc':
+            return 'nombre,asc';
+        case 'name-desc':
+            return 'nombre,desc';
+        case 'newest':
+            return 'createdAt,desc';
+        default:
+            return null;
+    }
+}
+
+/**
+ * Convierte los parámetros de navegación de la URL a los parámetros de consulta
+ * soportados por el endpoint `GET /api/productos` del backend Spring Data.
+ */
+export function toCatalogApiSearchParams(searchParams: URLSearchParams): URLSearchParams {
+    const apiParams = new URLSearchParams(searchParams);
+
+    // 1. Paginación: URL usa base 1, Spring Data usa base 0
+    const rawPage = apiParams.get('page');
+    const pageNum = rawPage ? Math.max(1, Number(rawPage)) : 1;
+    apiParams.set('page', String(pageNum - 1));
+
+    if (!apiParams.has('size')) {
+        apiParams.set('size', '12');
+    }
+
+    // 2. Ordenamiento: Mapear 'price-asc' -> 'precioVenta,asc', etc.
+    const rawSort = apiParams.get('sort') as CatalogSortOrder | null;
+    const backendSort = mapCatalogSortToBackend(rawSort);
+    if (backendSort) {
+        apiParams.set('sort', backendSort);
+    } else {
+        apiParams.delete('sort');
+    }
+
+    return apiParams;
 }
 
 export function parseFiltrosFromParams(

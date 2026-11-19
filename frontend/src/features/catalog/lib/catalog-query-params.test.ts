@@ -4,7 +4,9 @@ import {
     getEffectiveSortOrder,
     getPersistedSortParam,
     isFiltrosDefault,
+    mapCatalogSortToBackend,
     parseFiltrosFromParams,
+    toCatalogApiSearchParams,
 } from './catalog-query-params';
 import { extractFilterFacets } from './filter-facets';
 import { catalogProductsFixture } from '@/test/fixtures/catalog-products';
@@ -48,5 +50,37 @@ describe('catalog-query-params', () => {
         const filtros = parseFiltrosFromParams(new URLSearchParams('precioMax=80'), opciones);
         expect(isFiltrosDefault(filtros, opciones)).toBe(false);
         expect(isFiltrosDefault(null, opciones)).toBe(true);
+    });
+
+    describe('mapCatalogSortToBackend', () => {
+        it('mapea correctamente los criterios del frontend a Spring Data sort', () => {
+            expect(mapCatalogSortToBackend('price-asc')).toBe('precioVenta,asc');
+            expect(mapCatalogSortToBackend('price-desc')).toBe('precioVenta,desc');
+            expect(mapCatalogSortToBackend('name-asc')).toBe('nombre,asc');
+            expect(mapCatalogSortToBackend('name-desc')).toBe('nombre,desc');
+            expect(mapCatalogSortToBackend('newest')).toBe('createdAt,desc');
+            expect(mapCatalogSortToBackend(null)).toBeNull();
+            expect(mapCatalogSortToBackend(undefined)).toBeNull();
+        });
+    });
+
+    describe('toCatalogApiSearchParams', () => {
+        it('convierte parámetros de URL a formato compatible con el backend', () => {
+            const urlParams = new URLSearchParams('page=2&sort=price-desc&search=laptop');
+            const apiParams = toCatalogApiSearchParams(urlParams);
+
+            expect(apiParams.get('page')).toBe('1'); // Base 0
+            expect(apiParams.get('size')).toBe('12'); // Default 12
+            expect(apiParams.get('sort')).toBe('precioVenta,desc'); // Mapeado
+            expect(apiParams.get('search')).toBe('laptop');
+        });
+
+        it('elimina sort si no es válido o no está presente para usar el default del backend', () => {
+            const urlParams = new URLSearchParams('page=1');
+            const apiParams = toCatalogApiSearchParams(urlParams);
+
+            expect(apiParams.get('page')).toBe('0');
+            expect(apiParams.has('sort')).toBe(false);
+        });
     });
 });

@@ -1,4 +1,4 @@
-import type { CatalogProduct } from '@/features/catalog/model/types';
+import type { CatalogProduct } from '@/features/catalog';
 import {
     mockCatalogProducts,
     mockProduct,

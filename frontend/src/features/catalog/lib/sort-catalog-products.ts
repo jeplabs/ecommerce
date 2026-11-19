@@ -1,4 +1,4 @@
-import type { CatalogProduct, CatalogSortOrder } from '../model/types';
+import type { CatalogProduct, CatalogSortOrder } from '../types';
 
 /**
  * Ordena productos del catálogo según el criterio activo (URL o default).

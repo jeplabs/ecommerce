@@ -14,13 +14,12 @@ import {
 } from '../../lib/filter-facets';
 import {
     getPersistedSortParam,
-    getEffectiveSortOrder,
     parseFiltrosFromParams,
     buildCatalogSearchParams,
     isFiltrosDefault,
     getPageParam,
+    toCatalogApiSearchParams,
 } from '../../lib/catalog-query-params';
-import { sortCatalogProducts } from '../../lib/sort-catalog-products';
 import type {
     CatalogFiltros,
     CatalogProduct,
@@ -68,13 +67,7 @@ export const ProductCatalog = ({
             setIsInitialLoading(true);
         }
 
-        const queryParams = new URLSearchParams(searchParams);
-        const rawPage = queryParams.get('page');
-        const pageNum = rawPage ? Math.max(1, Number(rawPage)) : 1;
-        queryParams.set('page', String(pageNum - 1));
-        if (!queryParams.has('size')) {
-            queryParams.set('size', '12');
-        }
+        const queryParams = toCatalogApiSearchParams(searchParams);
 
         getCatalogo(queryParams)
             .then((data) => {
@@ -107,7 +100,6 @@ export const ProductCatalog = ({
         () => getPersistedSortParam(searchParams) ?? '',
         [searchParams]
     );
-    const effectiveSort = useMemo(() => getEffectiveSortOrder(searchParams), [searchParams]);
     const searchTerm = searchParams.get('search') || '';
 
     const isExternal = productosExternos !== null;
@@ -146,6 +138,7 @@ export const ProductCatalog = ({
             const params = buildCatalogSearchParams(searchParams, {
                 filtros: forUrl,
                 sort: getPersistedSortParam(searchParams),
+                page: 1,
                 opciones,
             });
             setSearchParams(params, { replace: false });
@@ -159,6 +152,7 @@ export const ProductCatalog = ({
             const params = buildCatalogSearchParams(searchParams, {
                 filtros: filtrosActivos,
                 sort: sortForUrl,
+                page: 1,
                 opciones,
             });
             setSearchParams(params, { replace: false });
@@ -193,18 +187,13 @@ export const ProductCatalog = ({
         }
     };
 
-    const listaOrdenada = useMemo(
-        () => sortCatalogProducts(productosAUsar, effectiveSort),
-        [productosAUsar, effectiveSort]
-    );
-
     const totalPaginas = isExternal
         ? (totalPaginasExterno ?? 1)
         : (serverData?.totalPages ?? 1);
 
     const totalConteo = isExternal
-        ? (totalElementosExterno ?? listaOrdenada.length)
-        : (serverData?.totalElements ?? listaOrdenada.length);
+        ? (totalElementosExterno ?? productosAUsar.length)
+        : (serverData?.totalElements ?? productosAUsar.length);
 
     const paginaActual = useMemo(
         () => Math.min(Math.max(1, rawPage), Math.max(1, totalPaginas)),
@@ -260,7 +249,7 @@ export const ProductCatalog = ({
                     ) : (
                         <>
                             <ul className={styles.productGrid}>
-                                {listaOrdenada.map((producto) => (
+                                {productosAUsar.map((producto) => (
                                     <li key={producto.id} className={styles.productGridItem}>
                                         <ProductCard
                                             product={producto}

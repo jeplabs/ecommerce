@@ -3,7 +3,7 @@ import type {
     CatalogFiltros,
     CatalogProduct,
     SpecFacetOption,
-} from '../model/types';
+} from '../types';
 
 /** Parámetros de URL reservados (no son claves de especificación). */
 export const RESERVED_FILTER_PARAMS = new Set([

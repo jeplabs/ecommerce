@@ -59,9 +59,8 @@ import {
     findDynamicProductById,
     findDynamicProductBySlug,
     getDynamicProductImages,
+    getDynamicPublicProducts,
     mockDynamicAdminProductsPage,
-    mockDynamicProductsPage,
-    mockDynamicProductsPageForCategory,
     resetDynamicProducts,
     setDynamicProductMainImage,
     updateDynamicProduct,
@@ -137,15 +136,64 @@ export const handlers = [
     http.get(`${API_BASE}/api/productos`, ({ request }) => {
         const url = new URL(request.url);
         const categoriaId = url.searchParams.get('categoriaId');
+        const sort = url.searchParams.get('sort');
+        const page = Math.max(0, Number(url.searchParams.get('page') || 0));
+        const size = Math.max(1, Number(url.searchParams.get('size') || 12));
+        const search = (url.searchParams.get('search') || url.searchParams.get('nombre') || '').trim().toLowerCase();
+
+        let items = getDynamicPublicProducts();
 
         if (categoriaId) {
             const id = Number(categoriaId);
             if (Number.isFinite(id)) {
-                return HttpResponse.json(mockDynamicProductsPageForCategory(id));
+                items = items.filter((product) =>
+                    product.categorias.some((category) => category.id === id)
+                );
             }
         }
 
-        return HttpResponse.json(mockDynamicProductsPage());
+        if (search) {
+            items = items.filter((p) => p.nombre.toLowerCase().includes(search) || p.sku.toLowerCase().includes(search));
+        }
+
+        if (sort) {
+            const [field, direction] = sort.split(',');
+            const isDesc = direction === 'desc';
+            items = [...items].sort((a, b) => {
+                if (field === 'precioVenta' || field === 'precio' || field === 'price') {
+                    return isDesc ? (b.precioVenta || 0) - (a.precioVenta || 0) : (a.precioVenta || 0) - (b.precioVenta || 0);
+                }
+                if (field === 'nombre' || field === 'name') {
+                    return isDesc ? (b.nombre || '').localeCompare(a.nombre || '') : (a.nombre || '').localeCompare(b.nombre || '');
+                }
+                if (field === 'createdAt' || field === 'fecha' || field === 'recientes') {
+                    const timeA = new Date(a.createdAt || 0).getTime();
+                    const timeB = new Date(b.createdAt || 0).getTime();
+                    return isDesc ? timeB - timeA : timeA - timeB;
+                }
+                return 0;
+            });
+        }
+
+        const totalElements = items.length;
+        const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / size);
+        const start = page * size;
+        const pagedContent = items.slice(start, start + size);
+
+        return HttpResponse.json({
+            content: pagedContent,
+            totalElements,
+            totalPages,
+            size,
+            number: page,
+            first: page === 0,
+            last: totalPages === 0 || page >= totalPages - 1,
+            empty: pagedContent.length === 0,
+            numberOfElements: pagedContent.length,
+            facets: {
+                Marca: [{ matchValue: 'apple', displayLabel: 'Apple', count: 1 }],
+            },
+        });
     }),
 
     http.get(`${API_BASE}/api/productos/slug/:slug`, ({ params }) => {

@@ -3,6 +3,7 @@ import { getCatalogo } from '../api/catalogApi';
 import type { ProductApi, SpecFacetOption } from '../types';
 import { useCategorias } from '@/app/providers';
 import { findCategoryByPath } from '../lib/category-path';
+import { toCatalogApiSearchParams } from '../lib/catalog-query-params';
 
 function toErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Error desconocido';
@@ -48,16 +49,13 @@ export function useProductosByCategory(categoriaSlugPath: string, searchParams?:
             setLoading(true);
             setError(null);
             try {
-                const queryParams = new URLSearchParams(searchParamsString);
-                queryParams.set('categoriaId', String(categoriaId));
-
-                const rawPage = queryParams.get('page');
+                const searchParamsObj = new URLSearchParams(searchParamsString);
+                const rawPage = searchParamsObj.get('page');
                 const pageNum = rawPage ? Math.max(1, Number(rawPage)) : 1;
                 setPaginaActual(pageNum);
-                queryParams.set('page', String(pageNum - 1));
-                if (!queryParams.has('size')) {
-                    queryParams.set('size', '12');
-                }
+
+                const queryParams = toCatalogApiSearchParams(searchParamsObj);
+                queryParams.set('categoriaId', String(categoriaId));
 
                 const data = await getCatalogo(queryParams);
 
