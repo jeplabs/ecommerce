@@ -12,9 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -119,12 +120,12 @@ class ProductoServiceTest {
         @DisplayName("Normaliza cadenas vacías o con solo espacios a null")
         void listarAdmin_conNombreEnBlanco_pasaNullAlRepositorio() {
             Pageable pageable = PageRequest.of(0, 10);
-            when(productoRepositorio.buscarTodosAdmin(null, null, null, pageable))
-                    .thenReturn(new PageImpl<>(List.of(productoOculto), pageable, 1));
+            when(productoRepositorio.buscarTodosAdminSinPaginacion(null, false, List.of(-1L), null))
+                    .thenReturn(List.of(productoOculto));
 
             Page<DatosRespuestaProductoAdmin> resultado = productoService.listarAdmin("   ", null, null, pageable);
 
-            verify(productoRepositorio).buscarTodosAdmin(null, null, null, pageable);
+            verify(productoRepositorio).buscarTodosAdminSinPaginacion(null, false, List.of(-1L), null);
             assertThat(resultado.getContent()).hasSize(1);
             assertThat(resultado.getContent().get(0).descripcion()).isEqualTo("Laptop de alto rendimiento");
             assertThat(resultado.getContent().get(0).specs()).containsEntry("ram", "32GB");
@@ -132,19 +133,138 @@ class ProductoServiceTest {
         }
 
         @Test
-        @DisplayName("Recorta espacios alrededor del término de búsqueda (nombre o SKU)")
-        void listarAdmin_conNombreConEspacios_trimeaElFiltro() {
+        @DisplayName("Recorta espacios alrededor del término de búsqueda e incluye subcategorías")
+        void listarAdmin_conNombreConEspacios_trimeaElFiltroEIncluyeSubcategorias() {
+            Categoria subcategoria = new Categoria(11L, "Laptops", "laptops", categoriaElectronica, new ArrayList<>());
+            categoriaElectronica.getSubcategorias().add(subcategoria);
+
             Pageable pageable = PageRequest.of(0, 10);
-            when(productoRepositorio.buscarTodosAdmin("SKU-LAP", 10L, "OCULTO", pageable))
-                    .thenReturn(new PageImpl<>(List.of(productoOculto), pageable, 1));
+            when(categoriaRepositorio.findById(10L)).thenReturn(Optional.of(categoriaElectronica));
+            when(productoRepositorio.buscarTodosAdminSinPaginacion("SKU-LAP", true, List.of(10L, 11L), "OCULTO"))
+                    .thenReturn(List.of(productoOculto));
 
             Page<DatosRespuestaProductoAdmin> resultado = productoService.listarAdmin(
                     "  SKU-LAP  ", 10L, EstadoProducto.OCULTO, pageable);
 
-            verify(productoRepositorio).buscarTodosAdmin("SKU-LAP", 10L, "OCULTO", pageable);
+            verify(productoRepositorio).buscarTodosAdminSinPaginacion("SKU-LAP", true, List.of(10L, 11L), "OCULTO");
             assertThat(resultado.getContent()).hasSize(1);
             assertThat(resultado.getContent().get(0).sku()).isEqualTo("SKU-LAP-001");
         }
+
+        @Test
+        @DisplayName("Ordena globalmente por precioVenta entre múltiples páginas")
+        void listarAdmin_ordenPorPrecioAscendente_respetaTodasLasPaginas() {
+            Producto productoBarato = crearProductoConPrecio(3L, "SKU-BAR-003", "Cable USB", "25.00", "10.00", 50);
+            Producto productoMedio = crearProductoConPrecio(4L, "SKU-MED-004", "Teclado Mecánico", "450.00", "250.00", 15);
+
+            when(productoRepositorio.buscarTodosAdminSinPaginacion(null, false, List.of(-1L), null))
+                    .thenReturn(List.of(productoOculto, productoDescontinuado, productoBarato, productoMedio));
+
+            Page<DatosRespuestaProductoAdmin> pagina0 = productoService.listarAdmin(
+                    null, null, null, PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "precioVenta")));
+            Page<DatosRespuestaProductoAdmin> pagina1 = productoService.listarAdmin(
+                    null, null, null, PageRequest.of(1, 2, Sort.by(Sort.Direction.ASC, "precioVenta")));
+
+            assertThat(pagina0.getTotalElements()).isEqualTo(4);
+            assertThat(pagina0.getTotalPages()).isEqualTo(2);
+            assertThat(pagina0.getContent()).extracting(DatosRespuestaProductoAdmin::id).containsExactly(3L, 2L);
+            assertThat(pagina1.getContent()).extracting(DatosRespuestaProductoAdmin::id).containsExactly(4L, 1L);
+        }
+    }
+
+    @Nested
+    @DisplayName("listarFacetado")
+    class ListarFacetadoTests {
+
+        @Test
+        @DisplayName("Ordena globalmente por precioVenta ascendente y descendente en todas las páginas")
+        void listarFacetado_ordenPorPrecio_aplicaAntesDePaginar() {
+            Producto p1 = crearProductoConPrecio(10L, "SKU-10", "Producto A", "500.00", "300.00", 5);
+            Producto p2 = crearProductoConPrecio(20L, "SKU-20", "Producto B", "100.00", "50.00", 8);
+            Producto p3 = crearProductoConPrecio(30L, "SKU-30", "Producto C", "900.00", "600.00", 3);
+            Producto p4 = crearProductoConPrecio(40L, "SKU-40", "Producto D", "250.00", "150.00", 12);
+
+            when(productoRepositorio.buscarActivosSinPaginacion(null, false, List.of(-1L)))
+                    .thenReturn(List.of(p1, p2, p3, p4));
+
+            DatosRespuestaCatalogoPage ascP0 = productoService.listarFacetado(
+                    null, null, null, null, new LinkedMultiValueMap<>(),
+                    PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "precioVenta")));
+            DatosRespuestaCatalogoPage ascP1 = productoService.listarFacetado(
+                    null, null, null, null, new LinkedMultiValueMap<>(),
+                    PageRequest.of(1, 2, Sort.by(Sort.Direction.ASC, "precioVenta")));
+
+            assertThat(ascP0.content()).extracting(DatosRespuestaProducto::id).containsExactly(20L, 40L);
+            assertThat(ascP1.content()).extracting(DatosRespuestaProducto::id).containsExactly(10L, 30L);
+
+            DatosRespuestaCatalogoPage descP0 = productoService.listarFacetado(
+                    null, null, null, null, new LinkedMultiValueMap<>(),
+                    PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "precioVenta")));
+
+            assertThat(descP0.content()).extracting(DatosRespuestaProducto::id).containsExactly(30L, 10L);
+        }
+
+        @Test
+        @DisplayName("Incluye productos de subcategorías al filtrar por categoría padre")
+        void listarFacetado_categoriaPadre_incluyeSubcategorias() {
+            Categoria subcat = new Categoria(11L, "Laptops", "laptops", categoriaElectronica, new ArrayList<>());
+            Categoria nieto = new Categoria(12L, "Ultrabooks", "ultrabooks", subcat, new ArrayList<>());
+            subcat.getSubcategorias().add(nieto);
+            categoriaElectronica.getSubcategorias().add(subcat);
+
+            Producto p = crearProductoConPrecio(10L, "SKU-10", "Ultrabook X", "1200.00", "800.00", 4);
+
+            when(categoriaRepositorio.findById(10L)).thenReturn(Optional.of(categoriaElectronica));
+            when(productoRepositorio.buscarActivosSinPaginacion(null, true, List.of(10L, 11L, 12L)))
+                    .thenReturn(List.of(p));
+
+            DatosRespuestaCatalogoPage respuesta = productoService.listarFacetado(
+                    null, 10L, null, null, new LinkedMultiValueMap<>(),
+                    PageRequest.of(0, 12, Sort.by(Sort.Direction.ASC, "precioVenta")));
+
+            verify(productoRepositorio).buscarActivosSinPaginacion(null, true, List.of(10L, 11L, 12L));
+            assertThat(respuesta.totalElements()).isEqualTo(1);
+            assertThat(respuesta.content()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("Retorna página vacía si la categoría solicitada no existe")
+        void listarFacetado_categoriaInexistente_retornaVacio() {
+            when(categoriaRepositorio.findById(999L)).thenReturn(Optional.empty());
+
+            DatosRespuestaCatalogoPage respuesta = productoService.listarFacetado(
+                    null, 999L, null, null, new LinkedMultiValueMap<>(), PageRequest.of(0, 12));
+
+            assertThat(respuesta.totalElements()).isZero();
+            assertThat(respuesta.content()).isEmpty();
+            verifyNoInteractions(productoRepositorio);
+        }
+    }
+
+    private Producto crearProductoConPrecio(
+            Long id, String sku, String nombre, String precioVenta, String precioCosto, int stock) {
+        List<PrecioHistorial> precios = new ArrayList<>();
+        Producto producto = new Producto(
+                id,
+                sku,
+                nombre,
+                Producto.generarSlug(nombre),
+                "Descripción",
+                Map.of("marca", "JEPLabs"),
+                stock,
+                EstadoProducto.DISPONIBLE,
+                1,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                List.of(categoriaElectronica),
+                precios,
+                new ArrayList<>()
+        );
+        precios.add(new PrecioHistorial(
+                id * 10, producto, new BigDecimal(precioVenta), new BigDecimal(precioCosto),
+                "GTQ", LocalDateTime.now(), null
+        ));
+        return producto;
     }
 
     @Nested

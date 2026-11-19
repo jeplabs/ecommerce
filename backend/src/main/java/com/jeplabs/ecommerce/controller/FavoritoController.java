@@ -5,6 +5,10 @@ import com.jeplabs.ecommerce.domain.favorito.FavoritoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +24,19 @@ public class FavoritoController {
     private final FavoritoService service;
 
     @GetMapping
-    @Operation(summary = "Listar favoritos",
-            description = "Devuelve todos los productos favoritos del usuario autenticado")
-    public ResponseEntity<List<DatosRespuestaFavorito>> listar(Authentication authentication) {
-        return ResponseEntity.ok(service.listarFavoritos(authentication.getName()));
+    @Operation(summary = "Listar favoritos paginados",
+            description = "Devuelve los productos favoritos del usuario autenticado de forma paginada.")
+    public ResponseEntity<Page<DatosRespuestaFavorito>> listar(
+            Authentication authentication,
+            @PageableDefault(size = 12, sort = "creadoAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(service.listarFavoritos(authentication.getName(), pageable));
+    }
+
+    @GetMapping("/ids")
+    @Operation(summary = "Listar IDs de productos favoritos",
+            description = "Endpoint ligero que devuelve solo los IDs de productos favoritos del usuario para marcar íconos en el catálogo.")
+    public ResponseEntity<List<Long>> listarIds(Authentication authentication) {
+        return ResponseEntity.ok(service.listarIdsFavoritos(authentication.getName()));
     }
 
     @GetMapping("/{productoId}/existe")
