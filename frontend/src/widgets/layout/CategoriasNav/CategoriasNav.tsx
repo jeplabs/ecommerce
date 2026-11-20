@@ -2,7 +2,7 @@ import { useCategorias } from '@/app/providers';
 import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { CategoryApi } from '@/entities/category';
+import type { CategoryApi } from '@/features/catalog';
 import useEscapeKey from '@/shared/lib/useEscapeKey';
 import styles from './CategoriasNav.module.css';
 

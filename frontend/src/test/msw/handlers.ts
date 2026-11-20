@@ -25,7 +25,7 @@ import {
     updateDynamicOrderComprobante,
     updateDynamicOrderStatusAdmin,
 } from './fixtures/orders-registry';
-import type { AddressApi } from '@/entities/address/model/schemas/api';
+import type { AddressApi } from '@/features/profile';
 import {
     createDynamicAddress,
     deleteDynamicAddress,

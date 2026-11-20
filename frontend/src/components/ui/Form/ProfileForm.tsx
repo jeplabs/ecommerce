@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import type { UpdateProfileFormValues, UserApi } from '@/entities/user';
+import type { UpdateProfileFormValues, UserApi } from '@/features/profile';
 import { Button } from '@/components/ui/Button';
 import formStyles from '@/components/ui/Form/Form.module.css';
 import { Form } from '@/components/ui/Form/Form';

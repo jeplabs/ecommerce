@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { useCategorias as useCategoriasHook } from '@/entities/category/model/useCategorias';
+import type { useCategorias as useCategoriasHook } from '@/features/catalog';
 
 export type CategoriasContextValue = ReturnType<typeof useCategoriasHook>;
 

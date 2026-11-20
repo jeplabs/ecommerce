@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { formatCurrency } from '@/shared/lib/format';
 import { ProductImage } from '@/components/ui/ProductImage';
-import type { CartItemUiView } from '@/entities/cart';
+import type { CartItemUiView } from '@/features/cart';
 import type { ShippingServiceCosts } from '../../types/shipping';
 import CheckoutReservationBanner from '../CheckoutReservationBanner/CheckoutReservationBanner';
 import styles from './OrderSummary.module.css';

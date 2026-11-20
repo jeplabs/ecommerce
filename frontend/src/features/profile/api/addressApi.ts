@@ -1,10 +1,14 @@
-import { getAccessToken } from '@/shared/lib/auth-token-store';
+import { getAccessToken } from '@/lib/auth-token-store';
 import { z } from 'zod';
-import { API_URL } from '@/shared/config';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
-import { ApiError, getErrorMessage, parseApi } from '@/shared';
-import { addressApiSchema, type AddressApi } from '../model/schemas/api';
-import type { CreateAddressRequest, UpdateAddressRequest } from '../model/schemas/forms';
+import { API_URL } from '@/config';
+import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
+import { ApiError, getErrorMessage, parseApi } from '@/lib';
+import {
+    addressApiSchema,
+    type AddressApi,
+    type CreateAddressRequest,
+    type UpdateAddressRequest,
+} from '../types/address';
 
 const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
@@ -48,7 +52,7 @@ async function handleVoid(response: Response, fallback: string): Promise<null> {
 }
 
 /** {@code GET /api/direcciones} */
-export async function listar(): Promise<AddressApi[]> {
+export async function listarDirecciones(): Promise<AddressApi[]> {
     const response = await fetch(`${API_URL}/api/direcciones`, {
         method: 'GET',
         headers: getAuthHeaders(getToken()),
@@ -57,7 +61,7 @@ export async function listar(): Promise<AddressApi[]> {
 }
 
 /** {@code POST /api/direcciones} */
-export async function crear(datos: CreateAddressRequest): Promise<AddressApi> {
+export async function crearDireccion(datos: CreateAddressRequest): Promise<AddressApi> {
     const response = await fetch(`${API_URL}/api/direcciones`, {
         method: 'POST',
         headers: getAuthHeaders(getToken()),
@@ -67,7 +71,7 @@ export async function crear(datos: CreateAddressRequest): Promise<AddressApi> {
 }
 
 /** {@code PATCH /api/direcciones/{id} */
-export async function actualizar(id: number, datos: UpdateAddressRequest): Promise<AddressApi> {
+export async function actualizarDireccion(id: number, datos: UpdateAddressRequest): Promise<AddressApi> {
     const response = await fetch(`${API_URL}/api/direcciones/${id}`, {
         method: 'PATCH',
         headers: getAuthHeaders(getToken()),
@@ -77,7 +81,7 @@ export async function actualizar(id: number, datos: UpdateAddressRequest): Promi
 }
 
 /** {@code PATCH /api/direcciones/{id}/principal */
-export async function cambiarPrincipal(id: number): Promise<AddressApi> {
+export async function cambiarDireccionPrincipal(id: number): Promise<AddressApi> {
     const response = await fetch(`${API_URL}/api/direcciones/${id}/principal`, {
         method: 'PATCH',
         headers: getAuthHeaders(getToken()),
@@ -86,7 +90,7 @@ export async function cambiarPrincipal(id: number): Promise<AddressApi> {
 }
 
 /** {@code DELETE /api/direcciones/{id} */
-export async function eliminar(id: number): Promise<null> {
+export async function eliminarDireccion(id: number): Promise<null> {
     const response = await fetch(`${API_URL}/api/direcciones/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(getToken()),
@@ -95,9 +99,9 @@ export async function eliminar(id: number): Promise<null> {
 }
 
 export const addressApi = {
-    listar,
-    crear,
-    actualizar,
-    cambiarPrincipal,
-    eliminar,
+    listar: listarDirecciones,
+    crear: crearDireccion,
+    actualizar: actualizarDireccion,
+    cambiarPrincipal: cambiarDireccionPrincipal,
+    eliminar: eliminarDireccion,
 };

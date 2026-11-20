@@ -1,4 +1,4 @@
-import type { CartApi, CartItemApi } from '@/entities/cart/model/schemas/api';
+import type { CartApi, CartItemApi } from '@/features/cart';
 import { mockEmptyCart } from './cart';
 import { mockCatalogProducts } from './products';
 

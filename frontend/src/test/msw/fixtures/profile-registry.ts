@@ -1,4 +1,4 @@
-import type { UserApi } from '@/entities/user/model/schemas/api';
+import type { UserApi } from '@/features/auth';
 import { MOCK_LOGIN_PASSWORD, mockUserProfile } from './auth';
 
 let profile: UserApi = { ...mockUserProfile };

@@ -5,9 +5,9 @@ import clsx from 'clsx';
 import {
     mapAddressFormToCreateRequest,
     mapAddressFormToUpdateRequest,
-} from '@/entities/address';
-import type { AddressApi } from '@/entities/address';
-import type { AddressFormValues } from '@/entities/address';
+    type AddressApi,
+    type AddressFormValues,
+} from '../../types';
 import AddressForm from '../AddressForm/AddressForm';
 import { Button } from '@/components/ui/Button';
 import styles from './AddressesTab.module.css';

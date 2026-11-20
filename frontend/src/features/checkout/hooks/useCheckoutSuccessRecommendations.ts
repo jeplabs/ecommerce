@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useProduct } from '@/app/providers';
 import { pickPostCheckoutProducts } from '../lib/checkout-recommendations';
 import type { OrderApi } from '../types';
-import type { ProductApi } from '@/entities/product';
+import type { ProductApi } from '@/features/catalog';
 
 const DEFAULT_LIMIT = 12;
 

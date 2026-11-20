@@ -2,10 +2,13 @@ import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import { OrderShippingSummary } from '@/components/ui/OrderShippingSummary';
 //import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
-import { OrderBankTransferSection } from '@/features/checkout';
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
-import type { OrderApi, OrderStatus } from '@/entities/order';
-import { getContraEntregaShippingNote } from '@/entities/order';
+import {
+    OrderBankTransferSection,
+    getContraEntregaShippingNote,
+    type OrderApi,
+    type OrderStatus,
+} from '@/features/checkout';
 import { Button } from '@/components/ui/Button';
 import styles from './OrderDetail.module.css';
 

@@ -1,4 +1,4 @@
-import type { BranchApi } from '@/entities/branch';
+import type { BranchApi } from '@/features/branches';
 
 export const mockBranches: BranchApi[] = [
     {

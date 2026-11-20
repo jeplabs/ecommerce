@@ -1,5 +1,5 @@
-import type { CartApi } from '@/entities/cart/model/schemas/api';
-import type { OrderApi } from '@/entities/order/model/schemas/api';
+import type { CartApi } from '@/features/cart';
+import type { OrderApi } from '@/features/checkout';
 import type { SpringPage } from '@/shared/api/spring-page';
 import { mockAddresses } from './addresses';
 import { mockBranches } from './branches';

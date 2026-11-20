@@ -1,5 +1,5 @@
-import type { AuthTokenResponse, UserApi } from '@/entities/user/model/schemas/api';
-import type { RegisterFormValues } from '@/entities/user/model/schemas/forms';
+import type { AuthTokenResponse, UserApi, RegisterFormValues } from '@/features/auth';
+
 
 export const MOCK_LOGIN_EMAIL = 'test@example.com';
 export const MOCK_ADMIN_EMAIL = 'admin@example.com';

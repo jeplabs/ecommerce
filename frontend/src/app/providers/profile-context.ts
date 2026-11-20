@@ -1,6 +1,5 @@
 import { createContext } from 'react';
-import type { useProfileLogic } from '@/entities/user/model/useProfileLogic';
-import type { useDireccionesLogic } from '@/entities/address/model/useDireccionesLogic';
+import type { useProfileLogic, useDireccionesLogic } from '@/features/profile';
 import type { useOrdenesLogic } from '@/features/checkout/hooks/useOrdenesLogic';
 import type { ProfileTabId } from '@/features/profile/lib/profileRoutes';
 

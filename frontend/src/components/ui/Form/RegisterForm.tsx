@@ -1,6 +1,6 @@
 import { useAuth } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import type { RegisterFormValues } from '@/entities/user';
+import type { RegisterFormValues } from '@/features/auth';
 import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form/Form';
 import { FieldError, FormField } from '@/components/ui/FormField';

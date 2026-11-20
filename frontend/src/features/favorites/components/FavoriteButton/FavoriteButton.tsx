@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { useAuth, useFavorites, useToast } from '@/app/providers';
-import type { ProductApi } from '@/entities/product';
+import type { ProductApi } from '@/features/catalog';
 import styles from './FavoriteButton.module.css';
 
 export interface FavoriteButtonProps {

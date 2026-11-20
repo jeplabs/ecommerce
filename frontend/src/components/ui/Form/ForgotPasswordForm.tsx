@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { forgotPassword } from '@/entities/user/api/authApi';
+import { forgotPassword } from '@/features/auth';
 import { Button } from '@/components/ui/Button';
 import formStyles from '@/components/ui/Form/Form.module.css';
 import { Form } from '@/components/ui/Form/Form';

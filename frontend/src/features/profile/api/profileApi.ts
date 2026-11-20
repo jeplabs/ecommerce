@@ -2,9 +2,13 @@ import { getAccessToken } from '@/lib/auth-token-store';
 import { API_URL } from '@/config';
 import { getAuthHeaders, isAuthError, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
 import { ApiError, getErrorMessage, parseApi } from '@/lib';
-import { userApiSchema, type UserApi } from '@/entities/user';
-import type { UpdatePasswordFormValues, UpdateProfileFormValues } from '@/entities/user';
-import { mapUpdatePasswordFormToRequest, mapUpdateProfileFormToRequest } from '@/entities/user';
+import { userApiSchema, type UserApi } from '@/features/auth';
+import {
+    mapUpdatePasswordFormToRequest,
+    mapUpdateProfileFormToRequest,
+    type UpdatePasswordFormValues,
+    type UpdateProfileFormValues,
+} from '../types';
 
 const getToken = () => getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 

@@ -9,7 +9,7 @@ import type {
     RestaurarCartResult,
     CartApi,
 } from '../types';
-import type { ProductApi } from '@/entities/product';
+import type { ProductApi } from '@/features/catalog';
 import { useAuth, useProduct } from '@/app/providers';
 import { ApiError } from '@/shared';
 

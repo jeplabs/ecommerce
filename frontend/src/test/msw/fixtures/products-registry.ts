@@ -1,6 +1,4 @@
-import type { CategoryApi } from '@/entities/category/model/schemas/api';
-import type { ProductAdminApi, ProductApi, ProductStatus } from '@/entities/product/model/types';
-import type { CreateProductRequest } from '@/entities/product/model/schemas/forms';
+import type { CategoryApi, ProductAdminApi, ProductApi, ProductStatus, CreateProductRequest } from '@/features/catalog';
 import type { SpringPage } from '@/shared/api/spring-page';
 import { mockCategories } from './categories';
 import { mockCatalogProducts } from './products';

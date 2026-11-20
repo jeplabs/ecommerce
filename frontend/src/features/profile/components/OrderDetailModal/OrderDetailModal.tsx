@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import OrderDetail from '../OrderDetail/OrderDetail';
-import type { OrderApi } from '@/entities/order';
+import type { OrderApi } from '@/features/checkout';
 import detailStyles from '../OrderDetail/OrderDetail.module.css';
 import styles from './OrderDetailModal.module.css';
 

@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useProfile, useToast } from '@/app/providers';
-import { updatePasswordFormSchema } from '@/entities/user';
+import { updatePasswordFormSchema } from '../../types';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';

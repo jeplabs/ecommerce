@@ -1,4 +1,4 @@
-import type { UserApi, UserRole } from '@/entities/user/model/schemas/api';
+import type { UserApi, UserRole } from '@/features/auth';
 import { mockAdminUser, mockUserProfile } from './auth';
 
 let users: UserApi[] = [];

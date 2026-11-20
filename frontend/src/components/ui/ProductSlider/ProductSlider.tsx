@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react';
 import clsx from 'clsx';
 import { ProductCard } from '@/components/ui/Card/ProductCard';
-import { getMainProductImageUrl } from '@/entities/product';
-import type { ProductApi } from '@/entities/product';
+import { getMainProductImageUrl, type ProductApi } from '@/features/catalog';
 import { useNavigate } from 'react-router-dom';
 import styles from './ProductSlider.module.css';
 

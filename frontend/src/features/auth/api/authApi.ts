@@ -11,12 +11,14 @@ import { notifySessionRefreshed } from '@/lib/auth-session-sync';
 import {
     authTokenResponseSchema,
     userApiSchema,
+    mapLoginFormToRequest,
+    mapRegisterFormToRequest,
     type AuthTokenResponse,
     type UserApi,
     type UserRole,
-} from '@/entities/user';
-import type { LoginFormValues, RegisterFormValues } from '@/entities/user';
-import { mapLoginFormToRequest, mapRegisterFormToRequest } from '@/entities/user';
+    type LoginFormValues,
+    type RegisterFormValues,
+} from '../types';
 
 const getToken = () => getAccessToken();
 

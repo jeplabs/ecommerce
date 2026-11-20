@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { useCartLogic } from '@/entities/cart';
+import type { useCartLogic } from '@/features/cart';
 
 export type CartContextValue = ReturnType<typeof useCartLogic>;
 

@@ -1,14 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addressApi } from '../api';
-import type { AddressApi } from './schemas/api';
-import type { CreateAddressRequest, UpdateAddressRequest } from './schemas/forms';
-import { redirectUnauthorized } from '@/shared/lib/http-session';
-import { ApiError } from '@/shared';
-
-export type AddressActionResult<T = void> =
-    | { success: true; data?: T }
-    | { success: false; error: string; fields?: unknown };
+import { addressApi } from '../api/addressApi';
+import type { AddressApi, CreateAddressRequest, UpdateAddressRequest, AddressActionResult } from '../types/address';
+import { redirectUnauthorized } from '@/lib/http-session';
+import { ApiError } from '@/lib';
 
 function toErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Error desconocido';

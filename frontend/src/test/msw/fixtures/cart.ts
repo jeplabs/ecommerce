@@ -1,4 +1,4 @@
-import type { CartApi } from '@/entities/cart/model/schemas/api';
+import type { CartApi } from '@/features/cart';
 
 export const mockEmptyCart: CartApi = {
     id: 1,

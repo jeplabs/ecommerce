@@ -1,8 +1,8 @@
 import { useAuth, useToast } from '@/app/providers';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { ProductApi } from '@/entities/product';
-import type { CartActionResult } from '@/entities/cart';
+import type { ProductApi } from '@/features/catalog';
+import type { CartActionResult } from '@/features/cart';
 import { Button } from '@/components/ui/Button';
 import { FavoriteButton } from '@/features/favorites';
 import clsx from 'clsx';

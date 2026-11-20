@@ -1,4 +1,4 @@
-import type { OrderApi } from '@/entities/order';
+import type { OrderApi } from '@/features/checkout';
 import type { PaymentSuccessResult } from '@/features/checkout';
 import {
     OrderConfirmationSummary,

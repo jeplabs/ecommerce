@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
-import type { OrderStatus } from '@/entities/order';
+import type { OrderStatus } from '@/features/checkout';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import { Button } from '@/components/ui/Button';
 import { getOrderIdFromProfilePath, profileOrderDetailPath } from '@/features/profile/lib/profileRoutes';

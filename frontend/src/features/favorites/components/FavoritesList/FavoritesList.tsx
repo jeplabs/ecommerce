@@ -4,7 +4,7 @@ import { useFavorites, useProduct, useToast } from '@/app/providers';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui';
 import { ProductImage } from '@/components/ui/ProductImage';
-import { getMainProductImageUrl } from '@/entities/product';
+import { getMainProductImageUrl } from '@/features/catalog';
 import styles from './FavoritesList.module.css';
 import { formatCurrency } from '@/utils/format';
 

@@ -1,4 +1,4 @@
-import type { CategoryApi } from '@/entities/category';
+import type { CategoryApi } from '../types';
 
 /**
  * Busca una categoría en el árbol por segmentos de slug (ruta jerárquica).

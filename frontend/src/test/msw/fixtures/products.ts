@@ -1,4 +1,4 @@
-import type { ProductApi } from '@/entities/product/model/types';
+import type { ProductApi } from '@/features/catalog';
 import type { SpringPage } from '@/shared/api/spring-page';
 
 const audioCategory = {

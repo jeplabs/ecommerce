@@ -1,5 +1,4 @@
-import { getProductMainImageUrl } from '@/entities/product';
-import type { ProductApi } from '@/entities/product';
+import { getProductMainImageUrl, type ProductApi } from '@/features/catalog';
 import type { CartApi } from '../types/schemas/api';
 import type { CartItemUiView, CartLineView, CartSummaryView } from '../types';
 

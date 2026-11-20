@@ -1,4 +1,4 @@
-import type { AuthTokenResponse, UserApi } from '@/entities/user/model/schemas/api';
+import type { AuthTokenResponse, UserApi } from '@/features/auth';
 import { MOCK_ADMIN_EMAIL, MOCK_LOGIN_EMAIL } from './auth';
 
 type DynamicAuthEntry = {

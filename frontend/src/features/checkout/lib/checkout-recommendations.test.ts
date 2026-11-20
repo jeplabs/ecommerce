@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { pickPostCheckoutProducts } from './checkout-recommendations';
 import { mockProduct, mockSoldOutProduct } from '@/test/msw/fixtures/products';
-import type { ProductApi } from '@/entities/product';
+import type { ProductApi } from '@/features/catalog';
 
 describe('pickPostCheckoutProducts', () => {
     it('devuelve [] sin productos o con lista vacía', () => {

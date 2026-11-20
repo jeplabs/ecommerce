@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { useProducts } from '@/entities/product/model/useProducts';
+import type { useProducts } from '@/features/catalog';
 
 export type ProductContextValue = ReturnType<typeof useProducts>;
 

@@ -1,4 +1,4 @@
-import type { CategoryApi } from '@/entities/category/model/schemas/api';
+import type { CategoryApi } from '@/features/catalog';
 
 export const mockCategories: CategoryApi[] = [
     {

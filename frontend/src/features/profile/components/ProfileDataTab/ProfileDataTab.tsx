@@ -5,7 +5,7 @@ import { getInitials } from '@/shared/lib/format';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
-import type { UserApi } from '@/entities/user';
+import type { UserApi } from '../../types';
 import ChangePasswordForm from '../ChangePasswordForm/ChangePasswordForm';
 import styles from './ProfileDataTab.module.css';
 

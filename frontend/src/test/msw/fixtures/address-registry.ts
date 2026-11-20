@@ -1,4 +1,4 @@
-import type { AddressApi } from '@/entities/address/model/schemas/api';
+import type { AddressApi } from '@/features/profile';
 import { mockAddresses as seedAddresses } from './addresses';
 
 let addresses: AddressApi[] = [];

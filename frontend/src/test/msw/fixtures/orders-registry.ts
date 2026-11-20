@@ -1,4 +1,4 @@
-import type { OrderApi } from '@/entities/order/model/schemas/api';
+import type { OrderApi } from '@/features/checkout';
 import type { SpringPage } from '@/shared/api/spring-page';
 import { mockAddresses } from './addresses';
 import { mockProduct } from './products';

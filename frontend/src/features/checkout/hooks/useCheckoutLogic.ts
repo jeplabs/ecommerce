@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addressApi } from '@/entities/address';
-import type { AddressApi } from '@/entities/address';
+import { addressApi, type AddressApi } from '@/features/profile';
 import { useConfig } from '@/app/providers';
 import { branchApi, type BranchApi } from '@/features/branches';
 import { orderApi } from '../api';
@@ -40,7 +39,7 @@ import {
     getServicioCostos,
 } from '../lib';
 import { useEnvioOpcionesContext } from '@/app/providers/useEnvioOpcionesContext';
-import type { CartItemUiView } from '@/entities/cart';
+import type { CartItemUiView } from '@/features/cart';
 import {
     CHECKOUT_STEPS,
     CHECKOUT_FLOW_LAST_INDEX,

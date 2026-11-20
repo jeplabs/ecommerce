@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo, type ChangeEvent, type FormEvent } from 'react';
-import type { AddressApi } from '@/entities/address';
-import type { AddressFormValues } from '@/entities/address';
-import type { AddressActionResult } from '@/entities/address';
+import type { AddressApi, AddressFormValues, AddressActionResult } from '../../types';
 import { useConfig } from '@/app/providers';
 import { getTerritoryConfig } from '@/shared/config/territories';
 import { Button } from '@/components/ui/Button';

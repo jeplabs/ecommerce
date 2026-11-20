@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/app/providers';
-import type { ProductApi } from '@/entities/product';
+import type { ProductApi } from '@/features/catalog';
 import {
     addFavorite as addFavoriteApi,
     fetchFavoriteIds,

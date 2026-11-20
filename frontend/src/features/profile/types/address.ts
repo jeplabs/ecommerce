@@ -1,5 +1,22 @@
 import { z } from 'zod';
-import type { AddressApi } from './api';
+import { positiveIntSchema } from '@/shared/lib/zod-helpers';
+
+/** {@code DatosRespuestaDireccion}. */
+export const addressApiSchema = z.object({
+    id: positiveIntSchema,
+    alias: z.string(),
+    direccion: z.string(),
+    ciudad: z.string(),
+    estado: z.string(),
+    codigoPostal: z.string().nullable().optional(),
+    pais: z.string(),
+    telefono: z.string(),
+    referencias: z.string().nullable().optional(),
+    principal: z.boolean(),
+    activo: z.boolean(),
+});
+
+export type AddressApi = z.infer<typeof addressApiSchema>;
 
 /** {@code DatosCrearDireccion}. */
 export const createAddressRequestSchema = z.object({
@@ -60,8 +77,44 @@ export function mapAddressFormToUpdateRequest(values: AddressFormValues): Update
         pais: values.pais.trim(),
         telefono: values.telefono.trim(),
         referencias: values.referencias?.trim() ?? undefined,
-        //referencias: values.referencias?.trim() ?? '',
     };
 }
 
-export type { AddressApi };
+export type AddressCardView = {
+    id: number;
+    alias: string;
+    linea1: string;
+    linea2: string;
+    telefono: string;
+    principal: boolean;
+    activo: boolean;
+};
+
+export type AddressCheckoutView = AddressCardView;
+
+export function mapAddressApiToCard(address: AddressApi): AddressCardView {
+    return {
+        id: address.id,
+        alias: address.alias,
+        linea1: address.direccion,
+        linea2: [address.ciudad, address.estado, address.codigoPostal].filter(Boolean).join(', '),
+        telefono: address.telefono,
+        principal: address.principal,
+        activo: address.activo,
+    };
+}
+
+export function formatAddressOneLine(address: AddressApi): string {
+    const parts = [
+        address.direccion,
+        address.ciudad,
+        address.estado,
+        address.codigoPostal,
+        address.pais,
+    ].filter(Boolean);
+    return parts.join(', ');
+}
+
+export type AddressActionResult<T = void> =
+    | { success: true; data?: T }
+    | { success: false; error: string; fields?: unknown };

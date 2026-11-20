@@ -1,4 +1,4 @@
-import type { BranchApi } from '@/entities/branch/model/schemas/api';
+import type { BranchApi } from '@/features/branches';
 import { mockBranches as seedBranches } from './branches';
 
 let branches: BranchApi[] = [];

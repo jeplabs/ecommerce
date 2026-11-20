@@ -1,4 +1,4 @@
-import type { CategoryApi } from '@/entities/category';
+import type { CategoryApi } from '@/features/catalog';
 import { findCategoryByPath } from '@/features/catalog/lib/category-path';
 
 export type CategoryBreadcrumbItem = {

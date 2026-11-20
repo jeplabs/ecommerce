@@ -1,4 +1,4 @@
-import type { ShippingOptionsApi, ShippingServiceApi } from '@/entities/shipping/model/schemas/api';
+import type { ShippingOptionsApi, ShippingServiceApi } from '@/features/checkout';
 
 export const mockShippingServices: ShippingServiceApi[] = [
     {

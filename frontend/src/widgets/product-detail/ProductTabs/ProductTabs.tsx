@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import clsx from 'clsx';
-import type { ProductApi } from '@/entities/product';
+import type { ProductApi } from '@/features/catalog';
 import styles from './ProductTabs.module.css';
 
 type ProductTabsProps = {
