@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import OrderSummary from './OrderSummary';
 import { mockCartItem } from '@/test/checkoutMock';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 
 describe('OrderSummary', () => {
     it('muestra ítems, subtotal, envío y total', () => {

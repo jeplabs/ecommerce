@@ -2,15 +2,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/app/providers', async (importOriginal) => {
-    const mod = await importOriginal<typeof import('@/app/providers')>();
-    return {
-        ...mod,
-        useAuth: vi.fn(),
-        useCart: vi.fn(),
-        useToast: vi.fn(),
-    };
-});
+vi.mock('@/app/providers/useAuth', () => ({
+    useAuth: vi.fn(),
+}));
+vi.mock('@/app/providers/useCart', () => ({
+    useCart: vi.fn(),
+}));
+vi.mock('@/app/providers/useToast', () => ({
+    useToast: vi.fn(),
+}));
 
 vi.mock('react-router-dom', async (importOriginal) => {
     const mod = await importOriginal<typeof import('react-router-dom')>();
@@ -45,7 +45,9 @@ vi.mock('@/components/ui/ProductSlider/ProductSlider', () => ({
     ),
 }));
 
-import { useAuth, useCart, useToast } from '@/app/providers';
+import { useAuth } from '@/app/providers/useAuth';
+import { useCart } from '@/app/providers/useCart';
+import { useToast } from '@/app/providers/useToast';
 import { useCheckoutSuccessRecommendations } from '../../../hooks/useCheckoutSuccessRecommendations';
 import CheckoutSuccessRecommendations from './CheckoutSuccessRecommendations';
 import { mockProduct, mockProductAlpha } from '@/test/msw/fixtures/products';

@@ -3,14 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/app/providers', async (importOriginal) => {
-    const mod = await importOriginal<typeof import('@/app/providers')>();
-    return {
-        ...mod,
-        useCheckout: vi.fn(),
-        useToast: vi.fn(),
-    };
-});
+vi.mock('@/app/providers/useCheckout', () => ({
+    useCheckout: vi.fn(),
+}));
+vi.mock('@/app/providers/useToast', () => ({
+    useToast: vi.fn(),
+}));
 
 vi.mock('react-router-dom', async (importOriginal) => {
     const mod = await importOriginal<typeof import('react-router-dom')>();
@@ -28,7 +26,8 @@ vi.mock('../RedirectToWebpay/RedirectToWebpay', () => ({
     ),
 }));
 
-import { useCheckout, useToast } from '@/app/providers';
+import { useCheckout } from '@/app/providers/useCheckout';
+import { useToast } from '@/app/providers/useToast';
 import CheckoutContent from './CheckoutContent';
 import { makeCheckoutMock } from '@/test/checkoutMock';
 import { PAYMENT_METHODS } from '../../types/payment';

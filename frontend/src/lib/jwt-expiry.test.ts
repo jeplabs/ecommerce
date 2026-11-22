@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getJwtExpiryMs, getJwtRole, parseJwtPayload } from './jwt-expiry';
+import { getJwtExpiryMs, getJwtRole } from './jwt-expiry';
 
 function makeToken(payload: string): string {
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));

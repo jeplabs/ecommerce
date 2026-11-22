@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { moneySchema, positiveIntSchema } from '@/shared/lib/zod-helpers';
+import { moneySchema, positiveIntSchema } from '@/utils/zod-helpers';
 import { formaPagoSchema } from './order';
 
 /** {@code DatosRespuestaServicioEnvio}. */

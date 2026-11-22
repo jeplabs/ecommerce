@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import { OrderShippingSummary } from '@/components/ui/OrderShippingSummary';
-import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
+import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/utils/format';
 import type { OrderApi, OrderStatus } from '../../../types/order';
 import type { PaymentSuccessResult } from '../../../types/payment';
 import BankTransferModal from '../../BankTransferModal/BankTransferModal';

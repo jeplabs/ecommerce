@@ -11,7 +11,7 @@ import type {
 } from '../types';
 import type { ProductApi } from '@/features/catalog';
 import { useAuth, useProduct } from '@/app/providers';
-import { ApiError } from '@/shared';
+import { ApiError } from '@/lib';
 
 function toErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Error desconocido';

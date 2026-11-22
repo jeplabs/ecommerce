@@ -3,7 +3,7 @@ import {
     createSpringPageSchema,
     normalizeSpringPageRaw,
     type SpringPage,
-} from '@/shared/api/spring-page';
+} from '@/lib';
 import {
     productApiSchema,
     productAdminApiSchema,

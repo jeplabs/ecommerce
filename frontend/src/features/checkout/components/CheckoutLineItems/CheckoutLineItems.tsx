@@ -1,6 +1,6 @@
 import type { CartItemUiView } from '@/features/cart';
 import { ProductImage } from '@/components/ui/ProductImage';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 import styles from './CheckoutLineItems.module.css';
 
 type CheckoutLineItemsProps = {

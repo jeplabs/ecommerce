@@ -15,7 +15,7 @@ import pageStyles from '../checkoutPage.module.css';
 import styles from './CheckoutContent.module.css';
 import RedirectToWebpay from '../RedirectToWebpay/RedirectToWebpay';
 import RedirectToQPayPro from '../RedirectToQPayPro/RedirectToQPayPro';
-import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
+import { useScrollToTopOnPageChange } from '@/hooks';
 
 export default function CheckoutContent() {
     const navigate = useNavigate();

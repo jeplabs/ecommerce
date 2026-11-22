@@ -3,15 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/app/providers', async (importOriginal) => {
-    const mod = await importOriginal<typeof import('@/app/providers')>();
-    return {
-        ...mod,
-        useCheckout: vi.fn(),
-    };
-});
+vi.mock('@/app/providers/useCheckout', () => ({
+    useCheckout: vi.fn(),
+}));
 
-import { useCheckout } from '@/app/providers';
+import { useCheckout } from '@/app/providers/useCheckout';
 import ShippingAddressSelector from './ShippingAddressSelector';
 import { makeCheckoutMock } from '@/test/checkoutMock';
 import { mockAddresses } from '@/test/msw/fixtures/addresses';

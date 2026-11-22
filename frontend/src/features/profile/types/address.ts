@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { positiveIntSchema } from '@/shared/lib/zod-helpers';
+import { positiveIntSchema } from '@/utils/zod-helpers';
 
 /** {@code DatosRespuestaDireccion}. */
 export const addressApiSchema = z.object({

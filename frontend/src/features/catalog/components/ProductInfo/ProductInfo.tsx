@@ -5,7 +5,7 @@ import { useAuth, useToast } from '@/app/providers';
 import type { ProductApi } from '../../types';
 import type { CartActionResult } from '@/features/cart';
 import { Button } from '@/components/ui/Button';
-import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton/FavoriteButton';
 import styles from './ProductInfo.module.css';
 
 export type ProductInfoProps = {

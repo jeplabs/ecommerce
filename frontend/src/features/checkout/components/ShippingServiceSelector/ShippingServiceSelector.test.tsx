@@ -2,19 +2,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/app/providers', async (importOriginal) => {
-    const mod = await importOriginal<typeof import('@/app/providers')>();
-    return {
-        ...mod,
-        useCheckout: vi.fn(),
-    };
-});
+vi.mock('@/app/providers/useCheckout', () => ({
+    useCheckout: vi.fn(),
+}));
 
-import { useCheckout } from '@/app/providers';
+import { useCheckout } from '@/app/providers/useCheckout';
 import ShippingServiceSelector from './ShippingServiceSelector';
 import { makeCheckoutMock } from '@/test/checkoutMock';
 import { mockShippingServices } from '@/test/msw/fixtures/shipping';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 
 const useCheckoutMock = vi.mocked(useCheckout);
 

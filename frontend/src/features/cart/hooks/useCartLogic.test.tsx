@@ -7,7 +7,7 @@ import { useAuth } from '@/app/providers';
 import { useCartLogic } from './useCartLogic';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { mockProduct } from '@/test/msw/fixtures/products';
-import { setAccessToken } from '@/shared/lib/auth-token-store';
+import { setAccessToken } from '@/lib/auth-token-store';
 
 function createWrapper() {
     return function Wrapper({ children }: { children: ReactNode }) {
@@ -81,7 +81,9 @@ describe('useCartLogic', () => {
         await act(async () => {
             const response = await result.current.addToCart(99999, 1);
             expect(response.success).toBe(false);
-            expect(response.error).toBeTruthy();
+            if (!response.success) {
+                expect(response.error).toBeTruthy();
+            }
         });
     });
 });

@@ -1,6 +1,6 @@
 import { guatemalaTerritoryConfig } from './guatemala';
 import { chileTerritoryConfig } from './chile';
-import type { CountryCode, CountryTerritoryConfig } from './types';
+import type { CountryTerritoryConfig } from './types';
 
 export * from './types';
 export { guatemalaTerritoryConfig } from './guatemala';

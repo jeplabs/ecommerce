@@ -29,8 +29,8 @@ import {
     obtenerOrdenQPayProPendiente,
 
 } from '../lib/qpaypro-pending-order';
-import { redirectUnauthorized } from '@/shared/lib/http-session';
-import { ApiError } from '@/shared';
+import { redirectUnauthorized } from '@/lib/http-session';
+import { ApiError } from '@/lib';
 import {
     isPickupService,
     isExpressService,

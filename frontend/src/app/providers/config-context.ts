@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { AppConfig } from '@/shared/lib/app-config';
+import type { AppConfig } from '@/config';
 
 export interface ConfigContextValue extends AppConfig {
     isChile: boolean;

@@ -1,7 +1,7 @@
 import { useProfile, useAuth, useToast } from '@/app/providers';
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
-import { getInitials } from '@/shared/lib/format';
+import { getInitials } from '@/utils/format';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';

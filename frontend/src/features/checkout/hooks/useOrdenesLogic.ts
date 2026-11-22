@@ -2,8 +2,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orderApi } from '../api/orderApi';
 import type { OrderApi } from '../types';
-import { redirectUnauthorized } from '@/shared/lib/http-session';
-import { ApiError } from '@/shared';
+import { redirectUnauthorized } from '@/lib/http-session';
+import { ApiError } from '@/lib';
 
 const PAGE_SIZE = 10;
 

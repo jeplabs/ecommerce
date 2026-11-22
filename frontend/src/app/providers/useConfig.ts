@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { ConfigContext, type ConfigContextValue } from './config-context';
-import { getAppConfig } from '@/shared/lib/app-config';
+import { getAppConfig } from '@/config';
 
 export function useConfig(): ConfigContextValue {
     const ctx = useContext(ConfigContext);

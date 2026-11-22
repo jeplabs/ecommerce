@@ -49,7 +49,7 @@ import {
     updateDynamicCartItem,
 } from './fixtures/cart-registry';
 import { mockCategories } from './fixtures/categories';
-import { mockCreatedOrder, resetMockOrderIds } from './fixtures/orders';
+import { mockCreatedOrder } from './fixtures/orders';
 import {
     addDynamicProductImages,
     createDynamicProduct,
@@ -77,7 +77,6 @@ import {
 import {
     addDynamicFavorite,
     getDynamicFavoriteIds,
-    getDynamicFavorites,
     getDynamicFavoritesPage,
     removeDynamicFavorite,
     resetDynamicFavorites,

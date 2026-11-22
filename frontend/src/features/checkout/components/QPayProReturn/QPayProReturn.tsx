@@ -13,11 +13,11 @@ import {
 } from '../../lib/qpaypro-pending-order';
 import { orderApi } from '../../api/orderApi';
 import type { OrderApi } from '../../types/order';
-import { formatCurrency } from '@/shared/lib/format';
-import { ApiError, redirectUnauthorized } from '@/shared';
+import { formatCurrency } from '@/utils/format';
+import { ApiError, redirectUnauthorized } from '@/lib';
 import { Button } from '@/components/ui/Button';
 import styles from './QPayProReturn.module.css';
-import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
+import { useScrollToTopOnPageChange } from '@/hooks';
 
 type ReturnState =
     | { status: 'loading' }

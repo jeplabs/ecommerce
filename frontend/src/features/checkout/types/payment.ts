@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { moneySchema } from '@/shared';
+import { moneySchema } from '@/utils/zod-helpers';
 import { orderApiSchema } from './order';
 
 export * from './paymentMethods';

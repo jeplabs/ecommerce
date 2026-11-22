@@ -19,7 +19,7 @@ const mockProducts: ProductAdminApi[] = [
             { id: 1, url: 'https://example.com/teclado.jpg', principal: true },
         ],
         createdAt: '2026-05-01T10:00:00',
-        categorias: [{ id: 10, nombre: 'Periféricos', slug: 'perifericos' }],
+        categorias: [{ id: 10, nombre: 'Periféricos', slug: 'perifericos', subcategorias: [] }],
     },
     {
         id: 2,

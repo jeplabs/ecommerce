@@ -6,7 +6,21 @@ import { ToastContext, type ToastContextValue } from '@/app/providers/toast-cont
 
 function createMockCart(overrides: Partial<CartContextValue> = {}): CartContextValue {
     return {
-        items: [{ id: 1, name: 'Prod 1', price: 10, quantity: 1, subtotal: 10, stock: 5 }],
+        items: [
+            {
+                id: 1,
+                productoId: 1,
+                slug: 'prod-1',
+                sku: 'SKU-1',
+                name: 'Prod 1',
+                price: 10,
+                quantity: 1,
+                qty: 1,
+                subtotal: 10,
+                imageUrl: 'https://example.com/prod.jpg',
+                altText: 'Prod 1',
+            },
+        ],
         loading: false,
         error: null,
         cartCount: 1,
@@ -36,12 +50,10 @@ function createMockCart(overrides: Partial<CartContextValue> = {}): CartContextV
 
 function createMockToast(): ToastContextValue {
     return {
-        toasts: [],
-        showToast: vi.fn(),
         showSuccess: vi.fn(),
         showError: vi.fn(),
+        showWarning: vi.fn(),
         showInfo: vi.fn(),
-        removeToast: vi.fn(),
     };
 }
 

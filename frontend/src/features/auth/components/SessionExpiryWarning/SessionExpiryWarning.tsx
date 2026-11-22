@@ -1,7 +1,7 @@
 import { useAuth } from '@/app/providers';
 import { useEffect, useRef } from 'react';
 import clsx from 'clsx';
-import { getJwtExpiryMs } from '@/shared/lib/jwt-expiry';
+import { getJwtExpiryMs } from '@/lib/jwt-expiry';
 import styles from './SessionExpiryWarning.module.css';
 
 /** Antelación máxima del aviso respecto a `exp` (JWT largos). */

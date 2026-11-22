@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import styles from './CartDrawer.module.css';
 
 import CartExpirationBanner from '../CartExpirationBanner/CartExpirationBanner';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 
 type CartDrawerProps = {
     isOpen: boolean;

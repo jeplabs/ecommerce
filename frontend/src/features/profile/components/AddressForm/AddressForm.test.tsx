@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import AddressForm from './AddressForm';
-import { setAppConfig } from '@/shared/lib/app-config';
+import { setAppConfig } from '@/config';
 
 describe('AddressForm (Multi-país)', () => {
     it('renderiza etiquetas y opciones de Guatemala (GT) por defecto', () => {

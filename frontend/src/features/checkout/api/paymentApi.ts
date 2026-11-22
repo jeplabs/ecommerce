@@ -6,7 +6,13 @@ import {
     type StripeCardFormValues,
 } from '../types/payment';
 
-export { PAYMENT_METHODS, type PaymentMethod, type PaymentResult, type ProcessPaymentInput };
+export {
+    PAYMENT_METHODS,
+    type PaymentMethod,
+    type PaymentResult,
+    type ProcessPaymentInput,
+    type StripeCardFormValues,
+};
 
 /** Tarjetas de prueba estilo Stripe (solo demo). */
 const STRIPE_TEST_CARDS = {

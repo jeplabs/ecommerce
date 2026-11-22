@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { positiveIntSchema } from '@/shared/lib/zod-helpers';
+import { positiveIntSchema } from '@/utils/zod-helpers';
 
 /** Alineado a {@code Rol} del backend (valor JSON: ROLE_ADMIN | ROLE_CUSTOMER). */
 export const userRoleSchema = z.enum(['ROLE_ADMIN', 'ROLE_CUSTOMER']);

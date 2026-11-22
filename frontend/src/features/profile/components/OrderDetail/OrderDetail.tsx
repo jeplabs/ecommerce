@@ -2,10 +2,9 @@ import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import { OrderShippingSummary } from '@/components/ui/OrderShippingSummary';
 //import { isBankTransferOrder } from '@/features/checkout/lib/transfer-order-storage';
-import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
+import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/utils/format';
 import {
     OrderBankTransferSection,
-    getContraEntregaShippingNote,
     type OrderApi,
     type OrderStatus,
 } from '@/features/checkout';

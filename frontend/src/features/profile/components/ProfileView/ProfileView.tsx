@@ -1,4 +1,4 @@
-import { ProfileProvider } from '@/app/providers';
+import { ProfileProvider } from '@/app/providers/ProfileProvider';
 import ProfileContent from '../ProfileContent/ProfileContent';
 import styles from './ProfileView.module.css';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { login, register, refreshToken, silentRefresh, logout } from './authApi';
-import { getAccessToken, clearAuthTokens } from '@/shared/lib/auth-token-store';
+import { getAccessToken, clearAuthTokens } from '@/lib/auth-token-store';
 import {
     MOCK_ADMIN_EMAIL,
     MOCK_LOGIN_EMAIL,

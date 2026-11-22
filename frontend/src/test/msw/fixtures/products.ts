@@ -1,5 +1,5 @@
 import type { ProductApi } from '@/features/catalog';
-import type { SpringPage } from '@/shared/api/spring-page';
+import type { SpringPage } from '@/lib';
 
 const audioCategory = {
     id: 2,

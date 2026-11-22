@@ -10,7 +10,7 @@ describe('ProductTabs', () => {
             'aria-selected',
             'true'
         );
-        expect(screen.getByText(mockProduct.descripcion)).toBeInTheDocument();
+        expect(screen.getByText(mockProduct.descripcion!)).toBeInTheDocument();
     });
 
     it('cambia a la pestaña de características técnicas al hacer clic', () => {

@@ -4,8 +4,8 @@ import {
     moneySchema,
     nullableStringSchema,
     positiveIntSchema,
-} from '@/shared/lib/zod-helpers';
-import { createSpringPageSchema, type SpringPage } from '@/shared/api/spring-page';
+} from '@/utils/zod-helpers';
+import { createSpringPageSchema, type SpringPage } from '@/lib';
 import { paymentMethodSchema } from './paymentMethods';
 
 /** {@code EstadoOrden}. */

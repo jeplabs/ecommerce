@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/app/providers';
-import { productApi, type UpdateProductPayload } from '../api';
+import { productApi } from '../api';
 import type {
     CreateProductRequest,
+    UpdateProductPayload,
     ProductAdminApi,
     ProductApi,
     ProductImageApi,

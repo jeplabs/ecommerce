@@ -5,10 +5,23 @@ import { createSpringPageSchema, normalizeSpringPageRaw } from './spring-page';
 const itemSchema = z.object({ id: z.number() });
 
 describe('normalizeSpringPageRaw', () => {
-    it('devuelve tal cual null, no-objetos y arrays', () => {
+    it('devuelve tal cual null y primitivos no-objetos', () => {
         expect(normalizeSpringPageRaw(null)).toBeNull();
         expect(normalizeSpringPageRaw('x')).toBe('x');
-        expect(normalizeSpringPageRaw([1, 2])).toEqual([1, 2]);
+    });
+
+    it('normaliza arrays planos a estructura paginada', () => {
+        expect(normalizeSpringPageRaw([1, 2])).toEqual({
+            content: [1, 2],
+            totalElements: 2,
+            totalPages: 1,
+            size: 12,
+            number: 0,
+            first: true,
+            last: true,
+            empty: false,
+            numberOfElements: 2,
+        });
     });
 
     it('devuelve tal cual si no hay page anidado', () => {

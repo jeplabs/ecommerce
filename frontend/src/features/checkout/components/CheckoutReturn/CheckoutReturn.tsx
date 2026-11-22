@@ -17,8 +17,8 @@ import {
 } from '../../lib/webpay-pending-order';
 import { orderApi } from '../../api/orderApi';
 import type { OrderApi } from '../../types/order';
-import { formatCurrency } from '@/shared/lib/format';
-import { ApiError, redirectUnauthorized } from '@/shared';
+import { formatCurrency } from '@/utils/format';
+import { ApiError, redirectUnauthorized } from '@/lib';
 import { Button } from '@/components/ui/Button';
 import styles from './CheckoutReturn.module.css';
 
@@ -122,7 +122,7 @@ export default function CheckoutReturn() {
             }
             if (tbkOrdenCompra || tbkIdSesion) {
                 if (tbkIdSesion) {
-                    void notificarTimeout(tbkIdSesion, tbkOrdenCompra).catch(() => undefined);
+                    void notificarTimeout(tbkIdSesion, tbkOrdenCompra ?? undefined).catch(() => undefined);
                 }
                 void cargarRecuperacion('timeout');
                 return;

@@ -1,6 +1,6 @@
 import type { CartApi } from '@/features/cart';
 import type { OrderApi } from '@/features/checkout';
-import type { SpringPage } from '@/shared/api/spring-page';
+import type { SpringPage } from '@/lib';
 import { mockAddresses } from './addresses';
 import { mockBranches } from './branches';
 import { findMockShippingService } from './shipping';

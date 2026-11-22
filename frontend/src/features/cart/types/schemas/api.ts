@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { localDateTimeSchema, moneySchema, positiveIntSchema } from '@/shared/lib/zod-helpers';
+import { localDateTimeSchema, moneySchema, positiveIntSchema } from '@/utils/zod-helpers';
 
 /** {@code EstadoCarrito}. */
 export const cartStatusSchema = z.enum(['ACTIVO', 'ABANDONADO', 'CONVERTIDO', 'EXPIRADO']);

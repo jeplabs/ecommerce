@@ -1,10 +1,10 @@
-import { getAccessToken } from '@/shared/lib/auth-token-store';
-import { API_URL } from '@/shared/config';
+import { getAccessToken } from '@/lib/auth-token-store';
+import { API_URL } from '@/config';
 import {
     getAuthHeaders,
     notifyUnauthorizedIfNeeded,
-} from '@/shared/lib/http-session';
-import { ApiError, getErrorMessage, parseApi } from '@/shared';
+} from '@/lib/http-session';
+import { ApiError, getErrorMessage, parseApi } from '@/lib';
 import {
     webpayConfirmResponseSchema,
     webpayEstadoSchema,

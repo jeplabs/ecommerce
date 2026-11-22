@@ -1,5 +1,5 @@
 import type { OrderApi } from '@/features/checkout';
-import type { SpringPage } from '@/shared/api/spring-page';
+import type { SpringPage } from '@/lib';
 import { mockAddresses } from './addresses';
 import { mockProduct } from './products';
 

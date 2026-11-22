@@ -2,21 +2,20 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/app/providers', async (importOriginal) => {
-    const mod = await importOriginal<typeof import('@/app/providers')>();
-    return {
-        ...mod,
-        useCheckout: vi.fn(),
-        useConfig: vi.fn(() => ({ isChile: false, isGuatemala: true })),
-    };
-});
+vi.mock('@/app/providers/useCheckout', () => ({
+    useCheckout: vi.fn(),
+}));
+vi.mock('@/app/providers/useConfig', () => ({
+    useConfig: vi.fn(() => ({ isChile: false, isGuatemala: true })),
+}));
 
-import { useCheckout, useConfig } from '@/app/providers';
+import { useCheckout } from '@/app/providers/useCheckout';
+import { useConfig } from '@/app/providers/useConfig';
 import PaymentStep from './PaymentStep';
 import { makeCheckoutMock } from '@/test/checkoutMock';
 import { mockShippingServices } from '@/test/msw/fixtures/shipping';
 import { PAYMENT_METHODS } from '../../types';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 
 const useCheckoutMock = vi.mocked(useCheckout);
 const useConfigMock = vi.mocked(useConfig);

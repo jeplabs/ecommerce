@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/shared/lib/useScrollToTopOnPageChange', () => ({
+vi.mock('@/hooks', () => ({
     scrollToTopSmooth: vi.fn(),
 }));
 
-import { scrollToTopSmooth } from '@/shared/lib/useScrollToTopOnPageChange';
+import { scrollToTopSmooth } from '@/hooks';
 import RedirectToQPayPro from './RedirectToQPayPro';
 
 const scrollMock = vi.mocked(scrollToTopSmooth);

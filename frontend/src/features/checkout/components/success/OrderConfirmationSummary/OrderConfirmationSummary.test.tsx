@@ -11,7 +11,7 @@ vi.mock('../../../api/orderApi', async (importOriginal) => {
 
 import { listarCuentasBancarias } from '../../../api/orderApi';
 import OrderConfirmationSummary from './OrderConfirmationSummary';
-import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
+import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/utils/format';
 import { findDynamicOrder, MOCK_ORDER_PENDING_ID } from '@/test/msw/fixtures/orders-registry';
 
 const listarCuentasMock = vi.mocked(listarCuentasBancarias);
@@ -72,6 +72,8 @@ describe('OrderConfirmationSummary', () => {
             <OrderConfirmationSummary
                 orden={orden}
                 payment={{
+                    success: true,
+                    orderReference: 'ORD-1',
                     transactionId: 'TX_001',
                     authorizationCode: 'AUTH1',
                     amount: orden.total,
@@ -93,6 +95,8 @@ describe('OrderConfirmationSummary', () => {
             <OrderConfirmationSummary
                 orden={orden}
                 payment={{
+                    success: true,
+                    orderReference: 'ORD-1',
                     transactionId: 'TX_001',
                     authorizationCode: 'AUTH1',
                     amount: orden.total,

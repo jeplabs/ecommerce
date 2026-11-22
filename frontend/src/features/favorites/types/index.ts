@@ -1,13 +1,13 @@
-import type { SpringPage } from '@/shared/api/spring-page';
+import type { SpringPage } from '@/lib';
 
 export type FavoriteProduct = {
     productId: number;
     slug: string;
     nombre: string;
     precioVenta: number;
-    moneda: string | null;
-    imagenUrl: string | null;
-    guardadoAt: string;
+    moneda?: string | null;
+    imagenUrl?: string | null;
+    guardadoAt?: string | null;
 };
 
 export type FavoritePage = SpringPage<FavoriteProduct>;

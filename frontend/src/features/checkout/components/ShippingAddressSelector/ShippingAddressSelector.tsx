@@ -16,7 +16,6 @@ interface ShippingAddressSelectorProps {
  */
 export default function ShippingAddressSelector({
     isExpanded = true,
-    onToggle,
 }: ShippingAddressSelectorProps) {
     const {
         direcciones,

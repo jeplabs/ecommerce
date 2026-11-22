@@ -1,7 +1,7 @@
-import { getAccessToken } from '@/shared/lib/auth-token-store';
-import { API_URL } from '@/shared/config';
-import { fetchWithAuth, getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/shared/lib/http-session';
-import { ApiError, getErrorMessage, parseApi } from '@/shared';
+import { getAccessToken } from '@/lib/auth-token-store';
+import { API_URL } from '@/config';
+import { fetchWithAuth, getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
+import { ApiError, getErrorMessage, parseApi } from '@/lib';
 import { cartApiSchema, restauracionCartApiSchema, type CartApi, type RestauracionCartApi } from '../types/schemas/api';
 import type { AddCartItemRequest, UpdateCartItemQuantityRequest } from '../types/schemas/forms';
 

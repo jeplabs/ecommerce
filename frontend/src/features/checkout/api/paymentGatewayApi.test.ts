@@ -2,7 +2,6 @@ import { http, HttpResponse } from 'msw';
 import { ZodError } from 'zod';
 import { describe, expect, it } from 'vitest';
 import { confirmarWebpay, consultarEstadoWebpay, iniciarWebpay, notificarTimeout, iniciarQPayPro, consultarEstadoQPayPro } from '@/features/checkout/api';
-import { ApiError } from '@/shared';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { API_BASE } from '@/test/msw/constants';
 import { server } from '@/test/msw/server';
@@ -143,8 +142,8 @@ describe('paymentGatewayApi', () => {
 
         await notificarTimeout('sess-1', '501');
 
-        expect(params?.get('TBK_ID_SESION')).toBe('sess-1');
-        expect(params?.get('TBK_ORDEN_COMPRA')).toBe('501');
+        expect((params as URLSearchParams | null)?.get('TBK_ID_SESION')).toBe('sess-1');
+        expect((params as URLSearchParams | null)?.get('TBK_ORDEN_COMPRA')).toBe('501');
     });
 
     it('expone iniciarWebpay y confirmarWebpay a través de paymentGatewayApi', async () => {

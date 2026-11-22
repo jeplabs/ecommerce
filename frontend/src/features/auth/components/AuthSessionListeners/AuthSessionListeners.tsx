@@ -2,7 +2,7 @@ import { useToast } from '@/app/providers';
 import { useEffect, useRef } from 'react';
 
 import { subscribeSessionInvalidated } from '@/lib/auth-session-sync';
-import SessionExpiryWarning from '../SessionExpiryWarning/SessionExpiryWarning';
+
 
 const TOAST_DEBOUNCE_MS = 4500;
 

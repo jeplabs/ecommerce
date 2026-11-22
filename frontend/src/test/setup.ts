@@ -11,7 +11,7 @@ import { resetDynamicFavorites } from './msw/fixtures/favorites-registry';
 import { resetDynamicUsers } from './msw/fixtures/users-registry';
 import { resetMockOrderIds } from './msw/fixtures/orders';
 import { server } from './msw/server';
-import { clearAuthTokens } from '@/shared/lib/auth-token-store';
+import { clearAuthTokens } from '@/lib/auth-token-store';
 
 beforeAll(() => {
     if (typeof Element.prototype.scrollTo !== 'function') {

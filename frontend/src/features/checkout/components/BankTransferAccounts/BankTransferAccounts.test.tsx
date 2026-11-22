@@ -11,7 +11,7 @@ vi.mock('../../api/orderApi', async (importOriginal) => {
 
 import { listarCuentasBancarias } from '../../api/orderApi';
 import BankTransferAccounts from './BankTransferAccounts';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 
 const listarCuentasMock = vi.mocked(listarCuentasBancarias);
 

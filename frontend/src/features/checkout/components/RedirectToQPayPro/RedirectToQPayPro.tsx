@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import styles from './RedirectToQPayPro.module.css';
-import { scrollToTopSmooth } from '@/shared/lib/useScrollToTopOnPageChange';
+import { scrollToTopSmooth } from '@/hooks';
 
 type RedirectToQPayProProps = {
     redirectUrl: string;

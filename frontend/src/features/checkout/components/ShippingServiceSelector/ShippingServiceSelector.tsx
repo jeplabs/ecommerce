@@ -2,7 +2,7 @@ import { useMemo, useState, type CSSProperties } from 'react';
 import { useCheckout } from '@/app/providers';
 import clsx from 'clsx';
 
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 import {
     getServicioCostos,
     getCheckoutShippingOptions,

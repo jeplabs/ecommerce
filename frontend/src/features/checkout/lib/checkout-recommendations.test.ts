@@ -21,7 +21,7 @@ describe('pickPostCheckoutProducts', () => {
     });
 
     it('excluye productos OCULTO y DESCONTINUADO (normalizando espacios/guiones)', () => {
-        const oculto = { ...mockProduct, id: 10, estado: 'oculto' } as ProductApi;
+        const oculto = { ...mockProduct, id: 10, estado: 'oculto' } as unknown as ProductApi;
         const desc = { ...mockProduct, id: 11, estado: 'DESCONTINUADO' } as ProductApi;
         const activo = { ...mockProduct, id: 12, estado: 'DISPONIBLE' } as ProductApi;
         const result = pickPostCheckoutProducts([oculto, desc, activo], []);

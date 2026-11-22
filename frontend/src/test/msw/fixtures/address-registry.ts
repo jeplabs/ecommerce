@@ -18,18 +18,18 @@ export function findDynamicAddress(id: number): AddressApi | undefined {
 }
 
 export function createDynamicAddress(
-    data: Omit<AddressApi, 'id'>
+    data: Omit<AddressApi, 'id' | 'activo'> & { activo?: boolean }
 ): AddressApi {
     if (data.principal) {
         addresses = addresses.map((address) => ({ ...address, principal: false }));
     }
 
     const created: AddressApi = {
-        activo: true,
-        principal: false,
-        referencias: null,
-        codigoPostal: null,
         ...data,
+        referencias: data.referencias ?? null,
+        codigoPostal: data.codigoPostal ?? null,
+        activo: data.activo ?? true,
+        principal: data.principal ?? false,
         id: nextId++,
     };
     addresses.push(created);

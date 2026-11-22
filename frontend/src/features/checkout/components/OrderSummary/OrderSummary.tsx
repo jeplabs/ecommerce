@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 import { ProductImage } from '@/components/ui/ProductImage';
 import type { CartItemUiView } from '@/features/cart';
 import type { ShippingServiceCosts } from '../../types/shipping';

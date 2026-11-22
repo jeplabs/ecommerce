@@ -1,7 +1,7 @@
 // import { DEMO_BANK_ACCOUNTS } from '../../lib/bank-transfer-accounts';
 import { useState, useEffect } from 'react';
 import { listarCuentasBancarias } from '../../api/orderApi';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 import type { BancoAccountApi } from '../../types/order';
 import styles from './BankTransferAccounts.module.css';
 

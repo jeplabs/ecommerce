@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import styles from './RedirectToWebpay.module.css';
-import { scrollToTopSmooth } from '@/shared/lib/useScrollToTopOnPageChange';
+import { scrollToTopSmooth } from '@/hooks';
 
 type RedirectToWebpayProps = {
     urlRedireccion: string;

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import BankTransferAccounts from '../BankTransferAccounts/BankTransferAccounts';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 import styles from './BankTransferModal.module.css';
 
 type BankTransferModalProps = {

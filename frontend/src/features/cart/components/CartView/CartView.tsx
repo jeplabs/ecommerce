@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import styles from './CartView.module.css';
 
 import CartExpirationBanner from '../CartExpirationBanner/CartExpirationBanner';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 
 type CartViewProps = {
     onProceedToCheckout: () => void;

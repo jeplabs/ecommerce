@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import CheckoutLineItems from './CheckoutLineItems';
 import { mockCartItem } from '@/test/checkoutMock';
-import { formatCurrency } from '@/shared/lib/format';
+import { formatCurrency } from '@/utils/format';
 
 describe('CheckoutLineItems', () => {
     it('muestra los productos con imagen, precio y SKU', () => {

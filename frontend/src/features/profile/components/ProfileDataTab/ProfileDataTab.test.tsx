@@ -5,7 +5,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { AppProviders, ProfileProvider } from '@/app/providers';
 import ProfileDataTab from './ProfileDataTab';
-import { setAccessToken } from '@/shared/lib/auth-token-store';
+import { setAccessToken } from '@/lib/auth-token-store';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 
 function Wrapper({ children }: { children: ReactNode }) {

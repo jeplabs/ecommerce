@@ -7,7 +7,7 @@ import { CheckoutProvider } from '@/app/providers/CheckoutProvider';
 import { useCheckout } from '@/app/providers';
 import { PAYMENT_METHODS } from '@/features/checkout';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
-import { setAccessToken } from '@/shared/lib/auth-token-store';
+import { setAccessToken } from '@/lib/auth-token-store';
 import { addDynamicCartItem } from '@/test/msw/fixtures/cart-registry';
 import { mockProduct } from '@/test/msw/fixtures/products';
 import { WEBPAY_POLL_BACKOFF_MS } from './useCheckoutLogic';

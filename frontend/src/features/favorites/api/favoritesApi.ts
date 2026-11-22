@@ -1,8 +1,7 @@
 import { getAccessToken } from '@/lib/auth-token-store';
 import { API_URL } from '@/config';
 import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
-import { ApiError, getErrorMessage, parseApi } from '@/lib';
-import { createSpringPageSchema } from '@/shared/api/spring-page';
+import { ApiError, getErrorMessage, parseApi, createSpringPageSchema } from '@/lib';
 import { moneySchema } from '@/utils';
 import { z } from 'zod';
 import type { FavoritePage, FavoriteProduct } from '../types';

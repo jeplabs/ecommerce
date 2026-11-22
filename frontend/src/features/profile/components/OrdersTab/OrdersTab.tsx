@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
-import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/shared/lib/format';
+import { formatCurrency, formatDateTime, formatEstadoOrden } from '@/utils/format';
 import type { OrderStatus } from '@/features/checkout';
 import OrderDetailModal from '../OrderDetailModal/OrderDetailModal';
 import { Button } from '@/components/ui/Button';
 import { getOrderIdFromProfilePath, profileOrderDetailPath } from '@/features/profile/lib/profileRoutes';
-import { useScrollToTopOnPageChange } from '@/shared/lib/useScrollToTopOnPageChange';
+import { useScrollToTopOnPageChange } from '@/hooks';
 import styles from './OrdersTab.module.css';
 
 const ESTADO_CLASS: Partial<Record<OrderStatus, string>> = {

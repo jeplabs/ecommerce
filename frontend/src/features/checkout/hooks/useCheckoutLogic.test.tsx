@@ -13,7 +13,7 @@ import { mockAddresses } from '@/test/msw/fixtures/addresses';
 import { mockProduct } from '@/test/msw/fixtures/products';
 import { API_BASE } from '@/test/msw/constants';
 import { server } from '@/test/msw/server';
-import { setAccessToken } from '@/shared/lib/auth-token-store';
+import { setAccessToken } from '@/lib/auth-token-store';
 
 function createCheckoutWrapper() {
     return function Wrapper({ children }: { children: ReactNode }) {

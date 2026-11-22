@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { orderApi, listarCuentasBancarias, listarMetodosPago, subirComprobanteOrder } from './orderApi';
-import { ApiError } from '@/shared';
+import { ApiError } from '@/lib';
 import { mockAddresses } from '@/test/msw/fixtures/addresses';
 import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
 import { addDynamicCartItem } from '@/test/msw/fixtures/cart-registry';
