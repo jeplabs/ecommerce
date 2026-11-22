@@ -92,6 +92,15 @@ VALUES
 (78, 'Discos duros externos', 'discos-duros-externos', 24),
 (79, 'SSDs portátiles', 'ssds-portatiles', 24),
 (80, 'USBs y tarjetas SD', 'usbs-y-tarjetas-sd', 24);
+(81, 'Ofertas y más', 'ofertas-y-mas', NULL),
+(82, 'Ofertas', 'ofertas', 81),
+(83, 'Productos Destacados', 'productos-destacados', 81),
+(84, 'Ofertas de temporada', 'ofertas-de-temporada', 82),
+(85, 'Packs y Kits', 'packs-y-kits', 82),
+(86, 'Liquidación', 'liquidacion', 82),
+(87, 'Los más vendidos', 'los-mas-vendidos', 83),
+(88, 'Novedades', 'novedades', 83),
+(89, 'Recomendados de la tienda', 'recomendados-de-la-tienda', 83);
 
 -- 3. REINICIO DE SECUENCIA
 -- Esto es CRÍTICO. Ajusta la secuencia para que el próximo ID automático sea 81.

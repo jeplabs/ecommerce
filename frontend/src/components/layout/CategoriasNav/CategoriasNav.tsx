@@ -16,7 +16,7 @@ type MegaMenuColumnProps = {
 
 const MegaMenuColumn = ({ cat, parentPath }: MegaMenuColumnProps) => {
     const hijos = cat.subcategorias || [];
-    if (hijos.length === 0) return null;
+    // if (hijos.length === 0) return null;
 
     const currentPath = buildCategoryPath(parentPath, cat);
 
@@ -25,31 +25,33 @@ const MegaMenuColumn = ({ cat, parentPath }: MegaMenuColumnProps) => {
             <Link to={currentPath} className={styles.megaColTitle}>
                 {cat.nombre}
             </Link>
-            <ul className={styles.megaSubList}>
-                {hijos.map((hijo) => (
-                    <li key={hijo.id}>
-                        <Link to={buildCategoryPath(currentPath, hijo)} className={styles.megaSubLink}>
-                            {hijo.nombre}
-                        </Link>
-                        {hijo.subcategorias && hijo.subcategorias.length > 0 && (
-                            <ul className={styles.megaDeepList}>
-                                {hijo.subcategorias.map((nieto) => (
-                                    <li key={nieto.id}>
-                                        <Link
-                                            to={buildCategoryPath(
-                                                buildCategoryPath(currentPath, hijo),
-                                                nieto
-                                            )}
-                                        >
-                                            {nieto.nombre}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </li>
-                ))}
-            </ul>
+            {hijos.length > 0 && (
+                <ul className={styles.megaSubList}>
+                    {hijos.map((hijo) => (
+                        <li key={hijo.id}>
+                            <Link to={buildCategoryPath(currentPath, hijo)} className={styles.megaSubLink}>
+                                {hijo.nombre}
+                            </Link>
+                            {hijo.subcategorias && hijo.subcategorias.length > 0 && (
+                                <ul className={styles.megaDeepList}>
+                                    {hijo.subcategorias.map((nieto) => (
+                                        <li key={nieto.id}>
+                                            <Link
+                                                to={buildCategoryPath(
+                                                    buildCategoryPath(currentPath, hijo),
+                                                    nieto
+                                                )}
+                                            >
+                                                {nieto.nombre}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };
