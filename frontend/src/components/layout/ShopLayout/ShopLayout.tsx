@@ -15,8 +15,10 @@ type ShopLayoutProps = {
 export default function ShopLayout({ showCategoriasNav = true }: ShopLayoutProps) {
     return (
         <div className={styles.layout}>
-            <Navbar />
-            {showCategoriasNav ? <CategoriasNav /> : null}
+            <header className={styles.headerGroup}>
+                <Navbar />
+                {showCategoriasNav ? <CategoriasNav /> : null}
+            </header>
             <main className={styles.main}>
                 <Outlet />
             </main>
