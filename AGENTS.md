@@ -9,8 +9,9 @@ Este repositorio contiene un monorepo para la plataforma **JEPLabs E-Commerce**,
   - Documentación técnica de decisiones e integraciones en `/backend/docs/`.
   - Reglas específicas de backend en `./backend/AGENTS.md`.
 - **`/frontend`**: Single Page Application (SPA) en React 19.2, TypeScript 6.0, Vite 7.3, React Router 7, React Hook Form + Zod 4.4 y CSS Modules.
-  - Arquitectura: **Feature-Sliced Design (FSD)** estricta en `src/` (`app` -> `pages` -> `widgets` -> `features` -> `entities` -> `shared`).
+  - Arquitectura: **Bulletproof React (BPR)** modular en `src/` (`app`, `features`, `components`, `lib`, `config`, `hooks`, `utils`).
   - Gestor de paquetes: **`pnpm`** (`pnpm install`, `pnpm run dev`, `pnpm test`, `pnpm run cypress:run`).
+  - Reglas específicas de frontend en `./frontend/AGENTS.md`.
 - **`/netlify.toml`**: Configuración de despliegue del frontend y cabeceras HTTP de seguridad (CSP, HSTS, X-Frame-Options).
 
 ## 2. Configuración Multipaís y Multimoneda (GT / CL)
