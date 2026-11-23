@@ -1,29 +1,73 @@
-# Documentación — Frontend JEPLabs
+# Documentación Técnica — Frontend JEPLabs
 
-Guías complementarias al [README](../README.md) principal.
+Este directorio contiene las guías de arquitectura, estándares de ingeniería, especificaciones técnicas y el registro histórico del frontend.
+
+---
+
+## Metodología de Organización Documental
+
+Para mantener la documentación limpia, predecible y evitar la obsolescencia técnica, los documentos se organizan según su **ciclo de vida**:
+
+```text
+frontend/docs/
+├── README.md           # Índice maestro y estándar metodológico
+├── guides/             # 1. Documentación Activa (Sistema actual en producción)
+├── proposals/          # 2. Propuestas Técnicas y RFCs (Backlog futuro / Pendientes)
+└── archive/            # 3. Archivo Histórico (Planes ya implementados y bitácoras)
+```
+
+### Reglas para Nuevos Documentos
+1. **Guías Vivas (`guides/`)**: Si el documento describe cómo funciona el sistema actual, cómo operar una herramienta o estándares de código vigentes, debe guardarse en `guides/`.
+2. **Propuestas y RFCs (`proposals/`)**: Si el documento es un diseño previo, investigación o plan de una funcionalidad que aún no se ha programado, debe guardarse en `proposals/`.
+3. **Paso a Archivo (`archive/`)**: Cuando una propuesta de `proposals/` se implementa y despliega al 100%, su plan se mueve a `archive/` para preservar el contexto histórico sin confundir al equipo sobre el estado del código actual.
+
+---
+
+## 1. Guías Activas y Vigentes (`guides/`)
+
+Documentos que reflejan el comportamiento real de la aplicación en el código base actual:
 
 | Documento | Descripción |
-|-----------|-------------|
-| [Evaluacion-Seguridad-Frontend.md](./Evaluacion-Seguridad-Frontend.md) | Auditoría de seguridad, corrección XSS en producto y guía de migración de JWT a Cookies `HttpOnly` |
-| [Evaluacion-Rendimiento-Frontend.md](./Evaluacion-Rendimiento-Frontend.md) | Análisis de rendimiento, optimizaciones de build, fuentes, LCP/CLS y eliminación de waterfalls |
-| [migracion-arquitectura-bulletproof-react.md](./migracion-arquitectura-bulletproof-react.md) | Hoja de ruta y plan de migración desde FSD hacia Bulletproof React (Feature-Driven / Vertical Slices) |
-| [architecture-fsd.md](./architecture-fsd.md) | Arquitectura Feature-Sliced Design (referencia histórica) |
-| [pnpm.md](./pnpm.md) | Instalación de pnpm, migración desde npm, scripts y troubleshooting |
-| [eslint-warnings.md](./eslint-warnings.md) | Inventario de warnings ESLint (React Hooks), impacto en rendimiento y registro de avances |
-| [payment-gateways.md](./payment-gateways.md) | Pasarelas de pago: demo (QPayPro, Webpay Plus, Stripe, Mercado Pago) e integración real |
-| [pruebas-webpay-plus.md](./pruebas-webpay-plus.md) | Guía para probar Webpay Plus real desde el frontend: tarjetas de prueba y flujo |
-| [retirar-stripe-mercadopago.md](./retirar-stripe-mercadopago.md) | Guía operativa para retirar Stripe y Mercado Pago del frontend: checklist, archivos y cobertura |
-| [testing.md](./testing.md) | Testing: stack, buenas prácticas, plan de cobertura por fases, fixtures |
-| [Propuesta-Ajuste-Backend-Favoritos-Imagenes.md](./Propuesta-Ajuste-Backend-Favoritos-Imagenes.md) | Diagnóstico técnico y propuesta de resolución dinámica de imágenes para el equipo backend (`GET /api/favoritos`) |
-| [sucursales-retiro-tienda-frontend.md](./sucursales-retiro-tienda-frontend.md) | Integración de sucursales físicas (`GET /api/sucursales`), selección consciente en checkout, retiro en tienda y panel de administración CRUD (`/admin/sucursales`) |
-| [expiracion-carrito-checkout.md](./expiracion-carrito-checkout.md) | Diagnóstico, mejores prácticas y plan de integración de expiración/renovación del carrito en el flujo de Checkout |
-| [Propuesta-Polling-QPayPro-Checkout.md](./Propuesta-Polling-QPayPro-Checkout.md) | Propuesta técnica y evaluación de polling/recuperación Caso 5 para QPayPro (Guatemala) en Checkout |
-| [Diagnostico-Orden-Pendiente-Fallo-Pasarela-Checkout.md](./Diagnostico-Orden-Pendiente-Fallo-Pasarela-Checkout.md) | Diagnóstico del caso borde cuando `crearOrden` convierte el carrito pero falla `iniciar` de la pasarela externa, y alternativas de solución |
-| [Estrategia-Recuperacion-Ordenes-y-Checkout.md](./Estrategia-Recuperacion-Ordenes-y-Checkout.md) | Estrategia de recuperación de pedidos y checkout resiliente (Opciones A y B post-pasarela QPayPro / Webpay) |
+|---|---|
+| [arquitectura-jwt-doble-token.md](./guides/arquitectura-jwt-doble-token.md) | Gestión de autenticación: Access Token JWT en memoria, Refresh Token en cookie `HttpOnly` y refresco automático transparente. |
+| [testing.md](./guides/testing.md) | Estrategia de testing en dos capas: pruebas unitarias/integración (Vitest, RTL, MSW) y E2E (Cypress). |
+| [expiracion-carrito-checkout.md](./guides/expiracion-carrito-checkout.md) | Comportamiento del ciclo de vida del carrito, expiración deslizante y restauración ante HTTP `410 GONE`. |
+| [sucursales-retiro-tienda.md](./guides/sucursales-retiro-tienda.md) | Integración de retiro en tienda, selección consciente en checkout y administración de sucursales. |
+| [recuperacion-ordenes-checkout.md](./guides/recuperacion-ordenes-checkout.md) | Estrategia de resiliencia y recuperación de órdenes pendientes tras retornos de pasarelas (Webpay / QPayPro). |
+| [evaluacion-seguridad.md](./guides/evaluacion-seguridad.md) | Auditoría de seguridad frontend, mitigación de vulnerabilidades XSS y cabeceras CSP. |
+| [evaluacion-rendimiento.md](./guides/evaluacion-rendimiento.md) | Optimización de métricas Core Web Vitals (LCP, CLS), fuentes autoalojadas y división de chunks con Vite. |
+| [pnpm.md](./guides/pnpm.md) | Guía del gestor de paquetes `pnpm`: instalación, configuración y resolución de dependencias. |
 
-## Convención
+---
 
-- **`README.md`** (raíz de `frontend/`) — punto de entrada: stack, inicio rápido, arquitectura resumida.
-- **`docs/`** — referencia detallada y guías operativas que no van en el README.
+## 2. Propuestas Técnicas y Backlog (`proposals/`)
 
-Para documentación del monorepo completo (backend, despliegue, etc.), ver el [README](../../README.md) en la raíz del repositorio.
+Diseños técnicos, RFCs y tareas planificadas pendientes de ejecución:
+
+| Documento | Estado | Descripción |
+|---|---|---|
+| [plan-gestion-banners-home.md](./proposals/plan-gestion-banners-home.md) | Propuesta Activa | Diseño arquitectónico para hacer el carrusel de inicio administrable con Cloudinary y backend. |
+| [retirar-stripe-mercadopago.md](./proposals/retirar-stripe-mercadopago.md) | Pendiente | Checklist operativo para la retirada definitiva de componentes simulados, schemas y llamadas legacy de Stripe y Mercado Pago. |
+| [plan-rendimiento-e2e.md](./proposals/plan-rendimiento-e2e.md) | Propuesta | Mejoras y optimizaciones planificadas para los tiempos de ejecución de las pruebas E2E con Cypress. |
+| [propuesta-backend-favoritos.md](./proposals/propuesta-backend-favoritos.md) | Propuesta / RFC | Solicitud al equipo de backend para la resolución dinámica de imágenes de productos en `/api/favoritos`. |
+| [eslint-warnings.md](./proposals/eslint-warnings.md) | Deuda Técnica | Inventario y seguimiento de advertencias de linter pendientes de corrección. |
+
+---
+
+## 3. Archivo Histórico (`archive/`)
+
+Planes de trabajo completados, diagnósticos resueltos y documentación de etapas previas:
+
+| Documento | Tipo | Motivo de Archivo |
+|---|---|---|
+| [migracion-bulletproof-react.md](./archive/migracion-bulletproof-react.md) | Plan de Migración | Migración de 4 fases desde FSD hacia Bulletproof React completada con éxito. |
+| [recomendaciones-equipo-bulletproof.md](./archive/recomendaciones-equipo-bulletproof.md) | Guía de Transición | Recomendaciones provisionales durante la migración; las carpetas legacy mencionadas ya fueron eliminadas. |
+| [architecture-fsd-legacy.md](./archive/architecture-fsd-legacy.md) | Arquitectura Legacy | Especificación histórica de Feature-Sliced Design (`pages`, `widgets`, `entities`, `shared`). |
+| [plan-pasarelas-webpay-qpaypro.md](./archive/plan-pasarelas-webpay-qpaypro.md) | Plan de Integración | Hoja de ruta para integrar Webpay Plus y QPayPro; pasarelas ya implementadas y operativas. |
+| [plan-webpay-frontend.md](./archive/plan-webpay-frontend.md) | Plan Frontend | Especificación de retornos y confirmaciones de Transbank Webpay Plus; implementado. |
+| [plan-admin-dashboard.md](./archive/plan-admin-dashboard.md) | Plan Frontend | Plan inicial del panel de control de administración; implementado. |
+| [plan-checkout-pickup.md](./archive/plan-checkout-pickup.md) | Plan Frontend | Plan para el selector de sucursales en checkout; implementado. |
+| [diagnostico-orden-pendiente-pasarela.md](./archive/diagnostico-orden-pendiente-pasarela.md) | Diagnóstico | Análisis del caso de borde de fallo en pasarela que dio origen a la guía de recuperación activa. |
+| [propuesta-polling-qpaypro.md](./archive/propuesta-polling-qpaypro.md) | Diagnóstico | Propuesta para el polling de pagos en Guatemala; implementado en `useCheckoutLogic`. |
+| [pruebas-webpay-plus.md](./archive/pruebas-webpay-plus.md) | Pruebas | Tarjetas de prueba y registros de validación inicial de Webpay Plus. |
+| [payment-gateways-legacy.md](./archive/payment-gateways-legacy.md) | Guía Legacy | Primera versión de pasarelas simuladas previa a la integración real con Transbank y QPayPro. |
