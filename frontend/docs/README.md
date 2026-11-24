@@ -47,6 +47,7 @@ Diseños técnicos, RFCs y tareas planificadas pendientes de ejecución:
 | Documento | Estado | Descripción |
 |---|---|---|
 | [plan-gestion-banners-home.md](./proposals/plan-gestion-banners-home.md) | Propuesta Activa | Diseño arquitectónico para hacer el carrusel de inicio administrable con Cloudinary y backend. |
+| [buscador-global-catalogo-multicampo.md](./proposals/buscador-global-catalogo-multicampo.md) | En Progreso (Frontend Resuelto / Backend Pendiente) | Especificación técnica para búsqueda global, multicampo y con sinónimos. Frontend ya implementado en Navbar y ProductCatalog reutilizando Button del Design System. |
 | [retirar-stripe-mercadopago.md](./proposals/retirar-stripe-mercadopago.md) | Pendiente | Checklist operativo para la retirada definitiva de componentes simulados, schemas y llamadas legacy de Stripe y Mercado Pago. |
 | [plan-rendimiento-e2e.md](./proposals/plan-rendimiento-e2e.md) | Propuesta | Mejoras y optimizaciones planificadas para los tiempos de ejecución de las pruebas E2E con Cypress. |
 | [propuesta-backend-favoritos.md](./proposals/propuesta-backend-favoritos.md) | Propuesta / RFC | Solicitud al equipo de backend para la resolución dinámica de imágenes de productos en `/api/favoritos`. |

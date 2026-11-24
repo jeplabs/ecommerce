@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useCart, useToast } from '@/app/providers';
-import { Pagination } from '@/components/ui';
+import { Button, Pagination } from '@/components/ui';
 import { SortSelector } from '@/components/ui/SortSelector/SortSelector';
 import { ProductCard } from '../ProductCard/ProductCard';
 import { ProductFilters } from '../ProductFilters/ProductFilters';
@@ -239,9 +239,27 @@ export const ProductCatalog = ({
                     </header>
 
                     {searchTerm.trim() && (
-                        <p className={styles.searchHint}>
-                            Resultados para: &ldquo;{searchTerm.trim()}&rdquo;
-                        </p>
+                        // <p className={styles.searchHint}>
+                        //     Resultados para: &ldquo;{searchTerm.trim()}&rdquo;
+                        // </p>
+                        <div className={styles.searchHintRow}>
+                            <p className={styles.searchHint}>
+                                Resultados para: <strong>&ldquo;{searchTerm.trim()}&rdquo;</strong>
+                            </p>
+                            <Button
+                                type="button"
+                                variant='secondary'
+                                onClick={() => {
+                                    const nextParams = new URLSearchParams(searchParams);
+                                    nextParams.delete('search');
+                                    nextParams.delete('page');
+                                    setSearchParams(nextParams);
+                                }}
+                                aria-label="Limpiar búsqueda"
+                            >
+                                Limpiar búsqueda
+                            </Button>
+                        </div>
                     )}
 
                     {productosAUsar.length === 0 ? (

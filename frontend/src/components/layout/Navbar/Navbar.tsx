@@ -7,17 +7,22 @@ import { CartDrawer } from '@/features/cart';
 import styles from './Navbar.module.css';
 
 /** Rutas donde el buscador sincroniza ?search= con la URL del catálogo. */
-function isCatalogSearchPath(pathname: string): boolean {
-    return pathname === '/catalogo' || pathname.startsWith('/categoria');
-}
+// function isCatalogSearchPath(pathname: string): boolean {
+//     return pathname === '/catalogo' || pathname.startsWith('/categoria');
+// }
 
 export default function Navbar() {
     const { isAuthenticated, userRol, logout } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
     const location = useLocation();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const isCatalogSearch = isCatalogSearchPath(location.pathname);
+    // const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
+    
+    // const isCatalogSearch = isCatalogSearchPath(location.pathname);
+
+    const isAtCatalogo = location.pathname === '/catalogo';
+    // const querySearchParam = isAtCatalogo ? (searchParams.get('search') || '') : '';
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -35,53 +40,93 @@ export default function Navbar() {
     const toggleCart = useCallback(() => setIsCartOpen((open) => !open), []);
 
     useEffect(() => {
-        if (isCatalogSearch) {
+        if (isAtCatalogo) {
+        // if (isCatalogSearch) {
             setSearchTerm(searchParams.get('search') || '');
         } else {
             setSearchTerm('');
         }
-    }, [isCatalogSearch, searchParams]);
+    // }, [isCatalogSearch, searchParams]);
+    }, [isAtCatalogo, searchParams]);
 
-    const updateSearchParams = useCallback(
-        (query: string) => {
-            const trimmed = query.trim();
-            const newParams = new URLSearchParams(searchParams);
+    // const updateSearchParams = useCallback(
+    //     (query: string) => {
+    //         const trimmed = query.trim();
+    //         const newParams = new URLSearchParams(searchParams);
+    //         if (trimmed) {
+    //             newParams.set('search', trimmed);
+    //         } else {
+    //             newParams.delete('search');
+    //         }
+    //         setSearchParams(newParams, { replace: true });
+    //     },
+    //     [searchParams, setSearchParams]
+    // );
+
+    // useEffect(() => {
+    //     if (isCatalogSearch || !searchTerm.trim()) {
+    //         return undefined;
+    //     }
+
+    //     const timeoutId = setTimeout(() => {
+    //         navigate(`/catalogo?search=${encodeURIComponent(searchTerm.trim())}`);
+    //     }, 400);
+
+    //     return () => clearTimeout(timeoutId);
+    // }, [searchTerm, isCatalogSearch, navigate]);
+
+    // useEffect(() => {
+    //     if (!isCatalogSearch) {
+    //         return undefined;
+    //     }
+
+    //     const timeoutId = setTimeout(() => {
+    //         updateSearchParams(searchTerm);
+    //     }, 400);
+
+    //     return () => clearTimeout(timeoutId);
+    // }, [searchTerm, updateSearchParams, isCatalogSearch]);
+
+    // Ejecución de la búsqueda con debounce (400ms)
+    useEffect(() => {
+        const trimmed = searchTerm.trim();
+
+        // Si el término en el input es idéntico al actual en la URL de catálogo, no hacer nada
+        if (isAtCatalogo && (searchParams.get('search') || '') === trimmed) {
+            return undefined;
+        }
+
+        // Si está vacío y no estamos en catálogo, no hacer nada
+        if (!trimmed && !isAtCatalogo) {
+            return undefined;
+        }
+
+        const timeoutId = setTimeout(() => {
             if (trimmed) {
-                newParams.set('search', trimmed);
-            } else {
-                newParams.delete('search');
+                // Siempre navega a /catalogo limpio con el nuevo término de búsqueda (búsqueda global)
+                navigate(`/catalogo?search=${encodeURIComponent(trimmed)}`);
+            } else if (isAtCatalogo) {
+                // Si el usuario borra el texto estando en catálogo, remueve el parámetro search
+                const nextParams = new URLSearchParams(searchParams);
+                nextParams.delete('search');
+                navigate(`/catalogo${nextParams.toString() ? `?${nextParams.toString()}` : ''}`, { replace: true });
             }
-            setSearchParams(newParams, { replace: true });
-        },
-        [searchParams, setSearchParams]
-    );
-
-    useEffect(() => {
-        if (isCatalogSearch || !searchTerm.trim()) {
-            return undefined;
-        }
-
-        const timeoutId = setTimeout(() => {
-            navigate(`/catalogo?search=${encodeURIComponent(searchTerm.trim())}`);
         }, 400);
 
         return () => clearTimeout(timeoutId);
-    }, [searchTerm, isCatalogSearch, navigate]);
-
-    useEffect(() => {
-        if (!isCatalogSearch) {
-            return undefined;
-        }
-
-        const timeoutId = setTimeout(() => {
-            updateSearchParams(searchTerm);
-        }, 400);
-
-        return () => clearTimeout(timeoutId);
-    }, [searchTerm, updateSearchParams, isCatalogSearch]);
+    }, [searchTerm, isAtCatalogo, searchParams, navigate]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            const trimmed = searchTerm.trim();
+            if (trimmed) {
+                navigate(`/catalogo?search=${encodeURIComponent(trimmed)}`);
+            }
+        }
     };
 
     return (
@@ -99,7 +144,8 @@ export default function Navbar() {
                             type="text"
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            placeholder="Buscar productos..."
+                            onKeyDown={handleKeyDown}
+                            placeholder="Buscar productos, marcas, modelos o SKU..."
                             className={styles.searchInput}
                         />
                         <button type="button" className={styles.searchBtn} aria-label="Buscar" disabled>
