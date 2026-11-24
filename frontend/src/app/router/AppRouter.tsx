@@ -29,6 +29,7 @@ const AdminUsersPage = lazy(() => import('@/app/routes/admin/users'));
 const AdminUserEditPage = lazy(() => import('@/app/routes/admin/user-edit'));
 const AdminOrdersPage = lazy(() => import('@/app/routes/admin/orders'));
 const AdminBranchesPage = lazy(() => import('@/app/routes/admin/branches'));
+const AdminCategoriesPage = lazy(() => import('@/app/routes/admin/categories'));
 const NotFoundPage = lazy(() => import('@/app/routes/not-found'));
 
 export function AppRouter() {
@@ -191,6 +192,14 @@ export function AppRouter() {
                         element={
                             <PrivateRoute requiredRol="ROLE_ADMIN">
                                 <AdminBranchesPage />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/categorias"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_ADMIN">
+                                <AdminCategoriesPage />
                             </PrivateRoute>
                         }
                     />

@@ -55,7 +55,49 @@ export async function create(categoriaDatos: CreateCategoryRequest): Promise<Cat
     return parseApi(categoryApiSchema, raw);
 }
 
+/** {@code PATCH /api/categorias/{id}} */
+export async function update(
+    id: number,
+    categoriaDatos: CreateCategoryRequest
+): Promise<CategoryApi> {
+    const response = await fetch(`${API_URL}/api/categorias/${id}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(getToken()),
+        body: JSON.stringify(categoriaDatos),
+    });
+
+    if (response.status === 401) {
+        throwSessionExpired();
+    }
+
+    const raw = await readJson(response);
+    if (!response.ok) {
+        throw new Error(getErrorMessage(raw, 'No se pudo actualizar la categoría'));
+    }
+
+    return parseApi(categoryApiSchema, raw);
+}
+
+/** {@code DELETE /api/categorias/{id}} */
+export async function deleteCategory(id: number): Promise<void> {
+    const response = await fetch(`${API_URL}/api/categorias/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(getToken()),
+    });
+
+    if (response.status === 401) {
+        throwSessionExpired();
+    }
+
+    if (!response.ok) {
+        const raw = await readJson(response);
+        throw new Error(getErrorMessage(raw, 'No se pudo eliminar la categoría'));
+    }
+}
+
 export const categoriesApi = {
     getAll,
     create,
+    update,
+    deleteCategory,
 };

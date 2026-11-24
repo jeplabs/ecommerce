@@ -67,25 +67,62 @@ export function useCategorias() {
         };
     }, []);
 
-    const createCategory = useCallback(async (categoriaDatos: CreateCategoryRequest) => {
-        setLoading(true);
-        try {
-            const nuevaCategoria = await categoryApi.create(categoriaDatos);
-            cachedCategories = [...(cachedCategories || []), nuevaCategoria];
-            setArbolCategorias((prev) => [...prev, nuevaCategoria]);
-            return nuevaCategoria;
-        } catch (error) {
-            console.error('Error al crear la categoria', error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const createCategory = useCallback(
+        async (categoriaDatos: CreateCategoryRequest) => {
+            setLoading(true);
+            try {
+                const nuevaCategoria = await categoryApi.create(categoriaDatos);
+                await reloadCategorias();
+                return nuevaCategoria;
+            } catch (error) {
+                console.error('Error al crear la categoría:', error);
+                throw error;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [reloadCategorias]
+    );
+
+    const updateCategory = useCallback(
+        async (id: number, categoriaDatos: CreateCategoryRequest) => {
+            setLoading(true);
+            try {
+                const actualizada = await categoryApi.update(id, categoriaDatos);
+                await reloadCategorias();
+                return actualizada;
+            } catch (error) {
+                console.error('Error al actualizar la categoría:', error);
+                throw error;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [reloadCategorias]
+    );
+
+    const deleteCategory = useCallback(
+        async (id: number) => {
+            setLoading(true);
+            try {
+                await categoryApi.deleteCategory(id);
+                await reloadCategorias();
+            } catch (error) {
+                console.error('Error al eliminar la categoría:', error);
+                throw error;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [reloadCategorias]
+    );
 
     return {
         arbolCategorias,
         loading,
         createCategory,
+        updateCategory,
+        deleteCategory,
         reloadCategorias,
     };
 }

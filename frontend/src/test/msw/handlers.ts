@@ -132,6 +132,37 @@ export const handlers = [
         return HttpResponse.json(mockCategories);
     }),
 
+    http.post(`${API_BASE}/api/categorias`, async ({ request }) => {
+        const body = (await request.json().catch(() => ({}))) as { nombre?: string; parentId?: number | null };
+        const id = Date.now();
+        const slug = (body.nombre || 'categoria').toLowerCase().replace(/\s+/g, '-');
+        const created = {
+            id,
+            nombre: body.nombre || 'Nueva categoría',
+            slug,
+            parentId: body.parentId ?? null,
+            subcategorias: [],
+        };
+        return HttpResponse.json(created, { status: 201 });
+    }),
+
+    http.patch(`${API_BASE}/api/categorias/:id`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json().catch(() => ({}))) as { nombre?: string; parentId?: number | null };
+        const updated = {
+            id,
+            nombre: body.nombre || 'Categoría actualizada',
+            slug: (body.nombre || 'categoria').toLowerCase().replace(/\s+/g, '-'),
+            parentId: body.parentId ?? null,
+            subcategorias: [],
+        };
+        return HttpResponse.json(updated);
+    }),
+
+    http.delete(`${API_BASE}/api/categorias/:id`, () => {
+        return new HttpResponse(null, { status: 204 });
+    }),
+
     http.get(`${API_BASE}/api/productos`, ({ request }) => {
         const url = new URL(request.url);
         const categoriaId = url.searchParams.get('categoriaId');

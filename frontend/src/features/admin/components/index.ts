@@ -28,4 +28,8 @@ export { default as AdminUsersListView } from './AdminUsersListView';
 export * from './AdminUsersListView';
 export { default as AdminUserEditView } from './AdminUserEditView';
 export * from './AdminUserEditView';
+export { AdminCategoriesView } from './AdminCategoriesView/AdminCategoriesView';
+export { AdminCategoriesTable } from './AdminCategoriesTable/AdminCategoriesTable';
+export { CategoryModalForm } from './CategoryModalForm/CategoryModalForm';
+export { DeleteCategoryModal } from './DeleteCategoryModal/DeleteCategoryModal';
 export { AdminBranchesView, AdminBranchesTable, BranchModalForm } from '@/features/branches';

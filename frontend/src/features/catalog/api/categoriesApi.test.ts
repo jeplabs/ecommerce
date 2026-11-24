@@ -48,4 +48,71 @@ describe('categoriesApi', () => {
         expect(received).toEqual({ nombre: 'Nueva categoría BPR' });
         expect(result.id).toBe(mockCategories[0]?.id);
     });
+
+    it('update envía PATCH con el body y devuelve la categoría actualizada', async () => {
+        localStorage.setItem('token', mockAuthTokenResponse.token);
+        let received: unknown;
+        server.use(
+            http.patch(`${categoriasPath}/2`, async ({ request }) => {
+                received = await request.json();
+                return HttpResponse.json({
+                    id: 2,
+                    nombre: 'Audio Pro',
+                    slug: 'audio-pro',
+                    parentId: 1,
+                    subcategorias: [],
+                });
+            })
+        );
+
+        const result = await categoriesApi.update(2, { nombre: 'Audio Pro', parentId: 1 });
+
+        expect(received).toEqual({ nombre: 'Audio Pro', parentId: 1 });
+        expect(result.nombre).toBe('Audio Pro');
+        expect(result.id).toBe(2);
+    });
+
+    it('update lanza Error si el endpoint responde con fallo', async () => {
+        localStorage.setItem('token', mockAuthTokenResponse.token);
+        server.use(
+            http.patch(`${categoriasPath}/99`, () =>
+                HttpResponse.json({ message: 'Categoría no encontrada' }, { status: 404 })
+            )
+        );
+
+        await expect(categoriesApi.update(99, { nombre: 'Inexistente' })).rejects.toThrow(
+            'Categoría no encontrada'
+        );
+    });
+
+    it('deleteCategory envía DELETE al endpoint correspondiente', async () => {
+        localStorage.setItem('token', mockAuthTokenResponse.token);
+        let deleteCalled = false;
+        server.use(
+            http.delete(`${categoriasPath}/5`, () => {
+                deleteCalled = true;
+                return new HttpResponse(null, { status: 204 });
+            })
+        );
+
+        await categoriesApi.deleteCategory(5);
+
+        expect(deleteCalled).toBe(true);
+    });
+
+    it('deleteCategory lanza Error si el backend rechaza la eliminación', async () => {
+        localStorage.setItem('token', mockAuthTokenResponse.token);
+        server.use(
+            http.delete(`${categoriasPath}/1`, () =>
+                HttpResponse.json(
+                    { error: 'No es posible eliminar una categoría con subcategorías activas' },
+                    { status: 409 }
+                )
+            )
+        );
+
+        await expect(categoriesApi.deleteCategory(1)).rejects.toThrow(
+            'No es posible eliminar una categoría con subcategorías activas'
+        );
+    });
 });

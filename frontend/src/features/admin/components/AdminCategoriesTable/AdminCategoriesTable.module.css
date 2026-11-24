@@ -1,0 +1,148 @@
+.root {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.grid thead {
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.grid th {
+    padding: 0.85rem 1rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.thActions {
+    text-align: center;
+}
+
+.grid td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border2);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.row:hover {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.categoryCell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggleBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94a3b8);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.15s ease, color 0.15s ease;
+    user-select: none;
+}
+
+.toggleBtn:hover {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--text);
+}
+
+.spacer {
+    display: inline-block;
+    width: 1.5rem;
+}
+
+.icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.categoryName {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.slugCell {
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: var(--text-secondary, #94a3b8);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.badgeRoot {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+}
+
+.badgeSub {
+    background: rgba(14, 165, 233, 0.15);
+    color: #38bdf8;
+}
+
+.badgeSubSub {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+}
+
+.actionsCell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+}
+
+.actionBtn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.emptyState {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--muted);
+}
