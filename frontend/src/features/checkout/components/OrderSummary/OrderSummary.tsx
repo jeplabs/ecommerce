@@ -37,7 +37,7 @@ export default function OrderSummary({
     return (
         <aside className={clsx(styles.root, compact && styles.compact)}>
             <CheckoutReservationBanner />
-            <h3 className={styles.title}>Resumen del pedido</h3>
+            <h2 className={styles.title}>Resumen del pedido</h2>
 
             {!totalsOnly && (
                 <ul className={styles.items}>

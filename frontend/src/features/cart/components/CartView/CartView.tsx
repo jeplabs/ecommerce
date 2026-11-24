@@ -86,7 +86,7 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                             //     { minimumFractionDigits: 2 }
                             // );
                             return (
-                                <article key={item.id} className={styles.tableRow} role="row">
+                                <div key={item.id} className={styles.tableRow} role="row">
                                     <div className={styles.itemInfo} role="cell">
                                         <Link to={`/producto/${item.slug}`} className={styles.itemLink}>
                                             <ProductImage
@@ -114,7 +114,7 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                         <button
                                             type="button"
                                             className={styles.qtyBtn}
-                                            aria-label="Disminuir cantidad"
+                                            aria-label={`Disminuir cantidad de ${item.name}`}
                                             onClick={() =>
                                                 handleQuantityChange(item.id, item.quantity - 1)
                                             }
@@ -128,7 +128,7 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                         <button
                                             type="button"
                                             className={styles.qtyBtn}
-                                            aria-label="Aumentar cantidad"
+                                            aria-label={`Aumentar cantidad de ${item.name}`}
                                             onClick={() =>
                                                 handleQuantityChange(item.id, item.quantity + 1)
                                             }
@@ -155,11 +155,12 @@ export default function CartView({ onProceedToCheckout }: CartViewProps) {
                                             className={styles.removeItem}
                                             onClick={() => handleRemove(item.id)}
                                             disabled={loading}
+                                            aria-label={`Eliminar ${item.name} del carrito`}
                                         >
                                             Eliminar
                                         </Button>
                                     </div>
-                                </article>
+                                </div>
                             );
                         })}
                     </div>

@@ -30,9 +30,9 @@ export default function PickupBranchSelector({
             ) : sucursales.length === 0 ? (
                 <p className={styles.emptyState}>No hay sucursales disponibles para retiro en este momento.</p>
             ) : (
-                <ul className={styles.list} role="radiogroup" aria-label="Sucursales disponibles">
+                <div className={styles.list} role="radiogroup" aria-label="Sucursales disponibles">
                     {sucursales.map((branch) => (
-                        <li key={branch.id}>
+                        <div key={branch.id} className={styles.itemWrapper}>
                             <label
                                 className={clsx(
                                     styles.card,
@@ -59,9 +59,9 @@ export default function PickupBranchSelector({
                                     </div>
                                 </div>
                             </label>
-                        </li>
+                        </div>
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     );

@@ -110,9 +110,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={handleClose}
             />
 
-            <div className={clsx(styles.drawer, isVisible && styles.drawerActive)}>
+            <div
+                className={clsx(styles.drawer, isVisible && styles.drawerActive)}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="cart-drawer-title"
+            >
                 <div className={styles.header}>
-                    <h2>Tu Carrito</h2>
+                    <h2 id="cart-drawer-title">Tu Carrito</h2>
                     <button
                         type="button"
                         className={styles.closeBtn}
@@ -147,20 +152,18 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <ul className={styles.itemsList}>
                             {items.map((item) => (
                                 <li key={item.id} className={styles.item}>
-                                    {/* <div className={styles.itemDetails}> */}
                                     <div className={styles.itemThumbContainer}>
                                         <Link to={`/producto/${item.slug}`} className={styles.itemLink} onClick={handleClose}>
-                                                <ProductImage
-                                                    src={item.imageUrl}
-                                                    alt={item.altText || item.name}
-                                                    className={styles.itemThumb}
-                                                />
+                                            <ProductImage
+                                                src={item.imageUrl}
+                                                alt={item.altText || item.name}
+                                                className={styles.itemThumb}
+                                            />
                                         </Link>
                                         <Link to={`/producto/${item.slug}`} className={styles.itemLink} onClick={handleClose}>
-                                            <h4 className={styles.itemName}>{item.name}</h4>
+                                            <h3 className={styles.itemName}>{item.name}</h3>
                                         </Link>
                                     </div>
-                                    {/* </div> */}
                                     <div className={styles.itemControls}>
                                         <div className={styles.itemActions}>
                                             <button
@@ -170,7 +173,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                                     handleUpdateQuantity(item.id, item.quantity - 1)
                                                 }
                                                 disabled={loading}
-                                                aria-label="Disminuir cantidad"
+                                                aria-label={`Disminuir cantidad de ${item.name}`}
                                             >
                                                 −
                                             </button>
@@ -182,7 +185,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                                     handleUpdateQuantity(item.id, item.quantity + 1)
                                                 }
                                                 disabled={loading}
-                                                aria-label="Aumentar cantidad"
+                                                aria-label={`Aumentar cantidad de ${item.name}`}
                                             >
                                                 +
                                             </button>
@@ -192,19 +195,19 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                             className={styles.removeBtn}
                                             onClick={() => handleRemove(item.id)}
                                             disabled={loading}
-                                            title="Eliminar del carrito"
-                                            aria-label="Eliminar producto"
+                                            title={`Eliminar ${item.name} del carrito`}
+                                            aria-label={`Eliminar ${item.name} del carrito`}
                                         >
                                             <span className="material-symbols-outlined">delete</span>
                                         </button>
                                     </div>
                                     <div className={styles.itemQuantityAndPrice}>
-                                            <p className={styles.itemMeta}>
-                                                {item.quantity} x {formatCurrency(item.price)}
-                                            </p>
-                                            <p className={styles.itemSubtotal}>
-                                                Subtotal: {formatCurrency(item.price * item.quantity)}
-                                            </p>
+                                        <p className={styles.itemMeta}>
+                                            {item.quantity} x {formatCurrency(item.price)}
+                                        </p>
+                                        <p className={styles.itemSubtotal}>
+                                            Subtotal: {formatCurrency(item.price * item.quantity)}
+                                        </p>
                                     </div>
                                 </li>
                             ))}
