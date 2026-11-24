@@ -128,10 +128,16 @@ export function CategoryModalForm({
     const slugPreview = generarSlugPreview(nombre);
 
     return (
-        <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true">
+        <div
+            className={styles.overlay}
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cat-modal-title"
+        >
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-                <header className={styles.header}>
-                    <h2>{isEditing ? 'Editar categoría' : 'Nueva categoría'}</h2>
+                <div className={styles.header}>
+                    <h2 id="cat-modal-title">{isEditing ? 'Editar categoría' : 'Nueva categoría'}</h2>
                     <button
                         type="button"
                         className={styles.closeBtn}
@@ -140,7 +146,7 @@ export function CategoryModalForm({
                     >
                         ✕
                     </button>
-                </header>
+                </div>
 
                 <form onSubmit={handleSubmit}>
                     <div className={styles.body}>
@@ -179,7 +185,7 @@ export function CategoryModalForm({
                         {error && <FieldError>{error}</FieldError>}
                     </div>
 
-                    <footer className={styles.footer}>
+                    <div className={styles.footer}>
                         <Button
                             type="button"
                             variant="secondary"
@@ -195,7 +201,7 @@ export function CategoryModalForm({
                         >
                             {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear categoría'}
                         </Button>
-                    </footer>
+                    </div>
                 </form>
             </div>
         </div>

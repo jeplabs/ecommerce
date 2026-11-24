@@ -84,7 +84,8 @@ export default function AdminProductsTable({
                                         <div className={styles.productCellWrap}>
                                             <ProductImage
                                                 src={imageSrc}
-                                                alt={producto.nombre}
+                                                alt=""
+                                                aria-hidden="true"
                                                 className={styles.productThumbnail}
                                             />
                                             <div className={styles.productDetails}>

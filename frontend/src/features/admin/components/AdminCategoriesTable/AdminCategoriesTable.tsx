@@ -116,11 +116,11 @@ export function AdminCategoriesTable({
                 <table className={styles.grid}>
                     <thead>
                         <tr>
-                            <th>Categoría / Jerarquía</th>
-                            <th>Slug</th>
-                            <th>Nivel</th>
-                            <th>Subcategorías</th>
-                            <th className={styles.thActions}>Acciones</th>
+                            <th scope="col">Categoría / Jerarquía</th>
+                            <th scope="col">Slug</th>
+                            <th scope="col">Nivel</th>
+                            <th scope="col">Subcategorías</th>
+                            <th scope="col" className={styles.thActions}>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -138,7 +138,8 @@ export function AdminCategoriesTable({
                                                     type="button"
                                                     className={styles.toggleBtn}
                                                     onClick={() => toggleExpand(category.id)}
-                                                    aria-label={isExpanded ? 'Contraer' : 'Expandir'}
+                                                    aria-label={isExpanded ? `Contraer ${category.nombre}` : `Expandir ${category.nombre}`}
+                                                    aria-expanded={isExpanded}
                                                 >
                                                     {isExpanded ? '▼' : '▶'}
                                                 </button>

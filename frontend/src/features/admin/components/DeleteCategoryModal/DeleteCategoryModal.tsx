@@ -31,10 +31,16 @@ export function DeleteCategoryModal({
     };
 
     return (
-        <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true">
+        <div
+            className={styles.overlay}
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-cat-modal-title"
+        >
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-                <header className={styles.header}>
-                    <h2>Eliminar categoría</h2>
+                <div className={styles.header}>
+                    <h2 id="delete-cat-modal-title">Eliminar categoría</h2>
                     <button
                         type="button"
                         className={styles.closeBtn}
@@ -43,7 +49,7 @@ export function DeleteCategoryModal({
                     >
                         ✕
                     </button>
-                </header>
+                </div>
 
                 <div className={styles.body}>
                     <p>
@@ -68,7 +74,7 @@ export function DeleteCategoryModal({
                     )}
                 </div>
 
-                <footer className={styles.footer}>
+                <div className={styles.footer}>
                     <Button
                         type="button"
                         variant="secondary"
@@ -86,7 +92,7 @@ export function DeleteCategoryModal({
                     >
                         {isDeleting ? 'Eliminando...' : 'Eliminar definitivamente'}
                     </Button>
-                </footer>
+                </div>
             </div>
         </div>
     );

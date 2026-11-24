@@ -80,11 +80,22 @@ El plan de auditoría no comienza por herramientas internas, sino que recorre el
 | **4. Carrito y Checkout** | `CartDrawer`, `CartView`, `PickupBranchSelector`, `OrderSummary`, `CheckoutContent` | **Completado (100%)** | `CartDrawer`, `CartView`, `OrderSummary`, `PickupBranchSelector` y `CheckoutContent` auditados con 0 violaciones. Se corrigieron `aria-allowed-role` en `CartView` (`<article role="row">` -> `<div role="row">`), `aria-required-children` en `PickupBranchSelector`, `heading-order` en `OrderSummary` (`<h3>` -> `<h2>`) y semántica modal con `role="dialog"` en `CartDrawer`. |
 | **5. Autenticación** | `LoginForm`, `RegisterForm`, `ResetPasswordForm`, `LoginDropdown`, `ForgotPasswordForm` | **Completado (100%)** | `LoginForm`, `LoginDropdown`, `RegisterForm`, `ForgotPasswordForm` y `ResetPasswordForm` auditados con 0 violaciones. Se corrigieron `aria-label` en inputs compactos de `LoginDropdown`, validadas asociaciones de label/input, `aria-describedby` en errores de validación, `aria-invalid` y estados de submit. |
 | **6. Perfil de Usuario** | `ProfileView`, `ProfileTabs`, `ProfileDataTab`, `OrdersTab`, `OrderDetailModal`, `AddressesTab`, `AddressForm`, `ChangePasswordForm`, `FavoritesTab`, `FavoritesList`, `FavoriteButton` | **Completado (100%)** | `ProfileView`, `ProfileDataTab`, `ChangePasswordForm`, `AddressesTab`, `AddressForm`, `OrdersTab`, `OrderDetailModal`, `FavoritesList` y `FavoriteButton` auditados con 0 violaciones. Se corrigieron `aria-allowed-role` en `ProfileTabs` (`<nav role="tablist">` -> `<div role="tablist">`), estructura de lista de definición en `ProfileDataTab` (moviendo `<h3>` fuera de `<dl>`), y `heading-order` en `AddressesTab` (`<h4>` -> `<h3>`); validados modales `role="dialog"`, tablas semánticas de órdenes y botones con `aria-pressed`. |
-| **7. Panel de Administración**| `AdminCategoriesView`, `AdminProductsView`, `AdminBranchesView`, modales | *Pendiente* | Por auditar Tree-Table, roles de tabla jerárquica y modales de confirmación. |
+| **7. Panel de Administración**| `AdminLayout`, `AdminDashboardView`, `AdminCategoriesView`, `AdminCategoriesTable`, `AdminProductListView`, `AdminProductsTable`, `AdminOrdersView`, `AdminOrdersTable`, `AdminUsersListView`, `AdminUsersTable`, `ProductForm`, modales (`CategoryModalForm`, `DeleteCategoryModal`) | **Completado (100%)** | `AdminLayout`, `AdminDashboardView`, `AdminCategoriesView`, `AdminProductListView`, `AdminOrdersView`, `AdminUsersListView` y `ProductForm` auditados con 0 violaciones. Se corrigieron `dialog-name` y `landmark-no-duplicate-banner` en modales (`<header>` -> `<div>` y `aria-labelledby`), `image-redundant-alt` en thumbnails de productos con texto adyacente (`alt=""` + `aria-hidden="true"`), encabezados `scope="col"` en tablas de categorías y dashboard, y botones de expansión jerárquica con `aria-expanded` y `aria-label` descriptivos. |
 
 ---
 
-## 4. Cómo Escribir una Prueba de Accesibilidad
+## 4. Resumen del User Journey Roadmap y Métricas Finales
+
+El plan de accesibilidad cubrió las 7 etapas del viaje del usuario en su totalidad:
+
+- **Total de Suites a11y Creadas**: **32 archivos de prueba (`*.a11y.test.tsx`)**
+- **Total de Pruebas Unitarias de Accesibilidad**: **56 pruebas pasando al 100%**
+- **Violaciones de `axe-core` Restantes**: **0 violaciones (WCAG 2.1 AA Compliant)**
+- **Errores de TypeScript**: **0 errores (`tsc --noEmit` limpio)**
+
+---
+
+## 5. Cómo Escribir una Prueba de Accesibilidad
 
 Para auditar cualquier componente del proyecto, crea un archivo con la extensión `*.a11y.test.tsx` (o dentro de su suite unitaria habitual) siguiendo esta estructura:
 
