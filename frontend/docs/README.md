@@ -36,6 +36,7 @@ Documentos que reflejan el comportamiento real de la aplicación en el código b
 | [recuperacion-ordenes-checkout.md](./guides/recuperacion-ordenes-checkout.md) | Estrategia de resiliencia y recuperación de órdenes pendientes tras retornos de pasarelas (Webpay / QPayPro). |
 | [evaluacion-seguridad.md](./guides/evaluacion-seguridad.md) | Auditoría de seguridad frontend, mitigación de vulnerabilidades XSS y cabeceras CSP. |
 | [evaluacion-rendimiento.md](./guides/evaluacion-rendimiento.md) | Optimización de métricas Core Web Vitals (LCP, CLS), fuentes autoalojadas y división de chunks con Vite. |
+| [testing-accesibilidad-axe.md](./guides/testing-accesibilidad-axe.md) | Pruebas de accesibilidad automatizadas con `vitest-axe` (`axe-core`), tipado TypeScript y hoja de ruta centrada en el viaje del usuario. |
 | [pnpm.md](./guides/pnpm.md) | Guía del gestor de paquetes `pnpm`: instalación, configuración y resolución de dependencias. |
 
 ---

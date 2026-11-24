@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom/vitest';
+import * as axeMatchers from 'vitest-axe/matchers';
 import { cleanup } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, expect } from 'vitest';
+
+expect.extend(axeMatchers);
 import { resetDynamicAuthUsers } from './msw/fixtures/auth-registry';
 import { resetDynamicAddresses } from './msw/fixtures/address-registry';
 import { resetDynamicCart } from './msw/fixtures/cart-registry';

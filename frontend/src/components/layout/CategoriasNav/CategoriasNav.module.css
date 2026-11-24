@@ -190,11 +190,16 @@
     background-color: var(--cat-bg);
     color: var(--cat-text);
     padding: 1rem;
+    border: none;
     border-bottom: 1px solid var(--cat-border);
     cursor: pointer;
     font-weight: 600;
     align-items: center;
     gap: 10px;
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    text-align: left;
 }
 
 @media (max-width: 1024px) {

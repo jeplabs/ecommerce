@@ -78,13 +78,19 @@ const DrawerItem = ({ cat, parentPath, onClose }: DrawerItemProps) => {
                     {cat.nombre}
                 </Link>
                 {hijos.length > 0 && (
-                    <button type="button" className={styles.drawerToggle}>
+                    <button
+                        type="button"
+                        className={styles.drawerToggle}
+                        aria-label={isOpen ? `Ocultar subcategorías de ${cat.nombre}` : `Mostrar subcategorías de ${cat.nombre}`}
+                        aria-expanded={isOpen}
+                    >
                         <span
                             className={clsx(
                                 'material-symbols-outlined',
                                 styles.toggleIcon,
                                 isOpen && styles.toggleIconRotated
                             )}
+                            aria-hidden="true"
                         >
                             {isOpen ? 'expand_less' : 'expand_more'}
                         </span>
@@ -189,7 +195,7 @@ const CategoriasNav = () => {
     }
 
     return (
-        <div className={styles.root}>
+        <nav className={styles.root} aria-label="Categorías de productos">
             <div className={styles.desktopNav}>
                 <div className={styles.categoriasContainer}>
                     <ul className={styles.categoriasLista}>
@@ -236,10 +242,16 @@ const CategoriasNav = () => {
                 </div>
             </div>
 
-            <div className={styles.mobileTrigger} onClick={() => setIsDrawerOpen(true)}>
-                <span className="material-symbols-outlined">menu</span>
+            <button
+                type="button"
+                className={styles.mobileTrigger}
+                onClick={() => setIsDrawerOpen(true)}
+                aria-label="Abrir menú de categorías"
+                aria-expanded={isDrawerOpen}
+            >
+                <span className="material-symbols-outlined" aria-hidden="true">menu</span>
                 <span>Ver Categorías</span>
-            </div>
+            </button>
 
             <div
                 className={clsx(styles.drawerOverlay, isDrawerOpen && styles.drawerOverlayActive)}
@@ -270,7 +282,7 @@ const CategoriasNav = () => {
                     </ul>
                 </div>
             </div>
-        </div>
+        </nav>
     );
 };
 

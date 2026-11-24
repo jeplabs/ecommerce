@@ -165,20 +165,20 @@ const Footer = () => {
                             atención personalizada.
                         </p>
                         <div className={styles.socialRow}>
-                            <a href="#" className={styles.socialBtn}>
+                            <a href="#" className={styles.socialBtn} aria-label="Facebook">
                                 <IconFacebook />
                             </a>
-                            <a href="#" className={styles.socialBtn}>
+                            <a href="#" className={styles.socialBtn} aria-label="Instagram">
                                 <IconInstagram />
                             </a>
-                            <a href="#" className={styles.socialBtn}>
+                            <a href="#" className={styles.socialBtn} aria-label="Twitter">
                                 <IconTwitter />
                             </a>
                         </div>
                     </div>
 
                     <div className={styles.col}>
-                        <h4 className={styles.heading}>Tienda</h4>
+                        <h3 className={styles.heading}>Tienda</h3>
                         <ul className={styles.list}>
                             <li>
                                 <a href="#">Novedades</a>
@@ -196,7 +196,7 @@ const Footer = () => {
                     </div>
 
                     <div className={styles.col}>
-                        <h4 className={styles.heading}>Ayuda</h4>
+                        <h3 className={styles.heading}>Ayuda</h3>
                         <ul className={styles.list}>
                             <li>
                                 <a href="#">Rastrear Pedido</a>
@@ -214,12 +214,13 @@ const Footer = () => {
                     </div>
 
                     <div className={styles.col}>
-                        <h4 className={styles.heading}>Newsletter</h4>
+                        <h3 className={styles.heading}>Newsletter</h3>
                         <p className={styles.small}>Recibe un 10% OFF en tu primera compra.</p>
                         <form className={styles.inputGroup} onSubmit={(e) => e.preventDefault()}>
                             <input
                                 type="email"
                                 placeholder="Tu email"
+                                aria-label="Correo electrónico para suscripción"
                                 className={styles.input}
                                 required
                             />
