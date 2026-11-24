@@ -123,7 +123,7 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
                             tabIndex={isDrawerOpen ? 0 : -1}
                         />
 
-                        <aside
+                        <div
                             id="product-filters-drawer"
                             className={clsx(styles.drawer, isDrawerOpen && styles.drawerOpen)}
                             role="dialog"
@@ -165,7 +165,7 @@ export function ProductFilters({ productos, filtros, onFilterChange }: ProductFi
                                     Limpiar filtros
                                 </button>
                             </footer>
-                        </aside>
+                        </div>
                     </>,
                     document.body
                 )}

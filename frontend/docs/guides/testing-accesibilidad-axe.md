@@ -75,7 +75,7 @@ El plan de auditoría no comienza por herramientas internas, sino que recorre el
 | Etapa | Componentes Clave | Estado | Hallazgos y Acciones Realizadas |
 |---|---|---|---|
 | **1. Layout Público & Home** | `Navbar`, `CategoriasNav`, `Footer`, `HomePage` | **Completado (100%)** | `Navbar`, `CategoriasNav` y `Footer` auditados con 0 violaciones. Se corrigieron `heading-order` y `link-name` en Footer; landmark `<nav>`, `<button>` semántico y atributos `aria-expanded`/`aria-label` en CategoriasNav. |
-| **2. Catálogo y Búsqueda** | `ProductCard`, `ProductCatalog`, `ProductFilters`, `SortSelector`, `Pagination` | *Pendiente* | Por auditar labels en botones de carrito, badges de stock y filtros facetados. |
+| **2. Catálogo y Búsqueda** | `ProductCard`, `ProductCatalog`, `ProductFilters`, `SortSelector`, `Pagination` | **Completado (100%)** | `ProductCard`, `ProductFilters` y `ProductCatalog` auditados con 0 violaciones. Se corrigió la violación `aria-allowed-role` en el drawer de filtros móvil (`<aside role="dialog">` -> `<div role="dialog">`); validados estados con stock, agotados, filtros facetados y paginación. |
 | **3. Detalle de Producto** | `ProductDetailView`, `ProductImageSlider`, `SpecsTable`, selectores de compra | *Pendiente* | Por auditar navegación por teclado en galería y nombres accesibles. |
 | **4. Carrito y Checkout** | `CartDrawer`, `PickupBranchSelector`, `AddressForm`, `CheckoutView`, `PaymentStep` | *Pendiente* | Por auditar focus-trap en modal/drawer y atributos `aria-live` en totales. |
 | **5. Autenticación** | `LoginForm`, `RegisterForm`, `ResetPasswordForm`, `LoginDropdown` | *Pendiente* | Por auditar mensajes de error accesibles (`aria-describedby` y `aria-invalid`). |
