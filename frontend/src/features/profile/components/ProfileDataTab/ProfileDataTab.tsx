@@ -92,8 +92,8 @@ export default function ProfileDataTab() {
 
             {!isEditing ? (
                 <div>
+                    <h3 className="profile-data__section-title">Información personal</h3>
                     <dl className={styles.grid}>
-                        <h3 className="profile-data__section-title">Información personal</h3>
                         <div className={styles.field}>
                             <dt>Nombre completo</dt>
                             <dd>{usuario.nombre} {usuario.apellido}</dd>

@@ -88,6 +88,7 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
                     type="email"
                     name="email"
                     placeholder="Correo electrónico"
+                    aria-label="Correo electrónico"
                     className={styles.input}
                     value={formData.email}
                     onChange={handleChange}
@@ -98,6 +99,7 @@ export default function LoginDropdown({ onClose }: LoginDropdownProps) {
                     type="password"
                     name="password"
                     placeholder="Contraseña"
+                    aria-label="Contraseña"
                     className={styles.input}
                     value={formData.password}
                     onChange={handleChange}

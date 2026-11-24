@@ -141,7 +141,7 @@ export default function AddressesTab() {
                             <p className={styles.line}>{dir.pais}</p>
                             <p className={clsx(styles.line, styles.phone)}>📞 {dir.telefono}</p>
                             <br></br>
-                            <h4>Referencias</h4>
+                            <h3 className={styles.refsTitle}>Referencias</h3>
                             {dir.referencias && dir.referencias.length > 0 ? (
                                 <p className={styles.refs}>{dir.referencias}</p>
                             ) : (

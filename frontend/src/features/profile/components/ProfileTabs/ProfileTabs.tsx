@@ -16,7 +16,7 @@ type ProfileTabsProps = {
 
 export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
     return (
-        <nav className={styles.tabs} role="tablist" aria-label="Secciones del perfil">
+        <div className={styles.tabs} role="tablist" aria-label="Secciones del perfil">
             {TABS.map((tab) => (
                 <button
                     key={tab.id}
@@ -30,6 +30,6 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
                     <span className={styles.label}>{tab.label}</span>
                 </button>
             ))}
-        </nav>
+        </div>
     );
 }
