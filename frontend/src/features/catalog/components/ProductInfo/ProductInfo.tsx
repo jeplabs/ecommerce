@@ -70,14 +70,17 @@ export function ProductInfo({ producto, precioFormateado, onAddToCart }: Product
             <div className={styles.price}>{precioFormateado}</div>
 
             <div className={styles.shortDesc}>
-                <h4>Características Técnicas: </h4>
-                {producto.specs &&
-                    Object.entries(producto.specs).map(([key, value]) => (
-                        <ul key={key}>
-                            <span>- {key}: </span>
-                            <span>{String(value)}</span>
-                        </ul>
-                    ))}
+                <h2 className={styles.specsTitle}>Características Técnicas: </h2>
+                {producto.specs && (
+                    <ul className={styles.specsList}>
+                        {Object.entries(producto.specs).map(([key, value]) => (
+                            <li key={key}>
+                                <span>- {key}: </span>
+                                <span>{String(value)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
 
             <div className={styles.actions}>
