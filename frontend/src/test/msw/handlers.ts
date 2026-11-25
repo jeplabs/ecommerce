@@ -1,6 +1,16 @@
 import { http, HttpResponse } from 'msw';
 import { API_BASE } from './constants';
 import {
+    createDynamicBanner,
+    deleteDynamicBanner,
+    findDynamicBanner,
+    getDynamicBanners,
+    reorderDynamicBanners,
+    toggleActivoDynamicBanner,
+    updateDynamicBanner,
+} from './fixtures/banners-registry';
+import type { BannerSection } from '@/features/banners';
+import {
     isEmailTaken,
     registerDynamicAuthUser,
     resetDynamicAuthUsers,
@@ -1040,6 +1050,79 @@ export const handlers = [
                 { error: 'El producto no está en tus favoritos' },
                 { status: 404 }
             );
+        }
+    }),
+
+    // ==========================================
+    // BANNERS (Público y Admin)
+    // ==========================================
+    http.get(`${API_BASE}/api/banners`, ({ request }) => {
+        const url = new URL(request.url);
+        const seccion = (url.searchParams.get('seccion') as BannerSection) || 'HERO_CAROUSEL';
+        return HttpResponse.json(getDynamicBanners(true, seccion));
+    }),
+
+    http.get(`${API_BASE}/api/banners/admin`, ({ request }) => {
+        const url = new URL(request.url);
+        const seccion = url.searchParams.get('seccion') as BannerSection | null;
+        return HttpResponse.json(getDynamicBanners(false, seccion || undefined));
+    }),
+
+    http.get(`${API_BASE}/api/banners/admin/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const banner = findDynamicBanner(id);
+        if (!banner) {
+            return HttpResponse.json({ error: 'Banner no encontrado' }, { status: 404 });
+        }
+        return HttpResponse.json(banner);
+    }),
+
+    http.post(`${API_BASE}/api/banners`, async ({ request }) => {
+        const body = (await request.json()) as any;
+        if (!body.titulo || !body.desktopUrl) {
+            return HttpResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+        }
+        const created = createDynamicBanner(body);
+        return HttpResponse.json(created, { status: 201 });
+    }),
+
+    http.put(`${API_BASE}/api/banners/reordenar`, async ({ request }) => {
+        const body = (await request.json()) as any;
+        if (!body.bannerIds || !Array.isArray(body.bannerIds)) {
+            return HttpResponse.json({ error: 'Lista de IDs inválida' }, { status: 400 });
+        }
+        const reordered = reorderDynamicBanners(body.bannerIds);
+        return HttpResponse.json(reordered, { status: 200 });
+    }),
+
+    http.put(`${API_BASE}/api/banners/:id`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json()) as any;
+        try {
+            const updated = updateDynamicBanner(id, body);
+            return HttpResponse.json(updated, { status: 200 });
+        } catch {
+            return HttpResponse.json({ error: 'Banner no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/banners/:id/estado`, ({ params }) => {
+        const id = Number(params.id);
+        try {
+            const updated = toggleActivoDynamicBanner(id);
+            return HttpResponse.json(updated, { status: 200 });
+        } catch {
+            return HttpResponse.json({ error: 'Banner no encontrado' }, { status: 404 });
+        }
+    }),
+
+    http.delete(`${API_BASE}/api/banners/:id`, ({ params }) => {
+        const id = Number(params.id);
+        try {
+            deleteDynamicBanner(id);
+            return new HttpResponse(null, { status: 204 });
+        } catch {
+            return HttpResponse.json({ error: 'Banner no encontrado' }, { status: 404 });
         }
     }),
 ];

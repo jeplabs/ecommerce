@@ -5,9 +5,9 @@ import styles from './Carousel.module.css';
 
 export type CarouselSlide = {
     desktopSrc: string;
-    mobileSrc: string;
+    mobileSrc?: string | null;
     alt: string;
-    link: string;
+    link?: string | null;
 };
 
 export type HomeHeroSlide = CarouselSlide;
@@ -41,11 +41,14 @@ const Carousel = ({ slides }: CarouselProps) => {
                 className={styles.track}
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-                {slides.map((slide, index) => (
-                    <div key={index} className={styles.slide}>
-                        <Link to={slide.link} className={styles.slideLink} aria-label={slide.alt}>
+                {slides.map((slide, index) => {
+                    const content = (
+                        <>
                             <picture className={styles.picture}>
-                                <source media="(max-width: 768px)" srcSet={slide.mobileSrc} />
+                                <source
+                                    media="(max-width: 768px)"
+                                    srcSet={slide.mobileSrc || slide.desktopSrc}
+                                />
                                 <img
                                     src={slide.desktopSrc}
                                     alt={slide.alt}
@@ -69,9 +72,39 @@ const Carousel = ({ slides }: CarouselProps) => {
                                 />
                             </picture>
                             <div className={styles.slideOverlay} />
-                        </Link>
-                    </div>
-                ))}
+                        </>
+                    );
+
+                    return (
+                        <div key={index} className={styles.slide}>
+                            {slide.link ? (
+                                /^https?:\/\//i.test(slide.link) ? (
+                                    <a
+                                        href={slide.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={styles.slideLink}
+                                        aria-label={slide.alt}
+                                    >
+                                        {content}
+                                    </a>
+                                ) : (
+                                    <Link
+                                        to={slide.link}
+                                        className={styles.slideLink}
+                                        aria-label={slide.alt}
+                                    >
+                                        {content}
+                                    </Link>
+                                )
+                            ) : (
+                                <div className={styles.slideLink} aria-label={slide.alt}>
+                                    {content}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {slides.length > 1 && (

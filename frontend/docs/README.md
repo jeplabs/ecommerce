@@ -47,7 +47,8 @@ Diseños técnicos, RFCs y tareas planificadas pendientes de ejecución:
 
 | Documento | Estado | Descripción |
 |---|---|---|
-| [plan-gestion-banners-home.md](./proposals/plan-gestion-banners-home.md) | Propuesta Activa | Diseño arquitectónico para hacer el carrusel de inicio administrable con Cloudinary y backend. |
+| [especificacion-gestion-banners-home.md](./proposals/especificacion-gestion-banners-home.md) | Completado (Frontend y Backend Operativos) | Especificación técnica e integración completa del módulo de banners: API REST, Cloudinary, panel administrativo (`/admin/banners`), carrusel dinámico en Home y suite de accesibilidad WCAG 2.1 AA. |
+| [plan-gestion-banners-home.md](./proposals/plan-gestion-banners-home.md) | Propuesta Histórica | Diseño arquitectónico conceptual previo a la creación del backend de banners. |
 | [buscador-global-catalogo-multicampo.md](./proposals/buscador-global-catalogo-multicampo.md) | En Progreso (Frontend Resuelto / Backend Pendiente) | Especificación técnica para búsqueda global, multicampo y con sinónimos. Frontend ya implementado en Navbar y ProductCatalog reutilizando Button del Design System. |
 | [plan-admin-categorias-arbol.md](./proposals/plan-admin-categorias-arbol.md) | En Progreso (Frontend Implementado / Backend Pendiente) | Gestión del árbol de categorías en el panel de administración con Tree-Table colapsable, modales de creación/edición y prevención de borrado con hijas. Frontend completamente operativo en `/admin/categorias`. |
 | [retirar-stripe-mercadopago.md](./proposals/retirar-stripe-mercadopago.md) | Pendiente | Checklist operativo para la retirada definitiva de componentes simulados, schemas y llamadas legacy de Stripe y Mercado Pago. |

@@ -1,0 +1,192 @@
+.root {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.scroll {
+    overflow-x: auto;
+}
+
+.grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.grid th {
+    padding: 0.85rem 1rem;
+    background: var(--surface2);
+    font-weight: 600;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.grid td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.row:last-child td {
+    border-bottom: none;
+}
+
+.row:hover {
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.orderCell {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.orderNum {
+    font-weight: 700;
+    font-size: 0.95rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.arrowBtn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--text);
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.arrowBtn:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--indigo);
+}
+
+.arrowBtn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.thumbWrap {
+    position: relative;
+    width: 120px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.thumbImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.badgeMobile {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #38bdf8;
+    font-size: 0.65rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.infoWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.title {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.92rem;
+}
+
+.linkInfo {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+    white-space: nowrap;
+}
+
+.statusWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.pill {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.pillActive {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.pillInactive {
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--muted);
+}
+
+.pillScheduled {
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+}
+
+.pillExpired {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.datesHint {
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.actionBtn {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+}
+
+.emptyState p {
+    margin: 0;
+}
