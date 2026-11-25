@@ -91,7 +91,7 @@ VALUES
 (77, 'Cableado estructurado', 'cableado-estructurado', 23),
 (78, 'Discos duros externos', 'discos-duros-externos', 24),
 (79, 'SSDs portátiles', 'ssds-portatiles', 24),
-(80, 'USBs y tarjetas SD', 'usbs-y-tarjetas-sd', 24);
+(80, 'USBs y tarjetas SD', 'usbs-y-tarjetas-sd', 24),
 (81, 'Ofertas y más', 'ofertas-y-mas', NULL),
 (82, 'Ofertas', 'ofertas', 81),
 (83, 'Productos Destacados', 'productos-destacados', 81),

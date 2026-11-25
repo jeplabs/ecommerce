@@ -1123,16 +1123,8 @@ VALUES
 -- Producto 559 (Lector de Tarjetas SD/MicroSD USB-C y USB 3.0 UGREEN) → Redes y Conectividad > Almacenamiento externo > USBs y tarjetas SD
 (559, 6), (559, 24), (559, 80),
 -- Producto 560 (Memoria USB Metálica Samsung Bar Plus 128GB USB 3.1 400MB/s) → Redes y Conectividad > Almacenamiento externo > USBs y tarjetas SD
-(560, 6), (560, 24), (560, 80);
+(560, 6), (560, 24), (560, 80),
 
--- ==============================================================================
--- ASOCIACIÓN DE PRODUCTOS A LAS NUEVAS CATEGORÍAS DE "OFERTAS Y MÁS"
--- Asigna 2 productos existentes a cada una de las 6 nuevas sub-subcategorías
--- garantizando la jerarquía completa (Raíz -> Subcategoría -> Sub-subcategoría).
--- ==============================================================================
-
-INSERT INTO producto_categorias (producto_id, categoria_id)
-VALUES
 -- ─────────────────────────────────────────────────────────────
 -- 1. OFERTAS (Cat 82) > Ofertas de temporada (Cat 84)
 -- ─────────────────────────────────────────────────────────────
@@ -1179,7 +1171,7 @@ VALUES
 -- Producto 16 (Auriculares Sony WH-1000XM5)
 (16, 81), (16, 83), (16, 89),
 -- Producto 19 (Robot Aspirador Xiaomi Robot Vacuum X20+)
-(19, 81), (19, 83), (19, 89);
+(19, 81), (19, 83), (19, 89),
 
 -- 1. OFERTAS (Cat 82) > Ofertas de temporada (Cat 84) [Nuevos]
 -- Producto 3 (Notebook Workstation HP ZBook X G1i)

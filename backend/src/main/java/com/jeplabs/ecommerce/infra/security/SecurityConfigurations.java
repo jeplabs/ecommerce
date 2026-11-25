@@ -62,6 +62,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/sucursales").permitAll() // ← sucursales públicas para checkout
                         .requestMatchers(HttpMethod.GET, "/api/pagos/metodos").permitAll() // ← nuevo
                         .requestMatchers(HttpMethod.GET, "/api/config").permitAll() // ← nuevo
+                        .requestMatchers(HttpMethod.GET, "/api/banners").permitAll() // ← banners públicos del Home
                         .requestMatchers("/api/usuarios/perfil").authenticated()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
