@@ -53,8 +53,11 @@ CREATE TABLE categorias (
     id          BIGSERIAL PRIMARY KEY,
     nombre      VARCHAR(100) NOT NULL,
     slug        VARCHAR(100) NOT NULL UNIQUE,
-    parent_id   BIGINT REFERENCES categorias(id)
+    parent_id   BIGINT REFERENCES categorias(id),
+    CONSTRAINT chk_categorias_no_self_parent CHECK (parent_id IS NULL OR parent_id <> id)
 );
+
+CREATE INDEX idx_categorias_parent_id ON categorias(parent_id);
 
 CREATE TABLE productos (
     id          BIGSERIAL PRIMARY KEY,
@@ -85,6 +88,8 @@ CREATE TABLE producto_categorias (
     categoria_id    BIGINT NOT NULL REFERENCES categorias(id),
     PRIMARY KEY (producto_id, categoria_id)
 );
+
+CREATE INDEX idx_producto_categorias_categoria_id ON producto_categorias(categoria_id);
 
 CREATE TABLE producto_imagenes (
     id          BIGSERIAL PRIMARY KEY,

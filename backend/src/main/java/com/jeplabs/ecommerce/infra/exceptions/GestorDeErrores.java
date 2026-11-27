@@ -176,6 +176,23 @@ public class GestorDeErrores {
                 .body(Map.of("error", ex.getMessage() != null ? ex.getMessage() : "Recurso no encontrado"));
     }
 
+    @ExceptionHandler(CategoriaEnUsoException.class)
+    public ResponseEntity<Map<String, String>> manejarCategoriaEnUso(
+            CategoriaEnUsoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", ex.getMessage(), "codigo", ex.getCodigo()));
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> manejarViolacionIntegridad(
+            org.springframework.dao.DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "error", "No se puede completar la operación porque el registro está vinculado a otros datos.",
+                        "codigo", "INTEGRIDAD_REFERENCIAL"
+                ));
+    }
+
     // ====================================================================================
     // RED DE SEGURIDAD GLOBAL PARA ERRORES NO CONTEMPLADOS Y PASARELAS (Evita fugas de 401)
     // ====================================================================================

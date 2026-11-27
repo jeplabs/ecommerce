@@ -2,6 +2,7 @@ package com.jeplabs.ecommerce.domain.categoria;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class Categoria {
 
     // lo mismo que arriba
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @BatchSize(size = 50)
     private List<Categoria> subcategorias = new ArrayList<>();
 
     public Categoria(DatosCrearCategoria datos, Categoria parent) {
@@ -46,7 +48,11 @@ public class Categoria {
 
     // Genera slug a partir del nombre: "Cámaras Mirrorless" → "camaras-mirrorless"
     public static String generarSlug(String nombre) {
-        return nombre.toLowerCase()
+        if (nombre == null) {
+            return "";
+        }
+        return nombre.trim()
+                .toLowerCase()
                 .replaceAll("[áàäâ]", "a")
                 .replaceAll("[éèëê]", "e")
                 .replaceAll("[íìïî]", "i")
@@ -56,6 +62,6 @@ public class Categoria {
                 .replaceAll("[^a-z0-9\\s-]", "")
                 .replaceAll("[\\s]+", "-")
                 .replaceAll("-+", "-")
-                .trim();
+                .replaceAll("^-+|-+$", "");
     }
 }

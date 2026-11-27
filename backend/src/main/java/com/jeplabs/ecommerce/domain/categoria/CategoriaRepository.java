@@ -11,4 +11,6 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     Optional<Categoria> findBySlug(String slug);
     // Verifica duplicados antes de crear
     boolean existsBySlug(String slug);
+    // Cuenta subcategorías hijas directas para validar integridad antes de eliminar
+    long countByParentId(Long parentId);
 }

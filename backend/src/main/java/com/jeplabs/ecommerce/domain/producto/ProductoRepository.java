@@ -15,6 +15,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     boolean existsBySku(String sku);
     boolean existsBySlug(String slug);
 
+    @Query("SELECT COUNT(p) FROM Producto p JOIN p.categorias c WHERE c.id = :categoriaId")
+    long contarPorCategoriaId(@Param("categoriaId") Long categoriaId);
+
     // Busca productos activos con filtro opcional por nombre y lista de categorías (el ordenamiento lo aplica ProductoService)
     @Query(value = """
         SELECT DISTINCT p.* FROM productos p

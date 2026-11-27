@@ -90,7 +90,7 @@ public class CategoriaController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Categoría actualizada exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o ciclo jerárquico"),
             @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
             @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
             @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
@@ -101,5 +101,23 @@ public class CategoriaController {
             @PathVariable Long id,
             @RequestBody @Valid DatosCrearCategoria datos) {
         return ResponseEntity.ok(service.actualizar(id, datos));
+    }
+
+    @Operation(
+            summary = "Eliminar categoría",
+            description = "Solo ADMIN. Elimina una categoría únicamente si no posee subcategorías hijas ni productos asociados."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Categoría eliminada exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para esta acción"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Conflicto: la categoría tiene subcategorías o productos asociados")
+    })
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        service.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }
