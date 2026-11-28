@@ -239,9 +239,6 @@ export const ProductCatalog = ({
                     </header>
 
                     {searchTerm.trim() && (
-                        // <p className={styles.searchHint}>
-                        //     Resultados para: &ldquo;{searchTerm.trim()}&rdquo;
-                        // </p>
                         <div className={styles.searchHintRow}>
                             <p className={styles.searchHint}>
                                 Resultados para: <strong>&ldquo;{searchTerm.trim()}&rdquo;</strong>

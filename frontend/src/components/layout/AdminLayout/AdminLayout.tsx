@@ -11,6 +11,7 @@ const ROUTE_LABELS: Record<string, string> = {
     sucursales: 'Sucursales',
     categorias: 'Categorías',
     banners: 'Banners',
+    sinonimos: 'Sinónimos',
     new: 'Nuevo',
     edit: 'Editar',
 };
@@ -74,6 +75,9 @@ export default function AdminLayout() {
                         </NavLink>
                         <NavLink to="/admin/banners" className={({ isActive }) => `${styles.tab} ${isActive ? styles.tabActive : ''}`}>
                             Banners
+                        </NavLink>
+                        <NavLink to="/admin/sinonimos" className={({ isActive }) => `${styles.tab} ${isActive ? styles.tabActive : ''}`}>
+                            Sinónimos
                         </NavLink>
                     </nav>
                 )}

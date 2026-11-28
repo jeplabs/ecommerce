@@ -1,7 +1,7 @@
 # Guía de Integración para Frontend: Buscador Global Multicampo y Sinónimos
 
 > **Contexto**: El backend completó la **Fase 2** de [buscador-global-catalogo-multicampo.md](./buscador-global-catalogo-multicampo.md), incorporando búsqueda multicampo con normalización diacrítica, plurales, prevención de falsos positivos, ordenamiento automático por relevancia y gestión dinámica de sinónimos en PostgreSQL con caché en RAM.  
-> **Compatibilidad**: La Fase 1 ya desplegada en `Navbar.tsx` y `ProductCatalog.tsx` funciona **de inmediato sin cambios obligatorios**. Esta guía documenta los contratos definitivos, mejoras recomendadas en el cliente y la especificación lista para integrar una vista admin de sinónimos.
+> **Estado Frontend**: **100% IMPLEMENTADO** (`searchSynonymsApi.ts`, invalidación de `catalogoCache`, `fetchWithAuth` en `productsAdminApi.ts`, opción `"Más relevantes"` en `SortSelector`, vista administrativa en `/admin/sinonimos` y pruebas Vitest + `vitest-axe`).
 
 ---
 

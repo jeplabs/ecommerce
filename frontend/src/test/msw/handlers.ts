@@ -101,8 +101,19 @@ import {
     resetDynamicBranches,
     updateDynamicBranch,
 } from './fixtures/branches-registry';
+import {
+    createDynamicSynonym,
+    deleteDynamicSynonym,
+    findDynamicSynonym,
+    getDynamicSynonyms,
+    matchesProductSearch,
+    resetDynamicSynonyms,
+    toggleDynamicSynonymStatus,
+    updateDynamicSynonym,
+} from './fixtures/synonyms-registry';
+import type { SaveSearchSynonymRequest } from '@/features/catalog';
 
-export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers, resetDynamicFavorites, resetDynamicBranches };
+export { resetDynamicAuthUsers, resetDynamicCart, resetDynamicAddresses, resetDynamicOrders, resetDynamicProfile, resetDynamicProducts, resetDynamicUsers, resetDynamicFavorites, resetDynamicBranches, resetDynamicSynonyms };
 
 function resolveLogin(body: { email?: string; password?: string }) {
     if (body.email === MOCK_LOGIN_EMAIL && body.password === MOCK_LOGIN_PASSWORD) {
@@ -218,6 +229,75 @@ export const handlers = [
         return new HttpResponse(null, { status: 204 });
     }),
 
+    http.get(`${API_BASE}/api/admin/busqueda/sinonimos`, () => {
+        return HttpResponse.json(getDynamicSynonyms());
+    }),
+
+    http.get(`${API_BASE}/api/admin/busqueda/sinonimos/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const found = findDynamicSynonym(id);
+        if (!found) {
+            return HttpResponse.json(
+                { error: `Grupo de sinónimos no encontrado con ID: ${id}` },
+                { status: 404 }
+            );
+        }
+        return HttpResponse.json(found);
+    }),
+
+    http.post(`${API_BASE}/api/admin/busqueda/sinonimos`, async ({ request }) => {
+        const body = (await request.json().catch(() => ({}))) as SaveSearchSynonymRequest;
+        try {
+            const created = createDynamicSynonym(body);
+            return HttpResponse.json(created, { status: 201 });
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Datos inválidos';
+            return HttpResponse.json({ error: message }, { status: 400 });
+        }
+    }),
+
+    http.put(`${API_BASE}/api/admin/busqueda/sinonimos/:id`, async ({ params, request }) => {
+        const id = Number(params.id);
+        const body = (await request.json().catch(() => ({}))) as SaveSearchSynonymRequest;
+        try {
+            const updated = updateDynamicSynonym(id, body);
+            if (!updated) {
+                return HttpResponse.json(
+                    { error: `Grupo de sinónimos no encontrado con ID: ${id}` },
+                    { status: 404 }
+                );
+            }
+            return HttpResponse.json(updated);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Datos inválidos';
+            return HttpResponse.json({ error: message }, { status: 400 });
+        }
+    }),
+
+    http.patch(`${API_BASE}/api/admin/busqueda/sinonimos/:id/estado`, ({ params }) => {
+        const id = Number(params.id);
+        const updated = toggleDynamicSynonymStatus(id);
+        if (!updated) {
+            return HttpResponse.json(
+                { error: `Grupo de sinónimos no encontrado con ID: ${id}` },
+                { status: 404 }
+            );
+        }
+        return HttpResponse.json(updated);
+    }),
+
+    http.delete(`${API_BASE}/api/admin/busqueda/sinonimos/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const deleted = deleteDynamicSynonym(id);
+        if (!deleted) {
+            return HttpResponse.json(
+                { error: `Grupo de sinónimos no encontrado con ID: ${id}` },
+                { status: 404 }
+            );
+        }
+        return new HttpResponse(null, { status: 204 });
+    }),
+
     http.get(`${API_BASE}/api/productos`, ({ request }) => {
         const url = new URL(request.url);
         const categoriaId = url.searchParams.get('categoriaId');
@@ -238,13 +318,16 @@ export const handlers = [
         }
 
         if (search) {
-            items = items.filter((p) => p.nombre.toLowerCase().includes(search) || p.sku.toLowerCase().includes(search));
+            items = items.filter((p) => matchesProductSearch(p, search));
         }
 
         if (sort) {
             const [field, direction] = sort.split(',');
             const isDesc = direction === 'desc';
             items = [...items].sort((a, b) => {
+                if (field === 'relevancia') {
+                    return 0;
+                }
                 if (field === 'precioVenta' || field === 'precio' || field === 'price') {
                     return isDesc ? (b.precioVenta || 0) - (a.precioVenta || 0) : (a.precioVenta || 0) - (b.precioVenta || 0);
                 }

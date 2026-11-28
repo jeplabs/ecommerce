@@ -108,7 +108,7 @@ export default function AdminProductFilters({
                             type="search"
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
-                            placeholder="Buscar por nombre o SKU…"
+                            placeholder="Buscar por nombre, SKU, categoría o especificación…"
                             className={styles.searchInput}
                         />
                         {searchQuery && (

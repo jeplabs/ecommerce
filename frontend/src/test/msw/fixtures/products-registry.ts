@@ -2,6 +2,7 @@ import type { CategoryApi, ProductAdminApi, ProductApi, ProductStatus, CreatePro
 import type { SpringPage } from '@/lib';
 import { mockCategories } from './categories';
 import { mockCatalogProducts } from './products';
+import { matchesProductSearch } from './synonyms-registry';
 
 type DynamicProduct = ProductApi & {
     precioCosto: number;
@@ -175,15 +176,11 @@ export function mockDynamicAdminProductsPage(
             ? { estado: estadoOrParams }
             : (estadoOrParams ?? {});
 
-    const query = params.nombre?.trim().toLowerCase();
+    const query = params.nombre?.trim();
     const filtered = products
         .filter((p) => {
             if (params.estado && p.estado !== params.estado) return false;
-            if (
-                query &&
-                !p.nombre.toLowerCase().includes(query) &&
-                !p.sku.toLowerCase().includes(query)
-            ) {
+            if (query && !matchesProductSearch(p, query)) {
                 return false;
             }
             if (

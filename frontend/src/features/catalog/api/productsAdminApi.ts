@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { API_URL } from '@/config';
 import { ApiError, getErrorMessage, parseApi } from '@/lib';
-import { getAccessToken } from '@/lib/auth-token-store';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
+import { fetchWithAuth, getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
 import {
     productAdminApiSchema,
     productAdminPageSchema,
@@ -21,9 +20,6 @@ import {
 } from '../types';
 import { invalidateCatalogoCache } from './catalogApi';
 
-const getToken = () =>
-    getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
-
 const productImagesSchema = z.array(productImageApiSchema);
 
 async function readJson(response: Response): Promise<unknown> {
@@ -32,21 +28,18 @@ async function readJson(response: Response): Promise<unknown> {
 
 function throwApiError(response: Response, raw: unknown, fallback: string): never {
     notifyUnauthorizedIfNeeded(response.status);
-    throw new ApiError(getErrorMessage(raw, fallback), response.status, raw);
-}
-
-function throwSessionExpired(): never {
-    notifyUnauthorizedIfNeeded(401);
-    throw new Error('Sesión expirada');
+    const defaultMsg = response.status === 401 ? 'Sesión expirada' : fallback;
+    const message =
+        typeof raw === 'string' && raw.trim()
+            ? raw
+            : getErrorMessage(raw, defaultMsg);
+    throw new ApiError(message, response.status, raw);
 }
 
 async function handleProductAdminJson(
     response: Response,
     fallback: string
 ): Promise<ProductAdminApi> {
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
     const raw = await readJson(response);
     if (!response.ok) {
         throwApiError(response, raw, fallback);
@@ -58,9 +51,6 @@ async function handleProductAdminPageJson(
     response: Response,
     fallback: string
 ): Promise<ProductAdminPage> {
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
     const raw = await readJson(response);
     if (!response.ok) {
         throwApiError(response, raw, fallback);
@@ -105,8 +95,8 @@ export async function getAdminPage(
         params.set('sort', query.sort);
     }
 
-    const response = await fetch(`${API_URL}/api/productos/admin?${params}`, {
-        headers: getAuthHeaders(getToken(), false),
+    const response = await fetchWithAuth(`${API_URL}/api/productos/admin?${params}`, {
+        headers: getAuthHeaders(undefined, false),
     });
 
     return handleProductAdminPageJson(response, 'Error al cargar productos admin');
@@ -124,12 +114,13 @@ export async function getAdmin(
         size: String(size),
     });
 
-    const response = await fetch(`${API_URL}/api/productos/admin?${params}`, {
-        headers: getAuthHeaders(getToken(), false),
+    const response = await fetchWithAuth(`${API_URL}/api/productos/admin?${params}`, {
+        headers: getAuthHeaders(undefined, false),
     });
 
     if (response.status === 401) {
-        throwSessionExpired();
+        const raw = await readJson(response);
+        throwApiError(response, raw, 'Sesión expirada');
     }
     if (!response.ok) {
         return null;
@@ -141,27 +132,23 @@ export async function getAdmin(
 
 /** {@code GET /api/productos/admin/{id}} */
 export async function getByIdAdmin(id: number): Promise<ProductAdminApi> {
-    const response = await fetch(`${API_URL}/api/productos/admin/${id}`, {
-        headers: getAuthHeaders(getToken(), false),
+    const response = await fetchWithAuth(`${API_URL}/api/productos/admin/${id}`, {
+        headers: getAuthHeaders(undefined, false),
     });
     return handleProductAdminJson(response, 'Producto no encontrado');
 }
 
 /** {@code POST /api/productos} */
 export async function create(producto: CreateProductRequest): Promise<ProductApi> {
-    const response = await fetch(`${API_URL}/api/productos`, {
+    const response = await fetchWithAuth(`${API_URL}/api/productos`, {
         method: 'POST',
-        headers: getAuthHeaders(getToken()),
+        headers: getAuthHeaders(),
         body: JSON.stringify(producto),
     });
 
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
-
     const raw = await readJson(response);
     if (!response.ok) {
-        throw new Error(getErrorMessage(raw, 'No se pudo crear el producto'));
+        throwApiError(response, raw, 'No se pudo crear el producto');
     }
 
     invalidateCatalogoCache();
@@ -173,7 +160,7 @@ export async function update(
     id: number,
     productData: UpdateProductPayload
 ): Promise<ProductApi | null> {
-    const headers = getAuthHeaders(getToken());
+    const headers = getAuthHeaders();
     const datosActualizar: UpdateProductRequest = {};
 
     if (productData.nombre !== undefined) datosActualizar.nombre = productData.nombre;
@@ -187,41 +174,30 @@ export async function update(
     let updatedProduct: ProductApi | null = null;
 
     if (Object.keys(datosActualizar).length > 0) {
-        const response = await fetch(`${API_URL}/api/productos/${id}`, {
+        const response = await fetchWithAuth(`${API_URL}/api/productos/${id}`, {
             method: 'PATCH',
             headers,
             body: JSON.stringify(datosActualizar),
         });
 
-        if (response.status === 401) {
-            throwSessionExpired();
-        }
-
         const raw = await readJson(response);
         if (!response.ok) {
-            const message =
-                typeof raw === 'string'
-                    ? raw
-                    : getErrorMessage(raw, 'Error al actualizar el producto');
-            throw new Error(message);
+            throwApiError(response, raw, 'Error al actualizar el producto');
         }
 
         updatedProduct = parseApi(productApiSchema, raw);
     }
 
     if (productData.precio?.precioVenta !== undefined) {
-        const priceResponse = await fetch(`${API_URL}/api/productos/${id}/precio`, {
+        const priceResponse = await fetchWithAuth(`${API_URL}/api/productos/${id}/precio`, {
             method: 'PATCH',
             headers,
             body: JSON.stringify(productData.precio),
         });
 
-        if (priceResponse.status === 401) {
-            throwSessionExpired();
-        }
         if (!priceResponse.ok) {
             const raw = await readJson(priceResponse);
-            throw new Error(getErrorMessage(raw, 'Error al actualizar el precio'));
+            throwApiError(priceResponse, raw, 'Error al actualizar el precio');
         }
     }
 
@@ -231,19 +207,14 @@ export async function update(
 
 /** {@code DELETE /api/productos/{id}} */
 export async function deleteProduct(id: number): Promise<true> {
-    const response = await fetch(`${API_URL}/api/productos/${id}`, {
+    const response = await fetchWithAuth(`${API_URL}/api/productos/${id}`, {
         method: 'DELETE',
-        headers: getAuthHeaders(getToken(), false),
+        headers: getAuthHeaders(undefined, false),
     });
 
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
     if (!response.ok) {
         const raw = await readJson(response);
-        throw new Error(
-            typeof raw === 'string' ? raw : getErrorMessage(raw, 'Error al eliminar')
-        );
+        throwApiError(response, raw, 'Error al eliminar');
     }
 
     invalidateCatalogoCache();
@@ -254,20 +225,15 @@ export async function deleteProduct(id: number): Promise<true> {
 export async function updateStatus(id: number, estado: string): Promise<true> {
     const estadoBackend = normalizeProductStatus(estado);
 
-    const response = await fetch(`${API_URL}/api/productos/${id}/estado`, {
+    const response = await fetchWithAuth(`${API_URL}/api/productos/${id}/estado`, {
         method: 'PATCH',
-        headers: getAuthHeaders(getToken()),
+        headers: getAuthHeaders(),
         body: JSON.stringify({ estado: estadoBackend }),
     });
 
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
     if (!response.ok) {
         const raw = await readJson(response);
-        throw new Error(
-            typeof raw === 'string' ? raw : getErrorMessage(raw, 'Error al actualizar estado')
-        );
+        throwApiError(response, raw, 'Error al actualizar estado');
     }
 
     invalidateCatalogoCache();
@@ -280,21 +246,15 @@ export async function addImages(
     imagenesUrl: string[]
 ): Promise<ProductImageApi[]> {
     const body: AddProductImagesRequest = { imagenesUrl };
-    const response = await fetch(`${API_URL}/api/productos/${productId}/imagenes`, {
+    const response = await fetchWithAuth(`${API_URL}/api/productos/${productId}/imagenes`, {
         method: 'POST',
-        headers: getAuthHeaders(getToken()),
+        headers: getAuthHeaders(),
         body: JSON.stringify(body),
     });
 
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
-
     const raw = await readJson(response);
     if (!response.ok) {
-        throw new Error(
-            typeof raw === 'string' ? raw : getErrorMessage(raw, 'Error al agregar imágenes')
-        );
+        throwApiError(response, raw, 'Error al agregar imágenes');
     }
 
     return parseApi(productImagesSchema, raw);
@@ -302,17 +262,13 @@ export async function addImages(
 
 /** {@code GET /api/productos/admin/{id}/imagenes} */
 export async function getImages(productId: number): Promise<ProductImageApi[]> {
-    const response = await fetch(`${API_URL}/api/productos/admin/${productId}/imagenes`, {
-        headers: getAuthHeaders(getToken(), false),
+    const response = await fetchWithAuth(`${API_URL}/api/productos/admin/${productId}/imagenes`, {
+        headers: getAuthHeaders(undefined, false),
     });
-
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
 
     const raw = await readJson(response);
     if (!response.ok) {
-        throw new Error(getErrorMessage(raw, 'No se pudo obtener imágenes'));
+        throwApiError(response, raw, 'No se pudo obtener imágenes');
     }
 
     return parseApi(productImagesSchema, raw);
@@ -320,17 +276,14 @@ export async function getImages(productId: number): Promise<ProductImageApi[]> {
 
 /** {@code DELETE /api/productos/{id}/imagenes/{imageId}} */
 export async function deleteImage(productId: number, imageId: number): Promise<true> {
-    const response = await fetch(
+    const response = await fetchWithAuth(
         `${API_URL}/api/productos/${productId}/imagenes/${imageId}`,
-        { method: 'DELETE', headers: getAuthHeaders(getToken(), false) }
+        { method: 'DELETE', headers: getAuthHeaders(undefined, false) }
     );
 
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
     if (!response.ok) {
         const raw = await readJson(response);
-        throw new Error(getErrorMessage(raw, 'Error al eliminar imagen'));
+        throwApiError(response, raw, 'Error al eliminar imagen');
     }
 
     return true;
@@ -341,18 +294,14 @@ export async function setMainImage(
     productId: number,
     imageId: number
 ): Promise<ProductImageApi> {
-    const response = await fetch(
+    const response = await fetchWithAuth(
         `${API_URL}/api/productos/${productId}/imagenes/${imageId}/principal`,
-        { method: 'PATCH', headers: getAuthHeaders(getToken(), false) }
+        { method: 'PATCH', headers: getAuthHeaders(undefined, false) }
     );
-
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
 
     const raw = await readJson(response);
     if (!response.ok) {
-        throw new Error(getErrorMessage(raw, 'Error al cambiar imagen principal'));
+        throwApiError(response, raw, 'Error al cambiar imagen principal');
     }
 
     return parseApi(productImageApiSchema, raw);

@@ -46,6 +46,7 @@ export {
     getAll as getAllCategories,
     create as createCategory,
 } from './categoriesApi';
+export { searchSynonymsApi } from './searchSynonymsApi';
 
 /** Objeto consolidado para retrocompatibilidad 100% con consumidores que esperan productApi.* */
 export const productApi = {

@@ -45,6 +45,7 @@ export type ProductPage = SpringPage<ProductApi> & {
 export type ProductAdminPage = SpringPage<ProductAdminApi>;
 
 export type CatalogSortOrder =
+    | 'relevance'
     | 'price-asc'
     | 'price-desc'
     | 'name-asc'

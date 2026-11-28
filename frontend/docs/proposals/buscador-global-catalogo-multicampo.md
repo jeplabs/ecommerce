@@ -1,8 +1,8 @@
 # Propuesta Técnica: Buscador Global de Catálogo Multicampo
 
-> **Estado**: En Progreso  
-> - **Fase 1 (Frontend)**: **RESUELTO / IMPLEMENTADO EN PRODUCCIÓN**  
-> - **Fase 2 (Backend)**: **PENDIENTE (Backlog)**
+> **Estado**: Completado (100%)  
+> - **Fase 1 (Frontend — Buscador Global, Relevancia y Panel Admin `/admin/sinonimos`)**: **RESUELTO / IMPLEMENTADO EN PRODUCCIÓN**  
+> - **Fase 2 (Backend — `ProductoBuscador` y `/api/admin/busqueda/sinonimos`)**: **RESUELTO / IMPLEMENTADO EN PRODUCCIÓN**
 
 ---
 

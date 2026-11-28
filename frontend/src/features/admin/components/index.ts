@@ -30,4 +30,7 @@ export * from './AdminCategoriesView';
 export * from './AdminCategoriesTable';
 export * from './CategoryModalForm';
 export * from './DeleteCategoryModal';
+export * from './AdminSynonymsView';
+export * from './AdminSynonymsTable';
+export * from './SynonymModalForm';
 export { AdminBranchesView, AdminBranchesTable, BranchModalForm } from '@/features/branches';

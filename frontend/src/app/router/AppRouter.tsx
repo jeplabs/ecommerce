@@ -31,6 +31,7 @@ const AdminOrdersPage = lazy(() => import('@/app/routes/admin/orders'));
 const AdminBranchesPage = lazy(() => import('@/app/routes/admin/branches'));
 const AdminCategoriesPage = lazy(() => import('@/app/routes/admin/categories'));
 const AdminBannersPage = lazy(() => import('@/app/routes/admin/banners'));
+const AdminSynonymsPage = lazy(() => import('@/app/routes/admin/synonyms'));
 const NotFoundPage = lazy(() => import('@/app/routes/not-found'));
 
 export function AppRouter() {
@@ -209,6 +210,14 @@ export function AppRouter() {
                         element={
                             <PrivateRoute requiredRol="ROLE_ADMIN">
                                 <AdminBannersPage />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/sinonimos"
+                        element={
+                            <PrivateRoute requiredRol="ROLE_ADMIN">
+                                <AdminSynonymsPage />
                             </PrivateRoute>
                         }
                     />

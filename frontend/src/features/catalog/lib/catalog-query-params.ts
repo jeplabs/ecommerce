@@ -2,6 +2,7 @@ import { createDefaultFiltros, createEmptySpecs } from './filter-facets';
 import type { CatalogFilterOpciones, CatalogFiltros, CatalogSortOrder } from '../types';
 
 const SORT_VALUES = new Set<CatalogSortOrder>([
+    'relevance',
     'price-asc',
     'price-desc',
     'name-asc',
@@ -45,6 +46,8 @@ export function getEffectiveSortOrder(
  */
 export function mapCatalogSortToBackend(sort: CatalogSortOrder | null | undefined): string | null {
     switch (sort) {
+        case 'relevance':
+            return 'relevancia,desc';
         case 'price-asc':
             return 'precioVenta,asc';
         case 'price-desc':

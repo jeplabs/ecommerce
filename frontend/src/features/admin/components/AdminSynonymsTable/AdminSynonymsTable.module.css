@@ -1,0 +1,114 @@
+.root {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.grid thead {
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.grid th {
+    padding: 0.85rem 1rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.grid td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.row:last-child td {
+    border-bottom: none;
+}
+
+.row:hover {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.groupName {
+    font-weight: 700;
+    color: var(--text);
+}
+
+.termsWrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.termChip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.55rem;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--text);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pillActive {
+    background: rgba(34, 197, 94, 0.14);
+    color: #22c55e;
+}
+
+.pillInactive {
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--muted);
+}
+
+.actionsCell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+}
+
+.actionBtn {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.emptyState {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--muted);
+}

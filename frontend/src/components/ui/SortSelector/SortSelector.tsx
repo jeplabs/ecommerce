@@ -10,6 +10,7 @@ type SortSelectorProps = {
 
 export const SortSelector = ({ sortOption, onChange }: SortSelectorProps) => {
     const SORT_OPTIONS: { value: CatalogSortOrder; label: string }[] = [
+        { value: 'relevance', label: 'Más relevantes' },
         { value: 'price-asc', label: 'Precio: menor a mayor' },
         { value: 'price-desc', label: 'Precio: mayor a menor' },
         { value: 'name-asc', label: 'Nombre: A-Z' },

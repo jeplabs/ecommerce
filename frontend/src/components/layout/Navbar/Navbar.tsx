@@ -6,23 +6,14 @@ import { LoginDropdown } from '@/features/auth';
 import { CartDrawer } from '@/features/cart';
 import styles from './Navbar.module.css';
 
-/** Rutas donde el buscador sincroniza ?search= con la URL del catálogo. */
-// function isCatalogSearchPath(pathname: string): boolean {
-//     return pathname === '/catalogo' || pathname.startsWith('/categoria');
-// }
-
 export default function Navbar() {
     const { isAuthenticated, userRol, logout } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
     const location = useLocation();
-    // const [searchParams, setSearchParams] = useSearchParams();
     const [searchParams] = useSearchParams();
-    
-    // const isCatalogSearch = isCatalogSearchPath(location.pathname);
 
     const isAtCatalogo = location.pathname === '/catalogo';
-    // const querySearchParam = isAtCatalogo ? (searchParams.get('search') || '') : '';
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -41,51 +32,11 @@ export default function Navbar() {
 
     useEffect(() => {
         if (isAtCatalogo) {
-        // if (isCatalogSearch) {
             setSearchTerm(searchParams.get('search') || '');
         } else {
             setSearchTerm('');
         }
-    // }, [isCatalogSearch, searchParams]);
     }, [isAtCatalogo, searchParams]);
-
-    // const updateSearchParams = useCallback(
-    //     (query: string) => {
-    //         const trimmed = query.trim();
-    //         const newParams = new URLSearchParams(searchParams);
-    //         if (trimmed) {
-    //             newParams.set('search', trimmed);
-    //         } else {
-    //             newParams.delete('search');
-    //         }
-    //         setSearchParams(newParams, { replace: true });
-    //     },
-    //     [searchParams, setSearchParams]
-    // );
-
-    // useEffect(() => {
-    //     if (isCatalogSearch || !searchTerm.trim()) {
-    //         return undefined;
-    //     }
-
-    //     const timeoutId = setTimeout(() => {
-    //         navigate(`/catalogo?search=${encodeURIComponent(searchTerm.trim())}`);
-    //     }, 400);
-
-    //     return () => clearTimeout(timeoutId);
-    // }, [searchTerm, isCatalogSearch, navigate]);
-
-    // useEffect(() => {
-    //     if (!isCatalogSearch) {
-    //         return undefined;
-    //     }
-
-    //     const timeoutId = setTimeout(() => {
-    //         updateSearchParams(searchTerm);
-    //     }, 400);
-
-    //     return () => clearTimeout(timeoutId);
-    // }, [searchTerm, updateSearchParams, isCatalogSearch]);
 
     // Ejecución de la búsqueda con debounce (400ms)
     useEffect(() => {

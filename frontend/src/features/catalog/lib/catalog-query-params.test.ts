@@ -54,6 +54,7 @@ describe('catalog-query-params', () => {
 
     describe('mapCatalogSortToBackend', () => {
         it('mapea correctamente los criterios del frontend a Spring Data sort', () => {
+            expect(mapCatalogSortToBackend('relevance')).toBe('relevancia,desc');
             expect(mapCatalogSortToBackend('price-asc')).toBe('precioVenta,asc');
             expect(mapCatalogSortToBackend('price-desc')).toBe('precioVenta,desc');
             expect(mapCatalogSortToBackend('name-asc')).toBe('nombre,asc');

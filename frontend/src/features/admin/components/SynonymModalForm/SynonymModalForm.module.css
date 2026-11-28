@@ -1,0 +1,141 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 1rem;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: slideUp 0.2s ease-out;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.closeBtn {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    line-height: 1;
+}
+
+.closeBtn:hover {
+    color: var(--text);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+.previewBox {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    background: rgba(99, 102, 241, 0.06);
+    border: 1px solid var(--border);
+}
+
+.previewLabel {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.previewChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    background: rgba(99, 102, 241, 0.14);
+    color: var(--text);
+    border: 1px solid rgba(99, 102, 241, 0.28);
+}
+
+.previewEmpty {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.checkboxRow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.88rem;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
