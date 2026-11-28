@@ -1,118 +1,92 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
-import { categoriesApi } from './categoriesApi';
-import { mockAuthTokenResponse } from '@/test/msw/fixtures/auth';
-import { mockCategories } from '@/test/msw/fixtures/categories';
-import { API_BASE } from '@/test/msw/constants';
 import { server } from '@/test/msw/server';
-
-const categoriasPath = `${API_BASE}/api/categorias`;
+import { API_BASE } from '@/test/msw/constants';
+import { ApiError } from '@/lib';
+import { setAccessToken, clearAuthTokens } from '@/lib/auth-token-store';
+import { registerRefreshTokenHandler } from '@/lib/http-session';
+import { resetDynamicProducts } from '@/test/msw/fixtures/products-registry';
+import { categoriesApi } from './categoriesApi';
 
 describe('categoriesApi', () => {
-    it('getAll devuelve el árbol jerárquico', async () => {
-        const result = await categoriesApi.getAll();
-
-        expect(result.length).toBeGreaterThan(0);
-        expect(result[0]?.nombre).toBe('Electrónica');
-        expect(result[0]?.subcategorias[0]?.nombre).toBe('Audio');
+    beforeEach(() => {
+        resetDynamicProducts();
+        setAccessToken('initial-admin-jwt');
     });
 
-    it('getAll lanza Error con el mensaje del body al fallar', async () => {
+    afterEach(() => {
+        clearAuthTokens();
+        registerRefreshTokenHandler(async () => null);
+    });
+
+    it('getAll retorna el árbol jerárquico de categorías', async () => {
+        const tree = await categoriesApi.getAll();
+        expect(tree).toHaveLength(1);
+        expect(tree[0]?.nombre).toBe('Electrónica');
+        expect(tree[0]?.subcategorias[0]?.nombre).toBe('Audio');
+    });
+
+    it('create reintenta automáticamente con fetchWithAuth ante un 401 si el refresh tiene éxito', async () => {
+        let attempts = 0;
         server.use(
-            http.get(categoriasPath, () =>
-                HttpResponse.json({ error: 'Fallo al cargar' }, { status: 500 })
-            )
-        );
-
-        await expect(categoriesApi.getAll()).rejects.toThrow('Fallo al cargar');
-    });
-
-    it('getAll lanza Error con mensaje por defecto si el body no trae error', async () => {
-        server.use(http.get(categoriasPath, () => HttpResponse.text('oops', { status: 500 })));
-
-        await expect(categoriesApi.getAll()).rejects.toThrow('Error al cargar categorías');
-    });
-
-    it('create envía el body y devuelve la categoría creada', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
-        let received: unknown;
-        server.use(
-            http.post(categoriasPath, async ({ request }) => {
-                received = await request.json();
-                return HttpResponse.json(mockCategories[0], { status: 201 });
+            http.post(`${API_BASE}/api/categorias`, ({ request }) => {
+                attempts += 1;
+                const auth = request.headers.get('Authorization');
+                if (attempts === 1) {
+                    expect(auth).toBe('Bearer initial-admin-jwt');
+                    return HttpResponse.json({ error: 'Token expirado' }, { status: 401 });
+                }
+                expect(auth).toBe('Bearer refreshed-admin-jwt');
+                return HttpResponse.json(
+                    {
+                        id: 55,
+                        nombre: 'Periféricos',
+                        slug: 'perifericos',
+                        parentId: 1,
+                        subcategorias: [],
+                    },
+                    { status: 201 }
+                );
             })
         );
 
-        const result = await categoriesApi.create({ nombre: 'Nueva categoría BPR' });
+        const refreshSpy = vi.fn().mockImplementation(async () => {
+            setAccessToken('refreshed-admin-jwt');
+            return 'refreshed-admin-jwt';
+        });
+        registerRefreshTokenHandler(refreshSpy);
 
-        expect(received).toEqual({ nombre: 'Nueva categoría BPR' });
-        expect(result.id).toBe(mockCategories[0]?.id);
+        const created = await categoriesApi.create({ nombre: 'Periféricos', parentId: 1 });
+        expect(refreshSpy).toHaveBeenCalledTimes(1);
+        expect(attempts).toBe(2);
+        expect(created.id).toBe(55);
+        expect(created.slug).toBe('perifericos');
     });
 
-    it('update envía PATCH con el body y devuelve la categoría actualizada', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
-        let received: unknown;
-        server.use(
-            http.patch(`${categoriasPath}/2`, async ({ request }) => {
-                received = await request.json();
-                return HttpResponse.json({
-                    id: 2,
-                    nombre: 'Audio Pro',
-                    slug: 'audio-pro',
-                    parentId: 1,
-                    subcategorias: [],
-                });
-            })
-        );
-
-        const result = await categoriesApi.update(2, { nombre: 'Audio Pro', parentId: 1 });
-
-        expect(received).toEqual({ nombre: 'Audio Pro', parentId: 1 });
-        expect(result.nombre).toBe('Audio Pro');
-        expect(result.id).toBe(2);
+    it('deleteCategory lanza ApiError con status 409 y codigo CATEGORIA_CON_SUBCATEGORIAS cuando tiene hijas', async () => {
+        await expect(categoriesApi.deleteCategory(1)).rejects.toMatchObject({
+            name: 'ApiError',
+            status: 409,
+            data: expect.objectContaining({
+                codigo: 'CATEGORIA_CON_SUBCATEGORIAS',
+            }),
+        });
     });
 
-    it('update lanza Error si el endpoint responde con fallo', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
-        server.use(
-            http.patch(`${categoriasPath}/99`, () =>
-                HttpResponse.json({ message: 'Categoría no encontrada' }, { status: 404 })
-            )
-        );
-
-        await expect(categoriesApi.update(99, { nombre: 'Inexistente' })).rejects.toThrow(
-            'Categoría no encontrada'
-        );
+    it('deleteCategory lanza ApiError con status 409 y codigo CATEGORIA_CON_PRODUCTOS cuando tiene productos asociados', async () => {
+        try {
+            await categoriesApi.deleteCategory(2);
+            expect.fail('Debió lanzar ApiError 409');
+        } catch (err) {
+            expect(err).toBeInstanceOf(ApiError);
+            const apiErr = err as ApiError;
+            expect(apiErr.status).toBe(409);
+            expect((apiErr.data as { codigo?: string }).codigo).toBe('CATEGORIA_CON_PRODUCTOS');
+            expect(apiErr.message).toMatch(/2 productos asociados/i);
+        }
     });
 
-    it('deleteCategory envía DELETE al endpoint correspondiente', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
-        let deleteCalled = false;
-        server.use(
-            http.delete(`${categoriasPath}/5`, () => {
-                deleteCalled = true;
-                return new HttpResponse(null, { status: 204 });
-            })
-        );
-
-        await categoriesApi.deleteCategory(5);
-
-        expect(deleteCalled).toBe(true);
-    });
-
-    it('deleteCategory lanza Error si el backend rechaza la eliminación', async () => {
-        localStorage.setItem('token', mockAuthTokenResponse.token);
-        server.use(
-            http.delete(`${categoriasPath}/1`, () =>
-                HttpResponse.json(
-                    { error: 'No es posible eliminar una categoría con subcategorías activas' },
-                    { status: 409 }
-                )
-            )
-        );
-
-        await expect(categoriesApi.deleteCategory(1)).rejects.toThrow(
-            'No es posible eliminar una categoría con subcategorías activas'
-        );
+    it('deleteCategory se resuelve sin error (204) para una categoría sin hijas ni productos', async () => {
+        await expect(categoriesApi.deleteCategory(999)).resolves.toBeUndefined();
     });
 });

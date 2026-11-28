@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     productsAdminApi,
     type ProductAdminApi,
@@ -20,6 +20,12 @@ function toErrorStatus(error: unknown): number | undefined {
     return error instanceof ApiError ? error.status : undefined;
 }
 
+function parseCategoriaIdParam(raw: string | null): number | '' {
+    if (!raw) return '';
+    const parsed = Number(raw);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : '';
+}
+
 /**
  * Listado paginado de productos en servidor (/api/productos/admin),
  * con filtros por búsqueda (nombre/SKU), categoría y estado, sin límite de 100 registros.
@@ -28,6 +34,8 @@ export function useAdminProducts(
     initialPageSize = DEFAULT_PAGE_SIZE
 ): UseAdminProductsResult {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const urlCategoriaParam = searchParams.get('categoriaId');
 
     const [productos, setProductos] = useState<ProductAdminApi[]>([]);
     const [loading, setLoading] = useState(true);
@@ -40,9 +48,19 @@ export function useAdminProducts(
 
     const [searchQuery, setSearchQueryState] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [categoriaId, setCategoriaIdState] = useState<number | ''>('');
+    const [categoriaId, setCategoriaIdState] = useState<number | ''>(() =>
+        parseCategoriaIdParam(urlCategoriaParam)
+    );
     const [estadoFiltro, setEstadoFiltroState] = useState<AdminProductStatusFilter>('');
     const [sort, setSortState] = useState<AdminProductSort | string>(DEFAULT_SORT);
+
+    useEffect(() => {
+        const parsed = parseCategoriaIdParam(urlCategoriaParam);
+        if (parsed !== '') {
+            setCategoriaIdState(parsed);
+            setPageState(1);
+        }
+    }, [urlCategoriaParam]);
 
     useEffect(() => {
         const trimmed = searchQuery.trim();

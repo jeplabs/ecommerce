@@ -47,7 +47,7 @@ Actualmente `DeleteCategoryModal.tsx` cierra el modal solo si `onConfirm` devuel
 **Acción recomendada** (capturando `ApiError`):
 - **`err.status === 409`**:
   - Mostrar `err.message` dentro de un bloque de advertencia inline en el propio `DeleteCategoryModal` (reutilizando el estilo `.warningBox`).
-  - Si `(err.data as { codigo?: string })?.codigo === 'CATEGORIA_CON_PRODUCTOS'`, renderizar un enlace directo a `/admin/productos?categoriaId=${category.id}` (*«Ver y reasignar productos de esta categoría →»*) para que el administrador pueda resolver el bloqueo en un clic.
+  - Si `(err.data as { codigo?: string })?.codigo === 'CATEGORIA_CON_PRODUCTOS'`, renderizar un enlace directo a `/admin/products?categoriaId=${category.id}` (*«Ver y reasignar productos de esta categoría →»*) para que el administrador pueda resolver el bloqueo en un clic.
 - **`err.status === 404`**:
   - Si otro administrador ya eliminó la categoría, invocar `reloadCategorias()` para sincronizar el árbol y cerrar el modal.
 

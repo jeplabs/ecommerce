@@ -69,6 +69,25 @@
     gap: 0.75rem;
 }
 
+.warningContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.reassignLink {
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.reassignLink:hover {
+    opacity: 0.85;
+}
+
 .footer {
     display: flex;
     align-items: center;

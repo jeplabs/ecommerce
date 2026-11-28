@@ -6,12 +6,12 @@ let cachedCategories: CategoryApi[] | null = null;
 let categoriesFetchPromise: Promise<CategoryApi[]> | null = null;
 
 async function getOrFetchCategories(): Promise<CategoryApi[]> {
-    if (cachedCategories && cachedCategories.length > 0) return cachedCategories;
+    if (cachedCategories !== null) return cachedCategories;
     if (!categoriesFetchPromise) {
         categoriesFetchPromise = categoryApi
             .getAll()
             .then((data) => {
-                if (Array.isArray(data) && data.length > 0) {
+                if (Array.isArray(data)) {
                     cachedCategories = data;
                 }
                 return data;
@@ -24,9 +24,9 @@ async function getOrFetchCategories(): Promise<CategoryApi[]> {
 }
 
 export function useCategorias() {
-    const hasCachedCategories = Boolean(cachedCategories && cachedCategories.length > 0);
+    const hasCachedCategories = cachedCategories !== null;
     const [arbolCategorias, setArbolCategorias] = useState<CategoryApi[]>(
-        cachedCategories || []
+        cachedCategories ?? []
     );
     const [loading, setLoading] = useState(!hasCachedCategories);
 
@@ -49,7 +49,7 @@ export function useCategorias() {
     useEffect(() => {
         let isMounted = true;
         const fetchCategorias = async () => {
-            if (!cachedCategories || cachedCategories.length === 0) {
+            if (cachedCategories === null) {
                 setLoading(true);
             }
             try {

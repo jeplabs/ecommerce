@@ -1,6 +1,12 @@
+import { Link } from 'react-router-dom';
 import type { CategoryApi } from '@/features/catalog';
 import { Button } from '@/components/ui/Button';
 import styles from './DeleteCategoryModal.module.css';
+
+export interface DeleteCategoryConflictError {
+    message: string;
+    codigo?: string;
+}
 
 export interface DeleteCategoryModalProps {
     isOpen: boolean;
@@ -8,6 +14,7 @@ export interface DeleteCategoryModalProps {
     onClose: () => void;
     onConfirm: (category: CategoryApi) => Promise<boolean>;
     isDeleting?: boolean;
+    conflictError?: DeleteCategoryConflictError | null;
 }
 
 export function DeleteCategoryModal({
@@ -16,6 +23,7 @@ export function DeleteCategoryModal({
     onClose,
     onConfirm,
     isDeleting = false,
+    conflictError = null,
 }: DeleteCategoryModalProps) {
     if (!isOpen || !category) return null;
 
@@ -58,12 +66,30 @@ export function DeleteCategoryModal({
 
                     {hasChildren ? (
                         <div className={styles.warningBox}>
-                            <span>⚠️</span>
+                            <span aria-hidden="true">⚠️</span>
                             <div>
                                 <strong>Acción bloqueada:</strong> Esta categoría contiene{' '}
                                 <strong>{subCount} {subCount === 1 ? 'subcategoría' : 'subcategorías'}</strong>.
                                 Para evitar la pérdida de ramas jerárquicas o errores de integridad, debes eliminar o reasignar
                                 primero sus categorías hijas.
+                            </div>
+                        </div>
+                    ) : conflictError ? (
+                        <div className={styles.warningBox} role="alert">
+                            <span aria-hidden="true">⚠️</span>
+                            <div className={styles.warningContent}>
+                                <div>
+                                    <strong>Acción bloqueada:</strong> {conflictError.message}
+                                </div>
+                                {conflictError.codigo === 'CATEGORIA_CON_PRODUCTOS' && (
+                                    <Link
+                                        to={`/admin/products?categoriaId=${category.id}`}
+                                        className={styles.reassignLink}
+                                        onClick={onClose}
+                                    >
+                                        Ver y reasignar productos de esta categoría →
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     ) : (

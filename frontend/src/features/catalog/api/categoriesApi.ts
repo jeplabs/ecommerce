@@ -1,16 +1,12 @@
 import { z } from 'zod';
 import { API_URL } from '@/config';
-import { getErrorMessage, parseApi } from '@/lib';
-import { getAccessToken } from '@/lib/auth-token-store';
-import { getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
+import { ApiError, getErrorMessage, parseApi } from '@/lib';
+import { fetchWithAuth, getAuthHeaders, notifyUnauthorizedIfNeeded } from '@/lib/http-session';
 import {
     categoryApiSchema,
     type CategoryApi,
     type CreateCategoryRequest,
 } from '../types';
-
-const getToken = () =>
-    getAccessToken() ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
 const categoryTreeSchema = z.array(categoryApiSchema);
 
@@ -18,9 +14,13 @@ async function readJson(response: Response): Promise<unknown> {
     return response.json().catch(() => ({}));
 }
 
-function throwSessionExpired(): never {
-    notifyUnauthorizedIfNeeded(401);
-    throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
+function throwApiError(response: Response, raw: unknown, fallback: string): never {
+    notifyUnauthorizedIfNeeded(response.status);
+    const defaultMsg =
+        response.status === 401
+            ? 'Sesión expirada. Por favor inicia sesión nuevamente.'
+            : fallback;
+    throw new ApiError(getErrorMessage(raw, defaultMsg), response.status, raw);
 }
 
 /** {@code GET /api/categorias} — árbol jerárquico completo. */
@@ -29,7 +29,7 @@ export async function getAll(): Promise<CategoryApi[]> {
 
     const raw = await readJson(response);
     if (!response.ok) {
-        throw new Error(getErrorMessage(raw, 'Error al cargar categorías'));
+        throw new ApiError(getErrorMessage(raw, 'Error al cargar categorías'), response.status, raw);
     }
 
     return parseApi(categoryTreeSchema, raw);
@@ -37,19 +37,15 @@ export async function getAll(): Promise<CategoryApi[]> {
 
 /** {@code POST /api/categorias} */
 export async function create(categoriaDatos: CreateCategoryRequest): Promise<CategoryApi> {
-    const response = await fetch(`${API_URL}/api/categorias`, {
+    const response = await fetchWithAuth(`${API_URL}/api/categorias`, {
         method: 'POST',
-        headers: getAuthHeaders(getToken()),
+        headers: getAuthHeaders(),
         body: JSON.stringify(categoriaDatos),
     });
 
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
-
     const raw = await readJson(response);
     if (!response.ok) {
-        throw new Error(getErrorMessage(raw, 'No se pudo crear la categoría'));
+        throwApiError(response, raw, 'No se pudo crear la categoría');
     }
 
     return parseApi(categoryApiSchema, raw);
@@ -60,19 +56,15 @@ export async function update(
     id: number,
     categoriaDatos: CreateCategoryRequest
 ): Promise<CategoryApi> {
-    const response = await fetch(`${API_URL}/api/categorias/${id}`, {
+    const response = await fetchWithAuth(`${API_URL}/api/categorias/${id}`, {
         method: 'PATCH',
-        headers: getAuthHeaders(getToken()),
+        headers: getAuthHeaders(),
         body: JSON.stringify(categoriaDatos),
     });
 
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
-
     const raw = await readJson(response);
     if (!response.ok) {
-        throw new Error(getErrorMessage(raw, 'No se pudo actualizar la categoría'));
+        throwApiError(response, raw, 'No se pudo actualizar la categoría');
     }
 
     return parseApi(categoryApiSchema, raw);
@@ -80,18 +72,14 @@ export async function update(
 
 /** {@code DELETE /api/categorias/{id}} */
 export async function deleteCategory(id: number): Promise<void> {
-    const response = await fetch(`${API_URL}/api/categorias/${id}`, {
+    const response = await fetchWithAuth(`${API_URL}/api/categorias/${id}`, {
         method: 'DELETE',
-        headers: getAuthHeaders(getToken()),
+        headers: getAuthHeaders(undefined, false),
     });
-
-    if (response.status === 401) {
-        throwSessionExpired();
-    }
 
     if (!response.ok) {
         const raw = await readJson(response);
-        throw new Error(getErrorMessage(raw, 'No se pudo eliminar la categoría'));
+        throwApiError(response, raw, 'No se pudo eliminar la categoría');
     }
 }
 

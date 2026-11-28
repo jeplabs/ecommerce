@@ -190,4 +190,24 @@ describe('useAdminProducts', () => {
             expect(result.current.sort).toBe('precioVenta,desc');
         });
     });
+
+    it('inicializa el filtro categoriaId desde el query param ?categoriaId= en la URL', async () => {
+        function WrapperWithCategoryParam({ children }: { children: ReactNode }) {
+            return (
+                <MemoryRouter initialEntries={['/admin/products?categoriaId=2']}>
+                    <AppProviders>{children}</AppProviders>
+                </MemoryRouter>
+            );
+        }
+
+        const { result } = renderHook(() => useAdminProducts(24), {
+            wrapper: WrapperWithCategoryParam,
+        });
+
+        expect(result.current.categoriaId).toBe(2);
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+        expect(result.current.totalElements).toBe(2);
+        expect(result.current.hasActiveFilters).toBe(true);
+    });
 });

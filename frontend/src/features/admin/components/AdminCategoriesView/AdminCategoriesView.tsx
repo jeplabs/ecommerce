@@ -1,10 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useCategorias, useToast } from '@/app/providers';
 import type { CategoryApi, CreateCategoryRequest } from '@/features/catalog';
+import { ApiError } from '@/lib';
 import { Button } from '@/components/ui/Button';
-import { AdminCategoriesTable } from '../AdminCategoriesTable/AdminCategoriesTable';
-import { CategoryModalForm } from '../CategoryModalForm/CategoryModalForm';
-import { DeleteCategoryModal } from '../DeleteCategoryModal/DeleteCategoryModal';
+import { AdminCategoriesTable } from '../AdminCategoriesTable';
+import { CategoryModalForm } from '../CategoryModalForm';
+import {
+    DeleteCategoryModal,
+    type DeleteCategoryConflictError,
+} from '../DeleteCategoryModal';
 import styles from './AdminCategoriesView.module.css';
 
 function countTotalCategories(nodes: CategoryApi[]): number {
@@ -25,11 +29,13 @@ export function AdminCategoriesView() {
         createCategory,
         updateCategory,
         deleteCategory,
+        reloadCategorias,
     } = useCategorias();
 
     const { showSuccess, showError } = useToast();
 
     const [searchFilter, setSearchFilter] = useState('');
+    const [autoExpandParentId, setAutoExpandParentId] = useState<number | null>(null);
 
     // Modal de Creación / Edición
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -41,6 +47,7 @@ export function AdminCategoriesView() {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState<CategoryApi | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteConflict, setDeleteConflict] = useState<DeleteCategoryConflictError | null>(null);
 
     // Métricas calculadas
     const totalCount = useMemo(() => countTotalCategories(arbolCategorias), [arbolCategorias]);
@@ -67,8 +74,14 @@ export function AdminCategoriesView() {
     };
 
     const handleOpenDelete = (category: CategoryApi) => {
+        setDeleteConflict(null);
         setCategoryToDelete(category);
         setIsDeleteOpen(true);
+    };
+
+    const handleCloseDelete = () => {
+        setDeleteConflict(null);
+        setIsDeleteOpen(false);
     };
 
     // Guardar (Crear o Actualizar)
@@ -81,6 +94,9 @@ export function AdminCategoriesView() {
             } else {
                 await createCategory(payload);
                 showSuccess(`Categoría "${payload.nombre}" creada con éxito.`);
+            }
+            if (payload.parentId != null) {
+                setAutoExpandParentId(payload.parentId);
             }
             return true;
         } catch (err) {
@@ -95,11 +111,33 @@ export function AdminCategoriesView() {
     // Eliminar
     const handleDeleteConfirm = async (category: CategoryApi): Promise<boolean> => {
         setIsDeleting(true);
+        setDeleteConflict(null);
         try {
             await deleteCategory(category.id);
             showSuccess(`Categoría "${category.nombre}" eliminada.`);
             return true;
         } catch (err) {
+            if (err instanceof ApiError) {
+                if (err.status === 404) {
+                    showError('La categoría ya fue eliminada. Sincronizando catálogo...');
+                    await reloadCategorias();
+                    return true;
+                }
+                if (err.status === 409) {
+                    const codigo =
+                        typeof err.data === 'object' &&
+                        err.data !== null &&
+                        'codigo' in err.data &&
+                        typeof (err.data as { codigo?: unknown }).codigo === 'string'
+                            ? (err.data as { codigo: string }).codigo
+                            : undefined;
+                    setDeleteConflict({
+                        message: err.message,
+                        codigo,
+                    });
+                    return false;
+                }
+            }
             const message = err instanceof Error ? err.message : 'No se pudo eliminar la categoría';
             showError(message);
             return false;
@@ -153,6 +191,7 @@ export function AdminCategoriesView() {
                 <AdminCategoriesTable
                     categories={arbolCategorias}
                     searchFilter={searchFilter}
+                    autoExpandParentId={autoExpandParentId}
                     onAddSubcategory={handleOpenAddSubcategory}
                     onEdit={handleOpenEdit}
                     onDelete={handleOpenDelete}
@@ -172,9 +211,10 @@ export function AdminCategoriesView() {
             <DeleteCategoryModal
                 isOpen={isDeleteOpen}
                 category={categoryToDelete}
-                onClose={() => setIsDeleteOpen(false)}
+                onClose={handleCloseDelete}
                 onConfirm={handleDeleteConfirm}
                 isDeleting={isDeleting}
+                conflictError={deleteConflict}
             />
         </div>
     );

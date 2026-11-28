@@ -16,7 +16,10 @@ export interface CategoryModalFormProps {
     isSaving?: boolean;
 }
 
-function generarSlugPreview(nombre: string): string {
+/** Profundidad máxima de jerarquía en backend (Raíz = 1 .. Nivel 5). */
+export const MAX_CATEGORY_LEVELS = 5;
+
+export function generarSlugPreview(nombre: string): string {
     return nombre
         .toLowerCase()
         .normalize('NFD')
@@ -24,7 +27,8 @@ function generarSlugPreview(nombre: string): string {
         .replace(/[^a-z0-9\s-]/g, '')
         .trim()
         .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
 }
 
 function getDescendantIds(node: CategoryApi): Set<number> {
@@ -39,9 +43,21 @@ function getDescendantIds(node: CategoryApi): Set<number> {
     return ids;
 }
 
+function getSubtreeHeight(node: CategoryApi): number {
+    if (!node.subcategorias || node.subcategorias.length === 0) {
+        return 1;
+    }
+    let maxChild = 0;
+    for (const child of node.subcategorias) {
+        maxChild = Math.max(maxChild, getSubtreeHeight(child));
+    }
+    return 1 + maxChild;
+}
+
 type ParentOption = {
     id: number;
     label: string;
+    disabled: boolean;
 };
 
 export function CategoryModalForm({
@@ -80,20 +96,24 @@ export function CategoryModalForm({
         setError(null);
     }, [isOpen, categoryToEdit, defaultParentId]);
 
-    // Opciones elegibles como padre (excluyendo a la propia categoría y a sus descendientes en modo edición)
+    // Opciones elegibles como padre (excluyendo a la propia categoría y a sus descendientes en modo edición,
+    // y deshabilitando aquellas que superarían la profundidad máxima de 5 niveles)
     const eligibleParentOptions = useMemo<ParentOption[]>(() => {
         const excludedIds = categoryToEdit ? getDescendantIds(categoryToEdit) : new Set<number>();
+        const subtreeHeight = categoryToEdit ? getSubtreeHeight(categoryToEdit) : 1;
         const options: ParentOption[] = [];
 
-        function flattenOptions(nodes: CategoryApi[], prefix = '') {
+        function flattenOptions(nodes: CategoryApi[], prefix = '', depthFromRoot = 1) {
             for (const node of nodes) {
                 if (excludedIds.has(node.id)) continue;
+                const exceedsMaxDepth = depthFromRoot + subtreeHeight > MAX_CATEGORY_LEVELS;
                 options.push({
                     id: node.id,
                     label: `${prefix}${node.nombre}`,
+                    disabled: exceedsMaxDepth,
                 });
                 if (node.subcategorias?.length > 0) {
-                    flattenOptions(node.subcategorias, `${prefix}${node.nombre} > `);
+                    flattenOptions(node.subcategorias, `${prefix}${node.nombre} > `, depthFromRoot + 1);
                 }
             }
         }
@@ -111,6 +131,11 @@ export function CategoryModalForm({
         const trimmed = nombre.trim();
         if (trimmed.length < 2) {
             setError('El nombre debe tener al menos 2 caracteres.');
+            return;
+        }
+
+        if (!generarSlugPreview(trimmed)) {
+            setError('El nombre debe contener al menos un carácter alfanumérico.');
             return;
         }
 
@@ -175,8 +200,8 @@ export function CategoryModalForm({
                             >
                                 <option value="">-- Ninguno (Categoría Raíz) --</option>
                                 {eligibleParentOptions.map((opt) => (
-                                    <option key={opt.id} value={opt.id}>
-                                        {opt.label}
+                                    <option key={opt.id} value={opt.id} disabled={opt.disabled}>
+                                        {opt.label}{opt.disabled ? ' (Límite 5 niveles)' : ''}
                                     </option>
                                 ))}
                             </Select>

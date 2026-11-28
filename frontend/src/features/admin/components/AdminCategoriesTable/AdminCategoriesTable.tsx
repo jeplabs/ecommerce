@@ -1,11 +1,15 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { CategoryApi } from '@/features/catalog';
 import { Button } from '@/components/ui/Button';
 import styles from './AdminCategoriesTable.module.css';
 
+/** Profundidad máxima permitida por el backend: 5 niveles (depth 0 = Nivel 1 .. depth 4 = Nivel 5). */
+const MAX_TREE_DEPTH = 4;
+
 export interface AdminCategoriesTableProps {
     categories: CategoryApi[];
     searchFilter?: string;
+    autoExpandParentId?: number | null;
     onAddSubcategory: (parent: CategoryApi) => void;
     onEdit: (category: CategoryApi) => void;
     onDelete: (category: CategoryApi) => void;
@@ -21,6 +25,7 @@ type FlattenedCategory = {
 export function AdminCategoriesTable({
     categories,
     searchFilter = '',
+    autoExpandParentId = null,
     onAddSubcategory,
     onEdit,
     onDelete,
@@ -31,6 +36,17 @@ export function AdminCategoriesTable({
         categories.forEach((cat) => initial.add(cat.id));
         return initial;
     });
+
+    useEffect(() => {
+        if (autoExpandParentId != null) {
+            setExpandedIds((prev) => {
+                if (prev.has(autoExpandParentId)) return prev;
+                const next = new Set(prev);
+                next.add(autoExpandParentId);
+                return next;
+            });
+        }
+    }, [autoExpandParentId]);
 
     const toggleExpand = useCallback((id: number) => {
         setExpandedIds((prev) => {
@@ -126,6 +142,7 @@ export function AdminCategoriesTable({
                     <tbody>
                         {flattenedList.map(({ category, depth, hasChildren, isExpanded }) => {
                             const subCount = category.subcategorias?.length ?? 0;
+                            const isMaxDepth = depth >= MAX_TREE_DEPTH;
                             return (
                                 <tr key={category.id} className={styles.row}>
                                     <td>
@@ -181,8 +198,16 @@ export function AdminCategoriesTable({
                                                 type="button"
                                                 variant="secondary"
                                                 className={styles.actionBtn}
-                                                onClick={() => onAddSubcategory(category)}
-                                                title={`Añadir subcategoría a ${category.nombre}`}
+                                                disabled={isMaxDepth}
+                                                onClick={() => {
+                                                    setExpandedIds((prev) => new Set(prev).add(category.id));
+                                                    onAddSubcategory(category);
+                                                }}
+                                                title={
+                                                    isMaxDepth
+                                                        ? 'Límite máximo de 5 niveles de profundidad alcanzado'
+                                                        : `Añadir subcategoría a ${category.nombre}`
+                                                }
                                             >
                                                 + Hija
                                             </Button>

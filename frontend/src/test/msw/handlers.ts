@@ -169,7 +169,52 @@ export const handlers = [
         return HttpResponse.json(updated);
     }),
 
-    http.delete(`${API_BASE}/api/categorias/:id`, () => {
+    http.delete(`${API_BASE}/api/categorias/:id`, ({ params }) => {
+        const id = Number(params.id);
+        const findCategory = (
+            nodes: typeof mockCategories
+        ): (typeof mockCategories)[number] | undefined => {
+            for (const node of nodes) {
+                if (node.id === id) return node;
+                if (node.subcategorias?.length) {
+                    const found = findCategory(node.subcategorias);
+                    if (found) return found;
+                }
+            }
+            return undefined;
+        };
+
+        const category = findCategory(mockCategories);
+        const subCount = category?.subcategorias?.length ?? 0;
+        if (subCount > 0) {
+            const detalle =
+                subCount === 1
+                    ? '1 subcategoría. Muévela o elimínala primero.'
+                    : `${subCount} subcategorías. Muévelas o elimínalas primero.`;
+            return HttpResponse.json(
+                {
+                    error: `No se puede eliminar la categoría «${category?.nombre ?? id}» porque contiene ${detalle}`,
+                    codigo: 'CATEGORIA_CON_SUBCATEGORIAS',
+                },
+                { status: 409 }
+            );
+        }
+
+        const productCount = mockDynamicAdminProductsPage({ categoriaId: id }).totalElements;
+        if (productCount > 0) {
+            const detalle =
+                productCount === 1
+                    ? '1 producto asociado. Reasigna el producto antes de eliminar.'
+                    : `${productCount} productos asociados. Reasigna los productos antes de eliminar.`;
+            return HttpResponse.json(
+                {
+                    error: `No se puede eliminar la categoría «${category?.nombre ?? id}» porque tiene ${detalle}`,
+                    codigo: 'CATEGORIA_CON_PRODUCTOS',
+                },
+                { status: 409 }
+            );
+        }
+
         return new HttpResponse(null, { status: 204 });
     }),
 
