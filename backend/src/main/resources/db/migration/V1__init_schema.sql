@@ -73,6 +73,8 @@ CREATE TABLE productos (
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE INDEX idx_productos_estado ON productos(estado);
+
 CREATE TABLE precio_historial (
     id              BIGSERIAL PRIMARY KEY,
     producto_id     BIGINT NOT NULL REFERENCES productos(id),
@@ -289,3 +291,34 @@ CREATE TABLE qpaypro_transacciones (
     actualizado_at      TIMESTAMP,
     CONSTRAINT fk_qpaypro_orden FOREIGN KEY (orden_id) REFERENCES ordenes(id) ON DELETE CASCADE
 );
+
+-- -----------------------------------------------------------------------------
+-- 5. Contenido Visual y Búsqueda (Banners y Sinónimos)
+-- -----------------------------------------------------------------------------
+CREATE TABLE banners (
+    id           BIGSERIAL PRIMARY KEY,
+    seccion      VARCHAR(50) NOT NULL DEFAULT 'HERO_CAROUSEL',
+    titulo       VARCHAR(150) NOT NULL,
+    desktop_url  VARCHAR(500) NOT NULL,
+    mobile_url   VARCHAR(500),
+    link_url     VARCHAR(500),
+    orden        INTEGER NOT NULL DEFAULT 1,
+    activo       BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_inicio TIMESTAMP,
+    fecha_fin    TIMESTAMP,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_banners_seccion_activo_orden ON banners (seccion, activo, orden, id);
+
+CREATE TABLE busqueda_sinonimos (
+    id           BIGSERIAL PRIMARY KEY,
+    nombre_grupo VARCHAR(100) NOT NULL UNIQUE,
+    terminos     VARCHAR(500) NOT NULL,
+    activo       BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_busqueda_sinonimos_activo ON busqueda_sinonimos (activo);

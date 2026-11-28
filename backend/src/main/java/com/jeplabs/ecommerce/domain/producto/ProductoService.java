@@ -16,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -31,9 +33,18 @@ public class ProductoService {
     private final PrecioHistorialRepository precioRepositorio;
     private final ProductoImagenRepository imagenRepositorio;
     private final CategoriaRepository categoriaRepositorio;
+    private final BusquedaSinonimoService busquedaSinonimoService;
 
     @Autowired(required = false)
     private MonedaConfig monedaConfig;
+
+    private Map<String, Set<String>> obtenerMapaSinonimos() {
+        if (busquedaSinonimoService == null) {
+            return Map.of();
+        }
+        Map<String, Set<String>> mapa = busquedaSinonimoService.obtenerMapaSinonimos();
+        return mapa != null ? mapa : Map.of();
+    }
 
     private DatosPrecio normalizarDatosPrecio(DatosPrecio datos) {
         if (datos == null || monedaConfig == null) {
@@ -53,10 +64,26 @@ public class ProductoService {
         if (filtro.categoriaInexistente()) {
             return Page.empty(pageable);
         }
-        String nombreFiltro = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
-        List<Producto> productos = new ArrayList<>(productoRepositorio.buscarActivosSinPaginacion(
-                nombreFiltro, filtro.filtrar(), filtro.categoriaIds()));
-        ordenarProductos(productos, pageable.getSort());
+        ProductoBuscador.ConsultaBusqueda consulta = ProductoBuscador.prepararConsulta(nombre, obtenerMapaSinonimos());
+        List<Producto> productosBase = productoRepositorio.buscarActivosSinPaginacion(
+                null, filtro.filtrar(), filtro.categoriaIds());
+
+        Map<Long, Integer> puntajes = new HashMap<>();
+        List<Producto> productos;
+        if (consulta.estaVacia()) {
+            productos = new ArrayList<>(productosBase);
+        } else {
+            productos = new ArrayList<>();
+            for (Producto p : productosBase) {
+                int score = ProductoBuscador.calcularRelevancia(p, consulta);
+                if (score > 0) {
+                    puntajes.put(p.getId(), score);
+                    productos.add(p);
+                }
+            }
+        }
+
+        ordenarProductos(productos, pageable.getSort(), puntajes, !consulta.estaVacia());
         List<DatosRespuestaProducto> content = sublistaPaginada(productos, pageable)
                 .stream()
                 .map(DatosRespuestaProducto::new)
@@ -64,7 +91,7 @@ public class ProductoService {
         return new PageImpl<>(content, pageable, productos.size());
     }
 
-    // Listado público avanzado con facetas, jerarquía de categorías y ordenamiento global multi-página
+    // Listado público avanzado con facetas, búsqueda multicampo con sinónimos, jerarquía y ordenamiento global multi-página
     @Transactional(readOnly = true)
     public DatosRespuestaCatalogoPage listarFacetado(
             String nombre,
@@ -88,16 +115,25 @@ public class ProductoService {
             );
         }
 
-        String nombreFiltro = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
+        ProductoBuscador.ConsultaBusqueda consulta = ProductoBuscador.prepararConsulta(nombre, obtenerMapaSinonimos());
 
-        // 1. Base filtrada desde BD (incluyendo subcategorías si categoriaId es padre)
+        // 1. Base filtrada desde BD por estado y categoría (sin LIKE restrictivo para no descartar sinónimos ni categorías)
         List<Producto> productosBase = productoRepositorio.buscarActivosSinPaginacion(
-                nombreFiltro, filtro.filtrar(), filtro.categoriaIds());
+                null, filtro.filtrar(), filtro.categoriaIds());
 
-        // 2. Filtros dinámicos en memoria (precio y specs)
+        // 2. Filtros dinámicos en memoria (búsqueda multicampo + relevancia, precio y specs)
+        Map<Long, Integer> puntajesRelevancia = new HashMap<>();
         List<Producto> filtrados = new ArrayList<>();
         for (Producto p : productosBase) {
             boolean matches = true;
+
+            if (!consulta.estaVacia()) {
+                int score = ProductoBuscador.calcularRelevancia(p, consulta);
+                if (score <= 0) {
+                    continue;
+                }
+                puntajesRelevancia.put(p.getId(), score);
+            }
 
             if (precioMin != null || precioMax != null) {
                 BigDecimal precioActual = obtenerPrecioVentaActual(p);
@@ -168,8 +204,8 @@ public class ProductoService {
             finalFacets.put(key, list);
         });
 
-        // 4. Ordenamiento global antes de cortar la página
-        ordenarProductos(filtrados, pageable.getSort());
+        // 4. Ordenamiento global antes de cortar la página (relevancia automática si hay búsqueda sin sort explícito)
+        ordenarProductos(filtrados, pageable.getSort(), puntajesRelevancia, !consulta.estaVacia());
 
         // 5. Paginación Manual sobre la lista ya ordenada
         int totalElements = filtrados.size();
@@ -332,7 +368,7 @@ public class ProductoService {
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + id));
     }
 
-    // Para admin - devuelve lista paginada de todos los productos con ordenamiento global y jerarquía de categorías
+    // Para admin - devuelve lista paginada de todos los productos con búsqueda multicampo, ordenamiento global y jerarquía
     @Transactional(readOnly = true)
     public Page<DatosRespuestaProductoAdmin> listarAdmin(
             String nombre, Long categoriaId, EstadoProducto estado, Pageable pageable) {
@@ -343,11 +379,36 @@ public class ProductoService {
 
         String nombreFiltro = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
         String estadoStr = estado != null ? estado.name() : null;
+        ProductoBuscador.ConsultaBusqueda consulta = ProductoBuscador.prepararConsulta(nombreFiltro, obtenerMapaSinonimos());
 
-        List<Producto> productos = new ArrayList<>(productoRepositorio.buscarTodosAdminSinPaginacion(
-                nombreFiltro, filtro.filtrar(), filtro.categoriaIds(), estadoStr));
+        // Si es un único término sin espacios ni sinónimos, aprovecha también el filtro SQL multicampo;
+        // si es multi-palabra o tiene sinónimos, filtra en Java para evitar falsos negativos.
+        String paramSql = (nombreFiltro != null
+                && !nombreFiltro.contains(" ")
+                && consulta.tokens().size() == 1
+                && !consulta.tokens().get(0).tieneSinonimos())
+                ? nombreFiltro
+                : null;
 
-        ordenarProductos(productos, pageable.getSort());
+        List<Producto> productosBase = productoRepositorio.buscarTodosAdminSinPaginacion(
+                paramSql, filtro.filtrar(), filtro.categoriaIds(), estadoStr);
+
+        Map<Long, Integer> puntajes = new HashMap<>();
+        List<Producto> productos;
+        if (consulta.estaVacia()) {
+            productos = new ArrayList<>(productosBase);
+        } else {
+            productos = new ArrayList<>();
+            for (Producto p : productosBase) {
+                int score = ProductoBuscador.calcularRelevancia(p, consulta);
+                if (score > 0) {
+                    puntajes.put(p.getId(), score);
+                    productos.add(p);
+                }
+            }
+        }
+
+        ordenarProductos(productos, pageable.getSort(), puntajes, !consulta.estaVacia());
 
         List<DatosRespuestaProductoAdmin> content = sublistaPaginada(productos, pageable)
                 .stream()
@@ -384,14 +445,23 @@ public class ProductoService {
         }
     }
 
-    private void ordenarProductos(List<Producto> productos, Sort sort) {
+    private void ordenarProductos(
+            List<Producto> productos,
+            Sort sort,
+            Map<Long, Integer> puntajesRelevancia,
+            boolean tieneBusqueda) {
         if (productos.size() <= 1) {
             return;
         }
         Comparator<Producto> comparador = null;
         if (sort != null && sort.isSorted()) {
             for (Sort.Order order : sort) {
-                Comparator<Producto> c = comparadorPorPropiedad(order.getProperty());
+                String prop = order.getProperty() == null ? "" : order.getProperty().trim().toLowerCase(Locale.ROOT);
+                Comparator<Producto> c = (prop.equals("relevancia") || prop.equals("relevance"))
+                        ? Comparator.comparingInt(p -> puntajesRelevancia != null
+                                ? puntajesRelevancia.getOrDefault(p.getId(), 0)
+                                : 0)
+                        : comparadorPorPropiedad(order.getProperty());
                 if (order.isDescending()) {
                     c = c.reversed();
                 }
@@ -399,7 +469,14 @@ public class ProductoService {
             }
         }
         if (comparador == null) {
-            comparador = comparadorPorPropiedad("nombre");
+            if (tieneBusqueda && puntajesRelevancia != null && !puntajesRelevancia.isEmpty()) {
+                comparador = Comparator.<Producto>comparingInt(
+                        p -> puntajesRelevancia.getOrDefault(p.getId(), 0))
+                        .reversed()
+                        .thenComparing(comparadorPorPropiedad("nombre"));
+            } else {
+                comparador = comparadorPorPropiedad("nombre");
+            }
         }
         comparador = comparador.thenComparing(Producto::getId, Comparator.nullsLast(Comparator.naturalOrder()));
         productos.sort(comparador);

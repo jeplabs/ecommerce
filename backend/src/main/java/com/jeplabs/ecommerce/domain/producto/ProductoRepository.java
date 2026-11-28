@@ -18,13 +18,26 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     @Query("SELECT COUNT(p) FROM Producto p JOIN p.categorias c WHERE c.id = :categoriaId")
     long contarPorCategoriaId(@Param("categoriaId") Long categoriaId);
 
-    // Busca productos activos con filtro opcional por nombre y lista de categorías (el ordenamiento lo aplica ProductoService)
+    // Busca productos activos con coincidencia multicampo insensible a tildes y filtro por categorías
     @Query(value = """
         SELECT DISTINCT p.* FROM productos p
         LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
+        LEFT JOIN categorias c ON c.id = pc.categoria_id
         WHERE p.estado IN ('DISPONIBLE', 'SIN_STOCK')
-        AND (:nombre IS NULL OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
         AND (:filtrarCategoria = false OR pc.categoria_id IN (:categoriaIds))
+        AND (
+            :nombre IS NULL OR :nombre = '' OR
+            LOWER(TRANSLATE(CAST(p.nombre AS text), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+            OR LOWER(TRANSLATE(CAST(p.sku AS text), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+            OR LOWER(TRANSLATE(COALESCE(CAST(p.descripcion AS text), ''), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+            OR LOWER(TRANSLATE(COALESCE(CAST(p.specs AS text), ''), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+            OR LOWER(TRANSLATE(COALESCE(CAST(c.nombre AS text), ''), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+        )
         """, nativeQuery = true)
     List<Producto> buscarActivosSinPaginacion(
             @Param("nombre") String nombre,
@@ -32,15 +45,26 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
             @Param("categoriaIds") List<Long> categoriaIds
     );
 
-    // Endpoint admin - lista productos con todos los estados (el ordenamiento lo aplica ProductoService)
+    // Endpoint admin - lista productos con todos los estados y coincidencia multicampo insensible a tildes
     @Query(value = """
             SELECT DISTINCT p.* FROM productos p
             LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
-            WHERE (:nombre IS NULL
-                OR LOWER(p.nombre::varchar) LIKE LOWER(CONCAT('%', :nombre, '%'))
-                OR LOWER(p.sku::varchar) LIKE LOWER(CONCAT('%', :nombre, '%')))
-            AND (:filtrarCategoria = false OR pc.categoria_id IN (:categoriaIds))
+            LEFT JOIN categorias c ON c.id = pc.categoria_id
+            WHERE (:filtrarCategoria = false OR pc.categoria_id IN (:categoriaIds))
             AND (:estado IS NULL OR p.estado = :estado)
+            AND (
+                :nombre IS NULL OR :nombre = '' OR
+                LOWER(TRANSLATE(CAST(p.nombre AS text), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                    LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                OR LOWER(TRANSLATE(CAST(p.sku AS text), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                    LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                OR LOWER(TRANSLATE(COALESCE(CAST(p.descripcion AS text), ''), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                    LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                OR LOWER(TRANSLATE(COALESCE(CAST(p.specs AS text), ''), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                    LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                OR LOWER(TRANSLATE(COALESCE(CAST(c.nombre AS text), ''), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+                    LIKE LOWER(TRANSLATE(CONCAT('%', :nombre, '%'), 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'))
+            )
             """, nativeQuery = true)
     List<Producto> buscarTodosAdminSinPaginacion(
             @Param("nombre") String nombre,

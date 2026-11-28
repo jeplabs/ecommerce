@@ -29,9 +29,10 @@ public class ProductoController {
 
     @Operation(
             summary = "Listar productos",
-            description = "Público. Soporta filtros por búsqueda, categoría (incluye subcategorías), rango de precios, specs, " +
-                    "paginación y ordenamiento global multi-página (sort=precioVenta,asc|desc, nombre,asc|desc, createdAt,desc, stock,asc|desc). " +
-                    "Ejemplo: /api/productos?categoriaId=2&page=0&size=12&sort=precioVenta,asc"
+            description = "Público. Soporta búsqueda global multicampo (SKU, nombre, categorías, specs y descripción) insensible a tildes " +
+                    "con tokenización AND y sinónimos, filtro por categoría (incluye subcategorías), rango de precios, specs, paginación y " +
+                    "ordenamiento global multi-página (sort=relevancia,desc, precioVenta,asc|desc, nombre,asc|desc, createdAt,desc, stock,asc|desc). " +
+                    "Si se envía 'search' sin 'sort', ordena automáticamente por relevancia descendente."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de productos retornada exitosamente")
@@ -43,7 +44,7 @@ public class ProductoController {
             @RequestParam(required = false) Double precioMin,
             @RequestParam(required = false) Double precioMax,
             @RequestParam org.springframework.util.MultiValueMap<String, String> specs,
-            @PageableDefault(size = 12, sort = "nombre") Pageable pageable) {
+            @PageableDefault(size = 12) Pageable pageable) {
         // Fallback para mantener compatibilidad si el frontend envia "nombre" en lugar de "search"
         String nombreFinal = search != null ? search : specs.getFirst("nombre");
         return ResponseEntity.ok(service.listarFacetado(nombreFinal, categoriaId, precioMin, precioMax, specs, pageable));
@@ -270,9 +271,9 @@ public class ProductoController {
 
     @Operation(
             summary = "Listar productos (vista admin)",
-            description = "Solo ADMIN. Retorna todos los productos sin importar estado con filtros por nombre/SKU, " +
-                    "categoría (incluye subcategorías), estado, paginación y ordenamiento global multi-página " +
-                    "(nombre, sku, precioVenta, precioCosto, margenPorcentaje, stock, estado, createdAt)."
+            description = "Solo ADMIN. Retorna todos los productos sin importar estado con búsqueda multicampo (SKU, nombre, categorías, " +
+                    "descripción y specs) insensible a tildes y con sinónimos, filtro por categoría (incluye subcategorías), estado, " +
+                    "paginación y ordenamiento global multi-página (nombre, sku, precioVenta, precioCosto, margenPorcentaje, stock, estado, createdAt)."
     )
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")

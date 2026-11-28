@@ -176,6 +176,21 @@ class ProductoControllerTest {
                             && pageable.getSort().getOrderFor("precioVenta") != null
                             && pageable.getSort().getOrderFor("precioVenta").isAscending()));
         }
+
+        @Test
+        @DisplayName("GET /api/productos?search=... sin sort propaga Pageable sin orden para activar relevancia")
+        void listarPublico_conSearchSinSort_pasaPageableSinOrden() throws Exception {
+            DatosRespuestaCatalogoPage page = new DatosRespuestaCatalogoPage(
+                    List.of(), 0, 12, 0, 0, true, true, Map.of());
+            when(productoService.listarFacetado(eq("laptop asus"), eq(null), eq(null), eq(null), any(), any(Pageable.class)))
+                    .thenReturn(page);
+
+            mockMvc.perform(get("/api/productos").param("search", "laptop asus"))
+                    .andExpect(status().isOk());
+
+            verify(productoService).listarFacetado(eq("laptop asus"), eq(null), eq(null), eq(null), any(),
+                    argThat(pageable -> pageable.getSort().isUnsorted() && pageable.getPageSize() == 12));
+        }
     }
 
     @Nested
