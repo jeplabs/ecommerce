@@ -46,6 +46,9 @@ class ProductoServiceTest {
     @Mock
     private MonedaConfig monedaConfig;
 
+    @Mock
+    private BusquedaSinonimoService busquedaSinonimoService;
+
     @InjectMocks
     private ProductoService productoService;
 
@@ -170,6 +173,19 @@ class ProductoServiceTest {
             assertThat(pagina0.getContent()).extracting(DatosRespuestaProductoAdmin::id).containsExactly(3L, 2L);
             assertThat(pagina1.getContent()).extracting(DatosRespuestaProductoAdmin::id).containsExactly(4L, 1L);
         }
+
+        @Test
+        @DisplayName("Soporta búsqueda multicampo multi-palabra en descripción y specs para admin")
+        void listarAdmin_busquedaMulticampoSpecsYDescripcion_filtraCorrectamente() {
+            when(productoRepositorio.buscarTodosAdminSinPaginacion(null, false, List.of(-1L), null))
+                    .thenReturn(List.of(productoOculto, productoDescontinuado));
+
+            Page<DatosRespuestaProductoAdmin> resultado = productoService.listarAdmin(
+                    "32gb rendimiento", null, null, PageRequest.of(0, 10));
+
+            verify(productoRepositorio).buscarTodosAdminSinPaginacion(null, false, List.of(-1L), null);
+            assertThat(resultado.getContent()).extracting(DatosRespuestaProductoAdmin::id).containsExactly(1L);
+        }
     }
 
     @Nested
@@ -238,6 +254,62 @@ class ProductoServiceTest {
             assertThat(respuesta.totalElements()).isZero();
             assertThat(respuesta.content()).isEmpty();
             verifyNoInteractions(productoRepositorio);
+        }
+
+        @Test
+        @DisplayName("Expande sinónimos de 1 palabra sin descartar en SQL y ordena por relevancia cuando no hay sort")
+        void listarFacetado_conBusquedaSinSort_ordenaPorRelevanciaYUsaSinonimos() {
+            Producto notebookDell = crearProductoConPrecio(
+                    10L, "U7LNL321TB", "Notebook Dell Ultrabook Pro 14", "1200.00", "900.00", 5);
+            Producto accesorioConDesc = new Producto(
+                    20L,
+                    "ACC-20",
+                    "Accesorio Base Enfriadora",
+                    "accesorio-base-enfriadora",
+                    "Base refrigerante compatible con cualquier laptop moderna",
+                    Map.of("Marca", "Cooler"),
+                    10,
+                    EstadoProducto.DISPONIBLE,
+                    1,
+                    LocalDateTime.now(),
+                    LocalDateTime.now(),
+                    List.of(categoriaElectronica),
+                    new ArrayList<>(List.of(new PrecioHistorial(
+                            200L, null, new BigDecimal("80.00"), new BigDecimal("40.00"),
+                            "GTQ", LocalDateTime.now(), null))),
+                    new ArrayList<>()
+            );
+
+            when(busquedaSinonimoService.obtenerMapaSinonimos()).thenReturn(
+                    ProductoBuscador.construirMapaSinonimos(List.of(List.of("laptop", "notebook", "ultrabook"))));
+            when(productoRepositorio.buscarActivosSinPaginacion(null, false, List.of(-1L)))
+                    .thenReturn(List.of(accesorioConDesc, notebookDell));
+
+            DatosRespuestaCatalogoPage respuesta = productoService.listarFacetado(
+                    "laptop", null, null, null, new LinkedMultiValueMap<>(),
+                    PageRequest.of(0, 12));
+
+            verify(productoRepositorio).buscarActivosSinPaginacion(null, false, List.of(-1L));
+            // Aunque "Accesorio..." iría antes alfabéticamente, "Notebook Dell..." gana por relevancia (nombre > descripción)
+            assertThat(respuesta.content()).extracting(DatosRespuestaProducto::id).containsExactly(10L, 20L);
+        }
+
+        @Test
+        @DisplayName("Respeta sort explícito del usuario incluso cuando hay búsqueda activa")
+        void listarFacetado_conBusquedaYSortExplicito_respetaSortDelUsuario() {
+            Producto caro = crearProductoConPrecio(10L, "SKU-10", "Notebook Dell Pro", "1500.00", "1000.00", 5);
+            Producto barato = crearProductoConPrecio(20L, "SKU-20", "Notebook Asus Basic", "500.00", "350.00", 5);
+
+            when(busquedaSinonimoService.obtenerMapaSinonimos()).thenReturn(
+                    ProductoBuscador.construirMapaSinonimos(List.of(List.of("laptop", "notebook"))));
+            when(productoRepositorio.buscarActivosSinPaginacion(null, false, List.of(-1L)))
+                    .thenReturn(List.of(caro, barato));
+
+            DatosRespuestaCatalogoPage respuesta = productoService.listarFacetado(
+                    "laptop", null, null, null, new LinkedMultiValueMap<>(),
+                    PageRequest.of(0, 12, Sort.by(Sort.Direction.ASC, "precioVenta")));
+
+            assertThat(respuesta.content()).extracting(DatosRespuestaProducto::id).containsExactly(20L, 10L);
         }
     }
 

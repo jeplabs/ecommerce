@@ -59,3 +59,30 @@ INSERT INTO sucursales (
 -- 4. Cuenta Bancaria Inicial para Transferencias
 INSERT INTO cuentas_bancarias (banco, titular, tipo_cuenta, numero_cuenta, moneda, activo, orden_visualizacion)
 VALUES ('Banrural', 'JPELabs S.A.', 'Monetaria', '4521-8834-9901', 'GTQ', true, 1);
+
+-- 5. Sinónimos Base para Buscador de Catálogo
+INSERT INTO busqueda_sinonimos (nombre_grupo, terminos, activo)
+VALUES
+    ('laptops',        'laptop,notebook,portatil,ultrabook',                       true),
+    ('computadores',   'computador,computadora,pc,ordenador,desktop,torre,minipc', true),
+    ('monitores',      'pantalla,monitor,display',                                 true),
+    ('televisores',    'televisor,tv,smarttv,tele',                                true),
+    ('audifonos',      'audifono,auricular,headset,headphone,casco,tws,earbud',    true),
+    ('altavoces',      'altavoz,parlante,bocina,speaker,soundbar',                 true),
+    ('ratones',        'raton,mouse',                                              true),
+    ('teclados',       'teclado,keyboard',                                         true),
+    ('microfonos',     'microfono,mic',                                            true),
+    ('smartphones',    'celular,telefono,smartphone,movil,celu',                   true),
+    ('tablets',        'tablet,ipad',                                              true),
+    ('fundas',         'funda,carcasa,case,protector',                             true),
+    ('cargadores',     'cargador,adaptador',                                       true),
+    ('almacenamiento', 'disco,ssd,hdd,nvme,almacenamiento',                        true),
+    ('usb',            'usb,pendrive',                                             true),
+    ('procesadores',   'procesador,cpu,microprocesador',                           true),
+    ('graficas',       'grafica,gpu,video',                                        true),
+    ('ram',            'ram,memoria',                                              true),
+    ('camaras',        'camara,webcam,dslr,mirrorless',                            true),
+    ('redes',          'router,wifi,mesh,modem,repetidor',                         true),
+    ('consolas',       'consola,playstation,ps5,xbox,nintendo',                    true),
+    ('aspiradoras',    'aspiradora,aspirador',                                     true)
+ON CONFLICT (nombre_grupo) DO NOTHING;
