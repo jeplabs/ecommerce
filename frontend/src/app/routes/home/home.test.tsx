@@ -57,6 +57,7 @@ vi.mock('@/components/ui/ProductSlider/ProductSlider', () => ({
 }));
 
 import { useAuth, useCart, useProduct, useToast } from '@/app/providers';
+import type { ProductApi } from '@/features/catalog';
 import HomeRoute from './index';
 import { HOME_HERO_SLIDES } from './home-slides';
 
@@ -64,6 +65,54 @@ const useAuthMock = vi.mocked(useAuth);
 const useCartMock = vi.mocked(useCart);
 const useToastMock = vi.mocked(useToast);
 const useProductMock = vi.mocked(useProduct);
+
+const mockDestacadoProduct: ProductApi = {
+    ...mockProduct,
+    id: 11,
+    nombre: 'iPhone 16 Pro Max',
+    slug: 'iphone-16-pro-max',
+    categorias: [
+        {
+            id: 83,
+            nombre: 'Productos Destacados',
+            slug: 'productos-destacados',
+            parentId: 81,
+            subcategorias: [],
+        },
+    ],
+};
+
+const mockOfertaProduct: ProductApi = {
+    ...mockProduct,
+    id: 14,
+    nombre: 'Teclado Logitech G PRO',
+    slug: 'teclado-logitech-g-pro',
+    categorias: [
+        {
+            id: 85,
+            nombre: 'Packs y Kits',
+            slug: 'packs-y-kits',
+            parentId: 82,
+            subcategorias: [],
+        },
+    ],
+};
+
+const mockRegularCatalogProduct: ProductApi = {
+    ...mockProduct,
+    id: 99,
+    nombre: 'Cable UTP Normal',
+    slug: 'cable-utp-normal',
+    categorias: [
+        {
+            id: 77,
+            nombre: 'Cableado estructurado',
+            slug: 'cableado-estructurado',
+            parentId: 23,
+            subcategorias: [],
+        },
+    ],
+};
 
 describe('HomeRoute', () => {
     const showSuccess = vi.fn();
@@ -79,10 +128,12 @@ describe('HomeRoute', () => {
         useAuthMock.mockReturnValue({ isAuthenticated: true } as never);
         useCartMock.mockReturnValue({ addToCart } as never);
         useToastMock.mockReturnValue({ showSuccess, showError } as never);
-        useProductMock.mockReturnValue({ productos: [mockProduct] } as never);
+        useProductMock.mockReturnValue({
+            productos: [mockDestacadoProduct, mockOfertaProduct, mockRegularCatalogProduct],
+        } as never);
     });
 
-    it('renderiza el carrusel hero y las secciones de destacados y ofertas', () => {
+    it('renderiza el carrusel hero y filtra exclusivamente los productos de destacados y de ofertas en cada sección', () => {
         render(
             <MemoryRouter>
                 <HomeRoute />
@@ -94,6 +145,40 @@ describe('HomeRoute', () => {
         );
         expect(screen.getByRole('heading', { name: 'Productos destacados' })).toBeInTheDocument();
         expect(screen.getByRole('heading', { name: 'Ofertas' })).toBeInTheDocument();
+
+        // En "Productos destacados" solo aparece el producto destacado
+        expect(
+            screen.getByRole('button', {
+                name: `Agregar ${mockDestacadoProduct.nombre} (Productos destacados)`,
+            })
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', {
+                name: `Agregar ${mockOfertaProduct.nombre} (Productos destacados)`,
+            })
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', {
+                name: `Agregar ${mockRegularCatalogProduct.nombre} (Productos destacados)`,
+            })
+        ).not.toBeInTheDocument();
+
+        // En "Ofertas" solo aparece el producto en oferta
+        expect(
+            screen.getByRole('button', {
+                name: `Agregar ${mockOfertaProduct.nombre} (Ofertas)`,
+            })
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', {
+                name: `Agregar ${mockDestacadoProduct.nombre} (Ofertas)`,
+            })
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', {
+                name: `Agregar ${mockRegularCatalogProduct.nombre} (Ofertas)`,
+            })
+        ).not.toBeInTheDocument();
     });
 
     it('redirige a /login cuando un visitante no autenticado intenta agregar al carrito', async () => {
@@ -108,7 +193,7 @@ describe('HomeRoute', () => {
 
         await user.click(
             screen.getByRole('button', {
-                name: `Agregar ${mockProduct.nombre} (Productos destacados)`,
+                name: `Agregar ${mockDestacadoProduct.nombre} (Productos destacados)`,
             })
         );
 
@@ -128,12 +213,14 @@ describe('HomeRoute', () => {
 
         await user.click(
             screen.getByRole('button', {
-                name: `Agregar ${mockProduct.nombre} (Ofertas)`,
+                name: `Agregar ${mockOfertaProduct.nombre} (Ofertas)`,
             })
         );
 
-        await waitFor(() => expect(addToCart).toHaveBeenCalledWith(mockProduct.id, 1));
-        expect(showSuccess).toHaveBeenCalledWith(`${mockProduct.nombre} agregado al carrito`);
+        await waitFor(() => expect(addToCart).toHaveBeenCalledWith(mockOfertaProduct.id, 1));
+        expect(showSuccess).toHaveBeenCalledWith(
+            `${mockOfertaProduct.nombre} agregado al carrito`
+        );
     });
 
     it('muestra toast de error cuando addToCart falla', async () => {
@@ -148,7 +235,7 @@ describe('HomeRoute', () => {
 
         await user.click(
             screen.getByRole('button', {
-                name: `Agregar ${mockProduct.nombre} (Productos destacados)`,
+                name: `Agregar ${mockDestacadoProduct.nombre} (Productos destacados)`,
             })
         );
 

@@ -5,3 +5,4 @@ export * from './category-tree';
 export * from './sort-catalog-products';
 export * from './product-images';
 export * from './mappers';
+export * from './home-catalog-sections';
